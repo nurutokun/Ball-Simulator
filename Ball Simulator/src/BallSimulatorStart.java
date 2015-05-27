@@ -23,7 +23,11 @@ public class BallSimulatorStart {
 	public static void main(String[] args) {
 		
 		frame = new JFrame();
-		panel = new JPanel();
+		panel = new JPanel() {
+			
+			// Render GameScreen here in "Windowed" mode
+			
+		};
 		
 		l = new EventHandler();
 		
