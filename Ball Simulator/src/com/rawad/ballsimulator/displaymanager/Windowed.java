@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 
 import com.rawad.ballsimulator.input.KeyboardInput;
 import com.rawad.ballsimulator.input.MouseInput;
-import com.rawad.ballsimulator.log.Logger;
 import com.rawad.ballsimulator.main.BallSimulator;
 
 public class Windowed extends DisplayMode {
@@ -50,26 +49,27 @@ public class Windowed extends DisplayMode {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				
-				BufferedImage buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+				BufferedImage buffer = new BufferedImage(DisplayManager.getWidth(), DisplayManager.getHeight(), BufferedImage.TYPE_INT_ARGB);
 				
 				Graphics2D g2 = buffer.createGraphics();
 				
 				BallSimulator.instance().render(g2);
 				
-				g.drawImage(buffer, 0, 0, getWidth(), getHeight(), 0, 0, buffer.getWidth(), buffer.getHeight(), null);
+				g.drawImage(buffer.getScaledInstance(getWidth(), getHeight(), BufferedImage.SCALE_FAST), 0, 0, null);
+				
+				buffer = null;
 				
 				g.dispose();
+				g2.dispose();
 			}
 			
 		};
 		
+		panel.setPreferredSize(new Dimension(DisplayManager.getWidth(), DisplayManager.getHeight()));
+		
 		frame.add(panel, BorderLayout.CENTER);
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(500, 500));
-		
-		setWidth(500);
-		setHeight(500);
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -79,6 +79,7 @@ public class Windowed extends DisplayMode {
 		panel.addMouseListener(l);
 		panel.addMouseMotionListener(l);
 		panel.addMouseWheelListener(l);
+		// Don't actually need this; width/height are set constants; the image is scaled over and over to fit the screen properly instead
 		panel.addComponentListener(l);
 		
 	}
@@ -88,6 +89,13 @@ public class Windowed extends DisplayMode {
 		
 		frame = null;
 		panel = null;
+		
+	}
+	
+	@Override
+	public synchronized void repaint() {
+		
+		panel.repaint();
 		
 	}
 	
@@ -125,8 +133,7 @@ public class Windowed extends DisplayMode {
 		public void mousePressed(MouseEvent e) {
 			
 			if(e.isAltDown()) {
-				
-				Logger.log(Logger.DEBUG, "alt mouse pressed");
+				MouseInput.setButtonDown(MouseInput.MIDDLE_MOUSE_BUTTON, true);
 				
 			} else if(e.isMetaDown()) {
 				MouseInput.setButtonDown(MouseInput.RIGHT_MOUSE_BUTTON, true);
@@ -142,8 +149,7 @@ public class Windowed extends DisplayMode {
 		public void mouseReleased(MouseEvent e) {
 			
 			if(e.isAltDown()) {
-				
-				Logger.log(Logger.DEBUG, "alt mouse released");
+				MouseInput.setButtonDown(MouseInput.MIDDLE_MOUSE_BUTTON, false);
 				
 			} else if(e.isMetaDown()) {
 				MouseInput.setButtonDown(MouseInput.RIGHT_MOUSE_BUTTON, false);
@@ -163,11 +169,14 @@ public class Windowed extends DisplayMode {
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			
-			MouseInput.setX(e.getX());
-			MouseInput.setY(e.getY());
+			double xScale = (double) DisplayManager.getWidth()/(double) e.getComponent().getWidth();
+			double yScale = (double) DisplayManager.getHeight()/(double) e.getComponent().getHeight();
+			
+			MouseInput.setX((int) (e.getX() * xScale));
+			MouseInput.setY((int) (e.getY() * yScale));
 			
 		}
-
+		
 		@Override
 		public void componentHidden(ComponentEvent e) {}
 
@@ -177,8 +186,8 @@ public class Windowed extends DisplayMode {
 		@Override
 		public void componentResized(ComponentEvent e) {
 			
-			setWidth(e.getComponent().getWidth());
-			setHeight(e.getComponent().getHeight());
+//			setWidth(e.getComponent().getWidth());
+//			setHeight(e.getComponent().getHeight());
 			
 		}
 

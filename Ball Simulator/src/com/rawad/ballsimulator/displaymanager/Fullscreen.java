@@ -13,4 +13,9 @@ public class Fullscreen extends DisplayMode {
 		
 	}
 	
+	@Override
+	public void repaint() {
+		
+	}
+	
 }
