@@ -1,23 +1,38 @@
 package com.rawad.ballsimulator.displaymanager;
 
+import java.awt.Color;
+
 import com.rawad.ballsimulator.log.Logger;
 
 
 public class DisplayManager {
 	
-	public static final int REFRESH_RATE = 60;
+	public static final Color DEFAULT_BACKGROUND_COLOR = new Color(0, 0, 255);
 	
-	private static int SCREEN_WIDTH = 500;// not final; should be changable by user
-	private static int SCREEN_HEIGHT = 500;
+	// vvv All of these should be changeable to what the user desires
+	public static int REFRESH_RATE = 60;
+	
+	private static int SCREEN_WIDTH = 640;// not final; should be changable by user
+	private static int SCREEN_HEIGHT = 480;
+	
+	private static int FPS_SAMPLE_COUNT = 20;
+	// ^^^
 	
 	private static DisplayMode currentDisplayMode;
+	
+	private static Thread workerThread = new Thread(new WorkerThread());
 	
 	private static long prevTime;
 	private static long timePassed;
 	
+	private static long averageFrameRate;
+	
+	private static boolean running;
+	
 	public static void setDisplayMode(Mode mode) {
 		
 		if(currentDisplayMode != null) {
+			running = false;// Helps (a lot) to avoid null exceptions
 			currentDisplayMode.destroy();
 		}
 		
@@ -25,37 +40,24 @@ public class DisplayManager {
 		
 		currentDisplayMode.create();
 		
-		new Thread(new Runnable(){
-			
-			public void run() {
-				
-				while(true) {
-					
-					long currentTime = System.currentTimeMillis();
-					
-					timePassed = 1000 / (currentTime - prevTime);
-					
-					prevTime = currentTime;
-					
-					DisplayManager.repaint();
-					
-					try {
-						Thread.sleep(1000/DisplayManager.REFRESH_RATE);
-					} catch(InterruptedException ex) {
-						Logger.log(Logger.SEVERE, "Thread was interrupted");
-					}
-					
-				}
-				
-			}
-			
-		}).start();
+		running = true;
+		
+		if(!workerThread.isAlive()) {
+			workerThread.start();
+		}
+		
 	}
 	
 	public static void repaint() {
 		
+		Logger.log(Logger.DEBUG, "Repainting: " + currentDisplayMode);
+		
 		currentDisplayMode.repaint();
 		
+	}
+	
+	public static long getFPS() {
+		return averageFrameRate;
 	}
 	
 	public static long getDeltaTime() {
@@ -66,8 +68,16 @@ public class DisplayManager {
 		return SCREEN_WIDTH;
 	}
 	
+	public static void setWidth(int width) {
+		SCREEN_WIDTH = width;
+	}
+	
 	public static int getHeight() {
 		return SCREEN_HEIGHT;
+	}
+	
+	public static void setHeight(int height) {
+		SCREEN_HEIGHT = height;
 	}
 	
 	public static enum Mode {
@@ -83,6 +93,52 @@ public class DisplayManager {
 		
 		public DisplayMode getDisplayMode() {
 			return displayMode;
+		}
+		
+	}
+	
+	private static class WorkerThread implements Runnable {
+		
+		public void run() {
+			
+			int i = 0;
+			int totalTime = 0;
+			
+			while(running) {
+				
+				long currentTime = System.currentTimeMillis();
+				
+				long deltaTime = currentTime - prevTime;
+				
+				timePassed = 1000 / (deltaTime <= 0? 1:deltaTime);
+				
+				totalTime += timePassed;
+				
+				if(i >= FPS_SAMPLE_COUNT) {
+					
+					averageFrameRate = totalTime/i;
+					
+					i = 0;
+					totalTime = 0;
+					
+				} else {
+					
+					i++;
+					
+				}
+				
+				prevTime = currentTime;
+				
+				currentDisplayMode.repaint();
+				
+				try {
+					Thread.sleep(1000/DisplayManager.REFRESH_RATE);
+				} catch(InterruptedException ex) {
+					Logger.log(Logger.SEVERE, "Thread was interrupted");
+				}
+				
+			}
+			
 		}
 		
 	}

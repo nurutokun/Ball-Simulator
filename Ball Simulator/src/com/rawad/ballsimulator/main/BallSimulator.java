@@ -22,18 +22,41 @@ public class BallSimulator {
 		
 	}
 	
+	private void update(long timePassed) {
+		
+	}
+	
 	public void render(Graphics2D g) {
 		
-		g.setColor(Color.BLUE);
+		update(DisplayManager.getDeltaTime());
 		
-		g.fillRect(0, 0, DisplayManager.getWidth(), DisplayManager.getHeight());
+//		g.setColor(Color.BLUE);
+		
+//		g.fillRect(0, 0, DisplayManager.getWidth(), DisplayManager.getHeight());
 		
 		g.setColor(Color.WHITE);
 		
 		g.fillOval(DisplayManager.getWidth() - 50, DisplayManager.getHeight() - 50, 50, 50);
-		g.drawString(DisplayManager.getWidth() + ", " + DisplayManager.getHeight() + " | " + DisplayManager.getDeltaTime(), 10, 10);
+		g.drawString(DisplayManager.getWidth() + ", " + DisplayManager.getHeight() + " | " +
+			DisplayManager.getFPS() + " | " + DisplayManager.getDeltaTime(), 10, 10);
 		
 		g.drawString(MouseInput.getX() + ", " + MouseInput.getY(), 10, 20);
+		
+		g.setColor(Color.RED);
+		g.fillRect(MouseInput.getX(), MouseInput.getY(), 1, 1);
+		
+		/*
+		for(int i = 0; i < DisplayManager.getWidth(); i++) {
+			for(int j = 0; j < DisplayManager.getHeight(); j++) {
+				
+				if(i%2 == 0 && j%2 == 0) {
+					g.fillRect(i, j, 1, 1);
+				}
+				
+			}
+			
+		}
+		/**/
 		
 	}
 	
