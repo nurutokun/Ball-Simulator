@@ -10,7 +10,10 @@ public class MouseInput {
 	public static final int RIGHT_MOUSE_BUTTON = 1;
 	public static final int MIDDLE_MOUSE_BUTTON = 2;
 	
-	private static HashMap<Integer, Boolean> mouseStates;
+	private static final int DOWN_INDEX = 0;
+	private static final int CLICK_INDEX = 1;// Prevents click, drag-on-to-surface, release to count as a click
+	
+	private static HashMap<Integer, Boolean[]> mouseStates;
 	
 	private static int x;
 	private static int y;
@@ -19,11 +22,11 @@ public class MouseInput {
 	
 	static {
 		
-		mouseStates = new HashMap<Integer, Boolean>();
+		mouseStates = new HashMap<Integer, Boolean[]>();
 		
-		mouseStates.put(LEFT_MOUSE_BUTTON, false);
-		mouseStates.put(RIGHT_MOUSE_BUTTON, false);
-		mouseStates.put(MIDDLE_MOUSE_BUTTON, false);
+		mouseStates.put(LEFT_MOUSE_BUTTON, new Boolean[]{false, false});
+		mouseStates.put(RIGHT_MOUSE_BUTTON, new Boolean[]{false, false});
+		mouseStates.put(MIDDLE_MOUSE_BUTTON, new Boolean[]{false, false});
 		
 	}
 	
@@ -31,7 +34,7 @@ public class MouseInput {
 		
 		try {
 			
-			return mouseStates.get(key);
+			return mouseStates.get(key)[DOWN_INDEX];
 			
 		} catch(Exception ex) {
 			Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; tried to check for button that wasn't a button");
@@ -44,12 +47,48 @@ public class MouseInput {
 		
 		try {
 			
-			mouseStates.put(key, value);
+			setIndexedValue(key, DOWN_INDEX, value);
 			
 		} catch(Exception ex) {
 			// key isn't valid
 			Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; tried to set button that wasn't a button");
 		}
+		
+	}
+	
+	public static boolean isButtonClicked(int key) {
+		
+		try {
+			
+			return mouseStates.get(key)[CLICK_INDEX];
+			
+		} catch(Exception ex) {
+			Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; tried to check for button that wasn't a button");
+			return false;
+		}
+		
+	}
+	
+	public static void setButtonClicked(int key, boolean value) {
+		
+		try {
+			
+			setIndexedValue(key, CLICK_INDEX, value);
+			
+		} catch(Exception ex) {
+			// key isn't valid
+			Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; tried to set button that wasn't a button");
+		}
+		
+	}
+	
+	private static void setIndexedValue(int mouseType, int index, boolean value) {
+		
+		Boolean[] currentValues = mouseStates.get(mouseType);
+		
+		currentValues[index] = value;
+		
+		mouseStates.put(mouseType, currentValues);
 		
 	}
 	

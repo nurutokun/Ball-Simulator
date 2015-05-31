@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.displaymanager;
 
 import java.awt.Color;
 
+import com.rawad.ballsimulator.input.MouseInput;
 import com.rawad.ballsimulator.log.Logger;
 
 
@@ -114,16 +115,14 @@ public class DisplayManager {
 				
 				totalTime += timePassed;
 				
+				i++;
+				
 				if(i >= FPS_SAMPLE_COUNT) {
 					
 					averageFrameRate = totalTime/i;
 					
 					i = 0;
 					totalTime = 0;
-					
-				} else {
-					
-					i++;
 					
 				}
 				

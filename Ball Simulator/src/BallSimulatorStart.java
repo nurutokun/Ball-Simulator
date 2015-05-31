@@ -5,7 +5,7 @@ public class BallSimulatorStart {
 	
 	public static void main(String[] args) {
 		
-		BallSimulator.init();
+		BallSimulator.instance().init();
 		
 		DisplayManager.setDisplayMode(DisplayManager.Mode.WINDOWED);
 		

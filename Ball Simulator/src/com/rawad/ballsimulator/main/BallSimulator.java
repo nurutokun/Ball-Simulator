@@ -2,9 +2,13 @@ package com.rawad.ballsimulator.main;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
+import com.rawad.ballsimulator.gamestates.MenuState;
+import com.rawad.ballsimulator.gamestates.StateManager;
 import com.rawad.ballsimulator.input.MouseInput;
+import com.rawad.ballsimulator.input.KeyboardInput;
 
 public class BallSimulator {
 	
@@ -12,17 +16,45 @@ public class BallSimulator {
 	
 	private static final BallSimulator game = new BallSimulator();
 	
+	private StateManager sm;
+	
+	private boolean debug;
+	private boolean showSquares;
+	
+	public BallSimulator() {
+		
+		sm = new StateManager();
+		
+		debug = false;
+		showSquares = false;
+		
+	}
+	
 	public static BallSimulator instance() {
 		return game;
 	}
 	
-	public static void init() {
+	public void init() {
 		
-		
+		sm.addState(new MenuState());
 		
 	}
 	
 	private void update(long timePassed) {
+		
+		sm.update();
+		
+		if(KeyboardInput.isKeyDown(KeyEvent.VK_F3)) {
+			debug = !debug;
+			
+			KeyboardInput.setKeyDown(KeyEvent.VK_F3, false);
+			
+		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_F4)) {
+			showSquares = !showSquares;
+			
+			KeyboardInput.setKeyDown(KeyEvent.VK_F4, false);
+			
+		}
 		
 	}
 	
@@ -30,9 +62,19 @@ public class BallSimulator {
 		
 		update(DisplayManager.getDeltaTime());
 		
-//		g.setColor(Color.BLUE);
+		sm.render(g);
 		
-//		g.fillRect(0, 0, DisplayManager.getWidth(), DisplayManager.getHeight());
+		if(debug) {
+			renderDebugOverlay(g);
+		}
+		
+		if(showSquares) {
+			renderSquares(g);
+		}
+		
+	}
+	
+	private void renderDebugOverlay(Graphics2D g) {
 		
 		g.setColor(Color.WHITE);
 		
@@ -45,7 +87,10 @@ public class BallSimulator {
 		g.setColor(Color.RED);
 		g.fillRect(MouseInput.getX(), MouseInput.getY(), 1, 1);
 		
-		/*
+	}
+	
+	private void renderSquares(Graphics2D g) {
+		
 		for(int i = 0; i < DisplayManager.getWidth(); i++) {
 			for(int j = 0; j < DisplayManager.getHeight(); j++) {
 				
@@ -53,10 +98,8 @@ public class BallSimulator {
 					g.fillRect(i, j, 1, 1);
 				}
 				
-			}
-			
+			}	
 		}
-		/**/
 		
 	}
 	

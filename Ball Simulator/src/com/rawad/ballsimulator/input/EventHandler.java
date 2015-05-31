@@ -34,7 +34,20 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 	}
 	
 	@Override
-	public void mouseClicked(MouseEvent e) {}
+	public void mouseClicked(MouseEvent e) {
+		
+		if(e.isAltDown()) {
+			MouseInput.setButtonClicked(MouseInput.MIDDLE_MOUSE_BUTTON, true);
+			
+		} else if(e.isMetaDown()) {
+			MouseInput.setButtonClicked(MouseInput.RIGHT_MOUSE_BUTTON, true);
+			
+		} else {
+			MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, true);
+			
+		}
+		
+	}
 	
 	@Override
 	public void mouseEntered(MouseEvent e) {}
@@ -44,7 +57,7 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
-	
+		
 		if(e.isAltDown()) {
 			MouseInput.setButtonDown(MouseInput.MIDDLE_MOUSE_BUTTON, true);
 		
@@ -65,8 +78,7 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 			MouseInput.setButtonDown(MouseInput.MIDDLE_MOUSE_BUTTON, false);
 			
 		} else if(e.isMetaDown()) {
-			MouseInput.setButtonDown(MouseInput.RIGHT_MOUSE_BUTTON, false);
-			
+			MouseInput.setButtonDown(MouseInput.RIGHT_MOUSE_BUTTON, false);			
 		} else {
 			MouseInput.setButtonDown(MouseInput.LEFT_MOUSE_BUTTON, false);
 			
@@ -85,8 +97,11 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 		double xScale = (double) DisplayManager.getWidth()/(double) e.getComponent().getWidth();
 		double yScale = (double) DisplayManager.getHeight()/(double) e.getComponent().getHeight();
 		
-		MouseInput.setX((int) (e.getX() * xScale));
-		MouseInput.setY((int) (e.getY() * yScale));
+		int newX = (int) (e.getX() * xScale);
+		int newY = (int) (e.getY() * yScale);
+		
+		MouseInput.setX(newX);
+		MouseInput.setY(newY);
 		
 	}
 	

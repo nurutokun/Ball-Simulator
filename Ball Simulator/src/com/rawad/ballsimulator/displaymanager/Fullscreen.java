@@ -5,6 +5,7 @@ import java.awt.DisplayMode;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.image.BufferStrategy;
 
@@ -34,6 +35,8 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 	
 	private Window window;
 	
+	private JFrame frame;
+	
 	private EventHandler l;
 	
 	public Fullscreen() {
@@ -60,7 +63,9 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 			
 		} catch(Exception ex) {
 			
-			Logger.log(Logger.SEVERE, "Abruptly exited full screen mode...");
+			Logger.log(Logger.SEVERE, "Abruptly exited full screen mode; no compatible mode found");
+			
+			DisplayManager.setDisplayMode(DisplayManager.Mode.WINDOWED);
 			
 		}
 		
@@ -85,6 +90,9 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		BufferStrategy bufStrat = window.getBufferStrategy();
 		
 		Graphics2D g = (Graphics2D) bufStrat.getDrawGraphics();
+		
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		g.setColor(DisplayManager.DEFAULT_BACKGROUND_COLOR);
 		g.fillRect(0, 0, window.getWidth(), window.getHeight());
@@ -147,21 +155,21 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 	
 	private void setFullScreen(DisplayMode dm) {
 		
-		JFrame f = new JFrame();
+		frame = new JFrame();
 		
-		f.setTitle(BallSimulator.NAME);
+		frame.setTitle(BallSimulator.NAME);
 		
-		f.setUndecorated(true);
-		f.setIgnoreRepaint(true);
-		f.setResizable(false);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setUndecorated(true);
+		frame.setIgnoreRepaint(true);
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		f.addKeyListener(l);
-		f.addMouseListener(l);
-		f.addMouseMotionListener(l);
-		f.addMouseWheelListener(l);
+		frame.addKeyListener(l);
+		frame.addMouseListener(l);
+		frame.addMouseMotionListener(l);
+		frame.addMouseWheelListener(l);
 		
-		currentDevice.setFullScreenWindow(f);
+		currentDevice.setFullScreenWindow(frame);
 		
 		if (dm != null && currentDevice.isDisplayChangeSupported()) {
 			
@@ -169,17 +177,22 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 			
 		}
 		
-		f.createBufferStrategy(2);
+		frame.createBufferStrategy(2);
 	}
 	
 	private void exitFullScreen() {
 		
 		currentDevice.setFullScreenWindow(null);
 		
-		window.dispose();
+		if(window != null) {
+			window.dispose();
+		}
+		
+		frame.dispose();
 		
 		window = null;
 		currentDevice = null;
+		frame = null;
 		
 	}
 	
