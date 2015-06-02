@@ -9,6 +9,7 @@ import com.rawad.ballsimulator.gamestates.MenuState;
 import com.rawad.ballsimulator.gamestates.StateManager;
 import com.rawad.ballsimulator.input.MouseInput;
 import com.rawad.ballsimulator.input.KeyboardInput;
+import com.rawad.ballsimulator.log.Logger;
 
 public class BallSimulator {
 	
@@ -20,6 +21,8 @@ public class BallSimulator {
 	
 	private boolean debug;
 	private boolean showSquares;
+	
+	int i = 0;
 	
 	public BallSimulator() {
 		
@@ -40,7 +43,7 @@ public class BallSimulator {
 		
 	}
 	
-	private void update(long timePassed) {
+	public void update(long timePassed) {
 		
 		sm.update();
 		
@@ -59,8 +62,6 @@ public class BallSimulator {
 	}
 	
 	public void render(Graphics2D g) {
-		
-		update(DisplayManager.getDeltaTime());
 		
 		sm.render(g);
 		

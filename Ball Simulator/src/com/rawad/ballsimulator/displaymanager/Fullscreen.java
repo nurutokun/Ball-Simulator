@@ -110,6 +110,10 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		
 	}
 	
+	public void update() {
+		BallSimulator.instance().update(DisplayManager.getDeltaTime());
+	}
+	
 	private DisplayMode findCompatibleMode(DisplayMode[] displayModes) {
 		
 		DisplayMode[] goodModes = currentDevice.getDisplayModes();
@@ -168,6 +172,8 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		frame.addMouseListener(l);
 		frame.addMouseMotionListener(l);
 		frame.addMouseWheelListener(l);
+		frame.addComponentListener(l);
+		frame.addWindowStateListener(l);
 		
 		currentDevice.setFullScreenWindow(frame);
 		

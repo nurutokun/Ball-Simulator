@@ -66,16 +66,17 @@ public class Windowed extends DisplayMode {
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		frame.pack();
-		frame.setVisible(true);
-		
 		frame.addKeyListener(l);
+		frame.addWindowStateListener(l);
 		
 		panel.addMouseListener(l);
 		panel.addMouseMotionListener(l);
 		panel.addMouseWheelListener(l);
 		// Don't actually need this; width/height are set constants; the image is scaled over and over to fit the screen properly instead
 		panel.addComponentListener(l);
+		
+		frame.pack();
+		frame.setVisible(true);
 		
 	}
 	
@@ -99,6 +100,13 @@ public class Windowed extends DisplayMode {
 		}
 		
 		panel.repaint();
+		
+	}
+	
+	@Override
+	public void update() {
+		
+		BallSimulator.instance().update(DisplayManager.getDeltaTime());
 		
 	}
 	
