@@ -17,11 +17,15 @@ public class GuiManager {
 	
 	public void update(int x, int y) {
 		
+		currentIntersectedComponent = getIntersectedComponent(x, y);
+		
+		if(currentIntersectedComponent != null) {
+			currentIntersectedComponent.setHovered(true);
+		}
+		
 		for(GuiComponent comp: components) {
 			comp.update(x, y);
 		}
-		
-		currentIntersectedComponent = getIntersectedComponent(x, y);
 		
 	}
 	
@@ -29,6 +33,7 @@ public class GuiManager {
 		
 		for(GuiComponent comp: components) {
 			comp.render(g);
+			comp.setHovered(false);
 		}
 		
 	}

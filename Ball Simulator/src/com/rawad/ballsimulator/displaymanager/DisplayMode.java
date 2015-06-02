@@ -9,6 +9,4 @@ public abstract class DisplayMode {
 	
 	public abstract void repaint();
 	
-	public abstract void update();
-	
 }

@@ -9,13 +9,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 
 public class EventHandler implements MouseMotionListener, MouseListener, MouseWheelListener,
-		KeyListener, ComponentListener, WindowStateListener {
+		KeyListener, ComponentListener {
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -105,6 +103,10 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 		MouseInput.setX(newX);
 		MouseInput.setY(newY);
 		
+		MouseInput.setButtonClicked(MouseInput.MIDDLE_MOUSE_BUTTON, false);
+		MouseInput.setButtonClicked(MouseInput.RIGHT_MOUSE_BUTTON, false);
+		MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, false);
+		
 	}
 	
 	@Override
@@ -123,33 +125,5 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 	
 	@Override
 	public void componentShown(ComponentEvent e) {}
-	
-	@Override
-	public void windowStateChanged(WindowEvent e) {
-		
-		int newState = e.getNewState();
-		
-		System.out.println("window state change: " + newState + " | " + (WindowEvent.WINDOW_DEICONIFIED));
-		
-		switch(newState) {
-		
-		case WindowEvent.WINDOW_ACTIVATED:
-		case WindowEvent.WINDOW_DEICONIFIED:
-			
-			DisplayManager.setDisplaying(true);
-			
-			break;
-			
-		case WindowEvent.WINDOW_DEACTIVATED:
-		case WindowEvent.WINDOW_ICONIFIED:
-			
-			System.out.println("window minimized");
-			DisplayManager.setDisplaying(false);
-			
-			break;
-		
-		}
-		
-	}
 	
 }

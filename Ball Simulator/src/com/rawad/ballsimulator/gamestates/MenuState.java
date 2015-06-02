@@ -16,6 +16,7 @@ public class MenuState extends State {
 		
 		addGuiComponent(new Button("Click", DisplayManager.getWidth()/2 - 50, DisplayManager.getHeight()/2 - 40, 40, 80));
 		addGuiComponent(new Button("Click 2", DisplayManager.getWidth()/2, DisplayManager.getHeight()/2, 80, 40));
+		addGuiComponent(new Button("Click 33333", 150, 200, 80, 40));
 		
 	}
 	
@@ -29,11 +30,16 @@ public class MenuState extends State {
 		if("Click".equals(comp.getId())) {
 			i++;
 			
-			Logger.log(Logger.DEBUG, "Cliiiccckkkk #: " + i);
+			Logger.log(Logger.DEBUG, "Cliiiccckkkk 1 #: " + i);
 		} else if("Click 2".equals(comp.getId())) {
 			i++;
 			
 			Logger.log(Logger.DEBUG, "Cliiiccckkkk 2 #: " + i);
+			
+		} else if("Click 33333".equals(comp.getId())) {
+			i++;
+			
+			Logger.log(Logger.DEBUG, "Cliiiccckkkk 3 #: " + i);
 			
 		}
 		

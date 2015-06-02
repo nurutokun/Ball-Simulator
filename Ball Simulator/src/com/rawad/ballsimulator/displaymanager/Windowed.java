@@ -67,7 +67,6 @@ public class Windowed extends DisplayMode {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		frame.addKeyListener(l);
-		frame.addWindowStateListener(l);
 		
 		panel.addMouseListener(l);
 		panel.addMouseMotionListener(l);
@@ -93,20 +92,13 @@ public class Windowed extends DisplayMode {
 	@Override
 	public synchronized void repaint() {
 		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_C)) {
+		if(KeyboardInput.isKeyDown(KeyEvent.VK_F11)) {
 			DisplayManager.setDisplayMode(DisplayManager.Mode.FULLSCREEN);
-			KeyboardInput.setKeyDown(KeyEvent.VK_C, false);
+			KeyboardInput.setKeyDown(KeyEvent.VK_F11, false);
 			return;
 		}
 		
 		panel.repaint();
-		
-	}
-	
-	@Override
-	public void update() {
-		
-		BallSimulator.instance().update(DisplayManager.getDeltaTime());
 		
 	}
 	

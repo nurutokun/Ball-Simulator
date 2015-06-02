@@ -81,9 +81,9 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 	@Override
 	public void repaint() {
 		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_C)) {
+		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE)) {
 			DisplayManager.setDisplayMode(DisplayManager.Mode.WINDOWED);
-			KeyboardInput.setKeyDown(KeyEvent.VK_C, false);
+			KeyboardInput.setKeyDown(KeyEvent.VK_ESCAPE, false);
 			return;
 		}
 		
@@ -108,10 +108,6 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		
 		g.dispose();
 		
-	}
-	
-	public void update() {
-		BallSimulator.instance().update(DisplayManager.getDeltaTime());
 	}
 	
 	private DisplayMode findCompatibleMode(DisplayMode[] displayModes) {
@@ -173,7 +169,6 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		frame.addMouseMotionListener(l);
 		frame.addMouseWheelListener(l);
 		frame.addComponentListener(l);
-		frame.addWindowStateListener(l);
 		
 		currentDevice.setFullScreenWindow(frame);
 		

@@ -23,11 +23,18 @@ public class Button extends GuiComponent {
 	@Override
 	public void render(Graphics2D g) {
 		
-		g.setColor(Color.RED);
-		g.drawRect(x, y, width, height);
+		if(isHovered()) {
+			g.setColor(new Color(~background.getRGB()));
+		} else {
+			g.setColor(background);
+		}
 		
-		g.setColor(Color.GREEN);
-		g.fillRect(x + 1, y + 1, width - 1, height - 1);
+		g.fillRect(x, y, width, height);
+		
+		if(isHovered()) {
+			g.setColor(foreground);
+			g.drawRect(x, y, width, height);
+		}
 		
 		Font f = g.getFont();
 		FontMetrics fm = g.getFontMetrics(f);
@@ -38,7 +45,7 @@ public class Button extends GuiComponent {
 		int stringX = x + (width/2) - (stringWidth/2);
 		int stringY = y + (height/2) + (stringHeight/4);// Since Strings are drawn from baseline (bottom y)
 		
-		g.setColor(Color.RED);
+		g.setColor(foreground);
 		g.drawString(id, stringX, stringY);
 		
 	}

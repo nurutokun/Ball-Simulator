@@ -27,7 +27,6 @@ public class DisplayManager {
 	private static long averageFrameRate;
 	
 	private static boolean running;
-	private static boolean display;
 	
 	public static void setDisplayMode(Mode mode) {
 		
@@ -41,7 +40,6 @@ public class DisplayManager {
 		currentDisplayMode.create();
 		
 		running = true;
-		display = true;
 		
 		if(!workerThread.isAlive()) {
 			workerThread.start();
@@ -75,14 +73,6 @@ public class DisplayManager {
 	
 	public static void setRunning(boolean running) {
 		DisplayManager.running = running;
-	}
-	
-	public static void setDisplaying(boolean display) {
-		DisplayManager.display = display;
-	}
-	
-	public static boolean isDisplaying() {
-		return display;
 	}
 	
 	public static enum Mode {
@@ -132,11 +122,7 @@ public class DisplayManager {
 				
 				prevTime = currentTime;
 				
-				currentDisplayMode.update();
-				
-				if(display) {
-					currentDisplayMode.repaint();
-				}
+				currentDisplayMode.repaint();
 				
 				try {
 					Thread.sleep(1000/DisplayManager.REFRESH_RATE);

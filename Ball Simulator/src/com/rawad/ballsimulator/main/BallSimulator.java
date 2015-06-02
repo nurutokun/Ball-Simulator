@@ -7,9 +7,8 @@ import java.awt.event.KeyEvent;
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.gamestates.MenuState;
 import com.rawad.ballsimulator.gamestates.StateManager;
-import com.rawad.ballsimulator.input.MouseInput;
 import com.rawad.ballsimulator.input.KeyboardInput;
-import com.rawad.ballsimulator.log.Logger;
+import com.rawad.ballsimulator.input.MouseInput;
 
 public class BallSimulator {
 	
@@ -43,9 +42,15 @@ public class BallSimulator {
 		
 	}
 	
-	public void update(long timePassed) {
+	private void update(long timePassed) {
 		
 		sm.update();
+		
+		handleKeyboardInput();
+		
+	}
+	
+	private void handleKeyboardInput() {
 		
 		if(KeyboardInput.isKeyDown(KeyEvent.VK_F3)) {
 			debug = !debug;
@@ -62,6 +67,8 @@ public class BallSimulator {
 	}
 	
 	public void render(Graphics2D g) {
+		
+		update(DisplayManager.getDeltaTime());
 		
 		sm.render(g);
 		
@@ -91,6 +98,8 @@ public class BallSimulator {
 	}
 	
 	private void renderSquares(Graphics2D g) {
+		
+		g.setColor(Color.WHITE);
 		
 		for(int i = 0; i < DisplayManager.getWidth(); i++) {
 			for(int j = 0; j < DisplayManager.getHeight(); j++) {
