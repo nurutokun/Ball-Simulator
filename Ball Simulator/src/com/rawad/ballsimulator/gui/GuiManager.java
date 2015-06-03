@@ -6,12 +6,15 @@ import java.util.ArrayList;
 public class GuiManager {
 	
 	private ArrayList<GuiComponent> components;
+	private ArrayList<Button> buttons;
 	
 	private GuiComponent currentIntersectedComponent;
+	private Button currentClickedButton;
 	
 	public GuiManager() {
 		
 		components = new ArrayList<GuiComponent>();
+		buttons = new ArrayList<Button>();
 		
 	}
 	
@@ -19,12 +22,19 @@ public class GuiManager {
 		
 		currentIntersectedComponent = getIntersectedComponent(x, y);
 		
-		if(currentIntersectedComponent != null) {
-			currentIntersectedComponent.setHovered(true);
-		}
-		
 		for(GuiComponent comp: components) {
 			comp.update(x, y);
+		}
+		
+		for(Button butt: buttons) {
+			
+			if(butt.isClicked()) {
+				currentClickedButton = butt;
+				break;
+			}
+			
+			currentClickedButton = null;
+			
 		}
 		
 	}
@@ -33,7 +43,6 @@ public class GuiManager {
 		
 		for(GuiComponent comp: components) {
 			comp.render(g);
-			comp.setHovered(false);
 		}
 		
 	}
@@ -56,8 +65,16 @@ public class GuiManager {
 	
 	public void addComponent(GuiComponent comp) {
 		
+		if(comp instanceof Button) {
+			buttons.add((Button) comp);
+		}
+		
 		components.add(comp);
 		
+	}
+	
+	public Button getCurrentClickedButton() {
+		return currentClickedButton;
 	}
 	
 	public GuiComponent getCurrentIntersectedComponent() {

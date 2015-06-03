@@ -41,16 +41,18 @@ public class Windowed extends DisplayMode {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				
-				BufferedImage buffer = new BufferedImage(DisplayManager.getWidth(), DisplayManager.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				BufferedImage buffer = new BufferedImage(DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight(),
+						BufferedImage.TYPE_INT_ARGB);
 				
 				Graphics2D g2 = buffer.createGraphics();
 				
 				g2.setColor(DisplayManager.DEFAULT_BACKGROUND_COLOR);
-				g2.fillRect(0, 0, DisplayManager.getWidth(), DisplayManager.getHeight());
+				g2.fillRect(0, 0, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
 				
 				BallSimulator.instance().render(g2);
 				
-				g.drawImage(buffer.getScaledInstance(getWidth(), getHeight(), BufferedImage.SCALE_FAST), 0, 0, null);
+				g.drawImage(buffer.getScaledInstance(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight(),
+						BufferedImage.SCALE_FAST), 0, 0, null);
 				
 				buffer = null;
 				
@@ -60,7 +62,7 @@ public class Windowed extends DisplayMode {
 			
 		};
 		
-		panel.setPreferredSize(new Dimension(DisplayManager.getWidth(), DisplayManager.getHeight()));
+		panel.setPreferredSize(new Dimension(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight()));
 		
 		frame.add(panel, BorderLayout.CENTER);
 		

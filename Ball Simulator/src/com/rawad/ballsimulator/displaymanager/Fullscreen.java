@@ -22,12 +22,12 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 	private DisplayMode[] displayModes = {
 			
 			// Makes it so that the dimensions can be easily changed by changing them from the DisplayManager class
-			new DisplayMode(DisplayManager.getWidth(), DisplayManager.getHeight(), 32, DisplayManager.REFRESH_RATE),
-			new DisplayMode(DisplayManager.getWidth(), DisplayManager.getHeight(), 24, DisplayManager.REFRESH_RATE),
-			new DisplayMode(DisplayManager.getWidth(), DisplayManager.getHeight(), 16, DisplayManager.REFRESH_RATE),
-			new DisplayMode(DisplayManager.getWidth(), DisplayManager.getHeight(), 32, DisplayMode.REFRESH_RATE_UNKNOWN),
-			new DisplayMode(DisplayManager.getWidth(), DisplayManager.getHeight(), 24, DisplayMode.REFRESH_RATE_UNKNOWN),
-			new DisplayMode(DisplayManager.getWidth(), DisplayManager.getHeight(), 16, DisplayMode.REFRESH_RATE_UNKNOWN),
+			new DisplayMode(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight(), 32, DisplayManager.REFRESH_RATE),
+			new DisplayMode(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight(), 24, DisplayManager.REFRESH_RATE),
+			new DisplayMode(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight(), 16, DisplayManager.REFRESH_RATE),
+			new DisplayMode(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight(), 32, DisplayMode.REFRESH_RATE_UNKNOWN),
+			new DisplayMode(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight(), 24, DisplayMode.REFRESH_RATE_UNKNOWN),
+			new DisplayMode(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight(), 16, DisplayMode.REFRESH_RATE_UNKNOWN),
 			
 	};
 	
@@ -54,8 +54,8 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 			
 			setFullScreen(compatibleMode);
 			
-			DisplayManager.setWidth(compatibleMode.getWidth());
-			DisplayManager.setHeight(compatibleMode.getHeight());
+			DisplayManager.setDisplayWidth(compatibleMode.getWidth());
+			DisplayManager.setDisplayHeight(compatibleMode.getHeight());
 			
 			window = currentDevice.getFullScreenWindow();
 			

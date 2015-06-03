@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.gui.Button;
-import com.rawad.ballsimulator.gui.GuiComponent;
 import com.rawad.ballsimulator.log.Logger;
 
 public class MenuState extends State {
@@ -14,9 +13,9 @@ public class MenuState extends State {
 	public MenuState() {
 		super(StateEnum.MENUSTATE);
 		
-		addGuiComponent(new Button("Click", DisplayManager.getWidth()/2 - 50, DisplayManager.getHeight()/2 - 40, 40, 80));
-		addGuiComponent(new Button("Click 2", DisplayManager.getWidth()/2, DisplayManager.getHeight()/2, 80, 40));
-		addGuiComponent(new Button("Click 33333", 150, 200, 80, 40));
+		addGuiComponent(new Button("Click", DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2 - 64));
+		addGuiComponent(new Button("Click 2", DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2));
+		addGuiComponent(new Button("Click 33333", 150, 200));
 		
 	}
 	
@@ -25,22 +24,25 @@ public class MenuState extends State {
 		
 	}
 	
-	protected void handleMouseClick(GuiComponent comp) {
+	protected void handleButtonClick(Button comp) {
 		
-		if("Click".equals(comp.getId())) {
+		switch(comp.getId()) {
+		
+		case "Click":
 			i++;
-			
 			Logger.log(Logger.DEBUG, "Cliiiccckkkk 1 #: " + i);
-		} else if("Click 2".equals(comp.getId())) {
-			i++;
+			break;
 			
+		case "Click 2":
+			i++;
 			Logger.log(Logger.DEBUG, "Cliiiccckkkk 2 #: " + i);
+			break;
 			
-		} else if("Click 33333".equals(comp.getId())) {
+		case "Click 33333":
 			i++;
-			
 			Logger.log(Logger.DEBUG, "Cliiiccckkkk 3 #: " + i);
-			
+			break;
+		
 		}
 		
 	}

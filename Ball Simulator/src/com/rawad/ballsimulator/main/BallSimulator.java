@@ -86,8 +86,8 @@ public class BallSimulator {
 		
 		g.setColor(Color.WHITE);
 		
-		g.fillOval(DisplayManager.getWidth() - 50, DisplayManager.getHeight() - 50, 50, 50);
-		g.drawString(DisplayManager.getWidth() + ", " + DisplayManager.getHeight() + " | " +
+		g.fillOval(DisplayManager.getScreenWidth() - 50, DisplayManager.getScreenHeight() - 50, 50, 50);
+		g.drawString(DisplayManager.getDisplayWidth() + ", " + DisplayManager.getDisplayHeight() + " | " +
 			DisplayManager.getFPS() + " | " + DisplayManager.getDeltaTime(), 10, 10);
 		
 		g.drawString(MouseInput.getX() + ", " + MouseInput.getY(), 10, 20);
@@ -101,8 +101,8 @@ public class BallSimulator {
 		
 		g.setColor(Color.WHITE);
 		
-		for(int i = 0; i < DisplayManager.getWidth(); i++) {
-			for(int j = 0; j < DisplayManager.getHeight(); j++) {
+		for(int i = 0; i < DisplayManager.getScreenWidth(); i++) {
+			for(int j = 0; j < DisplayManager.getScreenHeight(); j++) {
 				
 				if(i%2 == 0 && j%2 == 0) {
 					g.fillRect(i, j, 1, 1);

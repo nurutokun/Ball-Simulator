@@ -8,11 +8,14 @@ public class DisplayManager {
 	
 	public static final Color DEFAULT_BACKGROUND_COLOR = new Color(0, 0, 255);
 	
+	private static final int SCREEN_WIDTH = 640;
+	private static final int SCREEN_HEIGHT = 480;
+	
 	// vvv All of these should be changeable to what the user desires
 	public static int REFRESH_RATE = 60;
 	
-	private static int SCREEN_WIDTH = 640;// not final; should be changable by user
-	private static int SCREEN_HEIGHT = 480;
+	private static int DISPLAY_WIDTH = 640;// not final; should be changable by user
+	private static int DISPLAY_HEIGHT = 480;
 	
 	private static int FPS_SAMPLE_COUNT = 20;
 	// ^^^
@@ -55,20 +58,48 @@ public class DisplayManager {
 		return timePassed;
 	}
 	
-	public static int getWidth() {
+	/**
+	 * Original width of the screen of the game. Used for GAME LOGIC.
+	 * 
+	 * @return
+	 */
+	public static int getScreenWidth() {
 		return SCREEN_WIDTH;
 	}
 	
-	public static void setWidth(int width) {
-		SCREEN_WIDTH = width;
-	}
-	
-	public static int getHeight() {
+	/**
+	 * Original height of the screen of the game. Used for GAME LOGIC.
+	 * 
+	 * @return
+	 */
+	public static int getScreenHeight() {
 		return SCREEN_HEIGHT;
 	}
 	
-	public static void setHeight(int height) {
-		SCREEN_HEIGHT = height;
+	/**
+	 * Display width which is scaled up/down to from the original screen width.
+	 * 
+	 * @return
+	 */
+	public static int getDisplayWidth() {
+		return DISPLAY_WIDTH;
+	}
+	
+	public static void setDisplayWidth(int width) {
+		DISPLAY_WIDTH = width;
+	}
+	
+	/**
+	 * Display height which is scaled up/down to from the original screen height.
+	 * 
+	 * @return
+	 */
+	public static int getDisplayHeight() {
+		return DISPLAY_HEIGHT;
+	}
+	
+	public static void setDisplayHeight(int height) {
+		DISPLAY_HEIGHT = height;
 	}
 	
 	public static void setRunning(boolean running) {

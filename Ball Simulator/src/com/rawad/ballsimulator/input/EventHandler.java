@@ -94,8 +94,8 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		
-		double xScale = (double) DisplayManager.getWidth()/(double) e.getComponent().getWidth();
-		double yScale = (double) DisplayManager.getHeight()/(double) e.getComponent().getHeight();
+		double xScale = (double) DisplayManager.getScreenWidth()/(double) e.getComponent().getWidth();
+		double yScale = (double) DisplayManager.getScreenHeight()/(double) e.getComponent().getHeight();
 		
 		int newX = (int) (e.getX() * xScale);
 		int newY = (int) (e.getY() * yScale);
@@ -120,6 +120,9 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 		
 		//setWidth(e.getComponent().getWidth());
 		//setHeight(e.getComponent().getHeight());
+		
+		DisplayManager.setDisplayWidth(e.getComponent().getWidth());
+		DisplayManager.setDisplayHeight(e.getComponent().getHeight());
 		
 	}
 	

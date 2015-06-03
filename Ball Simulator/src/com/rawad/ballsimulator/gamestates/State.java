@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.gamestates;
 
 import java.awt.Graphics2D;
 
+import com.rawad.ballsimulator.gui.Button;
 import com.rawad.ballsimulator.gui.GuiComponent;
 import com.rawad.ballsimulator.gui.GuiManager;
 import com.rawad.ballsimulator.input.MouseInput;
@@ -26,21 +27,28 @@ public abstract class State {
 		
 		guiManager.update(MouseInput.getX(), MouseInput.getY());
 		
-		GuiComponent comp = guiManager.getCurrentIntersectedComponent();
+//		GuiComponent comp = guiManager.getCurrentIntersectedComponent();
 		
-		if(comp != null) {
-			
-			if(MouseInput.isButtonClicked(MouseInput.LEFT_MOUSE_BUTTON)) {
-				handleMouseHover(comp);
-				handleMouseClick(comp);
-				
-				MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, false);
-			} else {
-				handleMouseHover(comp);
-				// Could add more here, of course
-			}
-			
+		Button butt = guiManager.getCurrentClickedButton();
+		
+		if(butt != null) {
+			handleButtonClick(butt);
+			butt.setClicked(false);
 		}
+		
+//		if(comp != null) {
+//			
+//			if(MouseInput.isButtonClicked(MouseInput.LEFT_MOUSE_BUTTON)) {
+//				handleMouseHover(comp);
+//				handleMouseClick(comp);
+//				
+//				MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, false);
+//			} else {
+//				handleMouseHover(comp);
+//				// Could add more here, of course
+//			}
+//			
+//		}
 		
 	}
 	
@@ -63,6 +71,8 @@ public abstract class State {
 	 * @param comp
 	 */
 	protected void handleMouseHover(GuiComponent comp) {}
+	
+	protected void handleButtonClick(Button butt) {}
 	
 	protected final void addGuiComponent(GuiComponent comp) {
 		
