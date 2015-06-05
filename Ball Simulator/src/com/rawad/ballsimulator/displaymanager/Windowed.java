@@ -1,9 +1,11 @@
 package com.rawad.ballsimulator.displaymanager;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
@@ -46,6 +48,9 @@ public class Windowed extends DisplayMode {
 				
 				Graphics2D g2 = buffer.createGraphics();
 				
+				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				
 				g2.setColor(DisplayManager.DEFAULT_BACKGROUND_COLOR);
 				g2.fillRect(0, 0, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
 				
@@ -62,7 +67,7 @@ public class Windowed extends DisplayMode {
 			
 		};
 		
-		panel.setPreferredSize(new Dimension(DisplayManager.getDisplayWidth(), DisplayManager.getDisplayHeight()));
+		panel.setPreferredSize(new Dimension(DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight()));
 		
 		frame.add(panel, BorderLayout.CENTER);
 		
@@ -73,8 +78,10 @@ public class Windowed extends DisplayMode {
 		panel.addMouseListener(l);
 		panel.addMouseMotionListener(l);
 		panel.addMouseWheelListener(l);
-		// Don't actually need this; width/height are set constants; the image is scaled over and over to fit the screen properly instead
 		panel.addComponentListener(l);
+		
+		panel.setIgnoreRepaint(true);
+		frame.setIgnoreRepaint(true);
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -102,6 +109,11 @@ public class Windowed extends DisplayMode {
 		
 		panel.repaint();
 		
+	}
+	
+	@Override
+	public Component getCurrentWindow() {
+		return panel;
 	}
 	
 }

@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.displaymanager;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.DisplayMode;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
@@ -50,6 +51,10 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		
 		try {
 			
+			if(!currentDevice.isFullScreenSupported()) {
+				throw new Exception("Full screen isn't supported");
+			}
+			
 			DisplayMode compatibleMode = findCompatibleMode(displayModes);
 			
 			setFullScreen(compatibleMode);
@@ -63,7 +68,7 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 			
 		} catch(Exception ex) {
 			
-			Logger.log(Logger.SEVERE, "Abruptly exited full screen mode; no compatible mode found");
+			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; Abruptly exited full screen mode.");
 			
 			DisplayManager.setDisplayMode(DisplayManager.Mode.WINDOWED);
 			
@@ -81,9 +86,9 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 	@Override
 	public void repaint() {
 		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE)) {
+		if(KeyboardInput.isKeyDown(KeyEvent.VK_F11)) {
 			DisplayManager.setDisplayMode(DisplayManager.Mode.WINDOWED);
-			KeyboardInput.setKeyDown(KeyEvent.VK_ESCAPE, false);
+			KeyboardInput.setKeyDown(KeyEvent.VK_F11, false);
 			return;
 		}
 		
@@ -195,6 +200,11 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		currentDevice = null;
 		frame = null;
 		
+	}
+	
+	@Override
+	public Component getCurrentWindow() {
+		return frame;
 	}
 	
 }

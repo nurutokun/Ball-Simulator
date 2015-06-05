@@ -79,6 +79,16 @@ public class Button extends GuiComponent {
 	}
 	
 	@Override
+	public void update(int x, int y, boolean mouseButtonDown) {
+		super.update(x, y, mouseButtonDown);
+		
+		if(!intersects(x, y) && !mouseButtonDown) {
+			mouseReleased();
+		}
+		
+	}
+	
+	@Override
 	public void render(Graphics2D g) {
 		
 		g.drawImage(background, x, y, null);
@@ -90,7 +100,7 @@ public class Button extends GuiComponent {
 		if(pressed) {
 			g.drawImage(onclick, x, y, null);
 		}
-			
+		
 		Font f = g.getFont();
 		FontMetrics fm = g.getFontMetrics(f);
 		
@@ -152,12 +162,15 @@ public class Button extends GuiComponent {
 	protected void mouseEntered() {
 		highlighted = true;
 		
+		if(mouseDragged && pressed) {
+			mouseDragged = false;
+		}
+		
 	}
 	
 	@Override
 	protected void mouseExited() {
 		highlighted = false;
-		pressed = false;
 	}
 	
 	public boolean isClicked() {

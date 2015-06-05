@@ -1,7 +1,9 @@
 package com.rawad.ballsimulator.displaymanager;
 
 import java.awt.Color;
+import java.awt.Component;
 
+import com.rawad.ballsimulator.input.MouseInput;
 import com.rawad.ballsimulator.log.Logger;
 
 public class DisplayManager {
@@ -106,6 +108,10 @@ public class DisplayManager {
 		DisplayManager.running = running;
 	}
 	
+	public static Component getCurrentWindowComponent() {
+		return currentDisplayMode.getCurrentWindow();
+	}
+	
 	public static enum Mode {
 		
 		WINDOWED(new Windowed()),
@@ -152,6 +158,8 @@ public class DisplayManager {
 				}
 				
 				prevTime = currentTime;
+				
+				MouseInput.update(getCurrentWindowComponent(), getDeltaTime());
 				
 				currentDisplayMode.repaint();
 				

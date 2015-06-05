@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import com.rawad.ballsimulator.input.MouseInput;
-
 public abstract class GuiComponent {
 	
 	protected String id;
@@ -24,6 +22,7 @@ public abstract class GuiComponent {
 	
 	private boolean hovered;
 	private boolean pressed;
+	protected boolean mouseDragged;
 	
 	public GuiComponent(String id, BufferedImage background, BufferedImage foreground, int x, int y) {
 		
@@ -52,20 +51,17 @@ public abstract class GuiComponent {
 	 * @param x X-coordinate of mouse position
 	 * @param y Y-coordinate of mouse position
 	 */
-	public void update(int x, int y) {
+	public void update(int x, int y, boolean mouseButtonDown) {
+		
+		if(!intersects(x, y) && mouseButtonDown && prevMouseX != x && prevMouseY != y) {// Mouse dragged outside component
+			mouseDragged = true;
+		}
 		
 		if(intersects(x, y)) {
 			
-			if(!hovered) {
-				mouseEntered();
+			if(mouseButtonDown && hovered) {
 				
-				hovered = true;
-				
-			}
-			
-			if(MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON)) {
-				
-				if(!pressed) {// if not already pressed
+				if(!pressed && !mouseDragged) {// If not already pressed
 					mousePressed();
 					
 				}
@@ -77,18 +73,25 @@ public abstract class GuiComponent {
 				if(pressed) {
 					mouseReleased();
 					
-					if(intersects(prevMouseX, prevMouseY)) {
-						System.out.println(getId() + " wuz clicked at coords: " + prevMouseX + ", " + prevMouseY);
+					if(intersects(prevMouseX, prevMouseY) && !mouseDragged) {
 						mouseClicked();
+						
 					}
+					
+					mouseDragged = false;
+					pressed = false;
 					
 				}
 				
-				pressed = false;
 				
 			}
 			
-//			hovered = true;
+			if(!hovered) {
+				mouseEntered();
+				
+				hovered = true;
+				
+			}
 			
 		} else {
 			
@@ -96,6 +99,10 @@ public abstract class GuiComponent {
 				mouseExited();
 				
 				hovered = false;
+			}
+			
+			if(!mouseButtonDown) {
+				mouseDragged = false;
 			}
 			
 			pressed = false;

@@ -107,6 +107,8 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 		MouseInput.setButtonClicked(MouseInput.RIGHT_MOUSE_BUTTON, false);
 		MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, false);
 		
+//		Logger.log(Logger.DEBUG, "Got x,y: " + e.getX() + ", " + e.getY());
+		
 	}
 	
 	@Override
@@ -117,9 +119,6 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 	
 	@Override
 	public void componentResized(ComponentEvent e) {
-		
-		//setWidth(e.getComponent().getWidth());
-		//setHeight(e.getComponent().getHeight());
 		
 		DisplayManager.setDisplayWidth(e.getComponent().getWidth());
 		DisplayManager.setDisplayHeight(e.getComponent().getHeight());

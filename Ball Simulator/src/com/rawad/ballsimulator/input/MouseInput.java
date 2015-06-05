@@ -1,7 +1,15 @@
 package com.rawad.ballsimulator.input;
 
+import java.awt.AWTException;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.log.Logger;
 
 public class MouseInput {
@@ -15,10 +23,20 @@ public class MouseInput {
 	
 	private static HashMap<Integer, Boolean[]> mouseStates;
 	
+	private static Robot bot;
+	
 	private static int x;
 	private static int y;
 	
+	private static int dx;
+	private static int dy;
+	
+	private static int clampX;// Both used for when mouse is clamped.
+	private static int clampY;
+	
 	private static int mouseWheelPosition;
+	
+	private static boolean clamped;
 	
 	static {
 		
@@ -27,6 +45,55 @@ public class MouseInput {
 		mouseStates.put(LEFT_MOUSE_BUTTON, new Boolean[]{false, false});
 		mouseStates.put(RIGHT_MOUSE_BUTTON, new Boolean[]{false, false});
 		mouseStates.put(MIDDLE_MOUSE_BUTTON, new Boolean[]{false, false});
+		
+	}
+	
+	public static void update(Component window, long timePassed) {
+		
+		if(bot == null) {
+			
+			try {
+				bot = new Robot();
+				
+				if(isClamped()) {
+				
+				} else {
+					
+				}
+				
+			} catch(AWTException ex) {
+				Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; Robot wasn't initialized");
+				return;
+			}
+			
+		}
+		
+		if(isClamped()) {
+			
+			BufferedImage cursorImage = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+			Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "Blank Cursor");
+			
+			window.setCursor(blankCursor);
+			
+			double xScale = (double) DisplayManager.getScreenWidth()/(double) window.getWidth();
+			double yScale = (double) DisplayManager.getScreenHeight()/(double) window.getHeight();
+			
+			int scaledClampX = (int) (clampX * xScale);
+			int scaledClampY = (int) (clampY * yScale);
+			
+//			Logger.log(Logger.DEBUG, "regular clamp x,y: " + clampX + ", " + clampY +
+//					" | scaled clamp x,y: " + scaledClampX + ", " + scaledClampY + " | x,y: " + x + ", " + y);
+			
+			dx = x - scaledClampX;
+			dy = y - scaledClampY;
+			
+			Point pointOnScreen = window.getLocationOnScreen();
+			
+			bot.mouseMove(clampX + pointOnScreen.x, clampY + pointOnScreen.y);
+			
+		} else {
+			window.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		}
 		
 	}
 	
@@ -97,13 +164,30 @@ public class MouseInput {
 	}
 	
 	public static void setMouseWheelPosition(int mouseWheelPosition) {
+		MouseInput.mouseWheelPosition = mouseWheelPosition;		
+	}
+	
+	public static void setClamped(boolean clamped, int clampX, int clampY) {
 		
-		MouseInput.mouseWheelPosition = mouseWheelPosition;
+		if(bot != null) {
+			MouseInput.clamped = clamped;
+			
+			MouseInput.clampX = clampX;
+			MouseInput.clampY = clampY;
+		}
 		
 	}
 	
+	public static boolean isClamped() {
+		return clamped;
+	}
+	
 	public static int getX() {
-		return x;
+		if(isClamped()) {
+			return dx;
+		} else {
+			return x;
+		}
 	}
 	
 	public static void setX(int x) {
@@ -111,7 +195,11 @@ public class MouseInput {
 	}
 	
 	public static int getY() {
-		return y;
+		if(isClamped())	 {
+			return dy;
+		} else {
+			return y;
+		}
 	}
 	
 	public static void setY(int y) {

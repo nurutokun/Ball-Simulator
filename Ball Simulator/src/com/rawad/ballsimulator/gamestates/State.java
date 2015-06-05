@@ -25,9 +25,20 @@ public abstract class State {
 	 */
 	public void update() {
 		
-		guiManager.update(MouseInput.getX(), MouseInput.getY());
+		update(MouseInput.getX(), MouseInput.getY(), MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON));
 		
-//		GuiComponent comp = guiManager.getCurrentIntersectedComponent();
+	}
+	
+	/**
+	 * Optional in case different values want to be used. e.g. when mouse is clamped, maybe use coordinates of an on-screen object.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param mouseButtonDown
+	 */
+	public void update(int x, int y, boolean mouseButtonDown) {
+		
+		guiManager.update(x,y, mouseButtonDown);
 		
 		Button butt = guiManager.getCurrentClickedButton();
 		
@@ -35,20 +46,6 @@ public abstract class State {
 			handleButtonClick(butt);
 			butt.setClicked(false);
 		}
-		
-//		if(comp != null) {
-//			
-//			if(MouseInput.isButtonClicked(MouseInput.LEFT_MOUSE_BUTTON)) {
-//				handleMouseHover(comp);
-//				handleMouseClick(comp);
-//				
-//				MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, false);
-//			} else {
-//				handleMouseHover(comp);
-//				// Could add more here, of course
-//			}
-//			
-//		}
 		
 	}
 	

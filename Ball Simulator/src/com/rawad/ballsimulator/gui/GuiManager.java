@@ -18,12 +18,12 @@ public class GuiManager {
 		
 	}
 	
-	public void update(int x, int y) {
+	public void update(int x, int y, boolean mouseButtonDown) {
 		
 		currentIntersectedComponent = getIntersectedComponent(x, y);
 		
 		for(GuiComponent comp: components) {
-			comp.update(x, y);
+			comp.update(x, y, mouseButtonDown);
 		}
 		
 		for(Button butt: buttons) {
