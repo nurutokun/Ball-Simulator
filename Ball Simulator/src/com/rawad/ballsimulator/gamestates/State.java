@@ -13,6 +13,8 @@ public abstract class State {
 	
 	private GuiManager guiManager;
 	
+	protected StateManager sm;
+	
 	public State(StateEnum stateType) {
 		this.stateType = stateType;
 		
@@ -75,6 +77,10 @@ public abstract class State {
 		
 		guiManager.addComponent(comp);
 		
+	}
+	
+	protected void setStateManager(StateManager sm) {
+		this.sm = sm;
 	}
 	
 	public final StateEnum getStateType() {

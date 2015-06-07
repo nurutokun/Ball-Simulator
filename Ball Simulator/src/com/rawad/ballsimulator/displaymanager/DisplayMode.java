@@ -2,7 +2,15 @@ package com.rawad.ballsimulator.displaymanager;
 
 import java.awt.Component;
 
+import com.rawad.ballsimulator.input.EventHandler;
+
 public abstract class DisplayMode {
+	
+	protected EventHandler l;
+	
+	public DisplayMode() {
+		l = new EventHandler();
+	}
 	
 	public abstract void create();
 	

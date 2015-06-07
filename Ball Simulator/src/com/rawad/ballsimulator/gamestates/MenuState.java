@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.gui.Button;
+import com.rawad.ballsimulator.gui.TextLabel;
 import com.rawad.ballsimulator.log.Logger;
 
 public class MenuState extends State {
@@ -13,17 +14,19 @@ public class MenuState extends State {
 	public MenuState() {
 		super(StateEnum.MENUSTATE);
 		
-		addGuiComponent(new Button("Click", DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2 - 64));
-		addGuiComponent(new Button("Click 2", DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2));
-		addGuiComponent(new Button("Click 33333", 150, 200));
+		int screenSections = DisplayManager.getScreenHeight()/8;
+		int centerScreen = DisplayManager.getScreenWidth()/2;
+		
+		addGuiComponent(new TextLabel("Ball Simulator v0.1", centerScreen, screenSections, 256, 64));
+		
+		addGuiComponent(new Button("Click", centerScreen, screenSections * 3 + 10));
+		addGuiComponent(new Button("Click 2", centerScreen, screenSections * 4 + 20));
+		addGuiComponent(new Button("Option Menu", centerScreen, screenSections * 5 + 30));
+		addGuiComponent(new Button("Exit", centerScreen, screenSections * 6 + 40));
 		
 	}
 	
-	public void update() {
-		super.update();
-		
-	}
-	
+	@Override
 	protected void handleButtonClick(Button comp) {
 		
 		switch(comp.getId()) {
@@ -38,11 +41,14 @@ public class MenuState extends State {
 			Logger.log(Logger.DEBUG, "Cliiiccckkkk 2 #: " + i);
 			break;
 			
-		case "Click 33333":
-			i++;
-			Logger.log(Logger.DEBUG, "Cliiiccckkkk 3 #: " + i);
+		case "Option Menu":
+			sm.setState(StateEnum.OPTIONSTATE);
 			break;
 		
+		case "Exit":
+			DisplayManager.destroyWindow();
+			break;
+			
 		}
 		
 	}

@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.rawad.ballsimulator.input.EventHandler;
 import com.rawad.ballsimulator.input.KeyboardInput;
 import com.rawad.ballsimulator.main.BallSimulator;
 
@@ -21,12 +20,8 @@ public class Windowed extends DisplayMode {
 	private JFrame frame;
 	private JPanel panel;
 	
-	private EventHandler l;
-	
 	public Windowed() {
-		
-		l = new EventHandler();
-		
+		super();
 	}
 	
 	@Override
@@ -71,9 +66,10 @@ public class Windowed extends DisplayMode {
 		
 		frame.add(panel, BorderLayout.CENTER);
 		
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		frame.addKeyListener(l);
+		frame.addWindowListener(l);
 		
 		panel.addMouseListener(l);
 		panel.addMouseMotionListener(l);

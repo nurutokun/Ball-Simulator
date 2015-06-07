@@ -2,9 +2,18 @@ package com.rawad.ballsimulator.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
+import com.rawad.ballsimulator.log.Logger;
 
 public abstract class GuiComponent {
+	
+	protected static final String BASE_FOLDER_PATH = "res/";
+	protected static final String TEXTURE_FILE_EXTENSION = ".png";
 	
 	protected String id;
 	
@@ -20,9 +29,10 @@ public abstract class GuiComponent {
 	private int prevMouseX;
 	private int prevMouseY;
 	
+	protected boolean mouseDragged;
+	
 	private boolean hovered;
 	private boolean pressed;
-	protected boolean mouseDragged;
 	
 	public GuiComponent(String id, BufferedImage background, BufferedImage foreground, int x, int y) {
 		
@@ -31,11 +41,11 @@ public abstract class GuiComponent {
 		this.background = background;
 		this.foreground = foreground;
 		
-		this.x = x;
-		this.y = y;
-		
 		this.width = background.getWidth();
 		this.height = background.getHeight();
+		
+		this.x = x - (this.width/2);
+		this.y = y - (this.height/2);
 		
 		hovered = false;
 		
@@ -43,6 +53,10 @@ public abstract class GuiComponent {
 	
 	public GuiComponent(String id, Color backgroundColor, Color foregroundColor, int x, int y, int width, int height) {
 		this(id, getMonotoneImage(backgroundColor, width, height), getMonotoneImage(foregroundColor, width, height), x, y);
+	}
+	
+	public GuiComponent(String id, BufferedImage background, BufferedImage foreground, int x, int y, int width, int height) {
+		this(id, getScaledImage(background, width, height), getScaledImage(foreground, width, height), x, y);
 	}
 	
 	/**
@@ -116,15 +130,15 @@ public abstract class GuiComponent {
 	
 	public abstract void render(Graphics2D g);
 	
-	protected abstract void mouseClicked();
+	protected void mouseClicked() {}
 	
-	protected abstract void mousePressed();
+	protected void mousePressed() {}
 	
-	protected abstract void mouseReleased();
+	protected void mouseReleased() {}
 	
-	protected abstract void mouseEntered();
+	protected void mouseEntered() {}
 	
-	protected abstract void mouseExited();
+	protected void mouseExited() {}
 	
 	public boolean intersects(int x, int y) {
 		
@@ -161,7 +175,32 @@ public abstract class GuiComponent {
 		this.foreground = getMonotoneImage(foreground, width, height);
 	}
 	
-	private static BufferedImage getMonotoneImage(Color color, int width, int height) {
+	protected static BufferedImage getScaledImage(BufferedImage original, int width, int height) {
+		
+		Image scaled = original.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
+		
+		return toBufferedImage(scaled);
+		
+	}
+	
+	private static BufferedImage toBufferedImage(Image image) {
+		
+		if(image instanceof BufferedImage) {
+			return (BufferedImage) image;
+		}
+		
+		BufferedImage bImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		
+		Graphics2D bGr = bImage.createGraphics();
+		
+		bGr.drawImage(image, 0, 0, null);
+		bGr.dispose();
+		
+		return bImage;
+		
+	}
+	
+	protected static BufferedImage getMonotoneImage(Color color, int width, int height) {
 		
 		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
@@ -175,6 +214,31 @@ public abstract class GuiComponent {
 		
 		return temp;
 		
+	}
+	
+	protected static BufferedImage[] loadTextures(String textureFolder, String[] textureFileNames) {
+		
+		BufferedImage[] loadedImages = new BufferedImage[textureFileNames.length];
+		
+		for(int i = 0; i < loadedImages.length; i++) {
+			
+			BufferedImage temp = null;
+			
+			try {
+				
+				temp = ImageIO.read(new File(BASE_FOLDER_PATH + textureFolder + textureFileNames[i] + TEXTURE_FILE_EXTENSION));
+				
+			} catch(Exception ex) {
+				
+				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't load image file.");
+				
+			} finally {
+				loadedImages[i] = temp;
+			}
+			
+		}
+		
+		return loadedImages;
 	}
 	
 }

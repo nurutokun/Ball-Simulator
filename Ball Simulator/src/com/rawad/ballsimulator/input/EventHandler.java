@@ -9,11 +9,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 
 public class EventHandler implements MouseMotionListener, MouseListener, MouseWheelListener,
-		KeyListener, ComponentListener {
+		KeyListener, ComponentListener, WindowListener {
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -127,5 +129,28 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 	
 	@Override
 	public void componentShown(ComponentEvent e) {}
+	
+	@Override
+	public void windowActivated(WindowEvent e) {}
+	
+	@Override
+	public void windowClosed(WindowEvent e) {}
+	
+	@Override
+	public void windowClosing(WindowEvent e) {
+		DisplayManager.destroyWindow();
+	}
+	
+	@Override
+	public void windowDeactivated(WindowEvent e) {}
+	
+	@Override
+	public void windowDeiconified(WindowEvent e) {}
+	
+	@Override
+	public void windowIconified(WindowEvent e) {}
+	
+	@Override
+	public void windowOpened(WindowEvent e) {}
 	
 }

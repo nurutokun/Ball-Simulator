@@ -8,7 +8,7 @@ import com.rawad.ballsimulator.log.Logger;
 
 public class DisplayManager {
 	
-	public static final Color DEFAULT_BACKGROUND_COLOR = new Color(0, 0, 255);
+	public static final Color DEFAULT_BACKGROUND_COLOR = new Color(202, 212, 227);
 	
 	private static final int SCREEN_WIDTH = 640;
 	private static final int SCREEN_HEIGHT = 480;
@@ -16,10 +16,10 @@ public class DisplayManager {
 	// vvv All of these should be changeable to what the user desires
 	public static int REFRESH_RATE = 60;
 	
-	private static int DISPLAY_WIDTH = 640;// not final; should be changable by user
+	private static int DISPLAY_WIDTH = 640;// not final; should be changeable by user
 	private static int DISPLAY_HEIGHT = 480;
 	
-	private static int FPS_SAMPLE_COUNT = 20;
+	private static int FPS_SAMPLE_COUNT = 50;
 	// ^^^
 	
 	private static DisplayMode currentDisplayMode;
@@ -49,6 +49,20 @@ public class DisplayManager {
 		if(!workerThread.isAlive()) {
 			workerThread.start();
 		}
+		
+	}
+	
+	
+	public static void destroyWindow() {
+		
+		running = false;
+		
+		currentDisplayMode.destroy();
+		
+		workerThread = null;
+		currentDisplayMode = null;
+		
+		System.exit(0);
 		
 	}
 	
@@ -142,9 +156,11 @@ public class DisplayManager {
 				
 				long deltaTime = currentTime - prevTime;
 				
-				timePassed = 1000 / (deltaTime <= 0? 1:deltaTime);
+				timePassed = (deltaTime <= 0? 1:deltaTime);
 				
-				totalTime += timePassed;
+				totalTime += (1000 / timePassed);
+				
+//				averageFrameRate = (timePassed);
 				
 				i++;
 				

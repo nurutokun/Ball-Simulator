@@ -45,6 +45,8 @@ public class StateManager {
 		
 		currentState = state;
 		
+		state.setStateManager(this);
+		
 	}
 	
 	public void setState(StateEnum stateType) {

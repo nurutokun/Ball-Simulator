@@ -12,7 +12,6 @@ import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
 
-import com.rawad.ballsimulator.input.EventHandler;
 import com.rawad.ballsimulator.input.KeyboardInput;
 import com.rawad.ballsimulator.log.Logger;
 import com.rawad.ballsimulator.main.BallSimulator;
@@ -38,10 +37,8 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 	
 	private JFrame frame;
 	
-	private EventHandler l;
-	
 	public Fullscreen() {
-		l = new EventHandler();
+		super();
 	}
 	
 	@Override
@@ -61,10 +58,6 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 			
 			DisplayManager.setDisplayWidth(compatibleMode.getWidth());
 			DisplayManager.setDisplayHeight(compatibleMode.getHeight());
-			
-			window = currentDevice.getFullScreenWindow();
-			
-			window.setBackground(Color.BLUE);
 			
 		} catch(Exception ex) {
 			
@@ -92,7 +85,7 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 			return;
 		}
 		
-		BufferStrategy bufStrat = window.getBufferStrategy();
+		BufferStrategy bufStrat = frame.getBufferStrategy();
 		
 		Graphics2D g = (Graphics2D) bufStrat.getDrawGraphics();
 		
@@ -100,7 +93,7 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		g.setColor(DisplayManager.DEFAULT_BACKGROUND_COLOR);
-		g.fillRect(0, 0, window.getWidth(), window.getHeight());
+		g.fillRect(0, 0, frame.getWidth(), frame.getHeight());
 		
 		g.setColor(Color.BLACK);
 		
@@ -174,6 +167,7 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		frame.addMouseMotionListener(l);
 		frame.addMouseWheelListener(l);
 		frame.addComponentListener(l);
+		frame.addWindowListener(l);
 		
 		currentDevice.setFullScreenWindow(frame);
 		

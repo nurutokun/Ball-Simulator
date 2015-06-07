@@ -55,12 +55,6 @@ public class MouseInput {
 			try {
 				bot = new Robot();
 				
-				if(isClamped()) {
-				
-				} else {
-					
-				}
-				
 			} catch(AWTException ex) {
 				Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; Robot wasn't initialized");
 				return;
@@ -174,6 +168,11 @@ public class MouseInput {
 			
 			MouseInput.clampX = clampX;
 			MouseInput.clampY = clampY;
+			
+			// Avoids initial mouse "jump".
+			MouseInput.setX(clampX);
+			MouseInput.setY(clampY);
+			
 		}
 		
 	}
