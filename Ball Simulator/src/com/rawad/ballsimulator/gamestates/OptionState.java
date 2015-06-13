@@ -10,14 +10,15 @@ public class OptionState extends State {
 		super(StateEnum.OPTIONSTATE);
 		
 		addGuiComponent(new Button("Main Menu", DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight() - 64));
-		addGuiComponent(new DropDown("Fullscreen Resolution", DisplayManager.getScreenWidth()/2, 128));
+		addGuiComponent(new DropDown("Fullscreen Resolution", DisplayManager.getScreenWidth()/2, 128, 256,
+				64, DisplayManager.getCompatibleDisplayModeResolutions()));
 		
 	}
 	
 	@Override
-	protected void handleButtonClick(Button comp) {
+	protected void handleButtonClick(Button butt) {
 		
-		switch(comp.getId()) {
+		switch(butt.getId()) {
 		
 		case "Main Menu":
 			sm.setState(StateEnum.MENUSTATE);
@@ -26,4 +27,18 @@ public class OptionState extends State {
 		}
 		
 	}
+	
+	@Override
+	protected void handleDropDownMenuSelect(DropDown drop) {
+		
+		switch(drop.getId()) {
+		
+		case "Fullscreen Resolution":
+			DisplayManager.changeFullScreenResolution(drop.getCurrentSelectedItem());
+			break;
+		
+		}
+		
+	}
+	
 }

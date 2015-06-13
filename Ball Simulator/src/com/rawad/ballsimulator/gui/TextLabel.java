@@ -47,6 +47,8 @@ public class TextLabel extends GuiComponent {
 	@Override
 	public void render(Graphics2D g) {
 		
+		super.render(g);
+		
 		Font f = g.getFont();
 		FontMetrics fm = g.getFontMetrics(f);
 		

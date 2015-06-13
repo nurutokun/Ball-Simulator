@@ -3,27 +3,20 @@ package com.rawad.ballsimulator.main;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-
-import javax.imageio.ImageIO;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
+import com.rawad.ballsimulator.gamestates.GameState;
 import com.rawad.ballsimulator.gamestates.MenuState;
 import com.rawad.ballsimulator.gamestates.OptionState;
+import com.rawad.ballsimulator.gamestates.StateEnum;
 import com.rawad.ballsimulator.gamestates.StateManager;
 import com.rawad.ballsimulator.gui.Background;
 import com.rawad.ballsimulator.input.KeyboardInput;
 import com.rawad.ballsimulator.input.MouseInput;
-import com.rawad.ballsimulator.log.Logger;
 
 public class BallSimulator {
 	
 	public static final String NAME = "Ball Simulator";
-	
-	private static final BufferedImage BACKGROUND;
-	
-	private static final String BACKGROUND_PATH = "res/game_background.png";//"C:/test/back.jpg"
 	
 	private static final BallSimulator game = new BallSimulator();
 	
@@ -33,7 +26,6 @@ public class BallSimulator {
 	
 	private boolean debug;
 	private boolean showSquares;
-	private boolean moveBackground;
 	
 	double x;
 	double y;
@@ -44,27 +36,6 @@ public class BallSimulator {
 		
 		debug = false;
 		showSquares = false;
-		moveBackground = true;
-		
-	}
-	
-	static {
-		
-		BufferedImage temp = null;
-		
-		try {
-			
-			temp = ImageIO.read(new File(BACKGROUND_PATH));
-			
-		} catch(Exception ex) {
-			
-			Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't load game background.");
-			
-		} finally {
-			
-			BACKGROUND = temp;
-			
-		}
 		
 	}
 	
@@ -74,18 +45,19 @@ public class BallSimulator {
 	
 	public void init() {
 		
-		background = new Background(BACKGROUND);
+		background = new Background();
 		
-		sm.addState(new OptionState());
 		sm.addState(new MenuState());
+		sm.addState(new GameState());
+		sm.addState(new OptionState());
+		
+		sm.setState(StateEnum.MENUSTATE);
 		
 	}
 	
 	private void update(long timePassed) {
 		
-		if(moveBackground) {
-			background.update(timePassed);
-		}
+		background.update(timePassed);
 		
 		sm.update();
 		
@@ -121,12 +93,6 @@ public class BallSimulator {
 			
 			KeyboardInput.setKeyDown(KeyEvent.VK_C, false);
 			
-		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_SPACE)) {
-			
-			moveBackground = !moveBackground;
-			
-			KeyboardInput.setKeyDown(KeyEvent.VK_SPACE, false);
-			
 		}
 		
 	}
@@ -136,9 +102,7 @@ public class BallSimulator {
 		update(DisplayManager.getDeltaTime());
 		
 		background.render(g);
-		
-//		g.drawImage(BACKGROUND, 0, 0, null);
-		
+			
 		sm.render(g);
 		
 		if(debug) {
@@ -184,6 +148,10 @@ public class BallSimulator {
 			}	
 		}
 		
+	}
+	
+	public boolean isDebug() {
+		return debug;
 	}
 	
 }

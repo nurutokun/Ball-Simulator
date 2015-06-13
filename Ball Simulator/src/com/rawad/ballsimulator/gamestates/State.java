@@ -3,8 +3,11 @@ package com.rawad.ballsimulator.gamestates;
 import java.awt.Graphics2D;
 
 import com.rawad.ballsimulator.gui.Button;
+import com.rawad.ballsimulator.gui.DropDown;
 import com.rawad.ballsimulator.gui.GuiComponent;
 import com.rawad.ballsimulator.gui.GuiManager;
+import com.rawad.ballsimulator.gui.Overlay;
+import com.rawad.ballsimulator.gui.OverlayManager;
 import com.rawad.ballsimulator.input.MouseInput;
 
 public abstract class State {
@@ -12,6 +15,7 @@ public abstract class State {
 	private final StateEnum stateType;
 	
 	private GuiManager guiManager;
+	private OverlayManager overlayManager;
 	
 	protected StateManager sm;
 	
@@ -19,6 +23,7 @@ public abstract class State {
 		this.stateType = stateType;
 		
 		guiManager = new GuiManager();
+		overlayManager = new OverlayManager();
 		
 	}
 	
@@ -27,7 +32,7 @@ public abstract class State {
 	 */
 	public void update() {
 		
-		update(MouseInput.getX(), MouseInput.getY(), MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON));
+		this.update(MouseInput.getX(), MouseInput.getY(), MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON));
 		
 	}
 	
@@ -40,9 +45,24 @@ public abstract class State {
 	 */
 	public void update(int x, int y, boolean mouseButtonDown) {
 		
-		guiManager.update(x,y, mouseButtonDown);
+		guiManager.update(x, y, mouseButtonDown);
 		
 		Button butt = guiManager.getCurrentClickedButton();
+		
+		if(butt != null) {
+			handleButtonClick(butt);
+			butt.setClicked(false);
+		}
+		
+		DropDown drop = guiManager.getCurrentSelectedDropDown();
+		
+		if(drop != null) {
+			handleDropDownMenuSelect(drop);
+		}
+		
+		overlayManager.update(x, y, mouseButtonDown);
+		
+		butt = overlayManager.getClickedButton();
 		
 		if(butt != null) {
 			handleButtonClick(butt);
@@ -73,9 +93,17 @@ public abstract class State {
 	
 	protected void handleButtonClick(Button butt) {}
 	
+	protected void handleDropDownMenuSelect(DropDown drop) {}
+	
 	protected final void addGuiComponent(GuiComponent comp) {
 		
 		guiManager.addComponent(comp);
+		
+	}
+	
+	protected final void addOverlay(Overlay overlay) {
+		
+		overlayManager.addOverlay(overlay);
 		
 	}
 	

@@ -21,10 +21,10 @@ public class Button extends GuiComponent {
 	private BufferedImage onclick;
 	private BufferedImage disabled;
 	
-	private boolean clicked;
-	private boolean highlighted;
-	private boolean pressed;
-	private boolean enabled;
+	protected boolean clicked;
+	protected boolean highlighted;
+	protected boolean pressed;
+	protected boolean enabled;
 	
 	public Button(String text, BufferedImage background, BufferedImage foreground, BufferedImage onclick, int x, int y) {
 		super(text, background, foreground, x, y);
@@ -57,6 +57,23 @@ public class Button extends GuiComponent {
 	
 	@Override
 	public void render(Graphics2D g) {
+		super.render(g);
+		
+		Font f = g.getFont();
+		FontMetrics fm = g.getFontMetrics(f);
+		
+		int stringWidth = fm.stringWidth(id);
+		int stringHeight = fm.getHeight();
+		
+		int stringX = x + (width/2) - (stringWidth/2);
+		int stringY = y + (height/2) + (stringHeight/4);// Since Strings are drawn from baseline (bottom y)
+		
+		drawButtonBase(g);
+		drawText(g, stringX, stringY);
+		
+	}
+	
+	protected void drawButtonBase(Graphics2D g) {
 		
 		if(enabled) {
 			
@@ -76,14 +93,9 @@ public class Button extends GuiComponent {
 			
 		}
 		
-		Font f = g.getFont();
-		FontMetrics fm = g.getFontMetrics(f);
-		
-		int stringWidth = fm.stringWidth(id);
-		int stringHeight = fm.getHeight();
-		
-		int stringX = x + (width/2) - (stringWidth/2);
-		int stringY = y + (height/2) + (stringHeight/4);// Since Strings are drawn from baseline (bottom y)
+	}
+	
+	protected void drawText(Graphics2D g, int stringX, int stringY) {
 		
 		g.setColor(Color.BLACK);
 		g.drawString(id, stringX, stringY);
@@ -137,6 +149,14 @@ public class Button extends GuiComponent {
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	public BufferedImage getOnClickTexture() {
+		return onclick;
+	}
+	
+	public BufferedImage getDisabledTexture() {
+		return disabled;
 	}
 	
 }

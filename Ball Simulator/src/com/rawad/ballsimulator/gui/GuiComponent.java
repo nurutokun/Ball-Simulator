@@ -3,12 +3,14 @@ package com.rawad.ballsimulator.gui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.imageio.ImageIO;
 
 import com.rawad.ballsimulator.log.Logger;
+import com.rawad.ballsimulator.main.BallSimulator;
 
 public abstract class GuiComponent {
 	
@@ -20,11 +22,15 @@ public abstract class GuiComponent {
 	protected BufferedImage background;
 	protected BufferedImage foreground;
 	
+	protected Rectangle hitbox;// For hit-detection with mouse; dynamic
+	
+	// Used for drawing, exclusively
 	protected int x;
 	protected int y;
 	
 	protected int width;
 	protected int height;
+	//
 	
 	private int prevMouseX;
 	private int prevMouseY;
@@ -46,6 +52,8 @@ public abstract class GuiComponent {
 		
 		this.x = x - (this.width/2);
 		this.y = y - (this.height/2);
+		
+		this.hitbox = new Rectangle(this.x, this.y, width, height);
 		
 		hovered = false;
 		
@@ -128,7 +136,14 @@ public abstract class GuiComponent {
 		
 	}
 	
-	public abstract void render(Graphics2D g);
+	public void render(Graphics2D g) {
+		
+		if(BallSimulator.instance().isDebug()) {
+			g.setColor(Color.BLACK);
+			g.drawRect(hitbox.x - 1, hitbox.y - 1, hitbox.width + 1, hitbox.height + 1);
+		}
+		
+	}
 	
 	protected void mouseClicked() {}
 	
@@ -142,13 +157,15 @@ public abstract class GuiComponent {
 	
 	public boolean intersects(int x, int y) {
 		
-		if( x >= this.x && x <= this.x + width &&
-			y >= this.y && y <= this.y + height) {
-			
-			return true;
-		}
+		return hitbox.intersects(x, y, 1, 1);
 		
-		return false;
+//		if( x >= this.x && x <= this.x + width &&
+//			y >= this.y && y <= this.y + height) {
+//			
+//			return true;
+//		}
+//		
+//		return false;
 	}
 	
 	public String getId() {

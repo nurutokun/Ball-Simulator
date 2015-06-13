@@ -3,8 +3,17 @@ package com.rawad.ballsimulator.gui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
+import com.rawad.ballsimulator.log.Logger;
 
 public class Background {
+	
+	private static final BufferedImage DEFAULT_TEXTURE;
+	
+	private static final String DEFAULT_TEXTURE_PATH = "res/game_background.png";
 	
 	private BufferedImage texture;
 	private BufferedImage flippedTexture;
@@ -14,9 +23,9 @@ public class Background {
 	
 	private int maxWidth;
 	
-	public Background(BufferedImage texture) {
+	public Background() {
 		
-		this.texture = texture;
+		this.texture = DEFAULT_TEXTURE;
 		
 		flippedTexture = getHorizontallyFlippedImage(texture);
 		
@@ -27,9 +36,30 @@ public class Background {
 		
 	}
 	
+	static {
+		
+		BufferedImage temp = null;
+		
+		try {
+			
+			temp = ImageIO.read(new File(DEFAULT_TEXTURE_PATH));
+			
+		} catch(Exception ex) {
+			
+			Logger.log(Logger.DEBUG, ex.getLocalizedMessage() + "; couldn't laod background image.");
+			
+		} finally {
+			DEFAULT_TEXTURE = temp;
+		}
+		
+	}
+	
 	public void update(long timePassed) {
 		
 		int delta = (int) timePassed/16;// The smaller the overall delta value the more accurate the display is.
+		
+		x += delta;// Having these two down here works much better.
+		secondX += delta;
 		
 		if(x >= maxWidth) {
 			x = -maxWidth;
@@ -39,8 +69,17 @@ public class Background {
 			secondX = x - maxWidth;
 		}
 		
-		x += delta;// Having these two down here works much better.
-		secondX += delta;
+		int displacement = x - secondX;
+		
+		if(displacement > 0) {
+			
+			secondX = x - maxWidth;
+			
+		} else if(displacement < 0) {
+			
+			x = secondX - maxWidth;
+			
+		}
 		
 	}
 	

@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.displaymanager;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.ArrayList;
 
 import com.rawad.ballsimulator.input.MouseInput;
 import com.rawad.ballsimulator.log.Logger;
@@ -16,10 +17,13 @@ public class DisplayManager {
 	// vvv All of these should be changeable to what the user desires
 	public static int REFRESH_RATE = 60;
 	
-	private static int DISPLAY_WIDTH = 640;// not final; should be changeable by user
+	private static int DISPLAY_WIDTH = 640;// not final; changes with the resizing of the window
 	private static int DISPLAY_HEIGHT = 480;
 	
-	private static int FPS_SAMPLE_COUNT = 50;
+	private static int FULLSCREEN_WIDTH = 640;
+	private static int FULLSCREEN_HEIGHT = 480;
+	
+	private static int FPS_SAMPLE_COUNT = 25;
 	// ^^^
 	
 	private static DisplayMode currentDisplayMode;
@@ -64,6 +68,68 @@ public class DisplayManager {
 		
 		System.exit(0);
 		
+	}
+	
+	public static String[] getCompatibleDisplayModeResolutions() {
+		
+		java.awt.DisplayMode[] modes = Fullscreen.getCompatibleDisplayModes();
+		
+		ArrayList<String> prevRes = new ArrayList<String>();
+		
+		boolean matchFound = false;;
+		
+		for(int i = 0; i < modes.length; i++) {
+			
+			String currentRes = modes[i].getWidth() + "x" + modes[i].getHeight();
+			
+			for(int j = 0; j < prevRes.size(); j++) {
+				
+				if(prevRes.get(j).equals(currentRes)) {
+					matchFound = true;
+					break;
+				}
+				
+			}
+			
+			if(matchFound) {
+				break;
+			} else {
+				prevRes.add(currentRes);
+				
+			}
+			
+		}
+		
+		String[] resolutions = new String[prevRes.size()];
+		
+		for(int i = 0; i < resolutions.length; i++) {
+			resolutions[i] = prevRes.get(i);
+		}
+		
+		return resolutions;
+		
+	}
+	
+	public static void changeFullScreenResolution(String resolution) {
+		
+		int width = Integer.parseInt(resolution.split("x")[0]);
+		int height = Integer.parseInt(resolution.split("x")[1]);
+		
+		FULLSCREEN_WIDTH = width;
+		FULLSCREEN_HEIGHT = height;
+		
+	}
+	
+	public static String getFullScreenResolution() {
+		return getFullScreenWidth() + "x" + getFullScreenHeight();
+	}
+	
+	public static int getFullScreenWidth() {
+		return FULLSCREEN_WIDTH;
+	}
+	
+	public static int getFullScreenHeight() {
+		return FULLSCREEN_HEIGHT;
 	}
 	
 	public static long getFPS() {
@@ -149,6 +215,8 @@ public class DisplayManager {
 			
 			int i = 0;
 			int totalTime = 0;
+			
+			prevTime = System.currentTimeMillis();// To keep the initial value limited to zero, just in case.
 			
 			while(running) {
 				

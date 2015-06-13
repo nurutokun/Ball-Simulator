@@ -19,6 +19,7 @@ import com.sun.glass.events.KeyEvent;
 
 public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMode {
 	
+	@SuppressWarnings("unused") @Deprecated
 	private DisplayMode[] displayModes = {
 			
 			// Makes it so that the dimensions can be easily changed by changing them from the DisplayManager class
@@ -31,7 +32,7 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 			
 	};
 	
-	private GraphicsDevice currentDevice;
+	private static GraphicsDevice currentDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 	
 	private Window window;
 	
@@ -52,7 +53,7 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 				throw new Exception("Full screen isn't supported");
 			}
 			
-			DisplayMode compatibleMode = findCompatibleMode(displayModes);
+			DisplayMode compatibleMode = getCompatibleMode(DisplayManager.getFullScreenWidth(), DisplayManager.getFullScreenHeight());
 			
 			setFullScreen(compatibleMode);
 			
@@ -99,7 +100,13 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		
 		if(!bufStrat.contentsLost()) {	
 			
+			double scaleX = (double) DisplayManager.getDisplayWidth()/ (double) DisplayManager.getScreenWidth();
+			double scaleY = (double) DisplayManager.getDisplayHeight()/ (double) DisplayManager.getScreenHeight();
+			
+			g.scale(scaleX, scaleY);
+			
 			BallSimulator.instance().render(g);
+			
 			bufStrat.show();
 			
 		}
@@ -108,6 +115,13 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		
 	}
 	
+	private DisplayMode getCompatibleMode(int width, int height) {
+		
+		return new DisplayMode(width, height, 32, DisplayMode.REFRESH_RATE_UNKNOWN);
+		
+	}
+	
+	@SuppressWarnings("unused")
 	private DisplayMode findCompatibleMode(DisplayMode[] displayModes) {
 		
 		DisplayMode[] goodModes = currentDevice.getDisplayModes();
@@ -199,6 +213,10 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 	@Override
 	public Component getCurrentWindow() {
 		return frame;
+	}
+	
+	public static DisplayMode[] getCompatibleDisplayModes() {
+		return currentDevice.getDisplayModes();
 	}
 	
 }

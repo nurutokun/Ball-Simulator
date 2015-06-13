@@ -6,6 +6,7 @@ import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.gui.Button;
 import com.rawad.ballsimulator.gui.TextLabel;
 import com.rawad.ballsimulator.log.Logger;
+import com.rawad.ballsimulator.main.BallSimulator;
 
 public class MenuState extends State {
 	
@@ -17,10 +18,10 @@ public class MenuState extends State {
 		int screenSections = DisplayManager.getScreenHeight()/8;
 		int centerScreen = DisplayManager.getScreenWidth()/2;
 		
-		addGuiComponent(new TextLabel("Ball Simulator v0.1", centerScreen, screenSections, 256, 64));
+		addGuiComponent(new TextLabel(BallSimulator.NAME, centerScreen, screenSections, 256, 64));
 		
-		addGuiComponent(new Button("Click", centerScreen, screenSections * 3 + 10));
-		addGuiComponent(new Button("Click 2", centerScreen, screenSections * 4 + 20));
+		addGuiComponent(new Button("Singleplayer", centerScreen, screenSections * 3 + 10));
+		addGuiComponent(new Button("Multiplayer", centerScreen, screenSections * 4 + 20));
 		addGuiComponent(new Button("Option Menu", centerScreen, screenSections * 5 + 30));
 		addGuiComponent(new Button("Exit", centerScreen, screenSections * 6 + 40));
 		
@@ -31,12 +32,11 @@ public class MenuState extends State {
 		
 		switch(comp.getId()) {
 		
-		case "Click":
-			i++;
-			Logger.log(Logger.DEBUG, "Cliiiccckkkk 1 #: " + i);
+		case "Singleplayer":
+			sm.setState(StateEnum.GAMESTATE);
 			break;
 			
-		case "Click 2":
+		case "Multiplayer":
 			i++;
 			Logger.log(Logger.DEBUG, "Cliiiccckkkk 2 #: " + i);
 			break;
