@@ -4,12 +4,18 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 
+import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.gui.Button;
 import com.rawad.ballsimulator.gui.Overlay;
 import com.rawad.ballsimulator.input.KeyboardInput;
+import com.rawad.ballsimulator.world.World;
 
 public class GameState extends State {
+	
+	private Client client;
+	
+	private World world;
 	
 	private Overlay gameOverScreen;
 	
@@ -17,6 +23,10 @@ public class GameState extends State {
 	
 	public GameState() {
 		super(StateEnum.GAMESTATE);
+		
+		world = new World();
+		
+		client = new Client(world);
 		
 		gameOverScreen = new Overlay(Color.GRAY, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
 		
@@ -39,6 +49,8 @@ public class GameState extends State {
 			KeyboardInput.setKeyDown(KeyEvent.VK_ESCAPE, false);
 		}
 		
+		client.update(DisplayManager.getDeltaTime());
+		
 	}
 	
 	@Override
@@ -58,6 +70,8 @@ public class GameState extends State {
 	@Override
 	public void render(Graphics2D g) {
 		super.render(g);
+		
+		world.render(g);
 		
 		if(gameOverScreenActive) {
 			gameOverScreen.render(g);

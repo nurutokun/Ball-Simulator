@@ -23,6 +23,14 @@ public class World {
 		
 	}
 	
+	public void render(Graphics2D g) {
+		
+		for(Entity e: entities) {
+			e.render(g);
+		}
+		
+	}
+	
 	public void setEntities(ArrayList<Entity> entities) {
 		this.entities = entities;
 	}

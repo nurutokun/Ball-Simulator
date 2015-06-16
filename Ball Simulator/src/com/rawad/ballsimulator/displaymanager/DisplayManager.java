@@ -92,7 +92,10 @@ public class DisplayManager {
 			}
 			
 			if(matchFound) {
-				break;
+				
+				matchFound = false;
+				
+				continue;
 			} else {
 				prevRes.add(currentRes);
 				

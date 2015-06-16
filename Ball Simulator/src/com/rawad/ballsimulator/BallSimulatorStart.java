@@ -1,3 +1,4 @@
+package com.rawad.ballsimulator;
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.main.BallSimulator;
 
