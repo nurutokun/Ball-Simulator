@@ -69,21 +69,21 @@ public class MouseInput {
 			
 			window.setCursor(blankCursor);
 			
-			double xScale = (double) DisplayManager.getScreenWidth()/(double) window.getWidth();
-			double yScale = (double) DisplayManager.getScreenHeight()/(double) window.getHeight();
+			double xScale = (double) window.getWidth()/(double) DisplayManager.getScreenWidth();
+			double yScale = (double) window.getHeight()/(double) DisplayManager.getScreenHeight();
 			
-			int scaledClampX = (int) (clampX * xScale);
-			int scaledClampY = (int) (clampY * yScale);
+			int scaledClampX = (int) (((double) clampX) * xScale);
+			int scaledClampY = (int) (((double) clampY) * yScale);
 			
 //			Logger.log(Logger.DEBUG, "regular clamp x,y: " + clampX + ", " + clampY +
 //					" | scaled clamp x,y: " + scaledClampX + ", " + scaledClampY + " | x,y: " + x + ", " + y);
 			
-			dx = x - scaledClampX;
-			dy = y - scaledClampY;
+			dx = x - clampX;
+			dy = y - clampY;
 			
-			Point pointOnScreen = window.getLocationOnScreen();
+			Point locationOnScreen = window.getLocationOnScreen();
 			
-			bot.mouseMove(clampX + pointOnScreen.x, clampY + pointOnScreen.y);
+			bot.mouseMove(scaledClampX + locationOnScreen.x, scaledClampY + locationOnScreen.y);
 			
 		} else {
 			window.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
@@ -104,7 +104,13 @@ public class MouseInput {
 		
 	}
 	
-	public static void setButtonDown(int key, boolean value) {
+	/**
+	 * Not really used by any other class outside of this package so.... protected!
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	protected static void setButtonDown(int key, boolean value) {
 		
 		try {
 			

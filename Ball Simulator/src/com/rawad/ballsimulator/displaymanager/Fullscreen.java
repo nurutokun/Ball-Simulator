@@ -82,7 +82,7 @@ public class Fullscreen extends com.rawad.ballsimulator.displaymanager.DisplayMo
 		
 		if(KeyboardInput.isKeyDown(KeyEvent.VK_F11)) {
 			DisplayManager.setDisplayMode(DisplayManager.Mode.WINDOWED);
-			KeyboardInput.setKeyDown(KeyEvent.VK_F11, false);
+			
 			return;
 		}
 		

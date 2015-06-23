@@ -59,14 +59,17 @@ public class BallSimulator {
 		
 		background.update(timePassed);
 		
-		sm.update();
-		
 		handleKeyboardInput();
+		
+		sm.update();
 		
 		if(MouseInput.isClamped()) {
 			
-			x += (double) MouseInput.getX()*timePassed/(double) 100.0;
-			y += (double) MouseInput.getY()*timePassed/(double) 100.0;
+			double dx = (double) MouseInput.getX()*timePassed/(double) 100.0;
+			double dy = (double) MouseInput.getY()*timePassed/(double) 100.0;
+			
+			x += dx;
+			y += dy;
 			
 		}
 		
@@ -77,21 +80,15 @@ public class BallSimulator {
 		if(KeyboardInput.isKeyDown(KeyEvent.VK_F3)) {
 			debug = !debug;
 			
-			KeyboardInput.setKeyDown(KeyEvent.VK_F3, false);
-			
 		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_F4)) {
 			showSquares = !showSquares;
 			
-			KeyboardInput.setKeyDown(KeyEvent.VK_F4, false);
-			
 		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_C)) {
 			
-			MouseInput.setClamped(!MouseInput.isClamped(), DisplayManager.getDisplayWidth()/2, DisplayManager.getDisplayHeight()/2);
+			MouseInput.setClamped(!MouseInput.isClamped(), DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2);
 			
 			x = 0;
 			y = DisplayManager.getScreenHeight()/2;
-			
-			KeyboardInput.setKeyDown(KeyEvent.VK_C, false);
 			
 		}
 		

@@ -31,6 +31,10 @@ public class World {
 		
 	}
 	
+	public void addEntity(Entity e) {
+		this.entities.add(e);
+	}
+	
 	public void setEntities(ArrayList<Entity> entities) {
 		this.entities = entities;
 	}

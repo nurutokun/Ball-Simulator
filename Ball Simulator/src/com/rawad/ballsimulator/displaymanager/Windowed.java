@@ -99,7 +99,7 @@ public class Windowed extends DisplayMode {
 		
 		if(KeyboardInput.isKeyDown(KeyEvent.VK_F11)) {
 			DisplayManager.setDisplayMode(DisplayManager.Mode.FULLSCREEN);
-			KeyboardInput.setKeyDown(KeyEvent.VK_F11, false);
+			
 			return;
 		}
 		

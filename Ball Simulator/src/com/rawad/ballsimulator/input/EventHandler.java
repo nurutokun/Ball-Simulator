@@ -99,8 +99,8 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 		double xScale = (double) DisplayManager.getScreenWidth()/(double) e.getComponent().getWidth();
 		double yScale = (double) DisplayManager.getScreenHeight()/(double) e.getComponent().getHeight();
 		
-		int newX = (int) (e.getX() * xScale);
-		int newY = (int) (e.getY() * yScale);
+		int newX = (int) (((double) e.getX()) * xScale);
+		int newY = (int) (((double) e.getY()) * yScale);
 		
 		MouseInput.setX(newX);
 		MouseInput.setY(newY);

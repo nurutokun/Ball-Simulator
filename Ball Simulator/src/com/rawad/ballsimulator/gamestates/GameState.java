@@ -9,13 +9,10 @@ import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.gui.Button;
 import com.rawad.ballsimulator.gui.Overlay;
 import com.rawad.ballsimulator.input.KeyboardInput;
-import com.rawad.ballsimulator.world.World;
 
 public class GameState extends State {
 	
 	private Client client;
-	
-	private World world;
 	
 	private Overlay gameOverScreen;
 	
@@ -24,9 +21,7 @@ public class GameState extends State {
 	public GameState() {
 		super(StateEnum.GAMESTATE);
 		
-		world = new World();
-		
-		client = new Client(world);
+		client = new Client();
 		
 		gameOverScreen = new Overlay(Color.GRAY, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
 		
@@ -46,11 +41,14 @@ public class GameState extends State {
 			
 			gameOverScreenActive = !gameOverScreenActive;
 			
-			KeyboardInput.setKeyDown(KeyEvent.VK_ESCAPE, false);
 		}
 		
+//		if(!gameOverScreenActive) {
 		client.update(DisplayManager.getDeltaTime());
+//		}
 		
+		client.pauseGame(gameOverScreenActive);
+			
 	}
 	
 	@Override
@@ -59,8 +57,12 @@ public class GameState extends State {
 		switch(butt.getId()) {
 		
 		case "Main Menu":
-			gameOverScreenActive = false;// For next time.
-			sm.setState(StateEnum.MENUSTATE);
+			
+			if(gameOverScreenActive) {
+				gameOverScreenActive = false;// For next time.
+				sm.setState(StateEnum.MENUSTATE);
+			}
+			
 			break;
 		
 		}
@@ -71,7 +73,7 @@ public class GameState extends State {
 	public void render(Graphics2D g) {
 		super.render(g);
 		
-		world.render(g);
+		client.render(g);
 		
 		if(gameOverScreenActive) {
 			gameOverScreen.render(g);
