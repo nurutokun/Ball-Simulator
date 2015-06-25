@@ -1,7 +1,9 @@
 package com.rawad.ballsimulator.input;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class KeyboardInput {
@@ -47,6 +49,32 @@ public class KeyboardInput {
 	 */
 	public static boolean isKeyDown(int key) {
 		return isKeyDown(key, true);
+	}
+	
+	/**
+	 * Returns an iterable set of {@code Entry} objects that can be efficiently iterated over to check for all the keys that are down.
+	 * 
+	 * @return
+	 */
+	public static int[] getPressedKeys() {
+		
+		Iterator<Entry<Integer, Boolean>> it = keyStates.entrySet().iterator();
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		
+		while(it.hasNext()) {
+			
+			list.add(it.next().getKey());
+			
+			it.remove();
+		}
+		
+		int[] values = new int[list.size()];
+		
+		for(int i = 0; i < values.length; i++) {
+			values[i] = list.get(i);
+		}
+		
+		return values;
 	}
 	
 	/**

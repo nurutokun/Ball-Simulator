@@ -23,13 +23,23 @@ public class GameState extends State {
 		
 		client = new Client();
 		
-		gameOverScreen = new Overlay(Color.GRAY, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
-		
-		gameOverScreen.addComponent(new Button("Main Menu", DisplayManager.getScreenWidth()/2, DisplayManager.getDisplayHeight()/2));
+		initGameOverScreen();
 		
 		addOverlay(gameOverScreen);
 		
 		gameOverScreenActive = false;
+		
+	}
+	
+	private void initGameOverScreen() {
+		
+		int centerX = DisplayManager.getScreenWidth()/2;
+		int verticalSections = DisplayManager.getScreenHeight()/7;
+		
+		gameOverScreen = new Overlay(Color.GRAY, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
+		
+		gameOverScreen.addComponent(new Button("Resume", centerX, verticalSections * 3));
+		gameOverScreen.addComponent(new Button("Main Menu", centerX, verticalSections * 4));
 		
 	}
 	
@@ -62,6 +72,11 @@ public class GameState extends State {
 				gameOverScreenActive = false;// For next time.
 				sm.setState(StateEnum.MENUSTATE);
 			}
+			break;
+			
+		case "Resume" :
+			
+			gameOverScreenActive = false;
 			
 			break;
 		

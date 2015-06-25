@@ -1,31 +1,35 @@
 package com.rawad.ballsimulator.entity;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.world.World;
 
-public class Player extends Entity {
+public abstract class EntityMovingBase extends EntityLivingBase {
 	
-	private double ax;
-	private double ay;
+	protected double ax;
+	protected double ay;
 	
-	private double vx;
-	private double vy;
+	protected double vx;
+	protected double vy;
 	
 	private boolean up;
 	private boolean down;
 	private boolean right;
 	private boolean left;
 	
-	public Player(World world) {
-		super(world);
+	public EntityMovingBase(World world, double maxHealth, double health, double regen, boolean canRegen) {
+		super(world, maxHealth, health, regen, canRegen);
 		
+	}
+	
+	public EntityMovingBase(World world) {
+		super(world);
 	}
 	
 	@Override
 	public void update(long timePassed) {
+		super.update(timePassed);
 		
 		double delta = timePassed/100d;
 		
@@ -46,7 +50,7 @@ public class Player extends Entity {
 		} else if(left) {
 			ax -= 0.1d;
 		} else {
-			ay /= 2d;
+			ax /= 2d;
 		}
 		
 		if(Math.abs(ax) > 2) {
@@ -65,12 +69,14 @@ public class Player extends Entity {
 //		double decrement = 0.1;
 		
 		if(ax != 0) {
-			ax /= 2d;
+//			ax /= 2d;
+			vx /= 1.1d;
 //			ax = ax < 0? ax + decrement:ax - decrement;
 		}
 		
 		if(ay != 0) {
-			ay /= 2d;
+//			ay /= 2d;
+			vy /= 1.1d;
 //			ay = ay < 0? ay + decrement: ay - decrement;
 		}
 		
@@ -103,25 +109,30 @@ public class Player extends Entity {
 		if(y < 0) {
 			ay /= 2;
 			y = 0;
-			vy = -vy;
+			vy = -vy/2;
 		} else if(y > DisplayManager.getScreenHeight()) {
 			ay /= 2;
 			y = DisplayManager.getScreenHeight();
-			vy = -vy;
+			vy = -vy/2;
 		}
+		
+		updateHitbox();
+		
+		// stopMoving(); when using single-frame key testing.
+		stopMoving();
+	}
+	
+	@Override
+	public void render(Graphics2D g) {
+		super.render(g);
+	}
+	
+	public void stopMoving() {
 		
 		up = false;
 		down = false;
 		right = false;
 		left = false;
-		
-	}
-	
-	@Override
-	public void render(Graphics2D g) {
-		
-		g.setColor(Color.RED);
-		g.fillOval((int) x - 20, (int) y - 20, 40, 40);
 		
 	}
 	
@@ -143,6 +154,38 @@ public class Player extends Entity {
 	public void moveLeft() {
 		left = true;
 		right = false;
+	}
+	
+	protected double getAx() {
+		return ax;
+	}
+	
+	protected void setAx(double ax) {
+		this.ax = ax;
+	}
+	
+	protected double getAy() {
+		return ay;
+	}
+	
+	protected void setAy(double ay) {
+		this.ay = ay;
+	}
+	
+	protected double getVx() {
+		return vx;
+	}
+	
+	protected void setVx(double vx) {
+		this.vx = vx;
+	}
+	
+	protected double getVy() {
+		return vy;
+	}
+	
+	protected void setVy(double vy) {
+		this.vy = vy;
 	}
 	
 }
