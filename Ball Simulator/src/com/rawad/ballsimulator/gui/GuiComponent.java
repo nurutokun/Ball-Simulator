@@ -157,7 +157,7 @@ public abstract class GuiComponent {
 	
 	public boolean intersects(int x, int y) {
 		
-		return hitbox.intersects(x, y, 1, 1);
+		return hitbox.contains(x, y);
 		
 //		if( x >= this.x && x <= this.x + width &&
 //			y >= this.y && y <= this.y + height) {

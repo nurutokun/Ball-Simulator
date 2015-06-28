@@ -27,9 +27,6 @@ public class BallSimulator {
 	private boolean debug;
 	private boolean showSquares;
 	
-	double x;
-	double y;
-	
 	public BallSimulator() {
 		
 		sm = new StateManager();
@@ -63,16 +60,6 @@ public class BallSimulator {
 		
 		sm.update();
 		
-		if(MouseInput.isClamped()) {
-			
-			double dx = (double) MouseInput.getX()*timePassed/(double) 100.0;
-			double dy = (double) MouseInput.getY()*timePassed/(double) 100.0;
-			
-			x += dx;
-			y += dy;
-			
-		}
-		
 	}
 	
 	private void handleKeyboardInput() {
@@ -86,9 +73,6 @@ public class BallSimulator {
 		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_C)) {
 			
 			MouseInput.setClamped(!MouseInput.isClamped(), DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2);
-			
-			x = 0;
-			y = DisplayManager.getScreenHeight()/2;
 			
 		}
 		
@@ -110,15 +94,15 @@ public class BallSimulator {
 			renderSquares(g);
 		}
 		
-		g.setColor(Color.BLACK);
-		g.fillOval((int) x - 20, (int) y - 20, 40, 40);
-		
 	}
 	
 	private void renderDebugOverlay(Graphics2D g) {
 		
+		int screenWidth = DisplayManager.getScreenWidth();
+		int screenHeight = DisplayManager.getScreenHeight();
+		
 		g.setColor(Color.GREEN);
-		g.fillOval(DisplayManager.getScreenWidth() - 50, DisplayManager.getScreenHeight() - 50, 50, 50);
+		g.fillOval(screenWidth - 50, screenHeight - 50, 50, 50);
 		
 		g.setColor(Color.WHITE);
 		g.drawString(DisplayManager.getDisplayWidth() + ", " + DisplayManager.getDisplayHeight() + " | " +

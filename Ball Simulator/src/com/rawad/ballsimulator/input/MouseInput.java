@@ -160,7 +160,12 @@ public class MouseInput {
 	}
 	
 	public static int getMouseWheelPosition() {
-		return mouseWheelPosition;
+		
+		int value = mouseWheelPosition;
+		
+		mouseWheelPosition = 0;
+		
+		return value;
 	}
 	
 	public static void setMouseWheelPosition(int mouseWheelPosition) {

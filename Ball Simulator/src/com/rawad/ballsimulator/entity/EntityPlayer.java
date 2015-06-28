@@ -11,8 +11,11 @@ public class EntityPlayer extends EntityMovingBase {
 	public EntityPlayer(World world) {
 		super(world);
 		
-		this.width = 40;
-		this.height = 40;
+		x = 200;
+		y = 200;
+		
+		width = 40;
+		height = 40;
 		
 	}
 	
@@ -20,12 +23,12 @@ public class EntityPlayer extends EntityMovingBase {
 	public void update(long timePassed) {
 		super.update(timePassed);
 		
+		updateHitbox(x - (width/2), y - (height/2), width, height);
+		
 		if(intersects(MouseInput.getX(), MouseInput.getY()) && MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON)) {
 			this.hit(0.2d);
 			
 		}
-		
-		updateHitbox(this.x - (this.width/2), this.y - (this.height/2), this.width, this.height);
 		
 	}
 	
@@ -34,7 +37,7 @@ public class EntityPlayer extends EntityMovingBase {
 		super.render(g);
 		
 		g.setColor(Color.RED);
-		g.fillOval((int) hitbox.x, (int) hitbox.y, width, height);
+		g.fillOval(hitbox.x, hitbox.y, width, height);
 		
 	}
 	

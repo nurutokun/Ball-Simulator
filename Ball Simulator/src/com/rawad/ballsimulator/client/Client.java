@@ -2,9 +2,12 @@ package com.rawad.ballsimulator.client;
 
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
 
+import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.input.KeyboardInput;
+import com.rawad.ballsimulator.input.MouseInput;
 import com.rawad.ballsimulator.world.World;
 
 public class Client {
@@ -13,13 +16,17 @@ public class Client {
 	
 	private EntityPlayer player;
 	
+	private Camera camera;
+	
 	private boolean paused;
 	
 	public Client() {
 		
-		this.world = new World();
+		world = new World();
 		
 		player = new EntityPlayer(world);
+		
+		camera = new Camera(player);
 		
 		paused = false;
 		
@@ -31,8 +38,19 @@ public class Client {
 		if(!paused) {
 			
 			handleKeyboardInput();
-			 
+			
 			player.update(timePassed);
+			
+			
+			if(MouseInput.isClamped()) {
+				
+				camera.setX(camera.getX() + MouseInput.getX());
+				camera.setY(camera.getY() + MouseInput.getY());
+			} else {
+				camera.update();
+				
+			}
+			
 		}
 		
 	}
@@ -108,7 +126,16 @@ public class Client {
 	
 	public void render(Graphics2D g) {
 		
+		AffineTransform af = g.getTransform();
+		
+		int translateX = camera.getX();
+		int translateY = camera.getY();
+		
+		g.translate(-translateX, -translateY);
+		
 		world.render(g);
+		
+		g.setTransform(af);
 		
 	}
 	

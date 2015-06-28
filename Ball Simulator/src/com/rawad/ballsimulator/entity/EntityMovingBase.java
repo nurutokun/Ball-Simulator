@@ -1,8 +1,8 @@
 package com.rawad.ballsimulator.entity;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.world.World;
 
 public abstract class EntityMovingBase extends EntityLivingBase {
@@ -63,46 +63,67 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		vx += finalAccelX;//Math.sqrt(Math.pow(vx, 2) + (ax));
 		vy += finalAccelY;//Math.sqrt(Math.pow(vy, 2) + (ay));
 		
-		x += vx;
-		y += vy;
+		double newX = x + vx;
+		double newY = y + vy;
+		
+		Rectangle tempHitbox = new Rectangle((int) newX, (int) y, getHitbox().width, getHitbox().height);
+		
+		if(world.mapCollision(tempHitbox)) {
+			newX = x;
+		}
+		
+		tempHitbox.setBounds((int) x, (int) newY, getHitbox().width, getHitbox().height);
+		
+		if(world.mapCollision(tempHitbox)) {
+			newY = y;
+		}
+		
+		x = newX;
+		y = newY;
 		
 //		double decrement = 0.1;
 		
-		if(ax != 0) {
+		final double minVelocity = 0.4;
+		
+		if(ax == 0) {
 //			ax /= 2d;
-			vx /= 1.1d;
+			vx /= 1.01d;
 //			ax = ax < 0? ax + decrement:ax - decrement;
+			
+			if(Math.abs(vx) < minVelocity) {
+				vx = 0;
+			}
+			
 		}
 		
-		if(ay != 0) {
+		if(ay == 0) {
 //			ay /= 2d;
-			vy /= 1.1d;
+			vy /= 1.01d;
 //			ay = ay < 0? ay + decrement: ay - decrement;
+			
+			if(Math.abs(vy) < minVelocity) {
+				vy = 0;
+			}
+			
 		}
 		
-		if(Math.abs(ax) < 0.05) {
+		final double minAccel = 0.01;
+		
+		if(Math.abs(ax) < minAccel) {
 			ax = 0;
 		}
 		
-		if(Math.abs(ay) < 0.05) {
+		if(Math.abs(ay) < minAccel) {
 			ay = 0;
 		}
-		
-		if(Math.abs(vx) < 0.05) {
-			vx = 0;
-		}
-		
-		if(Math.abs(vy) < 0.05) {
-			vy = 0;
-		}
-		
+			
 		if(x < 0) {
 			ax /= 2;
 			x = 0;
 			vx = -vx/2;
-		} else if(x > DisplayManager.getScreenWidth()) {
+		} else if(x > world.getWidth()) {
 			ax /= 2;
-			x = DisplayManager.getScreenWidth();
+			x = world.getWidth();
 			vx = -vx/2;
 		}
 		
@@ -110,9 +131,9 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 			ay /= 2;
 			y = 0;
 			vy = -vy/2;
-		} else if(y > DisplayManager.getScreenHeight()) {
+		} else if(y > world.getHeight()) {
 			ay /= 2;
-			y = DisplayManager.getScreenHeight();
+			y = world.getHeight();
 			vy = -vy/2;
 		}
 		

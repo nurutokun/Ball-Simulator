@@ -54,10 +54,9 @@ public abstract class EntityLivingBase extends Entity {
 		double height = 10;
 		
 		double x = this.x - (width/2);
-		double y = this.y - (this.height/2) - height - 5;
+		double y = this.y - (this.height/2) - height;
 		
 		g.setColor(Color.BLACK);
-		
 		g.draw(hitbox);
 		
 		g.fillRect((int) x, (int) y, (int) width, (int) height);

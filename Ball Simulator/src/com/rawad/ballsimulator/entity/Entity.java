@@ -9,13 +9,13 @@ public abstract class Entity {
 	
 	protected World world;
 	
+	protected Rectangle hitbox;
+	
 	protected double x;
 	protected double y;
 	
 	protected int width;
 	protected int height;
-	
-	protected Rectangle hitbox;
 	
 	public Entity(World world) {
 		
@@ -23,7 +23,7 @@ public abstract class Entity {
 		
 		this.world.addEntity(this);
 		
-		hitbox = new Rectangle((int) x, (int) y, width, height);
+		hitbox = new Rectangle();
 		
 	}
 	
@@ -36,7 +36,7 @@ public abstract class Entity {
 	}
 	
 	public void updateHitbox() {
-		this.updateHitbox(this.x, this.y, this.width, this.height);
+		updateHitbox(x, y, width, height);
 	}
 	
 	public boolean intersects(Entity e) {
