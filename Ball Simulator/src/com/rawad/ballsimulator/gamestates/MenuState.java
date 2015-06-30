@@ -10,10 +10,8 @@ import com.rawad.ballsimulator.main.BallSimulator;
 
 public class MenuState extends State {
 	
-	int i = 0;
-	
 	public MenuState() {
-		super(StateEnum.MENUSTATE);
+		super(StateEnum.MENU_STATE);
 		
 		int screenSections = DisplayManager.getScreenHeight()/8;
 		int centerScreen = DisplayManager.getScreenWidth()/2;
@@ -33,16 +31,15 @@ public class MenuState extends State {
 		switch(comp.getId()) {
 		
 		case "Singleplayer":
-			sm.setState(StateEnum.GAMESTATE);
+			sm.setState(StateEnum.GAME_STATE);
 			break;
 			
 		case "Multiplayer":
-			i++;
-			Logger.log(Logger.DEBUG, "Cliiiccckkkk 2 #: " + i);
+			Logger.log(Logger.DEBUG, "Multiplayer");
 			break;
 			
 		case "Option Menu":
-			sm.setState(StateEnum.OPTIONSTATE);
+			sm.setState(StateEnum.OPTION_STATE);
 			break;
 		
 		case "Exit":

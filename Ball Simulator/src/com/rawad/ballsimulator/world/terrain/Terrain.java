@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.world.terrain;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 public class Terrain {
@@ -16,6 +17,20 @@ public class Terrain {
 		for(TerrainComponent comp: terrainComponents) {
 			comp.render(g);
 		}
+		
+	}
+	
+	public boolean calculateCollision(Rectangle hitbox) {
+		
+		for(TerrainComponent comp: terrainComponents) {
+			
+			if(comp.intersects(hitbox)) {
+				return true;
+			}
+			
+		}
+		
+		return false;
 		
 	}
 	

@@ -23,7 +23,7 @@ public class StateManager {
 			currentState.update();
 			
 		} catch(NullPointerException ex) {
-			Logger.log(Logger.DEBUG, "current state is null for updating");
+			Logger.log(Logger.DEBUG, "Current state is null for updating");
 		}
 		
 	}
@@ -34,7 +34,7 @@ public class StateManager {
 			currentState.render(g);
 			
 		} catch(NullPointerException ex) {
-			Logger.log(Logger.DEBUG, "current state is null for rendering");
+			Logger.log(Logger.DEBUG, "Current state is null for rendering");
 		}
 		
 	}

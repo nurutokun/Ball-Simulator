@@ -105,7 +105,7 @@ public class MouseInput {
 	}
 	
 	/**
-	 * Not really used by any other class outside of this package so.... protected!
+	 * Not really used by any other class outside of this package so... protected!
 	 * 
 	 * @param key
 	 * @param value

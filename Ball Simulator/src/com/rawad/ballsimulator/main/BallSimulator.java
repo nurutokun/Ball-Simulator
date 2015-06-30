@@ -10,6 +10,7 @@ import com.rawad.ballsimulator.gamestates.MenuState;
 import com.rawad.ballsimulator.gamestates.OptionState;
 import com.rawad.ballsimulator.gamestates.StateEnum;
 import com.rawad.ballsimulator.gamestates.StateManager;
+import com.rawad.ballsimulator.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.gui.Background;
 import com.rawad.ballsimulator.input.KeyboardInput;
 import com.rawad.ballsimulator.input.MouseInput;
@@ -47,8 +48,9 @@ public class BallSimulator {
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
 		sm.addState(new OptionState());
+		sm.addState(new WorldEditorState());
 		
-		sm.setState(StateEnum.MENUSTATE);
+		sm.setState(StateEnum.MENU_STATE);
 		
 	}
 	

@@ -80,7 +80,8 @@ public class EventHandler implements MouseMotionListener, MouseListener, MouseWh
 			MouseInput.setButtonDown(MouseInput.MIDDLE_MOUSE_BUTTON, false);
 			
 		} else if(e.isMetaDown()) {
-			MouseInput.setButtonDown(MouseInput.RIGHT_MOUSE_BUTTON, false);			
+			MouseInput.setButtonDown(MouseInput.RIGHT_MOUSE_BUTTON, false);
+			
 		} else {
 			MouseInput.setButtonDown(MouseInput.LEFT_MOUSE_BUTTON, false);
 			

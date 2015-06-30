@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.Entity;
 import com.rawad.ballsimulator.world.terrain.Terrain;
-import com.rawad.ballsimulator.world.terrain.TerrainComponent;
 
 public class World {
 	
@@ -23,11 +22,8 @@ public class World {
 		entities = new ArrayList<Entity>();
 		terrain = new Terrain();
 		
-		terrain.addTerrainComponent(new TerrainComponent(100, 100, 20, 20));
-		terrain.addTerrainComponent(new TerrainComponent(100, 130, 20, 20));
-		
-		width = 900;
-		height = 900;
+		width = 1024;
+		height = 1024;
 		
 	}
 	
@@ -46,14 +42,54 @@ public class World {
 		
 		terrain.render(g);
 		
+		renderSquares(g);
+		
 		for(Entity e: entities) {
 			e.render(g);
 		}
 		
 	}
 	
-	public boolean mapCollision(Rectangle hitbox) {
+	private void renderSquares(Graphics2D g) {
+		
+		g.setColor(Color.BLACK);
+		
+		final int spacing = 32;
+		
+		for(int x = 0; x < width; x++) {
+			for(int y = 0; y < height; y++) {
+				
+				if(x % spacing == 0 && y % spacing == 0) {
+					g.fillRect(x, y, 1, 1);
+				}
+				
+			}
+		}
+		
+	}
+	
+	public boolean entityCollision(Entity e) {
+		
+		for(Entity e2: entities) {
+			
+			if(!e2.equals(e)) {
+				if(e2.intersects(e)) {
+					return true;
+				}
+			}
+			
+		}
+		
 		return false;
+		
+	}
+	
+	public boolean mapCollision(Rectangle hitbox) {
+		return terrain.calculateCollision(hitbox);
+	}
+	
+	public Terrain getTerrain() {
+		return terrain;
 	}
 	
 	public void addEntity(Entity e) {

@@ -2,9 +2,10 @@ package com.rawad.ballsimulator.gamestates;
 
 public enum StateEnum {
 	
-	GAMESTATE("Game State"),
-	MENUSTATE("Menu State"),
-	OPTIONSTATE("Option State");
+	GAME_STATE("Game State"),
+	MENU_STATE("Menu State"),
+	OPTION_STATE("Option State"),
+	WORLDEDITOR_STATE("World Editor State");
 	
 	private final String id;
 	

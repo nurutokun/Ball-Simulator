@@ -6,8 +6,9 @@ import com.rawad.ballsimulator.gui.Button;
 import com.rawad.ballsimulator.gui.DropDown;
 import com.rawad.ballsimulator.gui.GuiComponent;
 import com.rawad.ballsimulator.gui.GuiManager;
-import com.rawad.ballsimulator.gui.Overlay;
-import com.rawad.ballsimulator.gui.OverlayManager;
+import com.rawad.ballsimulator.gui.overlay.Overlay;
+import com.rawad.ballsimulator.gui.overlay.OverlayManager;
+import com.rawad.ballsimulator.input.MouseEvent;
 import com.rawad.ballsimulator.input.MouseInput;
 
 public abstract class State {
@@ -18,6 +19,8 @@ public abstract class State {
 	private OverlayManager overlayManager;
 	
 	protected StateManager sm;
+	
+	private MouseEvent e;
 	
 	public State(StateEnum stateType) {
 		this.stateType = stateType;
@@ -32,7 +35,9 @@ public abstract class State {
 	 */
 	public void update() {
 		
-		this.update(MouseInput.getX(), MouseInput.getY(), MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON));
+		e = new MouseEvent(MouseInput.getX(), MouseInput.getY(), MouseInput.LEFT_MOUSE_BUTTON);
+		
+		this.update(e);
 		
 	}
 	
@@ -43,30 +48,31 @@ public abstract class State {
 	 * @param y
 	 * @param mouseButtonDown
 	 */
-	public void update(int x, int y, boolean mouseButtonDown) {
+	public void update(MouseEvent e) {
 		
-		guiManager.update(x, y, mouseButtonDown);
+		guiManager.update(e);
 		
 		Button butt = guiManager.getCurrentClickedButton();
 		
 		if(butt != null) {
 			handleButtonClick(butt);
-			butt.setClicked(false);
+			
 		}
 		
 		DropDown drop = guiManager.getCurrentSelectedDropDown();
 		
 		if(drop != null) {
 			handleDropDownMenuSelect(drop);
+			
 		}
 		
-		overlayManager.update(x, y, mouseButtonDown);
+		overlayManager.update(e);
 		
 		butt = overlayManager.getClickedButton();
 		
 		if(butt != null) {
 			handleButtonClick(butt);
-			butt.setClicked(false);
+			
 		}
 		
 	}

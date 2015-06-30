@@ -9,6 +9,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import com.rawad.ballsimulator.input.MouseEvent;
 import com.rawad.ballsimulator.log.Logger;
 import com.rawad.ballsimulator.main.BallSimulator;
 
@@ -70,10 +71,38 @@ public abstract class GuiComponent {
 	/**
 	 * Update position and/or highlighted-status and/or typing cursor etc.
 	 * 
-	 * @param x X-coordinate of mouse position
-	 * @param y Y-coordinate of mouse position
 	 */
-	public void update(int x, int y, boolean mouseButtonDown) {
+	public void update(MouseEvent e) {
+		
+		complexUpdate(e);
+		
+//		simpleUpdate(e);
+		
+	}
+	
+	@SuppressWarnings("unused")
+	private void simpleUpdate(MouseEvent e) {
+		
+		int x = e.getX();
+		int y = e.getY();
+		
+		boolean mouseButtonDown = e.isButtonDown();
+		
+		if(intersects(x, y) && mouseButtonDown) {
+			
+			mouseClicked();
+			
+			e.consume();
+		}
+		
+	}
+	
+	private void complexUpdate(MouseEvent e) {
+		
+		int x = e.getX();
+		int y = e.getY();
+		
+		boolean mouseButtonDown = e.isButtonDown();
 		
 		if(!intersects(x, y) && mouseButtonDown && prevMouseX != x && prevMouseY != y) {// Mouse dragged outside component
 			mouseDragged = true;
@@ -114,6 +143,8 @@ public abstract class GuiComponent {
 				hovered = true;
 				
 			}
+			
+			e.consume();// Yes.
 			
 		} else {
 			

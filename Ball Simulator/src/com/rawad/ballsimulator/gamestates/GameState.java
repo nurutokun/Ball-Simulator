@@ -7,58 +7,41 @@ import java.awt.event.KeyEvent;
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.gui.Button;
-import com.rawad.ballsimulator.gui.Overlay;
+import com.rawad.ballsimulator.gui.overlay.PauseOverlay;
 import com.rawad.ballsimulator.input.KeyboardInput;
+import com.rawad.ballsimulator.input.MouseEvent;
 
 public class GameState extends State {
 	
 	private Client client;
 	
-	private Overlay gameOverScreen;
-	
-	private boolean gameOverScreenActive;
+	private PauseOverlay pauseScreen;
 	
 	public GameState() {
-		super(StateEnum.GAMESTATE);
+		super(StateEnum.GAME_STATE);
 		
 		client = new Client();
 		
-		initGameOverScreen();
+		pauseScreen = new PauseOverlay(Color.GRAY, 0, 0);
 		
-		addOverlay(gameOverScreen);
-		
-		gameOverScreenActive = false;
-		
-	}
-	
-	private void initGameOverScreen() {
-		
-		int centerX = DisplayManager.getScreenWidth()/2;
-		int verticalSections = DisplayManager.getScreenHeight()/7;
-		
-		gameOverScreen = new Overlay(Color.GRAY, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
-		
-		gameOverScreen.addComponent(new Button("Resume", centerX, verticalSections * 3));
-		gameOverScreen.addComponent(new Button("Main Menu", centerX, verticalSections * 4));
+		addOverlay(pauseScreen);
 		
 	}
 	
 	@Override
-	public void update(int x, int y, boolean mouseButtonDown) {
-		super.update(x, y, mouseButtonDown);
+	public void update(MouseEvent e) {
+		super.update(e);
 		
 		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE)) {
 			
-			gameOverScreenActive = !gameOverScreenActive;
+			pauseScreen.setPaused(!pauseScreen.isPaused());
 			
 		}
 		
-//		if(!gameOverScreenActive) {
 		client.update(DisplayManager.getDeltaTime());
-//		}
 		
-		client.pauseGame(gameOverScreenActive);
-			
+		client.pauseGame(pauseScreen.isPaused());
+		
 	}
 	
 	@Override
@@ -66,20 +49,20 @@ public class GameState extends State {
 		
 		switch(butt.getId()) {
 		
-		case "Main Menu":
+		case "Resume":
 			
-			if(gameOverScreenActive) {
-				gameOverScreenActive = false;// For next time.
-				sm.setState(StateEnum.MENUSTATE);
-			}
-			break;
-			
-		case "Resume" :
-			
-			gameOverScreenActive = false;
+			pauseScreen.setPaused(false);
 			
 			break;
 		
+		case "Main Menu":
+			
+			// No need to check if paused; pauseOverlay does that for you.
+			pauseScreen.setPaused(false);// For next time.
+			sm.setState(StateEnum.MENU_STATE);
+			
+			break;
+			
 		}
 		
 	}
@@ -90,8 +73,8 @@ public class GameState extends State {
 		
 		client.render(g);
 		
-		if(gameOverScreenActive) {
-			gameOverScreen.render(g);
+		if(pauseScreen.isPaused()) {
+			pauseScreen.render(g);
 		}
 		
 	}

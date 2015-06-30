@@ -11,17 +11,17 @@ public class DisplayManager {
 	
 	public static final Color DEFAULT_BACKGROUND_COLOR = new Color(202, 212, 227);
 	
-	private static final int SCREEN_WIDTH = 640;
-	private static final int SCREEN_HEIGHT = 480;
+	private static final int SCREEN_WIDTH = 640;//640
+	private static final int SCREEN_HEIGHT = 480;//480
 	
 	// vvv All of these should be changeable to what the user desires
 	public static int REFRESH_RATE = 60;
 	
-	private static int DISPLAY_WIDTH = 640;// not final; changes with the resizing of the window
-	private static int DISPLAY_HEIGHT = 480;
+	private static int DISPLAY_WIDTH = SCREEN_WIDTH;// not final; changes with the resizing of the window
+	private static int DISPLAY_HEIGHT = SCREEN_HEIGHT;
 	
-	private static int FULLSCREEN_WIDTH = 640;
-	private static int FULLSCREEN_HEIGHT = 480;
+	private static int FULLSCREEN_WIDTH = SCREEN_WIDTH;
+	private static int FULLSCREEN_HEIGHT = SCREEN_HEIGHT;
 	
 	private static int FPS_SAMPLE_COUNT = 25;
 	// ^^^

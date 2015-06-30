@@ -66,16 +66,41 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		double newX = x + vx;
 		double newY = y + vy;
 		
-		Rectangle tempHitbox = new Rectangle((int) newX, (int) y, getHitbox().width, getHitbox().height);
+		int width = (this.width/2);
+		int height = (this.height/2);
+		
+		Rectangle tempHitbox = new Rectangle((int) newX - width, (int) y - height, hitbox.width, hitbox.height);
+		
+		if(newX - width <= 0) {
+			ax /= 2;
+			newX = 0 + width;
+			vx = -vx/2;
+		} else if(newX + width >= world.getWidth()) {
+			ax /= 2;
+			newX = world.getWidth() - width;
+			vx = -vx/2;
+		}
 		
 		if(world.mapCollision(tempHitbox)) {
 			newX = x;
+			vx = -vx/2;
 		}
 		
-		tempHitbox.setBounds((int) x, (int) newY, getHitbox().width, getHitbox().height);
+		tempHitbox.setBounds((int) x - width, (int) newY - height, hitbox.width, hitbox.height);
+		
+		if(newY - height <= 0) {
+			ay /= 2;
+			newY = 0 + (height);
+			vy = -vy/2;
+		} else if(newY + height >= world.getHeight()) {
+			ay /= 2;
+			newY = world.getHeight() - height;
+			vy = -vy/2;
+		}
 		
 		if(world.mapCollision(tempHitbox)) {
 			newY = y;
+			vy = -vy/2;
 		}
 		
 		x = newX;
@@ -115,26 +140,6 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		
 		if(Math.abs(ay) < minAccel) {
 			ay = 0;
-		}
-			
-		if(x < 0) {
-			ax /= 2;
-			x = 0;
-			vx = -vx/2;
-		} else if(x > world.getWidth()) {
-			ax /= 2;
-			x = world.getWidth();
-			vx = -vx/2;
-		}
-		
-		if(y < 0) {
-			ay /= 2;
-			y = 0;
-			vy = -vy/2;
-		} else if(y > world.getHeight()) {
-			ay /= 2;
-			y = world.getHeight();
-			vy = -vy/2;
 		}
 		
 		updateHitbox();

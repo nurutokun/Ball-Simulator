@@ -1,12 +1,17 @@
 package com.rawad.ballsimulator.entity;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
 
 import com.rawad.ballsimulator.input.MouseInput;
 import com.rawad.ballsimulator.world.World;
 
-public class EntityPlayer extends EntityMovingBase {
+public class EntityPlayer extends EntityRotatingBase {
+	
+	private BufferedImage texture;
 	
 	public EntityPlayer(World world) {
 		super(world);
@@ -17,15 +22,18 @@ public class EntityPlayer extends EntityMovingBase {
 		width = 40;
 		height = 40;
 		
+		try {
+			texture = ImageIO.read(new File("res/entity_textures/player.png"));
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
 	}
 	
-	@Override
-	public void update(long timePassed) {
+	public void update(long timePassed, int pointX, int pointY) {
 		super.update(timePassed);
 		
-		updateHitbox(x - (width/2), y - (height/2), width, height);
-		
-		if(intersects(MouseInput.getX(), MouseInput.getY()) && MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON)) {
+		if(intersects(pointX, pointY) && MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON)) {
 			this.hit(0.2d);
 			
 		}
@@ -36,8 +44,10 @@ public class EntityPlayer extends EntityMovingBase {
 	public void render(Graphics2D g) {
 		super.render(g);
 		
-		g.setColor(Color.RED);
-		g.fillOval(hitbox.x, hitbox.y, width, height);
+//		g.setColor(Color.RED);
+//		g.fillOval(hitbox.x, hitbox.y, width, height);
+		
+		g.drawImage(texture, hitbox.x, hitbox.y, null);
 		
 	}
 	

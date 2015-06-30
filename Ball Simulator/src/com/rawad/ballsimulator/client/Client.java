@@ -39,15 +39,41 @@ public class Client {
 			
 			handleKeyboardInput();
 			
-			player.update(timePassed);
-			
+			player.update(timePassed, MouseInput.getX() + camera.getX(), MouseInput.getY() + camera.getY());
 			
 			if(MouseInput.isClamped()) {
+				camera.update(camera.getX() + MouseInput.getX(), camera.getY() + MouseInput.getY(), 0, 0);
 				
-				camera.setX(camera.getX() + MouseInput.getX());
-				camera.setY(camera.getY() + MouseInput.getY());
+				double mouseDelta = MouseInput.getMouseWheelPosition()/1d;
+				
+				if(mouseDelta > 0) {
+					camera.setScale(camera.getXScale() / mouseDelta, camera.getYScale() / mouseDelta);
+					
+				} else if(mouseDelta < 0) {
+					mouseDelta *= -1;
+					camera.setScale(camera.getXScale() * mouseDelta, camera.getYScale() * mouseDelta);
+					
+				}
+				
 			} else {
 				camera.update();
+				
+				camera.setScale(1, 1);
+				
+				final int maxWidth = world.getWidth() - DisplayManager.getScreenWidth();
+				final int maxHeight = world.getHeight() - DisplayManager.getScreenHeight();
+				
+				if(camera.getX() < 0) {
+					camera.setX(0);
+				} else if(camera.getX() > maxWidth) {
+					camera.setX(maxWidth);
+				}
+				
+				if(camera.getY() < 0) {
+					camera.setY(0);
+				} else if(camera.getY() > maxHeight) {
+					camera.setY(maxHeight);
+				}
 				
 			}
 			
@@ -132,6 +158,11 @@ public class Client {
 		int translateY = camera.getY();
 		
 		g.translate(-translateX, -translateY);
+		
+		double xScale = camera.getXScale();
+		double yScale = camera.getYScale();
+		
+		g.scale(xScale, yScale);
 		
 		world.render(g);
 		

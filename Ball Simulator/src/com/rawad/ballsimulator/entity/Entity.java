@@ -36,7 +36,7 @@ public abstract class Entity {
 	}
 	
 	public void updateHitbox() {
-		updateHitbox(x, y, width, height);
+		updateHitbox(x - (width/2), y - (height/2), width, height);
 	}
 	
 	public boolean intersects(Entity e) {
@@ -49,6 +49,14 @@ public abstract class Entity {
 	
 	public Rectangle getHitbox() {
 		return hitbox;
+	}
+	
+	public double getX() {
+		return x;
+	}
+	
+	public double getY() {
+		return y;
 	}
 	
 }

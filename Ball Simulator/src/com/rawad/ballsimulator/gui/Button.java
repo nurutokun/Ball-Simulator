@@ -6,6 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import com.rawad.ballsimulator.input.MouseEvent;
+
 public class Button extends GuiComponent {
 	
 	private static final BufferedImage[] DEFAULT_TEXTURES;
@@ -46,10 +48,10 @@ public class Button extends GuiComponent {
 	}
 	
 	@Override
-	public void update(int x, int y, boolean mouseButtonDown) {
-		super.update(x, y, mouseButtonDown);
+	public void update(MouseEvent e) {
+		super.update(e);
 		
-		if(!intersects(x, y) && !mouseButtonDown) {
+		if(!intersects(e.getX(), e.getY()) && !e.isButtonDown()) {
 			mouseReleased();
 		}
 		

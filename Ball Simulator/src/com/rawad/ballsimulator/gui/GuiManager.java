@@ -3,13 +3,14 @@ package com.rawad.ballsimulator.gui;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
+import com.rawad.ballsimulator.input.MouseEvent;
+
 public class GuiManager {
 	
 	private ArrayList<GuiComponent> components;
 	private ArrayList<Button> buttons;
 	private ArrayList<DropDown> dropDowns;
 	
-	private GuiComponent currentIntersectedComponent;
 	private Button currentClickedButton;
 	private DropDown currentSelectedDropDown;
 	
@@ -21,19 +22,26 @@ public class GuiManager {
 		
 	}
 	
-	public void update(int x, int y, boolean mouseButtonDown) {
-		
-		currentIntersectedComponent = getIntersectedComponent(x, y);
+	public void update(MouseEvent e) {
 		
 		for(GuiComponent comp: components) {
-			comp.update(x, y, mouseButtonDown);
+			
+			comp.update(e);
+			
+			if(e.isConsumed()) {// No need to update anymore components, the previous one consumed the event.
+				break;
+			}
+			
 		}
 		
-		// Sadly needs to be done this way.
+		// Sadly, needs to be done this way.
 		for(Button butt: buttons) {
 			
 			if(butt.isClicked()) {
 				currentClickedButton = butt;
+				
+				butt.setClicked(false);
+				
 				break;
 			}
 			
@@ -49,12 +57,12 @@ public class GuiManager {
 				
 				if(drop.isMenuDown()) {
 					// Tell the drop down menu to select an item.
-					drop.calculateSelectedItem(y);
+					drop.calculateSelectedItem(e.getY());
 					drop.setMenuDown(false);
 					
 					currentSelectedDropDown = drop;
 					
-					return;
+					break;
 					
 				} else {
 					drop.setMenuDown(true);
@@ -70,38 +78,26 @@ public class GuiManager {
 	
 	public void render(Graphics2D g) {
 		
-		for(GuiComponent comp: components) {
+		for(int i = components.size() - 1; i >= 0; i--) {
+			GuiComponent comp = components.get(i);
+			
 			comp.render(g);
 		}
 		
 	}
 	
-	private GuiComponent getIntersectedComponent(int x, int y) {
-		
-		for(int i = components.size() - 1; i >= 0; i--) {// Last-added component gets prioritized.
-			
-			GuiComponent comp = components.get(i);
-			
-			if(comp.intersects(x, y)) {
-				return comp;
-			}
-			
-		}
-		
-		return null;
-		
-	}
-	
 	public void addComponent(GuiComponent comp) {
 		
+		// Appends new components to beginning of list so that they are prioritized and are easily loop-able that way
 		if(comp instanceof DropDown) {
-			dropDowns.add((DropDown) comp);
+			dropDowns.add(0, (DropDown) comp);
 			
 		} else if(comp instanceof Button) {
-			buttons.add((Button) comp);
+			buttons.add(0, (Button) comp);
 			
 		}
 		
+		// Aren't added backwards for updating purposes
 		components.add(comp);
 		
 	}
@@ -112,10 +108,6 @@ public class GuiManager {
 	
 	public DropDown getCurrentSelectedDropDown() {
 		return currentSelectedDropDown;
-	}
-	
-	public GuiComponent getCurrentIntersectedComponent() {
-		return currentIntersectedComponent;
 	}
 	
 }

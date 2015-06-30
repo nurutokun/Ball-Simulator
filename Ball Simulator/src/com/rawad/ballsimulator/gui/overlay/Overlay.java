@@ -1,9 +1,13 @@
-package com.rawad.ballsimulator.gui;
+package com.rawad.ballsimulator.gui.overlay;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.rawad.ballsimulator.displaymanager.DisplayManager;
+import com.rawad.ballsimulator.gui.Button;
+import com.rawad.ballsimulator.gui.GuiComponent;
+import com.rawad.ballsimulator.gui.GuiManager;
+import com.rawad.ballsimulator.input.MouseEvent;
 
 /**
  * Much like fragments for Android applications; re-usable interfaces.
@@ -16,13 +20,13 @@ public class Overlay {
 	
 	private GuiManager guiManager;
 	
-	private Color backgroundColor;
+	protected Color backgroundColor;
 	
-	private int x;
-	private int y;
+	protected int x;
+	protected int y;
 	
-	private int width;
-	private int height;
+	protected int width;
+	protected int height;
 	
 	public Overlay(Color backgroundColor, int x, int y, int width, int height) {
 		
@@ -55,8 +59,8 @@ public class Overlay {
 		guiManager.addComponent(comp);
 	}
 	
-	public void update(int x, int y, boolean mouseButtonDown) {
-		guiManager.update(x, y, mouseButtonDown);
+	public void update(MouseEvent e) {
+		guiManager.update(e);
 	}
 	
 	public void render(Graphics2D g) {

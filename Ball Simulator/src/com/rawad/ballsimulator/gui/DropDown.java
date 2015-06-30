@@ -6,7 +6,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
+import com.rawad.ballsimulator.input.MouseEvent;
 
 public class DropDown extends Button {
 	
@@ -30,7 +30,8 @@ public class DropDown extends Button {
 	
 	private boolean menuDown;
 	
-	public DropDown(String id, BufferedImage background, BufferedImage foreground, BufferedImage onclick, int x, int y, String... options) {
+	public DropDown(String id, BufferedImage background, BufferedImage foreground, BufferedImage onclick,
+			int x, int y, String defaultOption, String... options) {
 		super(id, background, foreground, onclick, x, y);
 		
 		this.options = options;
@@ -40,25 +41,36 @@ public class DropDown extends Button {
 		hitbox.setBounds(this.x + (2*widthSection), this.y, widthSection, height);
 		
 		this.menu = new Menu(this.options, this.x + 5, this.y + height, widthSection * 2);
-		currentSelected = DisplayManager.getFullScreenResolution();
+		currentSelected = defaultOption;
+		
+	}
+	
+	public DropDown(String id, BufferedImage background,BufferedImage foreground, BufferedImage onclick,
+			int x, int y, int width, int height, String defaultOption, String... options) {
+		this(id, getScaledImage(background, width, height), getScaledImage(foreground, width, height), 
+				getScaledImage(onclick, width, height), x, y, defaultOption, options);
 		
 	}
 	
 	public DropDown(String id, BufferedImage background,
 			BufferedImage foreground, BufferedImage onclick, int x, int y, int width, int height, String... options) {
-		this(id, getScaledImage(background, width, height), getScaledImage(foreground, width, height), 
-				getScaledImage(onclick, width, height), x, y, options);
+		this(id, background, foreground, onclick, x, y, width, height, options[0], options);
 		
 	}
 	
 	public DropDown(String id, int x, int y, String... options) {
-		this(id, DEFAULT_TEXTURES[BACKGROUND_INDEX], DEFAULT_TEXTURES[FOREGROUND_INDEX], DEFAULT_TEXTURES[ONCLICK_INDEX], x, y, options);
+		this(id, DEFAULT_TEXTURES[BACKGROUND_INDEX], DEFAULT_TEXTURES[FOREGROUND_INDEX],
+				DEFAULT_TEXTURES[ONCLICK_INDEX], x, y, options[0], options);
 		
 	}
 	
-	public DropDown(String id, int x, int y, int width, int height, String... options) {
+	public DropDown(String id, int x, int y, int width, int height, String defaultOption, String... options) {
 		this(id, DEFAULT_TEXTURES[BACKGROUND_INDEX], DEFAULT_TEXTURES[FOREGROUND_INDEX],
-				DEFAULT_TEXTURES[ONCLICK_INDEX], x, y, width, height, options);
+				DEFAULT_TEXTURES[ONCLICK_INDEX], x, y, width, height, defaultOption, options);
+	}
+	
+	public DropDown(String id, int x, int y, int width, int height, String... options) {
+		this(id, x, y, width, height, options[0], options);
 	}
 	
 	static {
@@ -68,8 +80,13 @@ public class DropDown extends Button {
 	}
 	
 	@Override
-	public void update(int x, int y, boolean mouseButtonDown) {
-		super.update(x, y, mouseButtonDown);
+	public void update(MouseEvent e) {
+		super.update(e);
+		
+		int x = e.getX();
+		int y = e.getY();
+		
+		boolean mouseButtonDown = e.isButtonDown();
 		
 		if(isMenuDown()) {
 			hitbox.setBounds(menu.getX(), menu.getY(), menu.getWidth(), menu.getHeight());
@@ -193,7 +210,7 @@ public class DropDown extends Button {
 			g.drawRect(x, y, width, height);
 			
 			for(int i = 0; i < items.length; i++) {
-				g.drawString(items[i], x, y + (height/items.length * i) + STRING_HEIGHT);
+				g.drawString(items[i], x + 5, y + (height/items.length * i) + STRING_HEIGHT - 5);
 			}
 			
 		}

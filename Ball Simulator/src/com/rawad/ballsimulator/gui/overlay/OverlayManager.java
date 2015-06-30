@@ -1,6 +1,9 @@
-package com.rawad.ballsimulator.gui;
+package com.rawad.ballsimulator.gui.overlay;
 
 import java.util.ArrayList;
+
+import com.rawad.ballsimulator.gui.Button;
+import com.rawad.ballsimulator.input.MouseEvent;
 
 public class OverlayManager {
 	
@@ -14,10 +17,10 @@ public class OverlayManager {
 		
 	}
 	
-	public void update(int x, int y, boolean mouseButtonDown) {
+	public void update(MouseEvent e) {
 		
 		for(Overlay over: overlays) {
-			over.update(x, y, mouseButtonDown);
+			over.update(e);
 		}
 		
 		for(Overlay over: overlays) {

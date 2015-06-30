@@ -7,11 +7,15 @@ import com.rawad.ballsimulator.gui.DropDown;
 public class OptionState extends State {
 	
 	public OptionState() {
-		super(StateEnum.OPTIONSTATE);
+		super(StateEnum.OPTION_STATE);
 		
-		addGuiComponent(new Button("Main Menu", DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight() - 64));
-		addGuiComponent(new DropDown("Fullscreen Resolution", DisplayManager.getScreenWidth()/2, 128, 256,
-				64, DisplayManager.getCompatibleDisplayModeResolutions()));
+		int verticalSections = DisplayManager.getScreenHeight()/7;
+		int horizontalCenter = DisplayManager.getScreenWidth()/2;
+		
+		addGuiComponent(new Button("Main Menu", horizontalCenter, verticalSections * 6));
+		addGuiComponent(new DropDown("Fullscreen Resolution", horizontalCenter, verticalSections, 256,
+				64, DisplayManager.getFullScreenResolution(), DisplayManager.getCompatibleDisplayModeResolutions()));
+		addGuiComponent(new Button("World Editor", horizontalCenter, verticalSections * 2));
 		
 	}
 	
@@ -21,7 +25,11 @@ public class OptionState extends State {
 		switch(butt.getId()) {
 		
 		case "Main Menu":
-			sm.setState(StateEnum.MENUSTATE);
+			sm.setState(StateEnum.MENU_STATE);
+			break;
+			
+		case "World Editor":
+			sm.setState(StateEnum.WORLDEDITOR_STATE);
 			break;
 		
 		}
