@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
+import com.rawad.ballsimulator.loader.Loader;
+
 public class TerrainComponent {
 	
 	private double x;
@@ -64,6 +66,14 @@ public class TerrainComponent {
 	
 	public void setHeight(int height) {
 		this.height = height;
+	}
+	
+	@Override
+	public String toString() {
+		
+		String regex = Loader.TERRAIN_COMPONENT_ATTRIB_SPLIT;
+		
+		return x + regex + y + regex + width + regex + height;
 	}
 	
 }

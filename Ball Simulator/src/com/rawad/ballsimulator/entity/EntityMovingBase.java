@@ -1,11 +1,19 @@
 package com.rawad.ballsimulator.entity;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.rawad.ballsimulator.world.World;
+import com.rawad.gamehelpers.game.GameManager;
 
 public abstract class EntityMovingBase extends EntityLivingBase {
+	
+	private static final double JERK = 0.9d;// 0.1d
+	
+	private static final double MAX_ACCEL = JERK * 4;// 2.0d
+	private static final double MIN_ACCEL = 0.1d;// 0.01d
+	private static final double MIN_VELOCITY = 0.4d;// 0.4d
 	
 	protected double ax;
 	protected double ay;
@@ -31,30 +39,30 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 	public void update(long timePassed) {
 		super.update(timePassed);
 		
-		double delta = timePassed/100d;
+		double delta = timePassed/700d;
 		
 		if(up) {
-			ay -= 0.1d;
+			ay -= JERK;
 		} else if(down) {
-			ay += 0.1d;
+			ay += JERK;
 		} else {
 			ay /= 2d;
 		}
 		
 		if(Math.abs(ay) > 2) {
-			ay = up? -2: down? 2:ay;
+			ay = up? -MAX_ACCEL: down? MAX_ACCEL:ay;
 		}
 		
 		if(right) {
-			ax += 0.1d;
+			ax += JERK;
 		} else if(left) {
-			ax -= 0.1d;
+			ax -= JERK;
 		} else {
 			ax /= 2d;
 		}
 		
 		if(Math.abs(ax) > 2) {
-			ax = left? -2: right? 2:ax;
+			ax = left? -MAX_ACCEL: right? MAX_ACCEL:ax;
 		}
 		
 		double finalAccelX = ax * delta;
@@ -69,76 +77,75 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		int width = (this.width/2);
 		int height = (this.height/2);
 		
-		Rectangle tempHitbox = new Rectangle((int) newX - width, (int) y - height, hitbox.width, hitbox.height);
+		// X-Component
+		Rectangle tempHitbox = new Rectangle((int) (newX - width), (int) (y - height), hitbox.width, hitbox.height);
 		
 		if(newX - width <= 0) {
 			ax /= 2;
-			newX = 0 + width;
 			vx = -vx/2;
+			
+			newX = width;
 		} else if(newX + width >= world.getWidth()) {
 			ax /= 2;
-			newX = world.getWidth() - width;
 			vx = -vx/2;
+			
+			newX = world.getWidth() - width;
 		}
 		
 		if(world.mapCollision(tempHitbox)) {
-			newX = x;
 			vx = -vx/2;
+			
+			newX = x;
 		}
+		// end X-Component
 		
-		tempHitbox.setBounds((int) x - width, (int) newY - height, hitbox.width, hitbox.height);
+		// Y-Component
+		tempHitbox.setBounds((int) (x - width), (int) (newY - height), hitbox.width, hitbox.height);
 		
 		if(newY - height <= 0) {
 			ay /= 2;
-			newY = 0 + (height);
 			vy = -vy/2;
+			
+			newY = height;
 		} else if(newY + height >= world.getHeight()) {
 			ay /= 2;
-			newY = world.getHeight() - height;
 			vy = -vy/2;
+			
+			newY = world.getHeight() - height;
 		}
 		
 		if(world.mapCollision(tempHitbox)) {
 			newY = y;
 			vy = -vy/2;
 		}
+		// end Y-Component
 		
 		x = newX;
 		y = newY;
 		
-//		double decrement = 0.1;
-		
-		final double minVelocity = 0.4;
-		
 		if(ax == 0) {
-//			ax /= 2d;
 			vx /= 1.01d;
-//			ax = ax < 0? ax + decrement:ax - decrement;
 			
-			if(Math.abs(vx) < minVelocity) {
+			if(Math.abs(vx) < MIN_VELOCITY) {
 				vx = 0;
 			}
 			
 		}
 		
 		if(ay == 0) {
-//			ay /= 2d;
 			vy /= 1.01d;
-//			ay = ay < 0? ay + decrement: ay - decrement;
 			
-			if(Math.abs(vy) < minVelocity) {
+			if(Math.abs(vy) < MIN_VELOCITY) {
 				vy = 0;
 			}
 			
 		}
 		
-		final double minAccel = 0.01;
-		
-		if(Math.abs(ax) < minAccel) {
+		if(Math.abs(ax) < MIN_ACCEL) {
 			ax = 0;
 		}
 		
-		if(Math.abs(ay) < minAccel) {
+		if(Math.abs(ay) < MIN_ACCEL) {
 			ay = 0;
 		}
 		
@@ -146,11 +153,18 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		
 		// stopMoving(); when using single-frame key testing.
 		stopMoving();
+		
 	}
 	
 	@Override
 	public void render(Graphics2D g) {
 		super.render(g);
+		
+		if(GameManager.getGame().isDebug()) {
+			g.setColor(Color.GREEN);
+			g.drawLine((int) getX(), (int) getY(), (int) (vx * 3 + getX()), (int) (vy * 3 + getY()));
+		}
+		
 	}
 	
 	public void stopMoving() {
@@ -182,35 +196,35 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		right = false;
 	}
 	
-	protected double getAx() {
+	public double getAx() {
 		return ax;
 	}
 	
-	protected void setAx(double ax) {
+	public void setAx(double ax) {
 		this.ax = ax;
 	}
 	
-	protected double getAy() {
+	public double getAy() {
 		return ay;
 	}
 	
-	protected void setAy(double ay) {
+	public void setAy(double ay) {
 		this.ay = ay;
 	}
 	
-	protected double getVx() {
+	public double getVx() {
 		return vx;
 	}
 	
-	protected void setVx(double vx) {
+	public void setVx(double vx) {
 		this.vx = vx;
 	}
 	
-	protected double getVy() {
+	public double getVy() {
 		return vy;
 	}
 	
-	protected void setVy(double vy) {
+	public void setVy(double vy) {
 		this.vy = vy;
 	}
 	

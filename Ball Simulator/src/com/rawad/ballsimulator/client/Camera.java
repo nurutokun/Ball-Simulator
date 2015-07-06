@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client;
 
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.entity.Entity;
+import com.rawad.gamehelpers.displaymanager.DisplayManager;
 
 /**
  * DisplayManager-specific or Ball Simulator-specific?
@@ -12,30 +12,49 @@ public class Camera {
 	
 	private Entity trackedEntity;
 	
-	private int x;
-	private int y;
+	private double x;
+	private double y;
 	
 	// For zooming
 	private double xScale;
 	private double yScale;
 	
+	private double theta;
+	
 	public Camera(Entity trackedEntity) {
 		this.trackedEntity = trackedEntity;
+		
+		x = 0;
+		y = 0;
 		
 		xScale = 1d;
 		yScale = 1d;
 		
+		theta = 0d;
+		
 	}
 	
-	public void update(int x, int y, int width, int height) {
+	public void update(double x, double y, int viewportWidth, int viewportHeight) {
 		
-		this.x = x - (width/2); //+ (playerHitbox.width/2);
-		this.y = y - (height/2); //+ (playerHitbox.height*5/2);
+		this.x = x - (viewportWidth/2);
+		this.y = y - (viewportHeight/2);
 		
 	}
 	
 	public void update() {
-		update((int) trackedEntity.getX(), (int) trackedEntity.getY(), DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
+		update(trackedEntity.getX(), trackedEntity.getY(), DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
+	}
+	
+	public void increaseRotation(double delta) {
+		theta += delta;
+	}
+	
+	public void setTheta(double theta) {
+		this.theta = theta;
+	}
+	
+	public double getTheta() {
+		return theta;
 	}
 	
 	public void setScale(double xScale, double yScale) {
@@ -59,19 +78,19 @@ public class Camera {
 		return this.trackedEntity;
 	}
 	
-	public int getX() {
+	public double getX() {
 		return x;
 	}
 	
-	public void setX(int x) {
+	public void setX(double x) {
 		this.x = x;
 	}
 	
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 	
-	public void setY(int y) {
+	public void setY(double y) {
 		this.y = y;
 	}
 	

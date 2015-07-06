@@ -20,7 +20,7 @@ public class Terrain {
 		
 	}
 	
-	public boolean calculateCollision(Rectangle hitbox) {
+	public synchronized boolean calculateCollision(Rectangle hitbox) {
 		
 		for(TerrainComponent comp: terrainComponents) {
 			
@@ -34,8 +34,20 @@ public class Terrain {
 		
 	}
 	
-	public void addTerrainComponent(TerrainComponent comp) {
+	public synchronized void addTerrainComponent(TerrainComponent comp) {
 		terrainComponents.add(comp);
+	}
+	
+	public synchronized TerrainComponent[] getTerrainComponents() {
+		
+		TerrainComponent[] components = new TerrainComponent[terrainComponents.size()];
+		
+		for(int i = 0; i < components.length; i++) {
+			components[i] = terrainComponents.get(i);
+		}
+		
+		return components;
+		
 	}
 	
 }

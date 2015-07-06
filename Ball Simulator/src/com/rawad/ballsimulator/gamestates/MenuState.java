@@ -2,11 +2,12 @@ package com.rawad.ballsimulator.gamestates;
 
 import java.awt.Graphics2D;
 
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
-import com.rawad.ballsimulator.gui.Button;
-import com.rawad.ballsimulator.gui.TextLabel;
-import com.rawad.ballsimulator.log.Logger;
-import com.rawad.ballsimulator.main.BallSimulator;
+import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.game.GameManager;
+import com.rawad.gamehelpers.gamestates.State;
+import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.gui.Button;
+import com.rawad.gamehelpers.gui.TextLabel;
 
 public class MenuState extends State {
 	
@@ -16,7 +17,7 @@ public class MenuState extends State {
 		int screenSections = DisplayManager.getScreenHeight()/8;
 		int centerScreen = DisplayManager.getScreenWidth()/2;
 		
-		addGuiComponent(new TextLabel(BallSimulator.NAME, centerScreen, screenSections, 256, 64));
+		addGuiComponent(new TextLabel(GameManager.getGame().toString(), centerScreen, screenSections, 256, 64));
 		
 		addGuiComponent(new Button("Singleplayer", centerScreen, screenSections * 3 + 10));
 		addGuiComponent(new Button("Multiplayer", centerScreen, screenSections * 4 + 20));
@@ -35,7 +36,7 @@ public class MenuState extends State {
 			break;
 			
 		case "Multiplayer":
-			Logger.log(Logger.DEBUG, "Multiplayer");
+			sm.setState(StateEnum.MULTIPLAYERGAME_STATE);
 			break;
 			
 		case "Option Menu":
@@ -43,7 +44,7 @@ public class MenuState extends State {
 			break;
 		
 		case "Exit":
-			DisplayManager.destroyWindow();
+			DisplayManager.requestClose();
 			break;
 			
 		}

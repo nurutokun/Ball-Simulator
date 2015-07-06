@@ -4,57 +4,57 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
+import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.gamestates.GameState;
 import com.rawad.ballsimulator.gamestates.MenuState;
+import com.rawad.ballsimulator.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.gamestates.OptionState;
-import com.rawad.ballsimulator.gamestates.StateEnum;
-import com.rawad.ballsimulator.gamestates.StateManager;
 import com.rawad.ballsimulator.gamestates.WorldEditorState;
-import com.rawad.ballsimulator.gui.Background;
-import com.rawad.ballsimulator.input.KeyboardInput;
-import com.rawad.ballsimulator.input.MouseInput;
+import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.gui.Background;
+import com.rawad.gamehelpers.input.KeyboardInput;
+import com.rawad.gamehelpers.input.MouseInput;
 
-public class BallSimulator {
+public class BallSimulator extends Game {
 	
+	/**
+	 * Temporary
+	 */
 	public static final String NAME = "Ball Simulator";
 	
-	private static final BallSimulator game = new BallSimulator();
-	
-	private StateManager sm;
+	private Client client;
 	
 	private Background background;
 	
-	private boolean debug;
 	private boolean showSquares;
 	
 	public BallSimulator() {
 		
-		sm = new StateManager();
-		
-		debug = false;
-		showSquares = false;
-		
-	}
-	
-	public static BallSimulator instance() {
-		return game;
 	}
 	
 	public void init() {
+		super.init();
+		
+		client = new Client();
 		
 		background = new Background();
 		
 		sm.addState(new MenuState());
-		sm.addState(new GameState());
+		sm.addState(new GameState(client));
 		sm.addState(new OptionState());
 		sm.addState(new WorldEditorState());
+		sm.addState(new MultiplayerGameState(client));
 		
 		sm.setState(StateEnum.MENU_STATE);
 		
+		showSquares = false;
+		
 	}
 	
-	private void update(long timePassed) {
+	@Override
+	public void update(long timePassed) {
 		
 		background.update(timePassed);
 		
@@ -80,9 +80,8 @@ public class BallSimulator {
 		
 	}
 	
+	@Override
 	public void render(Graphics2D g) {
-		
-		update(DisplayManager.getDeltaTime());
 		
 		background.render(g);
 			
@@ -115,6 +114,9 @@ public class BallSimulator {
 		g.setColor(Color.RED);
 		g.fillRect(MouseInput.getX(), MouseInput.getY(), 1, 1);
 		
+		g.setColor(Color.WHITE);
+		g.drawString(Runtime.getRuntime().freeMemory() + "", 10, 30);
+		
 	}
 	
 	private void renderSquares(Graphics2D g) {
@@ -133,8 +135,9 @@ public class BallSimulator {
 		
 	}
 	
-	public boolean isDebug() {
-		return debug;
+	@Override
+	public String toString() {
+		return NAME;
 	}
 	
 }

@@ -2,18 +2,21 @@ package com.rawad.ballsimulator.gamestates;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 
 import com.rawad.ballsimulator.client.Camera;
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
-import com.rawad.ballsimulator.gui.Button;
-import com.rawad.ballsimulator.gui.DropDown;
-import com.rawad.ballsimulator.gui.overlay.PauseOverlay;
-import com.rawad.ballsimulator.input.KeyboardInput;
-import com.rawad.ballsimulator.input.MouseEvent;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
-import com.sun.glass.events.KeyEvent;
+import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.gamestates.State;
+import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.gui.Button;
+import com.rawad.gamehelpers.gui.DropDown;
+import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
+import com.rawad.gamehelpers.input.KeyboardInput;
+import com.rawad.gamehelpers.input.MouseEvent;
 
 public class WorldEditorState extends State {
 	
@@ -35,7 +38,7 @@ public class WorldEditorState extends State {
 		
 		world = loadWorld();
 		
-		String[] dims = {"2", "4", "8", "16", "32", "64", "128"};
+		String[] dims = {"2", "4", "8", "16", "32", "64", "128", "256", "512"};
 		
 		comp = new TerrainComponent(0, 0, Integer.valueOf(dims[0]), Integer.valueOf(dims[0]));
 		
@@ -67,12 +70,16 @@ public class WorldEditorState extends State {
 			
 			if(e.isButtonDown() && !e.isConsumed()) {
 				
-				world.getTerrain().addTerrainComponent(new TerrainComponent(comp.getX() + camera.getX(),
-						comp.getY() + camera.getY(), comp.getWidth(), comp.getHeight()));
+				double compX = comp.getX() + camera.getX();
+				double compY = comp.getY() + camera.getY();
+				
+				if(compX >= 0 && compY >= 0 && compX + comp.getWidth() <= world.getWidth() &&
+						compY + comp.getHeight() <= world.getHeight()) {
+					world.getTerrain().addTerrainComponent(new TerrainComponent(compX, compY, comp.getWidth(), comp.getHeight()));
+				}
 				
 				e.consume();
 				
-				// Include side projects
 			}
 		}
 		
@@ -82,16 +89,23 @@ public class WorldEditorState extends State {
 		
 		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE)) {
 			pauseScreen.setPaused(!pauseScreen.isPaused());
+			
+			if(pauseScreen.isPaused()) {
+				Loader.saveTerrain(world.getTerrain(), "terrain");
+			}
+			
 		}
 		
 	}
 	
 	private void handleKeyInput() {
 		
-		boolean up = KeyboardInput.isKeyDown(KeyEvent.VK_W, false) | KeyboardInput.isKeyDown(KeyEvent.VK_UP, false);
-		boolean down = KeyboardInput.isKeyDown(KeyEvent.VK_S, false) | KeyboardInput.isKeyDown(KeyEvent.VK_DOWN, false);
-		boolean right = KeyboardInput.isKeyDown(KeyEvent.VK_D, false) | KeyboardInput.isKeyDown(KeyEvent.VK_RIGHT, false);
-		boolean left = KeyboardInput.isKeyDown(KeyEvent.VK_A, false) | KeyboardInput.isKeyDown(KeyEvent.VK_LEFT, false);
+		KeyboardInput.setConsumeAfterRequest(false);
+		
+		boolean up = KeyboardInput.isKeyDown(KeyEvent.VK_W) | KeyboardInput.isKeyDown(KeyEvent.VK_UP);
+		boolean down = KeyboardInput.isKeyDown(KeyEvent.VK_S) | KeyboardInput.isKeyDown(KeyEvent.VK_DOWN);
+		boolean right = KeyboardInput.isKeyDown(KeyEvent.VK_D) | KeyboardInput.isKeyDown(KeyEvent.VK_RIGHT);
+		boolean left = KeyboardInput.isKeyDown(KeyEvent.VK_A) | KeyboardInput.isKeyDown(KeyEvent.VK_LEFT);
 		
 		if(up) {
 			y -= 5;
@@ -104,6 +118,8 @@ public class WorldEditorState extends State {
 		} else if(left) {
 			x -= 5;
 		}
+		
+		KeyboardInput.setConsumeAfterRequest(true);
 		
 	}
 	
@@ -168,7 +184,11 @@ public class WorldEditorState extends State {
 	}
 	
 	private World loadWorld() {
-		return new World();
+		World re = new World();
+		
+		re.setTerrain(Loader.loadTerrain("terrain"));
+		
+		return re;
 	}
 	
 }

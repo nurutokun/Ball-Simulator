@@ -7,9 +7,14 @@ import com.rawad.ballsimulator.world.World;
 
 public abstract class Entity {
 	
+	// TODO: Implement UUID's with UUIDManager
+//	private final String UUID;
+	
 	protected World world;
 	
 	protected Rectangle hitbox;
+	
+	protected String name = "";
 	
 	protected double x;
 	protected double y;
@@ -21,9 +26,9 @@ public abstract class Entity {
 		
 		this.world = world;
 		
-		this.world.addEntity(this);
-		
 		hitbox = new Rectangle();
+		
+		this.world.addEntity(this);
 		
 	}
 	
@@ -51,12 +56,60 @@ public abstract class Entity {
 		return hitbox;
 	}
 	
+	/**
+	 * 
+	 * @return the x-coordinate of the center point of this entity
+	 */
 	public double getX() {
 		return x;
 	}
 	
+	public void setX(double x) {
+		this.x = x;
+	}
+	
+	/**
+	 * 
+	 * @return the y-coordinate of the center point of this entity
+	 */
 	public double getY() {
 		return y;
+	}
+	
+	public void setY(double y) {
+		this.y = y;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public void setWidth(int width) {
+		this.width = width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public void setHeight(int height) {
+		this.height = height;
+	}
+	
+	/**
+	 * 
+	 * @return Current world this entity is in.
+	 */
+	public World getWorld() {
+		return world;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 }

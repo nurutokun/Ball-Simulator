@@ -2,21 +2,25 @@ package com.rawad.ballsimulator.client;
 
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
-import java.awt.geom.AffineTransform;
+import java.util.Random;
 
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
 import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.ballsimulator.input.KeyboardInput;
-import com.rawad.ballsimulator.input.MouseInput;
+import com.rawad.ballsimulator.loader.Loader;
+import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.world.World;
+import com.rawad.gamehelpers.input.KeyboardInput;
+import com.rawad.gamehelpers.input.MouseEvent;
+import com.rawad.gamehelpers.input.MouseInput;
 
 public class Client {
+	
+	private Viewport viewport;
 	
 	private World world;
 	
 	private EntityPlayer player;
 	
-	private Camera camera;
+	private ClientNetworkManager networkManager;
 	
 	private boolean paused;
 	
@@ -25,57 +29,32 @@ public class Client {
 		world = new World();
 		
 		player = new EntityPlayer(world);
+		player.setName("Player" + (int) (new Random().nextDouble()*999));
 		
-		camera = new Camera(player);
+		viewport = new Viewport(world, player);
 		
-		paused = false;
+		networkManager = new ClientNetworkManager(this);
 		
 	}
 	
 	public void update(long timePassed) {
 		
-		// Check for server connectivity otherwise, perform game logic and update World
 		if(!paused) {
 			
 			handleKeyboardInput();
 			
-			player.update(timePassed, MouseInput.getX() + camera.getX(), MouseInput.getY() + camera.getY());
+			handleMouseInput();
 			
-			if(MouseInput.isClamped()) {
-				camera.update(camera.getX() + MouseInput.getX(), camera.getY() + MouseInput.getY(), 0, 0);
+			boolean updateGameLogic = !networkManager.isConnectedToServer();
+			
+			if(updateGameLogic) {
+				world.update(timePassed);
 				
-				double mouseDelta = MouseInput.getMouseWheelPosition()/1d;
-				
-				if(mouseDelta > 0) {
-					camera.setScale(camera.getXScale() / mouseDelta, camera.getYScale() / mouseDelta);
-					
-				} else if(mouseDelta < 0) {
-					mouseDelta *= -1;
-					camera.setScale(camera.getXScale() * mouseDelta, camera.getYScale() * mouseDelta);
-					
-				}
-				
-			} else {
-				camera.update();
-				
-				camera.setScale(1, 1);
-				
-				final int maxWidth = world.getWidth() - DisplayManager.getScreenWidth();
-				final int maxHeight = world.getHeight() - DisplayManager.getScreenHeight();
-				
-				if(camera.getX() < 0) {
-					camera.setX(0);
-				} else if(camera.getX() > maxWidth) {
-					camera.setX(maxWidth);
-				}
-				
-				if(camera.getY() < 0) {
-					camera.setY(0);
-				} else if(camera.getY() > maxHeight) {
-					camera.setY(maxHeight);
-				}
-				
+				player.update(timePassed, new MouseEvent(MouseInput.getX() + (int) viewport.getCamera().getX(),
+						MouseInput.getY() + (int) viewport.getCamera().getY(), MouseInput.LEFT_MOUSE_BUTTON));
 			}
+			
+			viewport.update(timePassed);
 			
 		}
 		
@@ -83,11 +62,12 @@ public class Client {
 	
 	private void handleKeyboardInput() {
 		
-		/**/
-		boolean up = KeyboardInput.isKeyDown(KeyEvent.VK_UP, false) | KeyboardInput.isKeyDown(KeyEvent.VK_W, false);
-		boolean down = KeyboardInput.isKeyDown(KeyEvent.VK_DOWN, false) | KeyboardInput.isKeyDown(KeyEvent.VK_S, false);
-		boolean right = KeyboardInput.isKeyDown(KeyEvent.VK_RIGHT, false) | KeyboardInput.isKeyDown(KeyEvent.VK_D, false);
-		boolean left = KeyboardInput.isKeyDown(KeyEvent.VK_LEFT, false) | KeyboardInput.isKeyDown(KeyEvent.VK_A, false);
+		KeyboardInput.setConsumeAfterRequest(false);
+		
+		boolean up = KeyboardInput.isKeyDown(KeyEvent.VK_UP) | KeyboardInput.isKeyDown(KeyEvent.VK_W);
+		boolean down = KeyboardInput.isKeyDown(KeyEvent.VK_DOWN) | KeyboardInput.isKeyDown(KeyEvent.VK_S);
+		boolean right = KeyboardInput.isKeyDown(KeyEvent.VK_RIGHT) | KeyboardInput.isKeyDown(KeyEvent.VK_D);
+		boolean left = KeyboardInput.isKeyDown(KeyEvent.VK_LEFT) | KeyboardInput.isKeyDown(KeyEvent.VK_A);
 		
 		if(up) {
 			player.moveUp();
@@ -100,79 +80,58 @@ public class Client {
 		} else if(left) {
 			player.moveLeft();
 		}
-		/**/
 		
-		/*/
-		int[] keysPressed = KeyboardInput.getPressedKeys();
-		
-		if(keysPressed.length <= 0) {
-			player.stopMoving();
+		if(up || down || right || left) {
+			networkManager.updatePlayerMovement(up, down, right, left);
 		}
 		
-		for(int i = 0; i < keysPressed.length; i++) {
-			
-			int keyCode = keysPressed[i];
-			
-			switch(keyCode) {
-			
-			case KeyEvent.VK_UP:
-			case KeyEvent.VK_W:
-				
-				player.moveUp();
-				
-				break;
-				
-			case KeyEvent.VK_DOWN:
-			case KeyEvent.VK_S:
-				
-				player.moveDown();
-				
-				break;
-				
-			case KeyEvent.VK_RIGHT:
-			case KeyEvent.VK_D:
-				
-				player.moveRight();
-				
-				break;
-				
-			case KeyEvent.VK_LEFT:
-			case KeyEvent.VK_A:
-				
-				player.moveLeft();
-				
-				break;
-				
-			}
-			
-		}
-		/**/
+		viewport.handleKeyboardInput(KeyboardInput.isKeyDown(KeyEvent.VK_E), KeyboardInput.isKeyDown(KeyEvent.VK_Q),
+				KeyboardInput.isKeyDown(KeyEvent.VK_R));
+		
+		KeyboardInput.setConsumeAfterRequest(true);
+		
+	}
+	
+	private void handleMouseInput() {
+		
+		viewport.setCameraLocked(!MouseInput.isClamped());
 		
 	}
 	
 	public void render(Graphics2D g) {
 		
-		AffineTransform af = g.getTransform();
-		
-		int translateX = camera.getX();
-		int translateY = camera.getY();
-		
-		g.translate(-translateX, -translateY);
-		
-		double xScale = camera.getXScale();
-		double yScale = camera.getYScale();
-		
-		g.scale(xScale, yScale);
-		
-		world.render(g);
-		
-		g.setTransform(af);
+		viewport.render(g);
 		
 	}
 	
+	public void connectToServer(String serverAddress) {
+		
+		networkManager.init(serverAddress);
+		
+	}
+	
+	public ClientNetworkManager getNetworkManager() {
+		return networkManager;
+	}
+	
 	public void pauseGame(boolean paused) {
-		// Work something out here.
 		this.paused = paused;
+	}
+	
+	public void loadTerrain() {
+		this.loadTerrain("terrain");
+	}
+	
+	public void loadTerrain(String terrainName) {
+		world.setTerrain(Loader.loadTerrain(terrainName));
+	}
+	
+	public EntityPlayer getPlayer() {
+		return player;
+	}
+	
+	public World getWorld() {
+		return world;
 	}
 	
 }

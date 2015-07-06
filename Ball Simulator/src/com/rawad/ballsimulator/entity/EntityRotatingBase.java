@@ -23,8 +23,6 @@ public class EntityRotatingBase extends EntityMovingBase {
 	public void update(long timePassed) {
 		super.update(timePassed);
 		
-		theta += vx * 0.01d;
-		
 	}
 	
 	@Override
@@ -33,6 +31,28 @@ public class EntityRotatingBase extends EntityMovingBase {
 		
 		g.rotate(theta, getX(), getY());
 		
+	}
+	
+	@Override
+	public void updateHitbox() {
+		super.updateHitbox();
+		
+		updateTheta();
+		
+	}
+	
+	private void updateTheta() {
+		
+		theta += vx * 0.01d;
+		
+	}
+	
+	public void setTheta(double theta) {
+		this.theta = theta;
+	}
+	
+	public double getTheta() {
+		return theta;
 	}
 	
 }

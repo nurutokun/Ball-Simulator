@@ -1,8 +1,10 @@
 package com.rawad.ballsimulator.gamestates;
 
-import com.rawad.ballsimulator.displaymanager.DisplayManager;
-import com.rawad.ballsimulator.gui.Button;
-import com.rawad.ballsimulator.gui.DropDown;
+import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.gamestates.State;
+import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.gui.Button;
+import com.rawad.gamehelpers.gui.DropDown;
 
 public class OptionState extends State {
 	
