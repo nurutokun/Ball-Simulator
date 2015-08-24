@@ -23,7 +23,7 @@ import javax.swing.border.TitledBorder;
 
 import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.networking.server.Server;
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.log.Logger;
 
 import javax.swing.JScrollPane;
@@ -48,22 +48,22 @@ public class WindowManager {
 	 */
 	public static void main(String[] args) {
 
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception ex) {
+			Logger.log(Logger.WARNING,
+					"Couldn't load native system's look and feel for the server window.");
+		}
+
+		instance = new WindowManager();
+
+		final Server server = new Server();
+		server.start();
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 
 				try {
-					UIManager.setLookAndFeel(UIManager
-							.getSystemLookAndFeelClassName());
-				} catch (Exception ex) {
-					Logger.log(Logger.WARNING,
-							"Couldn't load native system's look and feel for the server window.");
-				}
-
-				try {
-					instance = new WindowManager();
-
-					Server server = new Server();
-					server.start();
 
 					instance.initialize(server);
 					instance.frame.setVisible(true);

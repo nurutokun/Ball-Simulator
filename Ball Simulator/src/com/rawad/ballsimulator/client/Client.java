@@ -9,8 +9,9 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.input.KeyboardInput;
-import com.rawad.gamehelpers.input.MouseEvent;
 import com.rawad.gamehelpers.input.MouseInput;
+import com.rawad.gamehelpers.input.event.KeyboardEvent;
+import com.rawad.gamehelpers.input.event.MouseEvent;
 
 public class Client {
 	
@@ -37,11 +38,13 @@ public class Client {
 		
 	}
 	
-	public void update(long timePassed) {
+	public void update(KeyboardEvent ke, long timePassed) {
 		
 		if(!paused) {
 			
-			handleKeyboardInput();
+			if(!ke.isConsumed()) {
+				handleKeyboardInput(ke);
+			}
 			
 			handleMouseInput();
 			
@@ -52,6 +55,7 @@ public class Client {
 				
 				player.update(timePassed, new MouseEvent(MouseInput.getX() + (int) viewport.getCamera().getX(),
 						MouseInput.getY() + (int) viewport.getCamera().getY(), MouseInput.LEFT_MOUSE_BUTTON));
+				
 			}
 			
 			viewport.update(timePassed);
@@ -60,8 +64,8 @@ public class Client {
 		
 	}
 	
-	private void handleKeyboardInput() {
-		
+	private void handleKeyboardInput(KeyboardEvent e) {
+
 		KeyboardInput.setConsumeAfterRequest(false);
 		
 		boolean up = KeyboardInput.isKeyDown(KeyEvent.VK_UP) | KeyboardInput.isKeyDown(KeyEvent.VK_W);
@@ -69,26 +73,41 @@ public class Client {
 		boolean right = KeyboardInput.isKeyDown(KeyEvent.VK_RIGHT) | KeyboardInput.isKeyDown(KeyEvent.VK_D);
 		boolean left = KeyboardInput.isKeyDown(KeyEvent.VK_LEFT) | KeyboardInput.isKeyDown(KeyEvent.VK_A);
 		
-		if(up) {
-			player.moveUp();
-		} else if(down) {
-			player.moveDown();
-		}
-		
-		if(right) {
-			player.moveRight();
-		} else if(left) {
-			player.moveLeft();
-		}
+		KeyboardInput.setConsumeAfterRequest(true);
 		
 		if(up || down || right || left) {
-			networkManager.updatePlayerMovement(up, down, right, left);
+			
+			if(networkManager.isLoggedIn()) {
+				networkManager.updatePlayerMovement(up, down, right, left);
+			}
+			
+			// For buffered key press events.
+			player.stopMoving();
+			
+			if(up) {
+				player.moveUp();
+			} else if(down) {
+				player.moveDown();
+			}
+			
+			if(right) {
+				player.moveRight();
+			} else if(left) {
+				player.moveLeft();
+			}
+			
+			e.consume();
+			
+			// U-Pass: UCU, room 07 (SFUO office) august 18 - september 18, becomes active september 1
+		} 
+//		else if(!(pressedKeys.length > 0)) {
+//			player.stopMoving();
+//		}
+		
+		if(!e.isConsumed()) {
+			viewport.handleKeyboardInput(KeyboardInput.isKeyDown(KeyEvent.VK_E, true), KeyboardInput.isKeyDown(KeyEvent.VK_Q, true), 
+					KeyboardInput.isKeyDown(KeyEvent.VK_R, true));
 		}
-		
-		viewport.handleKeyboardInput(KeyboardInput.isKeyDown(KeyEvent.VK_E), KeyboardInput.isKeyDown(KeyEvent.VK_Q),
-				KeyboardInput.isKeyDown(KeyEvent.VK_R));
-		
-		KeyboardInput.setConsumeAfterRequest(true);
 		
 	}
 	
@@ -118,8 +137,11 @@ public class Client {
 		this.paused = paused;
 	}
 	
-	public void loadTerrain() {
-		this.loadTerrain("terrain");
+	public void init() {
+		
+		loadTerrain("terrain");
+		world.generateCoordinates(player);// TODO: Keep this marked for changing in future.
+		
 	}
 	
 	public void loadTerrain(String terrainName) {

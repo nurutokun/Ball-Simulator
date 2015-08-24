@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.gamestates;
 
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gamestates.StateEnum;
 import com.rawad.gamehelpers.gui.Button;

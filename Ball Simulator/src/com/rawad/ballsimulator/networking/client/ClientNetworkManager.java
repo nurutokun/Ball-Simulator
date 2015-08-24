@@ -10,6 +10,7 @@ import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
 import com.rawad.ballsimulator.networking.server.Server;
+import com.rawad.gamehelpers.util.strings.DrawableString;
 
 public class ClientNetworkManager {
 	
@@ -23,6 +24,16 @@ public class ClientNetworkManager {
 	 */
 	private ConnectionState connectionState;
 	
+	/**
+	 * All the messages sent back and forth between clients.
+	 */
+	private String messages;
+	
+	/**
+	 * Hopefully temporary.
+	 */
+	private boolean loggedIn;
+	
 	public ClientNetworkManager(Client client) {
 		
 		this.client = client;
@@ -31,6 +42,8 @@ public class ClientNetworkManager {
 		datagramManager = new ClientDatagramManager(this);
 		
 		connectionState = ConnectionState.NOT_CONNECTED;
+		
+		messages = "";
 		
 	}
 	
@@ -96,6 +109,7 @@ public class ClientNetworkManager {
 	
 	public void setConnectionState(ConnectionState state) {
 		this.connectionState = state;
+		
 	}
 	
 	public ConnectionState getConnectionState() {
@@ -106,12 +120,32 @@ public class ClientNetworkManager {
 		return connectionState == ConnectionState.CONNECTING;
 	}
 	
+	public boolean isConnectedToServer() {
+		return connectionState == ConnectionState.CONNECTED;
+	}
+	
 	public boolean isDisconnectedFromServer() {
 		return connectionState == ConnectionState.DISCONNECTED;
 	}
 	
-	public boolean isConnectedToServer() {
-		return connectionState == ConnectionState.CONNECTED;
+	public void setLoggedIn(boolean loggedIn) {
+		this.loggedIn = loggedIn;
+	}
+	
+	public boolean isLoggedIn() {
+		return loggedIn;
+	}
+	
+	public void addUserMessage(String message) {
+		this.messages += message + DrawableString.NL;
+	}
+	
+	public String getMessages() {
+		String temp = this.messages;
+		
+		this.messages = "";
+		
+		return temp;
 	}
 	
 }

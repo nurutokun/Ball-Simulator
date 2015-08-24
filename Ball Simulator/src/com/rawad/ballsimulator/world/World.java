@@ -5,10 +5,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.rawad.ballsimulator.entity.Entity;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.world.terrain.Terrain;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
 
 public class World {
@@ -52,7 +54,9 @@ public class World {
 		
 		terrain.render(g);
 		
-		if(GameManager.getGame() != null && GameManager.getGame().isDebug()) {
+		Game game = GameManager.getGame();
+		
+		if(game != null && game.isDebug()) {
 			renderSquares(g);
 		}
 		
@@ -111,15 +115,7 @@ public class World {
 	
 	public synchronized void removeEntityByName(String name) {
 		
-		Entity entityToRemove = null;
-		
-		for(Entity e: entities) {
-			
-			if(e.getName().equals(name)) {
-				entityToRemove = e;
-			}
-			
-		}
+		Entity entityToRemove = getEntityByName(name);
 		
 		if(entityToRemove != null) {
 			entities.remove(entityToRemove);
@@ -154,7 +150,38 @@ public class World {
 	
 	public void addEntity(Entity e) {
 		
+//		generateCoordinates(e);
+		
 		this.entities.add(e);
+		
+	}
+	
+	public void generateCoordinates(Entity e) {
+		
+		boolean entityBlocked = true;
+		
+		int width = e.getWidth();
+		int height = e.getHeight();
+		
+		Random r = new Random();
+		
+		do {
+			
+			int x = (int) ((width/2) + (r.nextDouble() * (this.width - (width/2d))));
+			int y = (int) ((height/2) + (r.nextDouble() * (this.height - (height/2d))));
+			//   First one ^ keeps it from being too far left, second one ^ keeps it from being too far right.
+			
+			e.setX(x);
+			e.setY(y);
+			
+			e.updateHitbox();
+			
+			if(!mapCollision(e.getHitbox())) {
+				entityBlocked = false;
+			}
+			
+		} while(entityBlocked);
+		
 	}
 	
 	public void setEntities(ArrayList<Entity> entities) {

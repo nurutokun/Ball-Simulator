@@ -9,7 +9,7 @@ import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.networking.server.main.ViewportShell;
 import com.rawad.ballsimulator.networking.server.main.WindowManager;
 import com.rawad.ballsimulator.networking.server.world.WorldMP;
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -27,6 +27,8 @@ public class Server {
 	
 	private Thread mainLooper;
 	
+	private Object lock;
+	
 	private boolean running;
 	
 	public Server() { 
@@ -40,6 +42,8 @@ public class Server {
 		viewportShell = new ViewportShell(new Viewport(world));
 		
 		mainLooper = new Thread(new Looper(), "Looper");
+		
+		lock = new Object();
 		
 	}
 	
@@ -56,25 +60,25 @@ public class Server {
 	
 	private void update(long timePassed) {
 		
-		KeyboardInput.setConsumeAfterRequest(false);
-		
-		int dx = getDelta(KeyEvent.VK_D, KeyEvent.VK_A) | getDelta(KeyEvent.VK_RIGHT, KeyEvent.VK_LEFT);
-		int dy = getDelta(KeyEvent.VK_S, KeyEvent.VK_W) | getDelta(KeyEvent.VK_DOWN, KeyEvent.VK_UP);
-		
-		KeyboardInput.setConsumeAfterRequest(true);
-		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_C)) {
-			viewportShell.setFreeRoam(!viewportShell.isFreeRoam());
-		}
-		
-		world.update(timePassed);
-		
-		viewportShell.update(timePassed, dx, dy);
-		
-		viewportShell.repaint();
-		
-		if(WindowManager.instance().getConsoleOutput() != null) {
-			WindowManager.instance().addDebugText(Logger.getBuffer());
+		synchronized(lock) {// ... maybe ... ?
+			
+			int dx = getDelta(KeyEvent.VK_D, KeyEvent.VK_A) | getDelta(KeyEvent.VK_RIGHT, KeyEvent.VK_LEFT);
+			int dy = getDelta(KeyEvent.VK_S, KeyEvent.VK_W) | getDelta(KeyEvent.VK_DOWN, KeyEvent.VK_UP);
+			
+			if(KeyboardInput.isKeyDown(KeyEvent.VK_C, true)) {
+				viewportShell.setFreeRoam(!viewportShell.isFreeRoam());
+			}
+			
+			world.update(timePassed);
+			
+			viewportShell.update(timePassed, dx, dy);
+			
+			viewportShell.repaint();
+			
+			if(WindowManager.instance().getConsoleOutput() != null) {
+				WindowManager.instance().addDebugText(Logger.getBuffer());
+			}
+			
 		}
 		
 	}
@@ -83,11 +87,11 @@ public class Server {
 		
 		int delta = 0;
 		
-		if(KeyboardInput.isKeyDown(keyPositive)) {
+		if(KeyboardInput.isKeyDown(keyPositive, false)) {
 			delta = 5;
 		}
 		
-		if(KeyboardInput.isKeyDown(keyNegative)) {
+		if(KeyboardInput.isKeyDown(keyNegative, false)) {
 			delta = -5;
 		}
 		

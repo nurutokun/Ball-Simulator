@@ -17,9 +17,9 @@ public abstract class Packet {
 	/**
 	 * Used to split between different sets of data in String form.
 	 */
-	private static final String REGEX = "::";
+	protected static final String REGEX = "::";
 	
-	private static final int IDENTIFIER_LENGTH = 2;// 2 hex bits (one binary byte) reserved for the packet's id.
+	protected static final int IDENTIFIER_LENGTH = 2;// 2 hex bits (one binary byte) reserved for the packet's id.
 	
 	/**
 	 * Index of the player's username in the {@code dataString} array
@@ -30,10 +30,12 @@ public abstract class Packet {
 	
 	protected String[] dataString;
 	
+	protected String rawData;
+	
 	private Packet(String typeId, String rawData) {
 		this.typeId = typeId;
 		
-//		System.out.println(rawData);
+		this.rawData = rawData;
 		
 		dataString = rawData.split(REGEX);
 		

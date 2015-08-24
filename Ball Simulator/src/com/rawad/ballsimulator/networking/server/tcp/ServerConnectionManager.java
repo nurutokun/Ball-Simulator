@@ -7,12 +7,12 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Random;
 
 import com.rawad.ballsimulator.networking.Packet;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket02Logout;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
@@ -20,7 +20,7 @@ import com.rawad.ballsimulator.networking.server.world.WorldMP;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
- * TCP server for accepting and terminating server's connections with clients.
+ * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in general.
  * 
  * @author Rawad
  *
@@ -58,13 +58,15 @@ public class ServerConnectionManager {
 		
 		WorldMP world = networkManager.getServer().getWorld();
 		
+		String username;
+		
 		switch(type) {
 		
 		case LOGIN:
 			
 			CPacket01Login clientLoginPacket = new CPacket01Login(data);
 			
-			String username = clientLoginPacket.getUsername();
+			username = clientLoginPacket.getUsername();
 			
 			boolean canLogin = true;
 			
@@ -72,8 +74,6 @@ public class ServerConnectionManager {
 				canLogin = false;
 				Logger.log(Logger.DEBUG, "Player with name \"" + username + "\" is already logged in, disconnecting new player.");
 			}
-			
-			Random r = new Random();
 			
 			EntityPlayerMP player = null;
 			
@@ -90,33 +90,39 @@ public class ServerConnectionManager {
 				player = new EntityPlayerMP(world, clientLoginPacket.getUsername(), client.getInetAddress().getHostAddress());
 				// Player automatically added to server's world.
 				
+				world.generateCoordinates(player);
+				
+//				playerWidth = player.getWidth();
+//				playerHeight = player.getHeight();
+				
+//				x = r.nextDouble() * (double) world.getWidth() - (playerWidth/2);
+//				y = r.nextDouble() * (double) world.getHeight() - (playerHeight/2);
+				
+//				if(x < playerWidth/2) {
+//					x = 0 + playerWidth/2;
+//				}
+				
+//				if(y < playerHeight/2) {
+//					y = 0 + playerHeight/2;
+//				}
+				
+				x = player.getX();
+				y = player.getY();
+				
 				playerWidth = player.getWidth();
 				playerHeight = player.getHeight();
 				
-				x = r.nextDouble() * (double) world.getWidth() - (playerWidth/2);// TODO: better generation thing.
-				y = r.nextDouble() * (double) world.getHeight() - (playerHeight/2);
-				
-				if(x < playerWidth/2) {
-					x = 0 + playerWidth/2;
-				}
-				
-				if(y < playerHeight/2) {
-					y = 0 + playerHeight/2;
-				}
-				
-				player.setX(x);
-				player.setY(y);
-				
-				player.setWidth(playerWidth);
-				player.setHeight(playerHeight);
-				
-				player.updateHitbox();
+				theta = player.getTheta();
 				
 				player.setName(username);
 				
 				networkManager.getServer().updatePlayerNamesList();
 				
-				Logger.log(Logger.DEBUG, username + " has joined the game...");
+				String loginMessage = username + " has joined the game...";
+				
+				Logger.log(Logger.DEBUG, loginMessage);
+				
+				sendPacketToAllClients(null, new SPacket03Message(username, loginMessage));
 				
 			}
 			
@@ -159,13 +165,33 @@ public class ServerConnectionManager {
 			
 			getClientInputManager(client).setDisconnectedByPacket(true);
 			
-			disconnectClient(client, logoutPacket.getUsername(), world);
+			username = logoutPacket.getUsername();
+			
+			disconnectClient(client, username, world);
 			
 			SPacket02Logout clientInformerPacket = new SPacket02Logout(logoutPacket.getUsername());
 			
 			sendPacketToAllClients(null, clientInformerPacket);
 			
-			Logger.log(Logger.DEBUG, logoutPacket.getUsername() + " has left the game...");
+			String logoutMessage = username + " has left the game...";
+			
+			Logger.log(Logger.DEBUG, logoutMessage);
+			
+			sendPacketToAllClients(client, new SPacket03Message(username, logoutMessage));
+			
+			break;
+			
+		case MESSAGE:
+			
+			CPacket03Message messagePacket = new CPacket03Message(data);
+			
+			username = messagePacket.getUsername();
+			
+			String message = username + "> " + messagePacket.getMessage();// Send message to other clients with the username indicated
+			
+			SPacket03Message replyPacket = new SPacket03Message(username, message);
+			
+			sendPacketToAllClients(client, replyPacket);// Don't need to send it back to the client that sent it.
 			
 			break;
 			
@@ -347,6 +373,7 @@ public class ServerConnectionManager {
 				CPacket02Logout ensureLogout = new CPacket02Logout(clientName, client.getInetAddress().getHostAddress());
 				
 				handleClientInput(client, ensureLogout.getDataAsString());
+				
 			}
 			
 		}

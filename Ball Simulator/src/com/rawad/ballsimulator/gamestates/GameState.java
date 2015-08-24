@@ -5,13 +5,14 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gamestates.StateEnum;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
 import com.rawad.gamehelpers.input.KeyboardInput;
-import com.rawad.gamehelpers.input.MouseEvent;
+import com.rawad.gamehelpers.input.event.KeyboardEvent;
+import com.rawad.gamehelpers.input.event.MouseEvent;
 
 public class GameState extends State {
 	
@@ -31,10 +32,11 @@ public class GameState extends State {
 	}
 	
 	@Override
-	public void update(MouseEvent e) {
-		super.update(e);
+	public void update(MouseEvent e, KeyboardEvent ke) {
+		super.update(e, ke);
+		super.updateOverlays(e, ke);
 		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE)) {
+		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE, true)) {
 			
 			pauseScreen.setPaused(!pauseScreen.isPaused());
 			
@@ -42,7 +44,7 @@ public class GameState extends State {
 		
 		client.pauseGame(pauseScreen.isPaused());
 		
-		client.update(DisplayManager.getDeltaTime());
+		client.update(ke, DisplayManager.getDeltaTime());
 		
 	}
 	
@@ -71,7 +73,7 @@ public class GameState extends State {
 	
 	@Override
 	protected void onActivate() {
-		client.loadTerrain();
+		client.init();
 	}
 	
 	@Override

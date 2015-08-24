@@ -14,8 +14,16 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.gamehelpers.log.Logger;
 
+/**
+ * Handles connecting to the server and telling the server when to disconnect/knowing when to get disconnected. Also just handles TCP 
+ * packets in general.
+ * 
+ * @author Rawad
+ *
+ */
 public class ClientConnectionManager {
 	
 	private ClientNetworkManager networkManager;
@@ -37,6 +45,9 @@ public class ClientConnectionManager {
 			
 			this.serverAddress = address;
 			
+			networkManager.setConnectionState(ConnectionState.CONNECTING);// Sometimes, previous thread doesn't stop fast enough, causing
+			// the multiplayer game state to go back to the main menu, thinking that it disconnected or something.
+			
 			connectionHandler = new Thread(new ConnectionHandler(address, Server.PORT), "Connection Handler");
 			
 			connectionHandler.start();
@@ -47,6 +58,7 @@ public class ClientConnectionManager {
 	public void disconnect() {
 		
 		if(socket != null && !socket.isClosed()) {
+			
 			try {
 				
 				CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(),
@@ -68,13 +80,15 @@ public class ClientConnectionManager {
 	
 	private void handleServerInput(String input) {
 		
-		TCPPacketType type = Packet.getTCPPacketTypeFromData(input.getBytes());
+		byte[] data = input.getBytes();
+		
+		TCPPacketType type = Packet.getTCPPacketTypeFromData(data);
 		
 		switch(type) {
 		
 		case LOGIN:
 			
-			SPacket01Login loginReplyPacket = new SPacket01Login(input.getBytes());
+			SPacket01Login loginReplyPacket = new SPacket01Login(data);
 			
 			EntityPlayer mainClientPlayer = networkManager.getClient().getPlayer();
 			
@@ -107,22 +121,32 @@ public class ClientConnectionManager {
 			
 			networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
 			
-			networkManager.setConnectionState(ConnectionState.CONNECTED);
+			networkManager.setLoggedIn(true);
 			
 			break;
 			
 		case LOGOUT:
 			
-			SPacket02Logout logoutPacket = new SPacket02Logout(input.getBytes());
+			SPacket02Logout logoutPacket = new SPacket02Logout(data);
 			
 			EntityPlayer mainPlayer = networkManager.getClient().getPlayer();
 			
 			if(mainPlayer.getName().equals(logoutPacket.getUsername())) {
+				networkManager.setLoggedIn(false);
 				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
 				networkManager.onDisconnect();
 			} else {
 				networkManager.getClient().getWorld().removeEntityByName(logoutPacket.getUsername());
 			}
+			
+			break;
+			
+		case MESSAGE:
+			
+			// When receiving a message from another client.
+			SPacket03Message messagePacket = new SPacket03Message(data);
+			
+			networkManager.addUserMessage(messagePacket.getMessage());
 			
 			break;
 			
@@ -169,8 +193,6 @@ public class ClientConnectionManager {
 		public void run() {
 			
 			try {
-				
-				networkManager.setConnectionState(ConnectionState.CONNECTING);
 				
 				socket = new Socket(address, port);
 				

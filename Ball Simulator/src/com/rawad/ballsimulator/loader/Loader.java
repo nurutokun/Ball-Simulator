@@ -113,12 +113,6 @@ public class Loader {
 		
 	}
 	
-	protected int loadImage(String imageName) {
-		
-		return 0;
-		
-	}
-	
 	private static int parseInt(String potentialInt) {
 		
 		try {

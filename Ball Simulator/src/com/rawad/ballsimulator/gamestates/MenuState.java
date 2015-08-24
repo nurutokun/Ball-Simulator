@@ -1,8 +1,6 @@
 package com.rawad.ballsimulator.gamestates;
 
-import java.awt.Graphics2D;
-
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gamestates.StateEnum;
@@ -48,13 +46,6 @@ public class MenuState extends State {
 			break;
 			
 		}
-		
-	}
-	
-	public void render(Graphics2D g) {
-		super.render(g);
-		
-		
 		
 	}
 	

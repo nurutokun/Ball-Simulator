@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client;
 
 import com.rawad.ballsimulator.entity.Entity;
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 
 /**
  * DisplayManager-specific or Ball Simulator-specific?

@@ -1,13 +1,12 @@
 package com.rawad.ballsimulator.client;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.input.MouseInput;
 
 public class Viewport {
@@ -39,8 +38,6 @@ public class Viewport {
 	
 	public void update(long timePassed, int dx, int dy) {
 		
-		// Check for server connectivity otherwise, perform game logic and update World
-		
 		if(lockCameraToPlayer) {
 			
 			camera.update();
@@ -66,7 +63,7 @@ public class Viewport {
 			
 			camera.update(camera.getX() + dx, camera.getY() + dy, 0, 0);
 			
-			double mouseDelta = MouseInput.getMouseWheelPosition()/-10d;
+			double mouseDelta = MouseInput.getMouseWheelPosition()/2d;
 			
 			if(mouseDelta > 0) {
 				camera.setScale(camera.getXScale() / mouseDelta, camera.getYScale() / mouseDelta);
@@ -110,8 +107,8 @@ public class Viewport {
 		
 		AffineTransform af = g.getTransform();
 		
-		int translateX = (int) camera.getX();
-		int translateY = (int) camera.getY();
+		double translateX = camera.getX();
+		double translateY = camera.getY();
 		
 		if(camera.getTrackedEntity() != null) {
 			g.rotate(camera.getTheta(), camera.getTrackedEntity().getX() + translateX, camera.getTrackedEntity().getY() + translateY);
@@ -127,20 +124,6 @@ public class Viewport {
 		world.render(g);
 		
 		g.setTransform(af);
-		
-		g.setColor(Color.RED);
-		Thread[] tarray = new Thread[Thread.activeCount()];
-		Thread.enumerate(tarray);
-		
-		g.drawString("Active Threads: ", 10, 10);
-		
-		for(int i = 0; i < tarray.length; i++) {
-			
-			if(tarray[i] != null) {
-				g.drawString(tarray[i].getName(), 10, (i*10) + 20);
-			}
-			
-		}
 		
 	}
 	

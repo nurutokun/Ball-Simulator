@@ -10,7 +10,7 @@ import com.rawad.ballsimulator.gamestates.MenuState;
 import com.rawad.ballsimulator.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.gamestates.OptionState;
 import com.rawad.ballsimulator.gamestates.WorldEditorState;
-import com.rawad.gamehelpers.displaymanager.DisplayManager;
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.gamestates.StateEnum;
 import com.rawad.gamehelpers.gui.Background;
@@ -66,13 +66,13 @@ public class BallSimulator extends Game {
 	
 	private void handleKeyboardInput() {
 		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_F3)) {
+		if(KeyboardInput.isKeyDown(KeyEvent.VK_F3, true)) {
 			debug = !debug;
 			
-		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_F4)) {
+		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_F4, true)) {
 			showSquares = !showSquares;
 			
-		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_C)) {
+		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_C, true)) {
 			
 			MouseInput.setClamped(!MouseInput.isClamped(), DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2);
 			
