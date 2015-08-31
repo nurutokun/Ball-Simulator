@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.gui;
+package com.rawad.ballsimulator.client.gui;
 
 import java.awt.Graphics2D;
 
@@ -15,6 +15,8 @@ public class Messenger extends GuiComponent {
 	
 	private static final int MIN_WIDTH = 16;
 	private static final int MIN_HEIGHT = 16;
+	
+	private static final int DEFAULT_TEXTURE;
 	
 	private GuiManager guiManager;
 	
@@ -52,7 +54,7 @@ public class Messenger extends GuiComponent {
 		textOutput.setCenterText(false);
 		textOutput.setWrapText(true);
 		textOutput.setHideText(true);
-		textOutput.setTexture(GuiComponent.loadTexture(ResourceManager.getString("TextLabel.base"), "mess"));
+		textOutput.setTexture(DEFAULT_TEXTURE);
 		
 		textInput.setNewLineOnEnter(false);
 		
@@ -65,6 +67,8 @@ public class Messenger extends GuiComponent {
 	}
 	
 	static {
+		
+		DEFAULT_TEXTURE = GuiComponent.loadTexture(ResourceManager.getString("TextLabel.base"), "mess");
 		
 	}
 	

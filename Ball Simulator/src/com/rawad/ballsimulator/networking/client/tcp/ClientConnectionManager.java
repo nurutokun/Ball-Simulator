@@ -11,7 +11,6 @@ import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.Packet;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
-import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
@@ -39,7 +38,7 @@ public class ClientConnectionManager {
 		
 	}
 	
-	public void connectToServer(String address) {
+	public void connectToServer(String address, int port) {
 		
 		if(!networkManager.isConnectedToServer()) {
 			
@@ -48,33 +47,54 @@ public class ClientConnectionManager {
 			networkManager.setConnectionState(ConnectionState.CONNECTING);// Sometimes, previous thread doesn't stop fast enough, causing
 			// the multiplayer game state to go back to the main menu, thinking that it disconnected or something.
 			
-			connectionHandler = new Thread(new ConnectionHandler(address, Server.PORT), "Connection Handler");
+			try {// Initializing socket here fixes problem with player being logged in server-side only because of exiting 
+				// multiplayer too quickly
+				
+				socket = new Socket(address, port);
+				
+				networkManager.setConnectionState(ConnectionState.CONNECTED);
+				networkManager.onConnect();
+				
+				CPacket01Login loginPacket = new CPacket01Login(networkManager.getClient().getPlayer().getName());
+				
+				sendPacketToServer(loginPacket);
+				
+			} catch(Exception ex) {
+				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't connect to \"" + address + "\", on the port " + port);
+				
+				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
+				
+				return;
+			}
+			
+			connectionHandler = new Thread(new ConnectionHandler(socket), "Connection Handler");
 			
 			connectionHandler.start();
 		}
 		
 	}
 	
-	public void disconnect() {
+	public synchronized void disconnect() {
 		
-		if(socket != null && !socket.isClosed()) {
+//		if(socket != null && !socket.isClosed()) {
+		
+		CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(),
+				socket.getInetAddress().getHostAddress());
+		
+		sendPacketToServer(logoutPacket);
+		
+		try {
 			
-			try {
-				
-				CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(),
-						socket.getInetAddress().getHostAddress());
-				
-				sendPacketToServer(logoutPacket);
-				
-				socket.close();
-				
-				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
-				networkManager.onDisconnect();
-				
-			} catch (Exception ex) {
-				Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; couldn't close client socket.");
-			}
+			socket.close();
+			
+			networkManager.setConnectionState(ConnectionState.DISCONNECTED);
+			networkManager.onDisconnect();
+			
+		} catch (Exception ex) {
+			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; couldn't close client socket.");
 		}
+		
+//		}
 		
 	}
 	
@@ -179,42 +199,21 @@ public class ClientConnectionManager {
 	
 	public class ConnectionHandler implements Runnable {
 		
-		private String address;
+		private Socket client;
 		
-		private int port;
-		
-		public ConnectionHandler(String address, int port) {
-			this.address = address;
-			this.port = port;
-			
+		public ConnectionHandler(Socket client) {
+			this.client = client;
 		}
 		
 		@Override
 		public void run() {
 			
-			try {
-				
-				socket = new Socket(address, port);
-				
-				networkManager.setConnectionState(ConnectionState.CONNECTED);
-				networkManager.onConnect();
-				
-				CPacket01Login loginPacket = new CPacket01Login(networkManager.getClient().getPlayer().getName());
-				
-				sendPacketToServer(loginPacket);
-				
-			} catch(Exception ex) {
-				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't connect to \"" + address + "\", on the port " + port);
-				
-				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
-				
-				return;
-			}
 			
-			try (	BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			
+			try (	BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
 					) {
 				
-				while(!socket.isClosed()) {
+				while(!client.isClosed()) {
 					
 					String input = reader.readLine();
 					
@@ -227,12 +226,9 @@ public class ClientConnectionManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client lost connection to server or"
 						+ " socket was closed by other means.");
-			} finally {
-				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
-				networkManager.onDisconnect();
 			}
 			
-			networkManager.requestDisconnect();// After breaking out of loop, request to disconnect from server.
+			disconnect();// After breaking out of loop, request to disconnect from server.
 			
 		}
 		

@@ -3,19 +3,22 @@ package com.rawad.ballsimulator.main;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.gamestates.GameState;
-import com.rawad.ballsimulator.gamestates.MenuState;
-import com.rawad.ballsimulator.gamestates.MultiplayerGameState;
-import com.rawad.ballsimulator.gamestates.OptionState;
-import com.rawad.ballsimulator.gamestates.WorldEditorState;
+import com.rawad.ballsimulator.client.game_states.EState;
+import com.rawad.ballsimulator.client.game_states.GameState;
+import com.rawad.ballsimulator.client.game_states.MenuState;
+import com.rawad.ballsimulator.client.game_states.MultiplayerGameState;
+import com.rawad.ballsimulator.client.game_states.OptionState;
+import com.rawad.ballsimulator.client.game_states.WorldEditorState;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.game_manager.Game;
 import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
+import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class BallSimulator extends Game {
 	
@@ -24,6 +27,8 @@ public class BallSimulator extends Game {
 	 */
 	public static final String NAME = "Ball Simulator";
 	
+	private static final int ICON;
+	
 	private Client client;
 	
 	private Background background;
@@ -31,6 +36,12 @@ public class BallSimulator extends Game {
 	private boolean showSquares;
 	
 	public BallSimulator() {
+		
+	}
+	
+	static {
+		
+		ICON = Loader.loadTexture("", "game_icon");
 		
 	}
 	
@@ -47,7 +58,7 @@ public class BallSimulator extends Game {
 		sm.addState(new WorldEditorState());
 		sm.addState(new MultiplayerGameState(client));
 		
-		sm.setState(StateEnum.MENU_STATE);
+		sm.setState(EState.MENU);
 		
 		showSquares = false;
 		
@@ -71,10 +82,6 @@ public class BallSimulator extends Game {
 			
 		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_F4, true)) {
 			showSquares = !showSquares;
-			
-		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_C, true)) {
-			
-			MouseInput.setClamped(!MouseInput.isClamped(), DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2);
 			
 		}
 		
@@ -133,6 +140,11 @@ public class BallSimulator extends Game {
 			}	
 		}
 		
+	}
+	
+	@Override
+	public BufferedImage getIcon() {
+		return ResourceManager.getTexture(ICON);
 	}
 	
 	@Override

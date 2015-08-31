@@ -13,6 +13,7 @@ import javax.swing.DropMode;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -23,12 +24,14 @@ import javax.swing.border.TitledBorder;
 
 import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.networking.server.Server;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.game_manager.GameManager;
 import com.rawad.gamehelpers.log.Logger;
 
-import javax.swing.JScrollPane;
-
 public class WindowManager {
+
+	private static final Server server = new Server();
 
 	private static WindowManager instance;
 
@@ -57,9 +60,6 @@ public class WindowManager {
 
 		instance = new WindowManager();
 
-		final Server server = new Server();
-		server.start();
-
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 
@@ -67,6 +67,9 @@ public class WindowManager {
 
 					instance.initialize(server);
 					instance.frame.setVisible(true);
+
+					server.start();// Wait for server application to be visible
+									// before starting the grunt workers...
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -84,6 +87,11 @@ public class WindowManager {
 			Logger.log(Logger.WARNING,
 					"Couldn't load native system's look and feel for the server window.");
 		}
+
+		GameManager.instance().registerGame(new BallSimulator());
+		// For things that need them, mainly for the isDebug() method right now.
+		// Also, shouldn't waste any extra resourses because the init method for
+		// the game isn't being called.
 
 	}
 
@@ -165,8 +173,18 @@ public class WindowManager {
 		public void actionPerformed(ActionEvent e) {
 			JTextField inputField = (JTextField) e.getSource();
 
-			Logger.log(Logger.DEBUG, "User command: \"" + inputField.getText()
-					+ "\"");
+			String text = inputField.getText();
+
+			Logger.log(Logger.DEBUG, "User command: \"" + text + "\"");
+
+			if (text.substring(0, 5).equalsIgnoreCase("/send")) {
+				SPacket03Message packet = new SPacket03Message("Server",
+						"Server> " + text.substring(5));
+
+				server.getNetworkManager().getConnectionManager()
+						.sendPacketToAllClients(null, packet);
+
+			}
 
 			inputField.setText("");
 

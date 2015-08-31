@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.gui;
+package com.rawad.ballsimulator.client.gui;
 
 import java.awt.Graphics2D;
 

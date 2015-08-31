@@ -3,11 +3,14 @@ package com.rawad.ballsimulator.entity;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.input.event.MouseEvent;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class EntityPlayer extends EntityRotatingBase {
+	
+	private static final int DEFAULT_TEXTURE;
 	
 	private final int textureLoc; 
 	
@@ -20,7 +23,13 @@ public class EntityPlayer extends EntityRotatingBase {
 		width = 40;
 		height = 40;
 		
-		textureLoc = ResourceManager.loadTexture("res/entity_textures/player.png");
+		textureLoc = DEFAULT_TEXTURE;
+		
+	}
+	
+	static {
+		
+		DEFAULT_TEXTURE = Loader.loadTexture(Loader.ENTITY_2, "player");
 		
 	}
 	

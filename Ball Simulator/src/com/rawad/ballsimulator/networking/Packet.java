@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.networking;
 import java.io.UnsupportedEncodingException;
 
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.utils.Util;
 
 /**
  * "C" packets are client packets SENT only by client and "S" are server packets SENT only by the server.
@@ -94,6 +95,9 @@ public abstract class Packet {
 			return buffer;
 		}
 		
+		buffer = Util.getStringFromLines(datas, regex, false);
+		
+		/*/
 		for(int i = 0; i < datas.length; i++) {
 			buffer += datas[i].toString();
 			
@@ -103,7 +107,7 @@ public abstract class Packet {
 				buffer += regex;
 			}
 			
-		}
+		}/**/
 		
 		return buffer;
 		

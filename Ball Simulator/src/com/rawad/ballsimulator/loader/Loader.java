@@ -1,87 +1,70 @@
 package com.rawad.ballsimulator.loader;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.world.terrain.Terrain;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.ResourceManager;
+import com.rawad.gamehelpers.utils.Util;
 
 public class Loader {
 	
 	public static final String TERRAIN_COMPONENT_ATTRIB_SPLIT = ",";
 	
-	private static final String RES_0 = "res/";
+	private static final String RES_0 = BallSimulator.NAME + "/res/";
 	
-//	private static final String TEXTURES_1 = "textures/";
-	
+	private static final String TEXTURES_1 = "textures/";// _1 are general directories
 	private static final String TERRAIN_1 = "terrains/";
+	private static final String FILES_1 = "files/";
 	
-	private static final String TXT_3 = ".txt";
+	public static final String ENTITY_2 = "entity/";// _2 should be used by other classes
 	
-	public static void saveTerrain(Terrain terrain, String terrainName) {
+	private static final String TXT_4 = ".txt";
+	private static final String PNG_4 = ".png";
+	
+	public static BufferedReader readFile(String fileName) {
+		return ResourceManager.readFile(RES_0 + FILES_1 + fileName + TXT_4);
+	}
+	
+	public static void saveFile(String fileName, String content) {
+		ResourceManager.saveFile(RES_0 + FILES_1 + fileName + TXT_4, content);
+	}
+	
+	public static int loadTexture(String textureFolder, String textureName) {
+		return ResourceManager.loadTexture(RES_0 + TEXTURES_1 + textureFolder + textureName + PNG_4);
+	}
+	
+	public static void saveTerrain(Terrain terrain, String terrainName) {// TODO: Make this into a class that is a subclass of FileType
 		
-		String filePath = RES_0 + TERRAIN_1 + terrainName + TXT_3;
+		String filePath = RES_0 + TERRAIN_1 + terrainName + TXT_4;
 		
-		File f = new File(filePath);
+		TerrainComponent[] components = terrain.getTerrainComponents();
+		String[] componentLines = new String[components.length];
 		
-		try (	PrintWriter writer = new PrintWriter(new FileWriter(f));
-				) {
-			
-			f.createNewFile();
-			
-			TerrainComponent[] components = terrain.getTerrainComponents();
-			
-			for(TerrainComponent component: components) {
-				
-				/*
-				double x = component.getX();
-				double y = component.getY();
-				
-				int width = component.getWidth();
-				int height = component.getHeight();
-				
-				writer.write(x + TERRAIN_COMPONENT_ATTRIB_SPLIT);
-				writer.write(y + TERRAIN_COMPONENT_ATTRIB_SPLIT);
-				writer.write(width + TERRAIN_COMPONENT_ATTRIB_SPLIT);
-				writer.write(height + "");
-				writer.println();*/
-				
-				writer.write(component.toString());
-				writer.println();
-				
-			}
-			
-		} catch(Exception ex) {
-			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; couldn't open terrain file, \"" + filePath + "\", to save to.");
+		for(int i = 0; i < componentLines.length; i++) {
+			componentLines[i] = components[i].toString();
 		}
+		
+		String content = Util.getStringFromLines(componentLines, Util.NL, false);
+		
+		ResourceManager.saveFile(filePath, content);
 		
 	}
 	
 	public static Terrain loadTerrain(String terrainName) {
 		Terrain re = new Terrain();
 		
-		ResourceManager.loadTexture("");
+		String filePath = RES_0 + TERRAIN_1 + terrainName + TXT_4;
 		
-		String filePath = RES_0 + TERRAIN_1 + terrainName + TXT_3;
+		BufferedReader reader = ResourceManager.readFile(filePath);
 		
-		File f = new File(filePath);
+		ArrayList<String> lines = new ArrayList<String>();
 		
 		try {
-			f.createNewFile();
-		} catch(Exception ex) {
-			// Ignore for now
-		}
-		
-		try (	BufferedReader reader = new BufferedReader(new FileReader(f));
-				) {
-			
-			ArrayList<String> lines = new ArrayList<String>();
 			
 			while(reader.ready()) {
 				lines.add(reader.readLine());
@@ -94,8 +77,9 @@ public class Loader {
 				re.addTerrainComponent(getTerrainComponentFromLine(components));
 			}
 			
-		} catch(Exception ex) {
-			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; couldn't load terrain file \"" + filePath + "\".");
+		} catch(IOException ex) {
+			Logger.log(Logger.WARNING, "Couldn't read terrain: " + terrainName);
+			ex.printStackTrace();
 		}
 		
 		return re;
@@ -103,33 +87,13 @@ public class Loader {
 	
 	public static TerrainComponent getTerrainComponentFromLine(String[] lineComponents) {
 		
-		double x = parseDouble(lineComponents[0]);
-		double y = parseDouble(lineComponents[1]);
+		double x = Util.parseDouble(lineComponents[0]);
+		double y = Util.parseDouble(lineComponents[1]);
 		
-		int width = parseInt(lineComponents[2]);
-		int height = parseInt(lineComponents[3]);
+		int width = Util.parseInt(lineComponents[2]);
+		int height = Util.parseInt(lineComponents[3]);
 		
 		return new TerrainComponent(x, y, width, height);
-		
-	}
-	
-	private static int parseInt(String potentialInt) {
-		
-		try {
-			return Integer.parseInt(potentialInt);
-		} catch(Exception ex) {
-			return 0;
-		}
-		
-	}
-	
-	private static double parseDouble(String potentialDouble) {
-		
-		try {
-			return Double.parseDouble(potentialDouble);
-		} catch(Exception ex) {
-			return 0.0d;
-		}
 		
 	}
 	

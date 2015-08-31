@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.gamestates;
+package com.rawad.ballsimulator.client.game_states;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -6,8 +6,7 @@ import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.game_states.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
 import com.rawad.gamehelpers.input.KeyboardInput;
@@ -21,7 +20,7 @@ public class GameState extends State {
 	private PauseOverlay pauseScreen;
 	
 	public GameState(Client client) {
-		super(StateEnum.GAME_STATE);
+		super(EState.GAME);
 		
 		this.client = client;
 		
@@ -63,7 +62,7 @@ public class GameState extends State {
 			
 			// No need to check if paused; pauseOverlay does that for you.
 			pauseScreen.setPaused(false);// For next time.
-			sm.setState(StateEnum.MENU_STATE);
+			sm.setState(EState.MENU);
 			
 			break;
 			

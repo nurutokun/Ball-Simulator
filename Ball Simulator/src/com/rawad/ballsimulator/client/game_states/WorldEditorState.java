@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.gamestates;
+package com.rawad.ballsimulator.client.game_states;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -10,14 +10,14 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.game_states.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
+import com.rawad.gamehelpers.utils.Util;
 
 public class WorldEditorState extends State {
 	
@@ -35,7 +35,7 @@ public class WorldEditorState extends State {
 	private boolean mouseClicked;
 	
 	public WorldEditorState() {
-		super(StateEnum.WORLDEDITOR_STATE);
+		super(EState.WORLD_EDITOR);
 		
 		camera = new Camera(null);
 		
@@ -64,6 +64,10 @@ public class WorldEditorState extends State {
 		int y = me.getY();
 		
 		checkForGamePause();
+		
+		if(DisplayManager.isCloseRequested()) {
+			Loader.saveTerrain(world.getTerrain(), "terrain");
+		}
 		
 		if(!pauseScreen.isPaused()) {
 			
@@ -153,14 +157,14 @@ public class WorldEditorState extends State {
 		case "Main Menu":
 			
 			pauseScreen.setPaused(false);
-			sm.setState(StateEnum.MENU_STATE);
+			sm.setState(EState.MENU);
 			
 			break;
 			
 		case "Options Menu":
 			
 			pauseScreen.setPaused(false);
-			sm.setState(StateEnum.OPTION_STATE);
+			sm.setState(EState.OPTION);
 			
 			break;
 			
@@ -174,11 +178,11 @@ public class WorldEditorState extends State {
 		switch(drop.getId()) {
 		
 		case "Width":
-			comp.setWidth(Integer.valueOf(drop.getCurrentSelectedItem()));
+			comp.setWidth(Util.parseInt(drop.getCurrentSelectedItem()));
 			break;
 			
 		case "Height":
-			comp.setHeight(Integer.valueOf(drop.getCurrentSelectedItem()));
+			comp.setHeight(Util.parseInt(drop.getCurrentSelectedItem()));
 			break;
 		
 		}

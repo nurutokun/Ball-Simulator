@@ -1,17 +1,19 @@
-package com.rawad.ballsimulator.gamestates;
+package com.rawad.ballsimulator.client.game_states;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.gui.Messenger;
+import com.rawad.ballsimulator.client.gui.Messenger;
+import com.rawad.ballsimulator.file_parser.FileParser;
+import com.rawad.ballsimulator.file_parser.file_types.MultiplayerSettings;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.gamestates.StateEnum;
+import com.rawad.gamehelpers.game_states.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.TextEdit;
 import com.rawad.gamehelpers.gui.TextLabel;
@@ -19,7 +21,8 @@ import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
-import com.rawad.gamehelpers.util.strings.DrawableString;
+import com.rawad.gamehelpers.utils.Util;
+import com.rawad.gamehelpers.utils.strings.DrawableString;
 
 public class MultiplayerGameState extends State {
 	
@@ -29,8 +32,12 @@ public class MultiplayerGameState extends State {
 	
 	private PauseOverlay pauseScreen;
 	
+	private MultiplayerSettings mpSettings;
+	
+	private DrawableString debugMessage;
+	
 	public MultiplayerGameState(Client client) {
-		super(StateEnum.MULTIPLAYERGAME_STATE);
+		super(EState.MULTIPLAYER_GAME);
 		
 		this.client = client;
 		
@@ -50,9 +57,10 @@ public class MultiplayerGameState extends State {
 		int y = screenHeight - (height/2) - padding;
 		
 		mess = new Messenger("Mess", x, y, width, height);
-//		mess.setUpdate(false);// Going to manually update
 		
 		addGuiComponent(mess);
+		
+		debugMessage = new DrawableString();
 		
 	}
 	
@@ -67,15 +75,13 @@ public class MultiplayerGameState extends State {
 		
 		case "Main Menu":
 			
-			client.getNetworkManager().requestDisconnect();// TODO: If you do it quick enough, you can exit while the server thinks you 
-			// are still logged on
+			client.getNetworkManager().requestDisconnect();
 			
 			pauseScreen.setPaused(false);
 			
-			sm.setState(StateEnum.MENU_STATE);
+			sm.setState(EState.MENU);
 			
 			break;
-		
 		}
 		
 	}
@@ -130,7 +136,7 @@ public class MultiplayerGameState extends State {
 		if(networkManager.isDisconnectedFromServer()) {
 			textOutput.setText("");
 			client.getNetworkManager().setConnectionState(ConnectionState.NOT_CONNECTED);
-			sm.setState(StateEnum.MENU_STATE);//TODO: or could show a sreen telling the client some debug info.
+			sm.setState(EState.MENU);//TODO: or could show a sreen telling the client some debug info.
 			
 		} else if(networkManager.isConnectedToServer()) {
 			
@@ -154,11 +160,14 @@ public class MultiplayerGameState extends State {
 			super.render(g);// For GUI stuff.
 			
 		} else {
-			g.setColor(Color.RED);
-			g.drawString("Connecting...", DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2);
+			
+			String message = "Connecting to \"" + mpSettings.getIp() + "\"...";
+			debugMessage.setContent(message);
+			
+			debugMessage.render(g, Color.RED, Util.TRANSPARENT, Util.TRANSPARENT, 
+					new Rectangle(0, 0, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight()), true, false);
+			
 		}
-		
-		
 		
 		if(pauseScreen.isPaused()) {
 			pauseScreen.render(g);
@@ -168,7 +177,10 @@ public class MultiplayerGameState extends State {
 	
 	@Override
 	protected void onActivate() {
-		client.connectToServer("localhost");
+		
+		mpSettings = (MultiplayerSettings) FileParser.parseFile(MultiplayerSettings.FILE_NAME);
+		
+		client.connectToServer(mpSettings.getIp());
 	}
 	
 }

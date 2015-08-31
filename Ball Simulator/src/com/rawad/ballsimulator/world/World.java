@@ -10,8 +10,8 @@ import java.util.Random;
 import com.rawad.ballsimulator.entity.Entity;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.world.terrain.Terrain;
-import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameManager;
+import com.rawad.gamehelpers.game_manager.Game;
+import com.rawad.gamehelpers.game_manager.GameManager;
 
 public class World {
 	
@@ -35,7 +35,7 @@ public class World {
 		
 	}
 	
-	public void update(long timePassed) {
+	public synchronized void update(long timePassed) {
 		
 		for(Entity e: entities) {
 			
@@ -47,16 +47,16 @@ public class World {
 		
 	}
 	
-	public void render(Graphics2D g) {
+	public synchronized void render(Graphics2D g) {
 		
 		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, width, height);
 		
 		terrain.render(g);
 		
-		Game game = GameManager.getGame();
+		Game game = GameManager.instance().getCurrentGame();
 		
-		if(game != null && game.isDebug()) {
+		if(game.isDebug()) {
 			renderSquares(g);
 		}
 		

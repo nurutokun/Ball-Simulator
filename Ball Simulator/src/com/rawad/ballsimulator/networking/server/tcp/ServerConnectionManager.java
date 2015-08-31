@@ -301,19 +301,16 @@ public class ServerConnectionManager {
 		
 		private ServerSocket serverSocket;
 		
-		public ConnectionAcceptor() {
+		@Override
+		public void run() {
 			
 			try {
-				serverSocket = new ServerSocket(Server.PORT);
+				serverSocket = new ServerSocket(Server.PORT);// Rather initialize this here than in the constructor....
 			} catch(Exception ex) {
 				Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; server socket for TCP connection couldn't be initialized.");
 				System.exit(-1);
 			}
 			
-		}
-		
-		@Override
-		public void run() {
 			while(networkManager.getServer().isRunning()) {
 				
 				try {
@@ -327,6 +324,7 @@ public class ServerConnectionManager {
 				}
 				
 			}
+			
 		}
 		
 	}
@@ -351,7 +349,7 @@ public class ServerConnectionManager {
 			try (	BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
 					) {
 				
-				while(networkManager.getServer().isRunning()) {
+				while(!client.isClosed()) {
 					
 					String input = reader.readLine();
 					

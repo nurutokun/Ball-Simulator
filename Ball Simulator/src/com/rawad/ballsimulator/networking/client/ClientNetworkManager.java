@@ -10,7 +10,7 @@ import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
 import com.rawad.ballsimulator.networking.server.Server;
-import com.rawad.gamehelpers.util.strings.DrawableString;
+import com.rawad.gamehelpers.utils.Util;
 
 public class ClientNetworkManager {
 	
@@ -49,7 +49,7 @@ public class ClientNetworkManager {
 	
 	public void init(String address) {
 		
-		connectionManager.connectToServer(address);
+		connectionManager.connectToServer(address, Server.PORT);
 		
 	}
 	
@@ -137,7 +137,7 @@ public class ClientNetworkManager {
 	}
 	
 	public void addUserMessage(String message) {
-		this.messages += message + DrawableString.NL;
+		this.messages += message + Util.NL;
 	}
 	
 	public String getMessages() {
