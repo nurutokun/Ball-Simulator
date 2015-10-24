@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
@@ -33,7 +33,7 @@ public class GameState extends State {
 		super.update(me, ke);
 		super.updateOverlays(me, ke);
 		
-		client.update(me, ke, DisplayManager.getDeltaTime());
+		client.update(me, ke, GameManager.instance().getDeltaTime());
 		
 		pauseScreen.setPaused(client.showPauseScreen());
 		

@@ -17,6 +17,7 @@ import com.rawad.ballsimulator.files.TerrainLoader;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamemanager.Game;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
@@ -122,7 +123,7 @@ public class BallSimulator extends Game {
 		
 		g.setColor(Color.WHITE);
 		g.drawString(DisplayManager.getDisplayWidth() + ", " + DisplayManager.getDisplayHeight() + " | " +
-			DisplayManager.getFPS() + " | " + DisplayManager.getDeltaTime(), 10, 10);
+			GameManager.instance().getFPS() + " | " + GameManager.instance().getDeltaTime(), 10, 10);
 		
 		g.drawString(MouseInput.getX() + ", " + MouseInput.getY(), 10, 20);
 		

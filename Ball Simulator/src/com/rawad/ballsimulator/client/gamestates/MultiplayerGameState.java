@@ -13,6 +13,7 @@ import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.TextEdit;
@@ -122,7 +123,7 @@ public class MultiplayerGameState extends State {
 		super.update(me, ke);
 		super.updateOverlays(me, ke);
 		
-		client.update(me, ke, DisplayManager.getDeltaTime());
+		client.update(me, ke, GameManager.instance().getDeltaTime());
 		
 		pauseScreen.setPaused(client.showPauseScreen());
 		
