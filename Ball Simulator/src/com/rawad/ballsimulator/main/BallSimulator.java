@@ -6,15 +6,17 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.game_states.EState;
-import com.rawad.ballsimulator.client.game_states.GameState;
-import com.rawad.ballsimulator.client.game_states.MenuState;
-import com.rawad.ballsimulator.client.game_states.MultiplayerGameState;
-import com.rawad.ballsimulator.client.game_states.OptionState;
-import com.rawad.ballsimulator.client.game_states.WorldEditorState;
+import com.rawad.ballsimulator.client.gamestates.EState;
+import com.rawad.ballsimulator.client.gamestates.GameState;
+import com.rawad.ballsimulator.client.gamestates.MenuState;
+import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
+import com.rawad.ballsimulator.client.gamestates.OptionState;
+import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
+import com.rawad.ballsimulator.files.SettingsLoader;
+import com.rawad.ballsimulator.files.TerrainLoader;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game_manager.Game;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
@@ -34,8 +36,12 @@ public class BallSimulator extends Game {
 	private Background background;
 	
 	private boolean showSquares;
-	
+	 
 	public BallSimulator() {
+		super();
+		
+		files.put(TerrainLoader.class, new TerrainLoader());// All of a sudden, I feel like changing the file-loading for
+		// terrains at least...
 		
 	}
 	
@@ -47,6 +53,8 @@ public class BallSimulator extends Game {
 	
 	public void init() {
 		super.init();
+		
+		files.put(SettingsLoader.class, new SettingsLoader());
 		
 		client = new Client();
 		

@@ -5,8 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.game_manager.Game;
-import com.rawad.gamehelpers.game_manager.GameManager;
+import com.rawad.gamehelpers.gamemanager.Game;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 
 public abstract class EntityMovingBase extends EntityLivingBase {
 	

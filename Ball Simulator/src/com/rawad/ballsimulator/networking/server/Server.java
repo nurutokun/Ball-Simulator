@@ -4,7 +4,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.client.Viewport;
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.networking.server.main.ViewportShell;
 import com.rawad.ballsimulator.networking.server.main.WindowManager;
@@ -37,9 +36,8 @@ public class Server {
 		
 		world = new WorldMP(this);
 		
-		world.setTerrain(Loader.loadTerrain(TERRAIN_NAME));
-		
 		viewportShell = new ViewportShell(new Viewport(world));
+		viewportShell.getViewport().loadTerrain(TERRAIN_NAME);
 		
 		mainLooper = new Thread(new Looper(), "Looper");
 		

@@ -1,15 +1,13 @@
-package com.rawad.ballsimulator.client.game_states;
+package com.rawad.ballsimulator.client.gamestates;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game_states.State;
+import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
-import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
 
@@ -31,19 +29,13 @@ public class GameState extends State {
 	}
 	
 	@Override
-	public void update(MouseEvent e, KeyboardEvent ke) {
-		super.update(e, ke);
-		super.updateOverlays(e, ke);
+	public void update(MouseEvent me, KeyboardEvent ke) {
+		super.update(me, ke);
+		super.updateOverlays(me, ke);
 		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE, true)) {
-			
-			pauseScreen.setPaused(!pauseScreen.isPaused());
-			
-		}
+		client.update(me, ke, DisplayManager.getDeltaTime());
 		
-		client.pauseGame(pauseScreen.isPaused());
-		
-		client.update(ke, DisplayManager.getDeltaTime());
+		pauseScreen.setPaused(client.showPauseScreen());
 		
 	}
 	
@@ -55,13 +47,16 @@ public class GameState extends State {
 		case "Resume":
 			
 			pauseScreen.setPaused(false);
+			client.setShowPauseScreen(false);
 			
 			break;
 		
 		case "Main Menu":
 			
 			// No need to check if paused; pauseOverlay does that for you.
-			pauseScreen.setPaused(false);// For next time.
+//			pauseScreen.setPaused(false);// For next time.
+			client.setPaused(false);
+			client.setShowPauseScreen(false);
 			sm.setState(EState.MENU);
 			
 			break;
@@ -76,12 +71,19 @@ public class GameState extends State {
 	}
 	
 	@Override
+	protected void onDeactivate() {
+		
+		client.onExit();
+		
+	}
+	
+	@Override
 	public void render(Graphics2D g) {
 		super.render(g);
 		
 		client.render(g);
 		
-		if(pauseScreen.isPaused()) {
+		if(client.showPauseScreen()) {
 			pauseScreen.render(g);
 		}
 		

@@ -10,8 +10,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.DropMode;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -26,14 +29,14 @@ import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game_manager.GameManager;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.log.Logger;
 
 public class WindowManager {
 
-	private static final Server server = new Server();
-
 	private static WindowManager instance;
+
+	private final Server server;
 
 	private JFrame frame;
 	private JPanel basePanel;
@@ -45,6 +48,9 @@ public class WindowManager {
 	private ViewportShell panel;
 	private JList<String> playerList;
 	private JScrollPane consoleOutputHolder;
+	private JMenuBar menuBar;
+	private JMenu menuOptions;
+	private JCheckBoxMenuItem menuCheckboxDebug;
 
 	/**
 	 * Launch the application.
@@ -65,10 +71,10 @@ public class WindowManager {
 
 				try {
 
-					instance.initialize(server);
+					instance.initialize(instance.server);
 					instance.frame.setVisible(true);
 
-					server.start();// Wait for server application to be visible
+					instance.server.start();// Wait for server application to be visible
 									// before starting the grunt workers...
 
 				} catch (Exception e) {
@@ -90,9 +96,12 @@ public class WindowManager {
 
 		GameManager.instance().registerGame(new BallSimulator());
 		// For things that need them, mainly for the isDebug() method right now.
-		// Also, shouldn't waste any extra resourses because the init method for
-		// the game isn't being called.
-
+		// Also, this shouldn't waste any extra resourses because the init
+		// method for the game isn't being called. It will cause the Icon to be
+		// loaded though...
+		
+		server = new Server();// Here because game needs to initialize the fileparsers so that terrain can be loaded here
+		
 	}
 
 	/**
@@ -102,6 +111,7 @@ public class WindowManager {
 	public void initialize(Server server) {
 		frame = new JFrame();
 		frame.setTitle(BallSimulator.NAME);
+		frame.setIconImage(GameManager.instance().getCurrentGame().getIcon());
 		frame.getContentPane().setPreferredSize(
 				new Dimension(DisplayManager.getScreenWidth(), DisplayManager
 						.getScreenHeight()));// default.
@@ -166,6 +176,18 @@ public class WindowManager {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+
+		menuOptions = new JMenu("Options");
+		menuBar.add(menuOptions);
+
+		menuCheckboxDebug = new JCheckBoxMenuItem("Debug");
+		menuCheckboxDebug
+				.addActionListener(new MenuCheckboxDebugActionListener());
+		menuOptions.add(menuCheckboxDebug);
+
 	}
 
 	private class ConsoleInputTextFieldActionListener implements ActionListener {
@@ -190,6 +212,16 @@ public class WindowManager {
 
 		}
 
+	}
+
+	private class MenuCheckboxDebugActionListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+
+			JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
+
+			GameManager.instance().getCurrentGame().setDebug(source.getState());
+		}
 	}
 
 	public void setPlayerNames(String[] playerNames) {

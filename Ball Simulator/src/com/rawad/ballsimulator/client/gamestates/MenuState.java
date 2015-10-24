@@ -1,8 +1,8 @@
-package com.rawad.ballsimulator.client.game_states;
+package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game_manager.GameManager;
-import com.rawad.gamehelpers.game_states.State;
+import com.rawad.gamehelpers.gamemanager.GameManager;
+import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.TextLabel;
 

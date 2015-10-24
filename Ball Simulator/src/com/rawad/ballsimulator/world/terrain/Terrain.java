@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.world.terrain;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Terrain {
 	
@@ -34,8 +35,26 @@ public class Terrain {
 		
 	}
 	
-	public synchronized void addTerrainComponent(TerrainComponent comp) {
-		terrainComponents.add(comp);
+	public synchronized TerrainComponent calculateCollision(int x, int y) {
+		
+		for(TerrainComponent comp: terrainComponents) {
+			
+			if(comp.intersects(x, y)) {
+				return comp;
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	public synchronized void addTerrainComponent(double x, double y, int width, int height) {
+		terrainComponents.add(new TerrainComponent(x, y, width, height));
+	}
+	
+	public synchronized void removeTerrainComponent(TerrainComponent comp) {
+		terrainComponents.remove(comp);
 	}
 	
 	public synchronized TerrainComponent[] getTerrainComponents() {
@@ -48,6 +67,10 @@ public class Terrain {
 		
 		return components;
 		
+	}
+	
+	public synchronized void setTerrainComponents(TerrainComponent[] components) {
+		terrainComponents = new ArrayList<TerrainComponent>(Arrays.asList(components));
 	}
 	
 }

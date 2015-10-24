@@ -18,7 +18,7 @@ public class Messenger extends GuiComponent {
 	
 	private static final int DEFAULT_TEXTURE;
 	
-	private GuiManager guiManager;
+//	private GuiManager guiManager;
 	
 	private CloseButton toggle;
 	
@@ -42,8 +42,6 @@ public class Messenger extends GuiComponent {
 		originalWidth = width;
 		originalHeight = height;
 		
-		guiManager = new GuiManager();
-		
 		toggle = new CloseButton(x + (width/2) - (MIN_WIDTH/2), y - (height/2) + (MIN_HEIGHT/2), MIN_WIDTH, MIN_HEIGHT);
 		
 		int textInputHeight = height/8;// Use 8th of total height
@@ -58,10 +56,6 @@ public class Messenger extends GuiComponent {
 		
 		textInput.setNewLineOnEnter(false);
 		
-		guiManager.addComponent(textOutput);
-		guiManager.addComponent(textInput);
-		guiManager.addComponent(toggle);
-		
 		maximized = true;
 		
 	}
@@ -74,15 +68,7 @@ public class Messenger extends GuiComponent {
 	
 	@Override
 	public void update(MouseEvent me, KeyboardEvent ke) {
-		// No need to call super method, this is a multi-component
-		
-		guiManager.update(me, ke);
-		
-		Button butt = guiManager.getCurrentClickedButton();
-		
-		if(butt != null) {
-			handleButtonClick(butt);
-		}
+		super.update(me, ke);
 		
 	}
 	
@@ -90,20 +76,16 @@ public class Messenger extends GuiComponent {
 	public void render(Graphics2D g) {
 		
 		if(maximized) {
-			guiManager.render(g);
+			super.render(g);
 		} else {
 			toggle.render(g);// Only need to render button when minimized.
 		}
 		
-		super.render(g);
-		
-		
-		
 	}
 	
-	private void handleButtonClick(Button comp) {
+	public void handleButtonClick(Button butt) {
 		
-		switch(comp.getId()) {
+		switch(butt.getId()) {
 		
 		case "Close":
 			
@@ -143,6 +125,9 @@ public class Messenger extends GuiComponent {
 		textOutput.setUpdate(true);
 		textInput.setUpdate(true);
 		
+		textOutput.setRender(true);
+		textInput.setRender(true);
+		
 		textInput.setFocused(true);
 		
 	}
@@ -167,6 +152,19 @@ public class Messenger extends GuiComponent {
 		
 		textOutput.setUpdate(false);
 		textInput.setUpdate(false);
+		
+		textOutput.setRender(false);
+		textInput.setRender(false);
+		
+	}
+	
+	@Override
+	public void onAdd(GuiManager manager) {
+		super.onAdd(manager);
+		
+		manager.addComponent(textOutput);
+		manager.addComponent(textInput);
+		manager.addComponent(toggle);
 		
 	}
 	

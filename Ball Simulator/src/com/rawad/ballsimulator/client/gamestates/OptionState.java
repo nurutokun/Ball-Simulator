@@ -1,9 +1,9 @@
-package com.rawad.ballsimulator.client.game_states;
+package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.file_parser.FileParser;
-import com.rawad.ballsimulator.file_parser.file_types.MultiplayerSettings;
+import com.rawad.ballsimulator.files.SettingsLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game_states.State;
+import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
 import com.rawad.gamehelpers.gui.TextEdit;
@@ -14,7 +14,7 @@ public class OptionState extends State {
 	
 	private TextEdit ipHolder;
 	
-	private MultiplayerSettings mpSettings;
+	private SettingsLoader settings;
 	
 	public OptionState() {
 		super(EState.OPTION);
@@ -25,16 +25,12 @@ public class OptionState extends State {
 		ipHolder = new TextEdit("", horizontalCenter, verticalSections * 4, 128, 16);
 		
 		addGuiComponent(new Button("Main Menu", horizontalCenter, verticalSections * 6));
-		addGuiComponent(new DropDown("Fullscreen Resolution", horizontalCenter, verticalSections, 256,
-				64, DisplayManager.getFullScreenResolution(), DisplayManager.getCompatibleDisplayModeResolutions()));
 		addGuiComponent(new Button("World Editor", horizontalCenter, verticalSections * 2));
 		addGuiComponent(ipHolder);
+		addGuiComponent(new DropDown("Fullscreen Resolution", horizontalCenter, verticalSections, 256,
+				64, DisplayManager.getFullScreenResolution(), DisplayManager.getCompatibleDisplayModeResolutions()));
 		
 		ipHolder.setNewLineOnEnter(false);
-		
-		mpSettings = (MultiplayerSettings) FileParser.parseFile(MultiplayerSettings.FILE_NAME);
-		
-		ipHolder.setText(mpSettings.getIp());
 		
 	}
 	
@@ -43,11 +39,11 @@ public class OptionState extends State {
 		super.update(me, ke);
 		
 		if(ipHolder.wasPrevEdited()) {
-			mpSettings.setIp(ipHolder.getText());
+			settings.setIp(ipHolder.getText());
 		}
 		
 		if(DisplayManager.isCloseRequested()) {
-			mpSettings.saveFile();
+			Loader.saveFile(settings, "settings");
 		}
 		
 	}
@@ -67,7 +63,7 @@ public class OptionState extends State {
 		
 		}
 		
-		mpSettings.saveFile();
+		Loader.saveFile(settings, "settings");
 		
 	}
 	
@@ -81,6 +77,17 @@ public class OptionState extends State {
 			break;
 		
 		}
+		
+	}
+	
+	@Override
+	protected void onActivate() {
+		
+		settings = (SettingsLoader) sm.getGame().getFiles().get(SettingsLoader.class);
+		
+		Loader.loadSettings(sm.getGame(), "settings");
+		
+		ipHolder.setText(settings.getIp());
 		
 	}
 	

@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.client.game_states;
+package com.rawad.ballsimulator.client.gamestates;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -7,13 +7,13 @@ import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
-import com.rawad.ballsimulator.file_parser.FileParser;
-import com.rawad.ballsimulator.file_parser.file_types.MultiplayerSettings;
+import com.rawad.ballsimulator.files.SettingsLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game_states.State;
+import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.TextEdit;
 import com.rawad.gamehelpers.gui.TextLabel;
@@ -32,9 +32,9 @@ public class MultiplayerGameState extends State {
 	
 	private PauseOverlay pauseScreen;
 	
-	private MultiplayerSettings mpSettings;
-	
 	private DrawableString debugMessage;
+	
+	private SettingsLoader settings;
 	
 	public MultiplayerGameState(Client client) {
 		super(EState.MULTIPLAYER_GAME);
@@ -66,6 +66,8 @@ public class MultiplayerGameState extends State {
 	
 	@Override
 	protected void handleButtonClick(Button butt) {
+		
+		mess.handleButtonClick(butt);
 		
 		switch(butt.getId()) {
 		
@@ -109,7 +111,8 @@ public class MultiplayerGameState extends State {
 					DrawableString textObj = textInput.getTextObject();
 					
 					textObj.setContent("");
-					textObj.setCaretPosition(0, 0);// Because, reasons. (DrawableString.newLine() changing position automatically)
+					textObj.setCaretPosition(0, 0);// Because, reasons. (DrawableString.newLine() changing position
+					// automatically)
 				}
 					
 			}
@@ -119,13 +122,9 @@ public class MultiplayerGameState extends State {
 		super.update(me, ke);
 		super.updateOverlays(me, ke);
 		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE, true)) {
-			pauseScreen.setPaused(!pauseScreen.isPaused());
-		}
+		client.update(me, ke, DisplayManager.getDeltaTime());
 		
-		client.pauseGame(pauseScreen.isPaused());
-		
-		client.update(ke, DisplayManager.getDeltaTime());
+		pauseScreen.setPaused(client.showPauseScreen());
 		
 		if(DisplayManager.isCloseRequested()) {
 			client.getNetworkManager().requestDisconnect();
@@ -161,7 +160,7 @@ public class MultiplayerGameState extends State {
 			
 		} else {
 			
-			String message = "Connecting to \"" + mpSettings.getIp() + "\"...";
+			String message = "Connecting to \"" + settings.getIp() + "\"...";
 			debugMessage.setContent(message);
 			
 			debugMessage.render(g, Color.RED, Util.TRANSPARENT, Util.TRANSPARENT, 
@@ -178,9 +177,18 @@ public class MultiplayerGameState extends State {
 	@Override
 	protected void onActivate() {
 		
-		mpSettings = (MultiplayerSettings) FileParser.parseFile(MultiplayerSettings.FILE_NAME);
+		Loader.loadSettings(sm.getGame(), "settings");
 		
-		client.connectToServer(mpSettings.getIp());
+		settings = (SettingsLoader) sm.getGame().getFiles().get(SettingsLoader.class);
+		
+		client.connectToServer(settings.getIp());
+	}
+	
+	@Override
+	protected void onDeactivate() {
+		
+		client.onExit();
+		
 	}
 	
 }

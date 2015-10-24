@@ -8,11 +8,14 @@ import com.rawad.ballsimulator.loader.Loader;
 
 public class TerrainComponent {
 	
+	
 	private double x;
 	private double y;
 	
 	private int width;
 	private int height;
+	
+	public boolean selected;
 	
 	public TerrainComponent(double x, double y, int width, int height) {
 		
@@ -25,7 +28,12 @@ public class TerrainComponent {
 	}
 	
 	public void render(Graphics2D g) {
-		g.setColor(Color.RED);
+		if(selected) {
+			g.setColor(Color.GREEN);
+		} else {
+			g.setColor(Color.RED);
+		}
+		
 		g.drawRect((int) x, (int) y, width, height);
 	}
 	
@@ -34,6 +42,10 @@ public class TerrainComponent {
 		
 		return curHit.intersects(hitbox);
 		
+	}
+	
+	public boolean intersects(int x, int y) {
+		return new Rectangle((int) this.x, (int) this.y, width, height).contains(x, y);
 	}
 	
 	public double getX() {

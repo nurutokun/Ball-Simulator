@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.client.game_states;
+package com.rawad.ballsimulator.client.gamestates;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -6,20 +6,24 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 
 import com.rawad.ballsimulator.client.Camera;
+import com.rawad.ballsimulator.files.TerrainLoader;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
 import com.rawad.gamehelpers.display.DisplayManager;
-import com.rawad.gamehelpers.game_states.State;
+import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
 import com.rawad.gamehelpers.input.KeyboardInput;
+import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
 import com.rawad.gamehelpers.utils.Util;
 
 public class WorldEditorState extends State {
+	
+	private static final String[] DIMS = {"2", "4", "8", "16", "32", "64", "128", "256", "512"};
 	
 	private Camera camera;
 	
@@ -29,26 +33,22 @@ public class WorldEditorState extends State {
 	
 	private PauseOverlay pauseScreen;
 	
+	private TerrainLoader terrainLoader;
+	
 	private int x;
 	private int y;
-	
-	private boolean mouseClicked;
 	
 	public WorldEditorState() {
 		super(EState.WORLD_EDITOR);
 		
 		camera = new Camera(null);
 		
-		world = loadWorld();
+		comp = new TerrainComponent(0, 0, Util.parseInt(DIMS[0]), Util.parseInt(DIMS[0]));
 		
-		String[] dims = {"2", "4", "8", "16", "32", "64", "128", "256", "512"};
+		addGuiComponent(new DropDown("Width", DisplayManager.getScreenWidth() - 64, 32, DIMS));
+		addGuiComponent(new DropDown("Height", DisplayManager.getScreenWidth() - 200, 32, DIMS));
 		
-		comp = new TerrainComponent(0, 0, Integer.valueOf(dims[0]), Integer.valueOf(dims[0]));
-		
-		addGuiComponent(new DropDown("Width", DisplayManager.getScreenWidth() - 64, 32, dims));
-		addGuiComponent(new DropDown("Height", DisplayManager.getScreenWidth() - 200, 32, dims));
-		
-		pauseScreen = new PauseOverlay(Color.GRAY, 0, 0, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
+		pauseScreen = new PauseOverlay(Color.GRAY);
 		
 		pauseScreen.addComponent(new Button("Options Menu", 0, 0), 0);
 		pauseScreen.alignComponents();
@@ -66,40 +66,38 @@ public class WorldEditorState extends State {
 		checkForGamePause();
 		
 		if(DisplayManager.isCloseRequested()) {
-			Loader.saveTerrain(world.getTerrain(), "terrain");
+			saveTerrain("terrain");
 		}
 		
 		if(!pauseScreen.isPaused()) {
 			
 			super.update(me, ke);
 			
-			handleKeyInput(ke);
+			if(!ke.isConsumed()) {
+				handleKeyInput(ke);
+			}
 			
 			camera.update(this.x, this.y, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
 			
 			comp.setX(x - (comp.getWidth()/2));
 			comp.setY(y - (comp.getHeight()/2));
 			
-			if(me.isButtonDown() && !me.isConsumed() && !mouseClicked) {
-				
-				double compX = comp.getX() + camera.getX();
-				double compY = comp.getY() + camera.getY();
-				
-				if(compX >= 0 && compY >= 0 && compX + comp.getWidth() <= world.getWidth() &&
-						compY + comp.getHeight() <= world.getHeight()) {
-					world.getTerrain().addTerrainComponent(new TerrainComponent(compX, compY, comp.getWidth(), comp.getHeight()));
-				}
-				
-				me.consume();
-				mouseClicked = true;
-				
-			} else if(!me.isButtonDown()) {
-				mouseClicked = false;
+			if(!me.isConsumed()) {
+				handleMouseInput(me);
+			}
+			
+			double mouseDelta = MouseInput.getMouseWheelPosition()/2d;
+			
+			if(mouseDelta > 0) {
+				camera.setScale(camera.getXScale() / mouseDelta, camera.getYScale() / mouseDelta);
+			} else if(mouseDelta < 0) {
+				mouseDelta *= -1;
+				camera.setScale(camera.getXScale() * mouseDelta, camera.getYScale() * mouseDelta);
 			}
 			
 		} else {
-			super.updateOverlays(me, ke);// Because we need to update the pause overlay when the game is paused but not any 
-			//other components.
+			super.updateOverlays(me, ke);// Because we need to update the pause overlay when the game is paused but not 
+			//any other components.
 			
 		}
 		
@@ -111,7 +109,7 @@ public class WorldEditorState extends State {
 			pauseScreen.setPaused(!pauseScreen.isPaused());
 			
 			if(pauseScreen.isPaused()) {
-				Loader.saveTerrain(world.getTerrain(), "terrain");
+				saveTerrain("terrain");
 			}
 			
 		}
@@ -139,6 +137,38 @@ public class WorldEditorState extends State {
 			x += 5;
 		} else if(left) {
 			x -= 5;
+		}
+		
+	}
+	
+	private void handleMouseInput(MouseEvent e) {
+		
+		if(MouseInput.isButtonClicked(MouseInput.LEFT_MOUSE_BUTTON)) {
+			
+			TerrainComponent intersectedComponent = world.getTerrain().calculateCollision(e.getX() + (int) camera.getX(), 
+					e.getY() + (int) camera.getY());
+			
+			if(intersectedComponent != null) {
+				
+				world.getTerrain().removeTerrainComponent(intersectedComponent);
+				
+			} else {
+				
+				double compX = comp.getX() + camera.getX();
+				double compY = comp.getY() + camera.getY();
+				
+				if(compX >= 0 && compY >= 0 && compX + comp.getWidth() <= world.getWidth() &&
+						compY + comp.getHeight() <= world.getHeight()) {
+					
+					world.getTerrain().addTerrainComponent(compX, compY, 
+							comp.getWidth(), comp.getHeight());
+					
+				}
+			}
+			
+			e.consume();
+			MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, false);
+			
 		}
 		
 	}
@@ -196,6 +226,8 @@ public class WorldEditorState extends State {
 		
 		g.translate(-camera.getX(), -camera.getY());
 		
+		g.scale(camera.getXScale(), camera.getYScale());
+		
 		world.render(g);
 		
 		g.setTransform(af);
@@ -204,8 +236,23 @@ public class WorldEditorState extends State {
 		
 		comp.render(g);
 		
+		g.setColor(Color.BLACK);
+		g.fillRect((int) (comp.getX() + camera.getX()), (int) (comp.getY() + camera.getY()), 5, 5);
+		
 		if(pauseScreen.isPaused()) {
 			pauseScreen.render(g);
+		}
+		
+	}
+	
+	@Override
+	protected void onActivate() {
+		
+		if(world == null) {
+			world = loadWorld();
+			
+			terrainLoader = (TerrainLoader) sm.getGame().getFiles().get(TerrainLoader.class);
+			
 		}
 		
 	}
@@ -213,9 +260,15 @@ public class WorldEditorState extends State {
 	private World loadWorld() {
 		World re = new World();
 		
-		re.setTerrain(Loader.loadTerrain("terrain"));
+		re.setTerrain(Loader.loadTerrain(sm.getGame(), "terrain"));
 		
 		return re;
+	}
+	
+	private void saveTerrain(String terrainName) {
+		terrainLoader.setComponents(world.getTerrain().getTerrainComponents());
+		
+		Loader.saveTerrain(sm.getGame(), world.getTerrain(), "terrain");
 	}
 	
 }

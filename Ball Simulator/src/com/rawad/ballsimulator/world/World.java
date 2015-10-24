@@ -10,8 +10,8 @@ import java.util.Random;
 import com.rawad.ballsimulator.entity.Entity;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.world.terrain.Terrain;
-import com.rawad.gamehelpers.game_manager.Game;
-import com.rawad.gamehelpers.game_manager.GameManager;
+import com.rawad.gamehelpers.gamemanager.Game;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 
 public class World {
 	

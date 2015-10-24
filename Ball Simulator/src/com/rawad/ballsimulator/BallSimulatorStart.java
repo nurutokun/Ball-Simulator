@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator;
 
 import com.rawad.ballsimulator.main.BallSimulator;
-import com.rawad.gamehelpers.game_manager.GameManager;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 
 public class BallSimulatorStart {
 	

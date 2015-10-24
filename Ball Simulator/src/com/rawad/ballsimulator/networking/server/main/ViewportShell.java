@@ -94,7 +94,11 @@ public class ViewportShell extends JPanel {
 		if(viewport != null) {
 			scaleCamera(viewport.getCamera(), viewport.getWorld(), getWidth(), getHeight());
 			
-			viewport.render(g2);
+			try {
+				viewport.render(g2);
+			} catch(NullPointerException ex) {
+				// For WindowBuilder parsing, game.isDebug() again...
+			}
 			
 		}
 		
@@ -138,6 +142,10 @@ public class ViewportShell extends JPanel {
 		@Override
 		public void mouseExited(MouseEvent e) {}
 		
+	}
+	
+	public Viewport getViewport() {
+		return viewport;
 	}
 	
 	public void setFreeRoam(boolean freeRoam) {

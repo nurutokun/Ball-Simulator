@@ -42,7 +42,8 @@ public class Camera {
 	}
 	
 	public void update() {
-		update(trackedEntity.getX(), trackedEntity.getY(), DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
+		update(trackedEntity.getX(), trackedEntity.getY(), DisplayManager.getScreenWidth(), 
+				DisplayManager.getScreenHeight());
 	}
 	
 	public void increaseRotation(double delta) {

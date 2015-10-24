@@ -7,6 +7,7 @@ import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.input.MouseInput;
 
 public class Viewport {
@@ -111,7 +112,8 @@ public class Viewport {
 		double translateY = camera.getY();
 		
 		if(camera.getTrackedEntity() != null) {
-			g.rotate(camera.getTheta(), camera.getTrackedEntity().getX() + translateX, camera.getTrackedEntity().getY() + translateY);
+			g.rotate(camera.getTheta(), camera.getTrackedEntity().getX() + translateX, camera.getTrackedEntity().getY() + 
+					translateY);
 		}
 		
 		g.translate(-translateX, -translateY);
@@ -127,12 +129,16 @@ public class Viewport {
 		
 	}
 	
-	public void loadTerrain() {
-		world.setTerrain(Loader.loadTerrain("terrain"));
+	public void loadTerrain(String terrainName) {
+		world.setTerrain(Loader.loadTerrain(GameManager.instance().getCurrentGame(), terrainName));
 	}
 	
 	public void setCameraLocked(boolean lockCameraToPlayer) {
 		this.lockCameraToPlayer = lockCameraToPlayer;
+	}
+	
+	public boolean isCameraLocked() {
+		return lockCameraToPlayer;
 	}
 	
 	public Camera getCamera() {

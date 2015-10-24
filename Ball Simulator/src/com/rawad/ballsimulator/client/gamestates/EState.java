@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.client.game_states;
+package com.rawad.ballsimulator.client.gamestates;
 
 public enum EState {
 	

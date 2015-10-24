@@ -4,16 +4,21 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
+import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.world.World;
+import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gui.GuiManager;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
 
 public class Client {
+	
+	// 17:00, episode 427
+	// MRN 150, 9:30 and at 11 am, Sept. 8
 	
 	private Viewport viewport;
 	
@@ -23,7 +28,12 @@ public class Client {
 	
 	private ClientNetworkManager networkManager;
 	
+	private GuiManager guiManager;
+	
+	private PlayerInventory inventory;
+	
 	private boolean paused;
+	private boolean showPauseScreen;
 	
 	public Client() {
 		
@@ -36,17 +46,28 @@ public class Client {
 		
 		networkManager = new ClientNetworkManager(this);
 		
+		guiManager = new GuiManager();// Could make this an argument.
+		
+		inventory = new PlayerInventory("Player Inventory", 
+				DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2);
+		
+		guiManager.addComponent(inventory);
+		
 	}
 	
-	public void update(KeyboardEvent ke, long timePassed) {
+	public void update(MouseEvent me, KeyboardEvent ke, long timePassed) {
+		
+		guiManager.update(me, ke);
+		
+		if(!ke.isConsumed()) {
+			handleKeyboardInput(ke);
+		}
+		
+		if(!me.isConsumed()) {
+			handleMouseInput(me);
+		}
 		
 		if(!paused) {
-			
-			if(!ke.isConsumed()) {
-				handleKeyboardInput(ke);
-			}
-			
-			handleMouseInput();
 			
 			boolean updateGameLogic = !networkManager.isConnectedToServer();
 			
@@ -65,7 +86,30 @@ public class Client {
 	}
 	
 	private void handleKeyboardInput(KeyboardEvent e) {
-
+		
+		boolean togglePause = KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE);
+		
+		if(togglePause) {
+			
+			setShowPauseScreen(!showPauseScreen());
+			
+			setPaused(showPauseScreen() || inventory.isShowing());
+			
+			e.consume();
+			
+		}
+		
+		boolean toggleInventory = KeyboardInput.isKeyDown(KeyEvent.VK_E);
+		
+		if(!showPauseScreen() && toggleInventory) {
+			
+			inventory.toggle();
+			
+			setPaused(inventory.isShowing());
+			
+			e.consume();
+		}
+		
 		KeyboardInput.setConsumeAfterRequest(false);
 		
 		boolean up = KeyboardInput.isKeyDown(KeyEvent.VK_UP) | KeyboardInput.isKeyDown(KeyEvent.VK_W);
@@ -75,7 +119,7 @@ public class Client {
 		
 		KeyboardInput.setConsumeAfterRequest(true);
 		
-		if(up || down || right || left) {
+		if(!paused && (up || down || right || left)) {
 			
 			if(networkManager.isLoggedIn()) {
 				networkManager.updatePlayerMovement(up, down, right, left);
@@ -98,28 +142,39 @@ public class Client {
 			
 			e.consume();
 			
-			// U-Pass: UCU, room 07 (SFUO office) august 18 - september 18, becomes active september 1
 		} 
 //		else if(!(pressedKeys.length > 0)) {
 //			player.stopMoving();
 //		}
 		
-		if(!e.isConsumed()) {
-			viewport.handleKeyboardInput(KeyboardInput.isKeyDown(KeyEvent.VK_E, true), KeyboardInput.isKeyDown(KeyEvent.VK_Q, true), 
-					KeyboardInput.isKeyDown(KeyEvent.VK_R, true));
+		if(!paused) {
+			viewport.handleKeyboardInput(KeyboardInput.isKeyDown(KeyEvent.VK_C, true), 
+					KeyboardInput.isKeyDown(KeyEvent.VK_Z, true), 
+					KeyboardInput.isKeyDown(KeyEvent.VK_X, true));
 		}
 		
 	}
 	
-	private void handleMouseInput() {
+	private void handleMouseInput(MouseEvent e) {
 		
 		viewport.setCameraLocked(!MouseInput.isClamped());
+		
+	}
+	
+	public void onExit() {
+		
+		inventory.hide();
+		
+		setPaused(false);
+		setShowPauseScreen(false);
 		
 	}
 	
 	public void render(Graphics2D g) {
 		
 		viewport.render(g);
+		
+		guiManager.render(g);
 		
 	}
 	
@@ -133,8 +188,29 @@ public class Client {
 		return networkManager;
 	}
 	
-	public void pauseGame(boolean paused) {
+	public void setPaused(boolean paused) {
+		
+		if(inventory.isShowing()) {
+			
+			if(!paused) {// Resuming gameplay with inventory open; just keep game paused.
+				return;
+			}
+			
+		}
+		
 		this.paused = paused;
+	}
+	
+	public boolean isPaused() {
+		return paused;
+	}
+	
+	public void setShowPauseScreen(boolean showPauseScreen) {
+		this.showPauseScreen = showPauseScreen;
+	}
+	
+	public boolean showPauseScreen() {
+		return showPauseScreen;
 	}
 	
 	public void init() {
@@ -145,7 +221,7 @@ public class Client {
 	}
 	
 	public void loadTerrain(String terrainName) {
-		world.setTerrain(Loader.loadTerrain(terrainName));
+		viewport.loadTerrain(terrainName);
 	}
 	
 	public EntityPlayer getPlayer() {
