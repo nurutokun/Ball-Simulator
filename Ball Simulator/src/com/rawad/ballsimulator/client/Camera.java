@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client;
 
 import com.rawad.ballsimulator.entity.Entity;
-import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 
 /**
  * DisplayManager-specific or Ball Simulator-specific?
@@ -42,8 +42,7 @@ public class Camera {
 	}
 	
 	public void update() {
-		update(trackedEntity.getX(), trackedEntity.getY(), DisplayManager.getScreenWidth(), 
-				DisplayManager.getScreenHeight());
+		update(trackedEntity.getX(), trackedEntity.getY(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 	}
 	
 	public void increaseRotation(double delta) {

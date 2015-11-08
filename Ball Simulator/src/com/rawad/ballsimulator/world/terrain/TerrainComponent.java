@@ -8,6 +8,8 @@ import com.rawad.ballsimulator.loader.Loader;
 
 public class TerrainComponent {
 	
+	/** Temporary */
+	private Color highlightColor;
 	
 	private double x;
 	private double y;
@@ -15,9 +17,11 @@ public class TerrainComponent {
 	private int width;
 	private int height;
 	
-	public boolean selected;
+	private boolean selected;
 	
 	public TerrainComponent(double x, double y, int width, int height) {
+		
+		highlightColor = Color.GREEN;
 		
 		this.x = x;
 		this.y = y;
@@ -27,14 +31,16 @@ public class TerrainComponent {
 		
 	}
 	
-	public void render(Graphics2D g) {
+	public void render(Graphics2D g, Color highlightColor) {
+		
 		if(selected) {
-			g.setColor(Color.GREEN);
+			g.setColor(highlightColor);
 		} else {
 			g.setColor(Color.RED);
 		}
 		
 		g.drawRect((int) x, (int) y, width, height);
+		
 	}
 	
 	public boolean intersects(Rectangle hitbox) {
@@ -46,6 +52,14 @@ public class TerrainComponent {
 	
 	public boolean intersects(int x, int y) {
 		return new Rectangle((int) this.x, (int) this.y, width, height).contains(x, y);
+	}
+	
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 	
 	public double getX() {
@@ -78,6 +92,14 @@ public class TerrainComponent {
 	
 	public void setHeight(int height) {
 		this.height = height;
+	}
+	
+	public Color getHighLightColor() {
+		return highlightColor;
+	}
+	
+	public void setHighlightColor(Color color) {
+		this.highlightColor = color;
 	}
 	
 	@Override

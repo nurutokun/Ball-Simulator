@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.world.terrain;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class Terrain {
 	public void render(Graphics2D g) {
 		
 		for(TerrainComponent comp: terrainComponents) {
-			comp.render(g);
+			comp.render(g, Color.GREEN);
 		}
 		
 	}

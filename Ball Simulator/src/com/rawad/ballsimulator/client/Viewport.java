@@ -3,14 +3,18 @@ package com.rawad.ballsimulator.client;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
+import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.input.MouseInput;
+import com.rawad.gamehelpers.renderengine.MasterRender;
 
 public class Viewport {
+	
+	private WorldRender worldRender;
 	
 	private World world;
 	
@@ -18,9 +22,11 @@ public class Viewport {
 	
 	private boolean lockCameraToPlayer;
 	
-	public Viewport(World world, EntityPlayer player) {
+	public Viewport(MasterRender masterRender, World world, EntityPlayer player) {
 		
 		this.world = world;
+		worldRender = (WorldRender) masterRender.getRender(WorldRender.class);
+		//(WorldRender) GameManager.instance().getRender().getRender(WorldRender.class);
 		
 		camera = new Camera(player);
 		
@@ -33,8 +39,8 @@ public class Viewport {
 	 * 
 	 * @param world
 	 */
-	public Viewport(World world) {
-		this(world, null);
+	public Viewport(MasterRender masterRender, World world) {
+		this(masterRender, world, null);
 	}
 	
 	public void update(long timePassed, int dx, int dy) {
@@ -45,8 +51,8 @@ public class Viewport {
 			
 			camera.setScale(1, 1);
 			
-			final int maxWidth = world.getWidth() - DisplayManager.getScreenWidth();
-			final int maxHeight = world.getHeight() - DisplayManager.getScreenHeight();
+			final int maxWidth = world.getWidth() - Game.SCREEN_WIDTH;
+			final int maxHeight = world.getHeight() - Game.SCREEN_HEIGHT;
 			
 			if(camera.getX() < 0) {
 				camera.setX(0);
@@ -76,6 +82,9 @@ public class Viewport {
 			}
 			
 		}
+		
+		worldRender.setWorld(world);
+		worldRender.setCamera(camera);
 		
 	}
 	

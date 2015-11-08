@@ -36,7 +36,7 @@ public class EntityPlayer extends EntityRotatingBase {
 	public void update(long timePassed, MouseEvent e) {
 		super.update(timePassed);
 		
-		if(intersects(e.getX(), e.getY()) && e.isButtonDown()) {
+		if(intersects(e.getX(), e.getY()) && e.isLeftButtonDown()) {
 			this.hit(0.2d);
 			
 		}

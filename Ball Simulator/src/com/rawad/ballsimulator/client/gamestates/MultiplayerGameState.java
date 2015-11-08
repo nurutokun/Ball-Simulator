@@ -13,6 +13,7 @@ import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
@@ -42,8 +43,8 @@ public class MultiplayerGameState extends State {
 		
 		this.client = client;
 		
-		int screenWidth = DisplayManager.getScreenWidth();
-		int screenHeight = DisplayManager.getScreenHeight();
+		int screenWidth = Game.SCREEN_WIDTH;
+		int screenHeight = Game.SCREEN_HEIGHT;
 		
 		pauseScreen = new PauseOverlay(screenWidth, screenHeight);
 		
@@ -165,12 +166,12 @@ public class MultiplayerGameState extends State {
 			debugMessage.setContent(message);
 			
 			debugMessage.render(g, Color.RED, Util.TRANSPARENT, Util.TRANSPARENT, 
-					new Rectangle(0, 0, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight()), true, false);
+					new Rectangle(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT), true, false);
 			
 		}
 		
 		if(pauseScreen.isPaused()) {
-			pauseScreen.render(g);
+//			pauseScreen.render(g);
 		}
 		
 	}

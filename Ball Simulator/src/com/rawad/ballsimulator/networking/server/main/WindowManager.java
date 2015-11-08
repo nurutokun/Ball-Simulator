@@ -28,7 +28,7 @@ import javax.swing.border.TitledBorder;
 import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
-import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -74,8 +74,9 @@ public class WindowManager {
 					instance.initialize(instance.server);
 					instance.frame.setVisible(true);
 
-					instance.server.start();// Wait for server application to be visible
-									// before starting the grunt workers...
+					instance.server.start();// Wait for server application to be
+											// visible
+					// before starting the grunt workers...
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -99,9 +100,11 @@ public class WindowManager {
 		// Also, this shouldn't waste any extra resourses because the init
 		// method for the game isn't being called. It will cause the Icon to be
 		// loaded though...
-		
-		server = new Server();// Here because game needs to initialize the fileparsers so that terrain can be loaded here
-		
+
+		server = new Server();// Here because game needs to initialize the
+								// fileparsers so that terrain can be loaded
+								// here
+
 	}
 
 	/**
@@ -113,8 +116,7 @@ public class WindowManager {
 		frame.setTitle(BallSimulator.NAME);
 		frame.setIconImage(GameManager.instance().getCurrentGame().getIcon());
 		frame.getContentPane().setPreferredSize(
-				new Dimension(DisplayManager.getScreenWidth(), DisplayManager
-						.getScreenHeight()));// default.
+				new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));// default.
 
 		basePanel = new JPanel();
 		basePanel.setBackground(Color.WHITE);

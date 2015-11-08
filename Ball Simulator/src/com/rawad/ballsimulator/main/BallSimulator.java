@@ -12,6 +12,8 @@ import com.rawad.ballsimulator.client.gamestates.MenuState;
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
+import com.rawad.ballsimulator.client.renderengine.DebugRender;
+import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.files.SettingsLoader;
 import com.rawad.ballsimulator.files.TerrainLoader;
 import com.rawad.ballsimulator.loader.Loader;
@@ -21,6 +23,8 @@ import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
+import com.rawad.gamehelpers.renderengine.gui.BackgroundRender;
+import com.rawad.gamehelpers.renderengine.gui.GuiRender;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class BallSimulator extends Game {
@@ -35,6 +39,13 @@ public class BallSimulator extends Game {
 	private Client client;
 	
 	private Background background;
+	private BackgroundRender bcRender;
+	
+	private WorldRender worldRender;
+	
+	private GuiRender guiRender;
+	
+	private DebugRender debugRender;
 	
 	private boolean showSquares;
 	 
@@ -53,11 +64,26 @@ public class BallSimulator extends Game {
 	}
 	
 	public void init() {
-		super.init();
 		
+		// Base init stuff...
 		files.put(SettingsLoader.class, new SettingsLoader());
 		
-		client = new Client();
+		bcRender = new BackgroundRender();
+		worldRender = new WorldRender();
+		guiRender = new GuiRender();
+		debugRender = new DebugRender();
+		
+		bcRender.setBackground(background);
+		
+		masterRender.registerRender(bcRender);
+		masterRender.registerRender(worldRender);
+		masterRender.registerRender(guiRender);
+		masterRender.registerRender(debugRender);
+		//...
+		
+		super.init();
+		
+		client = new Client(masterRender);
 		
 		background = new Background();
 		
@@ -78,7 +104,11 @@ public class BallSimulator extends Game {
 		
 		background.update(timePassed);
 		
+		bcRender.setBackground(background);
+		
 		handleKeyboardInput();
+		
+		debugRender.setShow(isDebug());
 		
 		sm.update();
 		
@@ -92,11 +122,13 @@ public class BallSimulator extends Game {
 		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_F4, true)) {
 			showSquares = !showSquares;
 			
+		} else if(KeyboardInput.isKeyDown(KeyEvent.VK_F5)) {
+			GameManager.instance().changeUseOldRendering();
+			
 		}
 		
 	}
 	
-	@Override
 	public void render(Graphics2D g) {
 		
 		background.render(g);
@@ -115,8 +147,8 @@ public class BallSimulator extends Game {
 	
 	private void renderDebugOverlay(Graphics2D g) {
 		
-		int screenWidth = DisplayManager.getScreenWidth();
-		int screenHeight = DisplayManager.getScreenHeight();
+		int screenWidth = Game.SCREEN_WIDTH;
+		int screenHeight = Game.SCREEN_HEIGHT;
 		
 		g.setColor(Color.GREEN);
 		g.fillOval(screenWidth - 50, screenHeight - 50, 50, 50);
@@ -127,11 +159,15 @@ public class BallSimulator extends Game {
 		
 		g.drawString(MouseInput.getX() + ", " + MouseInput.getY(), 10, 20);
 		
+		boolean useOldRendering = GameManager.instance().shouldUseOldRendering();
+		
+		g.drawString("Rendering: " + (useOldRendering? "Inherited Rendering":"MCV Rendering"), 10, 30);
+		
 		g.setColor(Color.RED);
 		g.fillRect(MouseInput.getX(), MouseInput.getY(), 1, 1);
 		
 		g.setColor(Color.WHITE);
-		g.drawString(Runtime.getRuntime().freeMemory() + "", 10, 30);
+		g.drawString(Runtime.getRuntime().freeMemory() + "", 10, 40);
 		
 	}
 	
@@ -139,8 +175,8 @@ public class BallSimulator extends Game {
 		
 		g.setColor(Color.WHITE);
 		
-		for(int i = 0; i < DisplayManager.getScreenWidth(); i++) {
-			for(int j = 0; j < DisplayManager.getScreenHeight(); j++) {
+		for(int i = 0; i < Game.SCREEN_WIDTH; i++) {
+			for(int j = 0; j < Game.SCREEN_HEIGHT; j++) {
 				
 				if(i%2 == 0 && j%2 == 0) {
 					g.fillRect(i, j, 1, 1);

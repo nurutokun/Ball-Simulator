@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
@@ -11,8 +12,8 @@ public class MenuState extends State {
 	public MenuState() {
 		super(EState.MENU);
 		
-		int screenSections = DisplayManager.getScreenHeight()/8;
-		int centerScreen = DisplayManager.getScreenWidth()/2;
+		int screenSections = Game.SCREEN_HEIGHT/8;
+		int centerScreen = Game.SCREEN_WIDTH/2;
 		
 		addGuiComponent(new TextLabel(GameManager.instance().getCurrentGame().toString(), centerScreen, screenSections, 256, 64));
 		

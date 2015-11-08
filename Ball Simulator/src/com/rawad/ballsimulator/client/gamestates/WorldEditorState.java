@@ -6,11 +6,14 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 
 import com.rawad.ballsimulator.client.Camera;
+import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
+import com.rawad.ballsimulator.client.renderengine.world.terrain.TerrainComponentRender;
 import com.rawad.ballsimulator.files.TerrainLoader;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
@@ -25,11 +28,15 @@ public class WorldEditorState extends State {
 	
 	private static final String[] DIMS = {"2", "4", "8", "16", "32", "64", "128", "256", "512"};
 	
+	private WorldRender worldRender;
+	private TerrainComponentRender tcRender;
+	
 	private Camera camera;
 	
 	private World world;
 	
 	private TerrainComponent comp;
+	private TerrainComponent intersectedComp;
 	
 	private PauseOverlay pauseScreen;
 	
@@ -38,15 +45,19 @@ public class WorldEditorState extends State {
 	private int x;
 	private int y;
 	
+	private boolean prevPlaced;
+	private boolean prevRemoved;
+	
 	public WorldEditorState() {
 		super(EState.WORLD_EDITOR);
 		
 		camera = new Camera(null);
 		
 		comp = new TerrainComponent(0, 0, Util.parseInt(DIMS[0]), Util.parseInt(DIMS[0]));
+		comp.setHighlightColor(Color.CYAN);
 		
-		addGuiComponent(new DropDown("Width", DisplayManager.getScreenWidth() - 64, 32, DIMS));
-		addGuiComponent(new DropDown("Height", DisplayManager.getScreenWidth() - 200, 32, DIMS));
+		addGuiComponent(new DropDown("Width", Game.SCREEN_WIDTH - 64, 32, DIMS));
+		addGuiComponent(new DropDown("Height", Game.SCREEN_WIDTH - 200, 32, DIMS));
 		
 		pauseScreen = new PauseOverlay(Color.GRAY);
 		
@@ -54,6 +65,9 @@ public class WorldEditorState extends State {
 		pauseScreen.alignComponents();
 		
 		addOverlay(pauseScreen);
+		
+		prevPlaced = false;
+		prevRemoved = false;
 		
 	}
 	
@@ -77,7 +91,7 @@ public class WorldEditorState extends State {
 				handleKeyInput(ke);
 			}
 			
-			camera.update(this.x, this.y, DisplayManager.getScreenWidth(), DisplayManager.getScreenHeight());
+			camera.update(this.x, this.y, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 			
 			comp.setX(x - (comp.getWidth()/2));
 			comp.setY(y - (comp.getHeight()/2));
@@ -100,6 +114,11 @@ public class WorldEditorState extends State {
 			//any other components.
 			
 		}
+		
+		worldRender.setWorld(world);
+		worldRender.setCamera(camera);
+		
+		tcRender.addComponent(comp);
 		
 	}
 	
@@ -143,31 +162,56 @@ public class WorldEditorState extends State {
 	
 	private void handleMouseInput(MouseEvent e) {
 		
-		if(MouseInput.isButtonClicked(MouseInput.LEFT_MOUSE_BUTTON)) {
-			
-			TerrainComponent intersectedComponent = world.getTerrain().calculateCollision(e.getX() + (int) camera.getX(), 
+		TerrainComponent prevIntersected = intersectedComp;
+		
+		intersectedComp = world.getTerrain().calculateCollision(e.getX() + (int) camera.getX(), 
 					e.getY() + (int) camera.getY());
+		
+		if(intersectedComp != prevIntersected) {
 			
-			if(intersectedComponent != null) {
-				
-				world.getTerrain().removeTerrainComponent(intersectedComponent);
-				
+			if(intersectedComp != null) {
+				intersectedComp.setSelected(true);
 			} else {
+				prevIntersected.setSelected(false);
+			}
+			
+		}
+		
+		if(!e.isLeftButtonDown()) {
+			prevPlaced = false;
+		}
+		
+		if(!e.isRightButtonDown()) {
+			prevRemoved = false;
+		}
+		
+		if(e.isLeftButtonDown() && !prevPlaced) {
+			
+			double compX = comp.getX() + camera.getX();
+			double compY = comp.getY() + camera.getY();
+			
+			if(intersectedComp == null)// For now at least...
+			if(compX >= 0 && compY >= 0 && compX + comp.getWidth() <= world.getWidth() &&
+					compY + comp.getHeight() <= world.getHeight()) {
 				
-				double compX = comp.getX() + camera.getX();
-				double compY = comp.getY() + camera.getY();
+				world.getTerrain().addTerrainComponent(compX, compY, 
+						comp.getWidth(), comp.getHeight());
 				
-				if(compX >= 0 && compY >= 0 && compX + comp.getWidth() <= world.getWidth() &&
-						compY + comp.getHeight() <= world.getHeight()) {
-					
-					world.getTerrain().addTerrainComponent(compX, compY, 
-							comp.getWidth(), comp.getHeight());
-					
-				}
 			}
 			
 			e.consume();
-			MouseInput.setButtonClicked(MouseInput.LEFT_MOUSE_BUTTON, false);
+			prevPlaced = true;
+			
+		} else if(e.isRightButtonDown() && !prevRemoved) {
+			
+			if(intersectedComp != null) {
+				
+				world.getTerrain().removeTerrainComponent(intersectedComp);
+				
+			}
+			
+			e.consume();
+			prevRemoved = true;
 			
 		}
 		
@@ -234,13 +278,13 @@ public class WorldEditorState extends State {
 		
 		super.render(g);
 		
-		comp.render(g);
+//		comp.render(g);
 		
 		g.setColor(Color.BLACK);
 		g.fillRect((int) (comp.getX() + camera.getX()), (int) (comp.getY() + camera.getY()), 5, 5);
 		
 		if(pauseScreen.isPaused()) {
-			pauseScreen.render(g);
+//			pauseScreen.render(g);
 		}
 		
 	}
@@ -254,6 +298,9 @@ public class WorldEditorState extends State {
 			terrainLoader = (TerrainLoader) sm.getGame().getFiles().get(TerrainLoader.class);
 			
 		}
+		
+		worldRender = (WorldRender) sm.getGame().getMasterRender().getRender(WorldRender.class);
+		tcRender = worldRender.getTerrainComponentRender();
 		
 	}
 	

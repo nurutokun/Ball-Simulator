@@ -9,6 +9,7 @@ import com.rawad.ballsimulator.networking.server.main.ViewportShell;
 import com.rawad.ballsimulator.networking.server.main.WindowManager;
 import com.rawad.ballsimulator.networking.server.world.WorldMP;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -36,7 +37,8 @@ public class Server {
 		
 		world = new WorldMP(this);
 		
-		viewportShell = new ViewportShell(new Viewport(world));
+		viewportShell = new ViewportShell(new Viewport(GameManager.instance().getCurrentGame().getMasterRender(), 
+				world));
 		viewportShell.getViewport().loadTerrain(TERRAIN_NAME);
 		
 		mainLooper = new Thread(new Looper(), "Looper");

@@ -29,7 +29,7 @@ public class WorldMP extends World {
 		super.update(timePassed);
 		
 		for(EntityPlayerMP player: players) {
-			player.update(timePassed, new MouseEvent(0, 0, 0));
+			player.update(timePassed, new MouseEvent(0, 0, false, false));
 			
 			// TODO: do an "isMoved()" check right here for efficiency.
 			SPacket02Move move = new SPacket02Move(player.getName(), player.getX(), player.getY(), player.getVx(), player.getVy(), 

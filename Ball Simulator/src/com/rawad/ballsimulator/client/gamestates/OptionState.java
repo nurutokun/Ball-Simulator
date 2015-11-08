@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.gamestates;
 import com.rawad.ballsimulator.files.SettingsLoader;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
@@ -19,8 +20,8 @@ public class OptionState extends State {
 	public OptionState() {
 		super(EState.OPTION);
 		
-		int verticalSections = DisplayManager.getScreenHeight()/7;
-		int horizontalCenter = DisplayManager.getScreenWidth()/2;
+		int verticalSections = Game.SCREEN_HEIGHT/7;
+		int horizontalCenter = Game.SCREEN_WIDTH/2;
 		
 		ipHolder = new TextEdit("", horizontalCenter, verticalSections * 4, 128, 16);
 		

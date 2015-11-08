@@ -8,12 +8,13 @@ import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gui.GuiManager;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
+import com.rawad.gamehelpers.renderengine.MasterRender;
 
 public class Client {
 	
@@ -35,21 +36,21 @@ public class Client {
 	private boolean paused;
 	private boolean showPauseScreen;
 	
-	public Client() {
+	public Client(MasterRender masterRender) {
 		
 		world = new World();
 		
 		player = new EntityPlayer(world);
 		player.setName("Player" + (int) (new Random().nextDouble()*999));
 		
-		viewport = new Viewport(world, player);
+		viewport = new Viewport(masterRender, world, player);
 		
 		networkManager = new ClientNetworkManager(this);
 		
 		guiManager = new GuiManager();// Could make this an argument.
 		
 		inventory = new PlayerInventory("Player Inventory", 
-				DisplayManager.getScreenWidth()/2, DisplayManager.getScreenHeight()/2);
+				Game.SCREEN_WIDTH/2, Game.SCREEN_HEIGHT/2);
 		
 		guiManager.addComponent(inventory);
 		
@@ -75,7 +76,7 @@ public class Client {
 				world.update(timePassed);
 				
 				player.update(timePassed, new MouseEvent(MouseInput.getX() + (int) viewport.getCamera().getX(),
-						MouseInput.getY() + (int) viewport.getCamera().getY(), MouseInput.LEFT_MOUSE_BUTTON));
+						MouseInput.getY() + (int) viewport.getCamera().getY()));
 				
 			}
 			
