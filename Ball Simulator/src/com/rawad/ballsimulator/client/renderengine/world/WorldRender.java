@@ -72,6 +72,9 @@ public class WorldRender extends Render {
 		
 		g.setTransform(af);
 		
+		world = null;
+		camera = null;
+		
 	}
 	
 	public void setWorld(World world) {

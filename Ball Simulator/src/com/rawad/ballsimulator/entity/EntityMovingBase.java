@@ -5,8 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.gamemanager.Game;
-import com.rawad.gamehelpers.gamemanager.GameManager;
 
 public abstract class EntityMovingBase extends EntityLivingBase {
 	
@@ -157,16 +155,10 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		
 	}
 	
-	@Override
-	public void render(Graphics2D g) {
-		super.render(g);
+	public void renderVector(Graphics2D g) {
 		
-		Game game = GameManager.instance().getCurrentGame();
-		
-		if(game.isDebug()) {
-			g.setColor(Color.GREEN);
-			g.drawLine((int) getX(), (int) getY(), (int) (vx * 3 + getX()), (int) (vy * 3 + getY()));
-		}
+		g.setColor(Color.GREEN);
+		g.drawLine((int) getX(), (int) getY(), (int) (vx * 3 + getX()), (int) (vy * 3 + getY()));
 		
 	}
 	

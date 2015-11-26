@@ -68,6 +68,10 @@ public class BallSimulator extends Game {
 		// Base init stuff...
 		files.put(SettingsLoader.class, new SettingsLoader());
 		
+		Loader.loadSettings(this, getSettingsFileName());
+		DisplayManager.changeFullScreenResolution(((SettingsLoader) 
+				files.get(SettingsLoader.class)).getFullScreenResolution());
+		
 		bcRender = new BackgroundRender();
 		worldRender = new WorldRender();
 		guiRender = new GuiRender();
@@ -109,6 +113,7 @@ public class BallSimulator extends Game {
 		handleKeyboardInput();
 		
 		debugRender.setShow(isDebug());
+		debugRender.setCamera(client.getViewport().getCamera());
 		
 		sm.update();
 		
@@ -169,6 +174,8 @@ public class BallSimulator extends Game {
 		g.setColor(Color.WHITE);
 		g.drawString(Runtime.getRuntime().freeMemory() + "", 10, 40);
 		
+		// Could get camera here, but that would be tough... 1 point for MCV rendering.
+		
 	}
 	
 	private void renderSquares(Graphics2D g) {
@@ -195,6 +202,11 @@ public class BallSimulator extends Game {
 	@Override
 	public String toString() {
 		return NAME;
+	}
+	
+	@Override
+	public String getSettingsFileName() {
+		return "settings";
 	}
 	
 }

@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.input.event.MouseEvent;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
@@ -45,14 +46,24 @@ public class EntityPlayer extends EntityRotatingBase {
 	
 	@Override
 	public void render(Graphics2D g) {
-		super.render(g);
 		
 		BufferedImage image = ResourceManager.getTexture(textureLoc);
 		
 		int x = (int) (getX() - (width/2));
 		int y = (int) (getY() - (height/2));
 		
+		g.rotate(theta, getX(), getY());
+		
 		g.drawImage(image.getScaledInstance(width, height, BufferedImage.SCALE_FAST), x, y, null);
+		
+		g.rotate(-theta, getX(), getY());
+		
+		super.renderHealthBar(g);
+		
+		if(GameManager.instance().getCurrentGame().isDebug()) {
+			super.renderHitbox(g);
+			super.renderVector(g);
+		}
 		
 	}
 	

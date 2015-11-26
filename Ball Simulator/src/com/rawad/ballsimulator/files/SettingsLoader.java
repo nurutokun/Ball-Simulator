@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.files;
 
 import java.util.ArrayList;
 
+import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.files.FileType;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -9,9 +10,12 @@ public class SettingsLoader extends FileType {
 	
 	private String ip;
 	
+	private String fullscreenResolution;
+	
 	public SettingsLoader() {
 		
 		ip = "localhost";
+		fullscreenResolution = DisplayManager.getFullScreenResolution();
 		
 	}
 	
@@ -19,7 +23,9 @@ public class SettingsLoader extends FileType {
 	public void parseData(ArrayList<String> lines) {
 		super.parseData(lines);
 		
-		setIp(Util.getNullSafe(data.get("ip"), ip));
+		this.ip = Util.getNullSafe(data.get("ip"), this.ip);
+		
+		this.fullscreenResolution = Util.getNullSafe(data.get("fullscreenResolution"), fullscreenResolution);
 		
 	}
 	
@@ -31,6 +37,17 @@ public class SettingsLoader extends FileType {
 		this.ip = ip;
 		
 		data.put("ip", ip);
+		
+	}
+	
+	public String getFullScreenResolution() {
+		return fullscreenResolution;
+	}
+	
+	public void setFullScreenResolution(String fullscreenResolution) {
+		this.fullscreenResolution = fullscreenResolution;
+		
+		data.put("fullscreenResolution", fullscreenResolution);
 		
 	}
 	

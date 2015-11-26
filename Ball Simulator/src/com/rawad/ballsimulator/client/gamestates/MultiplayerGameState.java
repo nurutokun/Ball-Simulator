@@ -170,10 +170,6 @@ public class MultiplayerGameState extends State {
 			
 		}
 		
-		if(pauseScreen.isPaused()) {
-//			pauseScreen.render(g);
-		}
-		
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.renderengine;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import com.rawad.ballsimulator.client.Camera;
 import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
@@ -10,6 +11,8 @@ import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.renderengine.Render;
 
 public class DebugRender extends Render {
+	
+	private Camera camera;
 	
 	private boolean show;
 	
@@ -46,6 +49,19 @@ public class DebugRender extends Render {
 		g.setColor(Color.WHITE);
 		g.drawString(Runtime.getRuntime().freeMemory() + "", 10, 40);
 		
+		if(camera != null) {
+			
+			g.setColor(Color.WHITE);
+			g.drawString("CamScale: " + camera.getXScale() + ", " + camera.getYScale(), 10, 50);
+			
+		}
+		
+		camera = null;
+		
+	}
+	
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 	
 	public void setShow(boolean show) {

@@ -1,10 +1,8 @@
 package com.rawad.ballsimulator.entity;
 
-import java.awt.Graphics2D;
-
 import com.rawad.ballsimulator.world.World;
 
-public class EntityRotatingBase extends EntityMovingBase {
+public abstract class EntityRotatingBase extends EntityMovingBase {
 	
 	protected double theta;
 	
@@ -22,14 +20,6 @@ public class EntityRotatingBase extends EntityMovingBase {
 	@Override
 	public void update(long timePassed) {
 		super.update(timePassed);
-		
-	}
-	
-	@Override
-	public void render(Graphics2D g) {
-		super.render(g);
-		
-		g.rotate(theta, getX(), getY());
 		
 	}
 	

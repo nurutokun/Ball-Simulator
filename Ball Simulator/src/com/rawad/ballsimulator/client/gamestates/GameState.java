@@ -83,10 +83,6 @@ public class GameState extends State {
 		
 		client.render(g);
 		
-		if(client.showPauseScreen()) {
-//			pauseScreen.render(g);
-		}
-		
 	}
 	
 }

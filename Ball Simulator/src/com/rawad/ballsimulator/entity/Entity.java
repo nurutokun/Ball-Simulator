@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.entity;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -35,6 +36,13 @@ public abstract class Entity {
 	public abstract void update(long timePassed);
 	
 	public abstract void render(Graphics2D g);
+	
+	public void renderHitbox(Graphics2D g) {
+		
+		g.setColor(Color.BLACK);
+		g.draw(hitbox);
+		
+	}
 	
 	protected void updateHitbox(double x, double y, int width, int height) {
 		hitbox.setBounds((int) x, (int) y, width, height);

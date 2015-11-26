@@ -39,6 +39,22 @@ public class TerrainLoader extends FileType {
 		
 	}
 	
+	/**
+	 * Overriden so that the components can be added in a specific order.
+	 * 
+	 */
+	@Override
+	public String getContent() {
+		
+		String[] lines = new String[terrainComponents.size()];
+		
+		for(int i = 0; i < lines.length; i++) {
+			lines[i] = i + SPLIT + getLine(terrainComponents.get(i));
+		}
+		
+		return Util.getStringFromLines(lines, Util.NL, false);
+	}
+	
 	public TerrainComponent[] getComponents() {
 		return terrainComponents.toArray(new TerrainComponent[terrainComponents.size()]);
 	}

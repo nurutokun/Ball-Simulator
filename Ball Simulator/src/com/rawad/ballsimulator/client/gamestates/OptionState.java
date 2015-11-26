@@ -13,6 +13,8 @@ import com.rawad.gamehelpers.input.event.MouseEvent;
 
 public class OptionState extends State {
 	
+	private DropDown resolutions;
+	
 	private TextEdit ipHolder;
 	
 	private SettingsLoader settings;
@@ -24,12 +26,13 @@ public class OptionState extends State {
 		int horizontalCenter = Game.SCREEN_WIDTH/2;
 		
 		ipHolder = new TextEdit("", horizontalCenter, verticalSections * 4, 128, 16);
+		resolutions = new DropDown("Fullscreen Resolution", horizontalCenter, verticalSections, 256,
+				64, DisplayManager.getFullScreenResolution(), DisplayManager.getCompatibleDisplayModeResolutions());
 		
 		addGuiComponent(new Button("Main Menu", horizontalCenter, verticalSections * 6));
 		addGuiComponent(new Button("World Editor", horizontalCenter, verticalSections * 2));
 		addGuiComponent(ipHolder);
-		addGuiComponent(new DropDown("Fullscreen Resolution", horizontalCenter, verticalSections, 256,
-				64, DisplayManager.getFullScreenResolution(), DisplayManager.getCompatibleDisplayModeResolutions()));
+		addGuiComponent(resolutions);
 		
 		ipHolder.setNewLineOnEnter(false);
 		
@@ -74,7 +77,23 @@ public class OptionState extends State {
 		switch(drop.getId()) {
 		
 		case "Fullscreen Resolution":
-			DisplayManager.changeFullScreenResolution(drop.getCurrentSelectedItem());
+			
+			String newRes = drop.getCurrentSelectedItem();
+			
+			DisplayManager.changeFullScreenResolution(newRes);
+			
+			// Should save this...
+			settings.setFullScreenResolution(newRes);
+			
+			if(DisplayManager.getDisplayMode() == DisplayManager.Mode.FULLSCREEN) {
+				// Refresh fullscreen resolution when in fullscreen mode
+				
+				// Temporary. Whole thing should be part of DisplayManager.changeFullScreenResolution();
+				DisplayManager.setDisplayMode(DisplayManager.Mode.WINDOWED, sm.getGame().getMasterRender());
+				DisplayManager.setDisplayMode(DisplayManager.Mode.FULLSCREEN, sm.getGame().getMasterRender());
+				
+			}
+			
 			break;
 		
 		}
@@ -86,7 +105,7 @@ public class OptionState extends State {
 		
 		settings = (SettingsLoader) sm.getGame().getFiles().get(SettingsLoader.class);
 		
-		Loader.loadSettings(sm.getGame(), "settings");
+		Loader.loadSettings(sm.getGame(), sm.getGame().getSettingsFileName());
 		
 		ipHolder.setText(settings.getIp());
 		

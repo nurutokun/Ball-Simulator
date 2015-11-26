@@ -15,11 +15,14 @@ import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
 import com.rawad.gamehelpers.renderengine.MasterRender;
+import com.rawad.gamehelpers.renderengine.gui.GuiRender;
 
 public class Client {
 	
 	// 17:00, episode 427
 	// MRN 150, 9:30 and at 11 am, Sept. 8
+	
+	private GuiRender guiRender;
 	
 	private Viewport viewport;
 	
@@ -37,6 +40,8 @@ public class Client {
 	private boolean showPauseScreen;
 	
 	public Client(MasterRender masterRender) {
+		
+		this.guiRender = (GuiRender) masterRender.getRender(GuiRender.class);
 		
 		world = new World();
 		
@@ -80,9 +85,11 @@ public class Client {
 				
 			}
 			
-			viewport.update(timePassed);
-			
 		}
+		
+		viewport.update(timePassed);
+		
+		guiRender.addGuiComponents(guiManager.getComponents());
 		
 	}
 	
@@ -227,6 +234,10 @@ public class Client {
 	
 	public EntityPlayer getPlayer() {
 		return player;
+	}
+	
+	public Viewport getViewport() {
+		return viewport;
 	}
 	
 	public World getWorld() {

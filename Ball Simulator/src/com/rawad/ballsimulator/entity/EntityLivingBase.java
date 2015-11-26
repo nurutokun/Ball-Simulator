@@ -47,8 +47,7 @@ public abstract class EntityLivingBase extends Entity {
 		
 	}
 	
-	@Override
-	public void render(Graphics2D g) {
+	public void renderHealthBar(Graphics2D g) {
 		
 		double width = this.width;
 		double height = 10;
@@ -57,8 +56,6 @@ public abstract class EntityLivingBase extends Entity {
 		double y = this.y - (this.height/2) - height;
 		
 		g.setColor(Color.BLACK);
-		g.draw(hitbox);
-		
 		g.fillRect((int) x, (int) y, (int) width, (int) height);
 		
 		width = (health/maxHealth) * this.width;
