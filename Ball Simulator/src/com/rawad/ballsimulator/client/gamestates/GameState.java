@@ -67,11 +67,15 @@ public class GameState extends State {
 	
 	@Override
 	protected void onActivate() {
+		super.onActivate();
+		
 		client.init();
+		
 	}
 	
 	@Override
 	protected void onDeactivate() {
+		super.onDeactivate();
 		
 		client.onExit();
 		

@@ -4,9 +4,8 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.gamehelpers.renderengine.Render;
 
-public class PlayerRender extends Render {
+public class PlayerRender extends LivingBaseRender {
 	
 	private ArrayList<EntityPlayer> players;
 	

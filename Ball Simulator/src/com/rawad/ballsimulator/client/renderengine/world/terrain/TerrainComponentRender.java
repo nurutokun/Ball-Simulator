@@ -4,9 +4,9 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
-import com.rawad.gamehelpers.renderengine.Render;
+import com.rawad.gamehelpers.renderengine.LayeredRender;
 
-public class TerrainComponentRender extends Render {
+public class TerrainComponentRender extends LayeredRender {
 	
 	private ArrayList<TerrainComponent> components;
 	

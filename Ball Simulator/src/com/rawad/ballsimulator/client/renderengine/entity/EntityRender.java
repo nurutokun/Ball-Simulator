@@ -5,9 +5,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.rawad.gamehelpers.gamemanager.GameManager;
-import com.rawad.gamehelpers.renderengine.Render;
+import com.rawad.gamehelpers.renderengine.LayeredRender;
 
-public abstract class EntityRender extends Render {
+public abstract class EntityRender extends LayeredRender {
 	
 	public void renderHitbox(Graphics2D g, Rectangle hitbox) {
 		

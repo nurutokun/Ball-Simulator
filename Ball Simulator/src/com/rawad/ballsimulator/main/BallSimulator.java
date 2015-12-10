@@ -16,6 +16,7 @@ import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.files.SettingsLoader;
 import com.rawad.ballsimulator.files.TerrainLoader;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamemanager.Game;
@@ -26,6 +27,7 @@ import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.renderengine.gui.BackgroundRender;
 import com.rawad.gamehelpers.renderengine.gui.GuiRender;
 import com.rawad.gamehelpers.resources.ResourceManager;
+import com.rawad.gamehelpers.utils.strings.FontData;
 
 public class BallSimulator extends Game {
 	
@@ -47,30 +49,39 @@ public class BallSimulator extends Game {
 	
 	private DebugRender debugRender;
 	
+	private FontData fontData;// here...?
+	
 	private boolean showSquares;
 	 
 	public BallSimulator() {
 		super();
 		
-		files.put(TerrainLoader.class, new TerrainLoader());// All of a sudden, I feel like changing the file-loading for
-		// terrains at least...
+		files.put(TerrainLoader.class, new TerrainLoader());// All of a sudden, I feel like changing the file-loading 
+		// for terrains at least...
 		
 	}
 	
 	static {
 		
-		ICON = Loader.loadTexture("", "game_icon");
+		ICON = Loader.loadTexture("", "game_icon");// Load via resource manager
 		
 	}
 	
 	public void init() {
 		
-		// Base init stuff...
+		super.init();
+		
+		loaders.put(NAME, new CustomLoader());
+		
 		files.put(SettingsLoader.class, new SettingsLoader());
 		
 		Loader.loadSettings(this, getSettingsFileName());
 		DisplayManager.changeFullScreenResolution(((SettingsLoader) 
 				files.get(SettingsLoader.class)).getFullScreenResolution());
+		
+		fontData = new FontData();
+//		fontData.readFile("arial(SD)");
+//		fontData.setTextureId(Loader.loadTexture("", ""));
 		
 		bcRender = new BackgroundRender();
 		worldRender = new WorldRender();
@@ -83,13 +94,12 @@ public class BallSimulator extends Game {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(guiRender);
 		masterRender.registerRender(debugRender);
-		//...
-		
-		super.init();
 		
 		client = new Client(masterRender);
 		
 		background = new Background();
+		
+		sm.init();
 		
 		sm.addState(new MenuState());
 		sm.addState(new GameState(client));

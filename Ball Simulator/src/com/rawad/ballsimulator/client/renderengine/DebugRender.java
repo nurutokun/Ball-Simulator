@@ -8,9 +8,9 @@ import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.input.MouseInput;
-import com.rawad.gamehelpers.renderengine.Render;
+import com.rawad.gamehelpers.renderengine.LayeredRender;
 
-public class DebugRender extends Render {
+public class DebugRender extends LayeredRender {
 	
 	private Camera camera;
 	

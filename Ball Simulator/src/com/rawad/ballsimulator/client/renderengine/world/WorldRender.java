@@ -13,9 +13,9 @@ import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.Terrain;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
-import com.rawad.gamehelpers.renderengine.Render;
+import com.rawad.gamehelpers.renderengine.LayeredRender;
 
-public class WorldRender extends Render {
+public class WorldRender extends LayeredRender {
 	
 	private PlayerRender playerRender;
 	

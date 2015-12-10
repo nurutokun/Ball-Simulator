@@ -174,16 +174,18 @@ public class MultiplayerGameState extends State {
 	
 	@Override
 	protected void onActivate() {
+		super.onActivate();
 		
 		Loader.loadSettings(sm.getGame(), "settings");
 		
-		settings = (SettingsLoader) sm.getGame().getFiles().get(SettingsLoader.class);
+		settings = sm.getGame().getFile(SettingsLoader.class);
 		
 		client.connectToServer(settings.getIp());
 	}
 	
 	@Override
 	protected void onDeactivate() {
+		super.onDeactivate();
 		
 		client.onExit();
 		

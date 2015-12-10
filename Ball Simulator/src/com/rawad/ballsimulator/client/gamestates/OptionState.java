@@ -102,8 +102,9 @@ public class OptionState extends State {
 	
 	@Override
 	protected void onActivate() {
+		super.onActivate();
 		
-		settings = (SettingsLoader) sm.getGame().getFiles().get(SettingsLoader.class);
+		settings = sm.getGame().getFile(SettingsLoader.class);
 		
 		Loader.loadSettings(sm.getGame(), sm.getGame().getSettingsFileName());
 		

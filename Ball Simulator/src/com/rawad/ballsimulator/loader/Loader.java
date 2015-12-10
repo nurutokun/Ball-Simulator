@@ -42,7 +42,7 @@ public class Loader {
 		
 		String filePath = RES_0 + FILES_1 + settingsFile + TXT_4;
 		
-		SettingsLoader settings = (SettingsLoader) game.getFiles().get(SettingsLoader.class);
+		SettingsLoader settings = game.getFile(SettingsLoader.class);
 		
 		FileParser parser = game.getFileParser();
 		
@@ -54,7 +54,7 @@ public class Loader {
 		
 		String filePath = RES_0 + TERRAIN_1 + terrainName + TXT_4;
 		
-		TerrainLoader terrainLoader = (TerrainLoader) game.getFiles().get(TerrainLoader.class);
+		TerrainLoader terrainLoader = game.getFile(TerrainLoader.class);
 		
 		terrainLoader.setComponents(terrain.getTerrainComponents());
 		
@@ -69,7 +69,7 @@ public class Loader {
 		
 		BufferedReader reader = ResourceManager.readFile(filePath);
 		
-		TerrainLoader terrainLoader = (TerrainLoader) game.getFiles().get(TerrainLoader.class);
+		TerrainLoader terrainLoader = game.getFile(TerrainLoader.class);
 		FileParser parser = game.getFileParser();
 		
 		parser.parseFile(terrainLoader, reader);

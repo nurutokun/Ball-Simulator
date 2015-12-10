@@ -316,6 +316,7 @@ public class WorldEditorState extends State {
 	
 	@Override
 	protected void onActivate() {
+		super.onActivate();
 		
 		if(world == null) {
 			world = loadWorld();
