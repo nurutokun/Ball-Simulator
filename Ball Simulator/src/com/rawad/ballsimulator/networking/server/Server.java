@@ -4,11 +4,14 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.client.Viewport;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.networking.server.main.ViewportShell;
 import com.rawad.ballsimulator.networking.server.main.WindowManager;
 import com.rawad.ballsimulator.networking.server.world.WorldMP;
 import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.log.Logger;
@@ -37,9 +40,15 @@ public class Server {
 		
 		world = new WorldMP(this);
 		
-		viewportShell = new ViewportShell(new Viewport(GameManager.instance().getCurrentGame().getMasterRender(), 
-				world));
-		viewportShell.getViewport().loadTerrain(TERRAIN_NAME);
+		CustomLoader loader = new CustomLoader();
+		
+		TerrainFileParser parser = new TerrainFileParser();
+		
+		world.setTerrain(loader.loadTerrain(parser, TERRAIN_NAME));
+		
+		Game game = GameManager.instance().getCurrentGame();
+		
+		viewportShell = new ViewportShell(new Viewport(game.getMasterRender(), world));
 		
 		mainLooper = new Thread(new Looper(), "Looper");
 		

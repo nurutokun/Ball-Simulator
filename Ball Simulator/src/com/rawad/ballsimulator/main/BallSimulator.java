@@ -14,10 +14,9 @@ import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
-import com.rawad.ballsimulator.files.SettingsLoader;
-import com.rawad.ballsimulator.files.TerrainLoader;
+import com.rawad.ballsimulator.fileparser.SettingsFileParser;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
@@ -36,7 +35,7 @@ public class BallSimulator extends Game {
 	 */
 	public static final String NAME = "Ball Simulator";
 	
-	private static final int ICON;
+	private static int ICON;
 	
 	private Client client;
 	
@@ -56,28 +55,34 @@ public class BallSimulator extends Game {
 	public BallSimulator() {
 		super();
 		
-		files.put(TerrainLoader.class, new TerrainLoader());// All of a sudden, I feel like changing the file-loading 
-		// for terrains at least...
-		
 	}
 	
 	static {
 		
-		ICON = Loader.loadTexture("", "game_icon");// Load via resource manager
+		ICON = ResourceManager.UNKNOWN;
 		
 	}
 	
+	@Override
 	public void init() {
-		
 		super.init();
 		
-		loaders.put(NAME, new CustomLoader());
+		CustomLoader loader = new CustomLoader();
 		
-		files.put(SettingsLoader.class, new SettingsLoader());
+		loaders.put(NAME, loader);
 		
-		Loader.loadSettings(this, getSettingsFileName());
-		DisplayManager.changeFullScreenResolution(((SettingsLoader) 
-				files.get(SettingsLoader.class)).getFullScreenResolution());
+		if(ICON == ResourceManager.UNKNOWN) {
+			ICON = loader.loadTexture("", "game_icon");
+		}
+		
+		SettingsFileParser settings = new SettingsFileParser();
+		
+		fileParsers.put(SettingsFileParser.class, settings);
+		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
+		
+		loader.loadSettings(settings, getSettingsFileName());
+		
+		DisplayManager.changeFullScreenResolution(settings.getFullScreenResolution());
 		
 		fontData = new FontData();
 //		fontData.readFile("arial(SD)");

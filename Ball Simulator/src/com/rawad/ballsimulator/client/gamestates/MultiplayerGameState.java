@@ -7,8 +7,8 @@ import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
-import com.rawad.ballsimulator.files.SettingsLoader;
-import com.rawad.ballsimulator.loader.Loader;
+import com.rawad.ballsimulator.fileparser.SettingsFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
@@ -36,7 +36,7 @@ public class MultiplayerGameState extends State {
 	
 	private DrawableString debugMessage;
 	
-	private SettingsLoader settings;
+	private SettingsFileParser settings;
 	
 	public MultiplayerGameState(Client client) {
 		super(EState.MULTIPLAYER_GAME);
@@ -176,9 +176,13 @@ public class MultiplayerGameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		Loader.loadSettings(sm.getGame(), "settings");
+		Game game = sm.getGame();
 		
-		settings = sm.getGame().getFile(SettingsLoader.class);
+		CustomLoader loader = game.getLoader(game.toString());
+		
+		settings = game.getFileParser(SettingsFileParser.class);
+		
+		loader.loadSettings(settings, game.getSettingsFileName());
 		
 		client.connectToServer(settings.getIp());
 	}

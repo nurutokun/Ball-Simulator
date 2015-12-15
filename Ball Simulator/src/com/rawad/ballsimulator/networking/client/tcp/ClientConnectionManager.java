@@ -139,7 +139,7 @@ public class ClientConnectionManager {
 			
 			player.updateHitbox();
 			
-			networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
+			networkManager.getClient().init(loginReplyPacket.getTerrainName());
 			
 			networkManager.setLoggedIn(true);
 			

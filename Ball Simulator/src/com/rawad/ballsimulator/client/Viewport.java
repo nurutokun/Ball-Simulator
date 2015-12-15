@@ -5,10 +5,8 @@ import java.awt.geom.AffineTransform;
 
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.gamemanager.Game;
-import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.renderengine.MasterRender;
 
@@ -138,10 +136,6 @@ public class Viewport {
 		
 	}
 	
-	public void loadTerrain(String terrainName) {
-		world.setTerrain(Loader.loadTerrain(GameManager.instance().getCurrentGame(), terrainName));
-	}
-	
 	public void setCameraLocked(boolean lockCameraToPlayer) {
 		this.lockCameraToPlayer = lockCameraToPlayer;
 	}
@@ -152,6 +146,10 @@ public class Viewport {
 	
 	public Camera getCamera() {
 		return camera;
+	}
+	
+	public void setWorld(World world) {
+		this.world = world;
 	}
 	
 	public World getWorld() {

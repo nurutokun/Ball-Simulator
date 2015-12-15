@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.files.SettingsLoader;
-import com.rawad.ballsimulator.loader.Loader;
+import com.rawad.ballsimulator.fileparser.SettingsFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamestates.State;
@@ -17,7 +17,9 @@ public class OptionState extends State {
 	
 	private TextEdit ipHolder;
 	
-	private SettingsLoader settings;
+	private CustomLoader loader;
+	
+	private SettingsFileParser settings;
 	
 	public OptionState() {
 		super(EState.OPTION);
@@ -47,7 +49,7 @@ public class OptionState extends State {
 		}
 		
 		if(DisplayManager.isCloseRequested()) {
-			Loader.saveFile(settings, "settings");
+			loader.saveSettings(settings, sm.getGame().getSettingsFileName());
 		}
 		
 	}
@@ -67,7 +69,7 @@ public class OptionState extends State {
 		
 		}
 		
-		Loader.saveFile(settings, "settings");
+		loader.saveSettings(settings, sm.getGame().getSettingsFileName());
 		
 	}
 	
@@ -104,9 +106,13 @@ public class OptionState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		settings = sm.getGame().getFile(SettingsLoader.class);
+		Game game = sm.getGame();
 		
-		Loader.loadSettings(sm.getGame(), sm.getGame().getSettingsFileName());
+		settings = game.getFileParser(SettingsFileParser.class);
+		
+		loader = game.getLoader(sm.getGame().toString());// Or could do BallSimulator.NAME
+		
+		loader.loadSettings(settings, game.getSettingsFileName());
 		
 		ipHolder.setText(settings.getIp());
 		

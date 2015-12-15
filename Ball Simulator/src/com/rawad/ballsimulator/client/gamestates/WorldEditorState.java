@@ -9,8 +9,10 @@ import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.client.renderengine.world.terrain.TerrainComponentRender;
-import com.rawad.ballsimulator.loader.Loader;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.world.World;
+import com.rawad.ballsimulator.world.terrain.Terrain;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
 import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.gamemanager.Game;
@@ -38,6 +40,9 @@ public class WorldEditorState extends State {
 	private TerrainComponent comp;
 	private TerrainComponent intersectedComp;
 	
+	private CustomLoader loader;
+	private TerrainFileParser terrainFileParser;
+	
 	private PauseOverlay pauseScreen;
 	
 	private double x;
@@ -46,6 +51,7 @@ public class WorldEditorState extends State {
 	private boolean prevPlaced;
 	private boolean prevRemoved;
 	
+	// TODO: Add "Move TerrainComponent" mode?
 	public WorldEditorState() {
 		super(EState.WORLD_EDITOR);
 		
@@ -318,12 +324,17 @@ public class WorldEditorState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
+		Game game = sm.getGame();
+		
+		loader = game.getLoader(game.toString());
+		terrainFileParser = game.getFileParser(TerrainFileParser.class);
+		
 		if(world == null) {
 			world = loadWorld();
 			
 		}
 		
-		worldRender = (WorldRender) sm.getGame().getMasterRender().getRender(WorldRender.class);
+		worldRender = (WorldRender) game.getMasterRender().getRender(WorldRender.class);
 		tcRender = worldRender.getTerrainComponentRender();
 		
 	}
@@ -331,13 +342,21 @@ public class WorldEditorState extends State {
 	private World loadWorld() {
 		World re = new World();
 		
-		re.setTerrain(Loader.loadTerrain(sm.getGame(), "terrain"));
+		re.setTerrain(loader.loadTerrain(terrainFileParser, "terrain"));
 		
 		return re;
 	}
 	
 	private void saveTerrain(String terrainName) {
-		Loader.saveTerrain(sm.getGame(), world.getTerrain(), "terrain");
+		
+		Terrain terrain = world.getTerrain();
+		
+		terrainFileParser.setTerrain(terrain);
+		
+		CustomLoader loader = sm.getGame().getLoader(sm.getGame().toString());
+		
+		loader.saveTerrain(terrainFileParser, terrainName);
+		
 	}
 	
 }

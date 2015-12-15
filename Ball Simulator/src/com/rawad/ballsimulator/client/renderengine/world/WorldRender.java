@@ -49,7 +49,7 @@ public class WorldRender extends LayeredRender {
 		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, world.getWidth(), world.getHeight());
 		
-		TerrainComponent[] components = terrain.getTerrainComponents();
+		ArrayList<TerrainComponent> components = terrain.getTerrainComponents();
 		
 		for(TerrainComponent comp: components) {
 			

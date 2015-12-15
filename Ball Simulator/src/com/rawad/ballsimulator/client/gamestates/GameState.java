@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
@@ -69,7 +72,7 @@ public class GameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		client.init();
+		client.init("terrain");
 		
 	}
 	

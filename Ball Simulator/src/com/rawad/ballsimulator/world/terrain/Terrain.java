@@ -58,20 +58,12 @@ public class Terrain {
 		terrainComponents.remove(comp);
 	}
 	
-	public synchronized TerrainComponent[] getTerrainComponents() {
-		
-		TerrainComponent[] components = new TerrainComponent[terrainComponents.size()];
-		
-		for(int i = 0; i < components.length; i++) {
-			components[i] = terrainComponents.get(i);
-		}
-		
-		return components;
-		
+	public synchronized ArrayList<TerrainComponent> getTerrainComponents() {
+		return terrainComponents;
 	}
 	
-	public synchronized void setTerrainComponents(TerrainComponent[] components) {
-		terrainComponents = new ArrayList<TerrainComponent>(Arrays.asList(components));
+	public synchronized void setTerrainComponents(ArrayList<TerrainComponent> components) {
+		terrainComponents = components;
 	}
 	
 }

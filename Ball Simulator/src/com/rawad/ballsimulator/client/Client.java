@@ -6,9 +6,12 @@ import java.util.Random;
 
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.gamemanager.Game;
+import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gui.GuiManager;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
@@ -221,15 +224,17 @@ public class Client {
 		return showPauseScreen;
 	}
 	
-	public void init() {
+	public void init(String terrainName) {
 		
-		loadTerrain("terrain");
+		Game game = GameManager.instance().getCurrentGame();
+		
+		CustomLoader loader = game.getLoader(game.toString());
+		
+		TerrainFileParser parser = game.getFileParser(TerrainFileParser.class);
+		
+		world.setTerrain(loader.loadTerrain(parser, terrainName));
 		world.generateCoordinates(player);// TODO: Keep this marked for changing in future.
 		
-	}
-	
-	public void loadTerrain(String terrainName) {
-		viewport.loadTerrain(terrainName);
 	}
 	
 	public EntityPlayer getPlayer() {
@@ -238,6 +243,12 @@ public class Client {
 	
 	public Viewport getViewport() {
 		return viewport;
+	}
+	
+	public void setWorld(World world) {
+		this.world = world;
+		
+		viewport.setWorld(world);
 	}
 	
 	public World getWorld() {
