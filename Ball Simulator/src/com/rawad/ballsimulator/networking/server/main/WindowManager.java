@@ -25,12 +25,14 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 
+import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.renderengine.MasterRender;
 
 public class WindowManager {
 
@@ -95,7 +97,15 @@ public class WindowManager {
 					"Couldn't load native system's look and feel for the server window.");
 		}
 
-		GameManager.instance().registerGame(new BallSimulator());
+		BallSimulator game = new BallSimulator();
+
+		MasterRender render = game.getMasterRender();
+
+		render.registerRender(new WorldRender());// Because we are rendering the
+													// scene on the server as
+													// well...
+
+		GameManager.instance().registerGame(game);
 		// For things that need them, mainly for the isDebug() method right now.
 		// Also, this shouldn't waste any extra resourses because the init
 		// method for the game isn't being called. It will cause the Icon to be

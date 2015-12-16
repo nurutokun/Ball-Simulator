@@ -11,7 +11,7 @@ public class BallSimulatorStart {
 		
 		GameManager gameLauncher = GameManager.instance();
 		
-		gameLauncher.launchGame(game);
+		gameLauncher.launchGame(game, true);
 		
 	}
 	

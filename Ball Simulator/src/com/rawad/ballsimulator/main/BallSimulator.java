@@ -64,8 +64,8 @@ public class BallSimulator extends Game {
 	}
 	
 	@Override
-	public void init() {
-		super.init();
+	public void clientInit() {
+		super.clientInit();
 		
 		CustomLoader loader = new CustomLoader();
 		

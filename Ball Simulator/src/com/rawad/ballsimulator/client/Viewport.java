@@ -23,8 +23,8 @@ public class Viewport {
 	public Viewport(MasterRender masterRender, World world, EntityPlayer player) {
 		
 		this.world = world;
+		
 		worldRender = (WorldRender) masterRender.getRender(WorldRender.class);
-		//(WorldRender) GameManager.instance().getRender().getRender(WorldRender.class);
 		
 		camera = new Camera(player);
 		
