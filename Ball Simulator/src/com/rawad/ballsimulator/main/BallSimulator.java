@@ -50,6 +50,8 @@ public class BallSimulator extends Game {
 	
 	private FontData fontData;// here...?
 	
+	private CustomLoader loader;
+	
 	private boolean showSquares;
 	 
 	public BallSimulator() {
@@ -67,26 +69,17 @@ public class BallSimulator extends Game {
 	public void clientInit() {
 		super.clientInit();
 		
-		CustomLoader loader = new CustomLoader();
-		
-		loaders.put(NAME, loader);
-		
-		if(ICON == ResourceManager.UNKNOWN) {
-			ICON = loader.loadTexture("", "game_icon");
-		}
-		
-		SettingsFileParser settings = new SettingsFileParser();
-		
-		fileParsers.put(SettingsFileParser.class, settings);
-		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
-		
-		loader.loadSettings(settings, getSettingsFileName());
-		
-		DisplayManager.changeFullScreenResolution(settings.getFullScreenResolution());
-		
 		fontData = new FontData();
 //		fontData.readFile("arial(SD)");
 //		fontData.setTextureId(Loader.loadTexture("", ""));
+		fontData.readFile(gameHelpersLoader.loadFontFile("arial(SD)"));
+		fontData.setTextureId(gameHelpersLoader.loadTexture("fonts", "arial"));
+		
+		SettingsFileParser settings = new SettingsFileParser();
+		fileParsers.put(SettingsFileParser.class, settings);
+		loader.loadSettings(settings, getSettingsFileName());
+		
+		DisplayManager.changeFullScreenResolution(settings.getFullScreenResolution());
 		
 		bcRender = new BackgroundRender();
 		worldRender = new WorldRender();
@@ -115,6 +108,22 @@ public class BallSimulator extends Game {
 		sm.setState(EState.MENU);
 		
 		showSquares = false;
+		
+	}
+	
+	@Override
+	protected void init() {
+		super.init();
+		
+		loader = new CustomLoader();
+		
+		loaders.put(NAME, loader);
+		
+		if(ICON == ResourceManager.UNKNOWN) {
+			ICON = loader.loadTexture("", "game_icon");
+		}
+		
+		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
 		
 	}
 	

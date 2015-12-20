@@ -111,6 +111,8 @@ public class WindowManager {
 		// method for the game isn't being called. It will cause the Icon to be
 		// loaded though...
 
+		game.serverInit();
+
 		server = new Server();// Here because game needs to initialize the
 								// fileparsers so that terrain can be loaded
 								// here
