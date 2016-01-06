@@ -20,7 +20,7 @@ public class CustomLoader extends Loader {
 	
 	public void loadSettings(SettingsFileParser parser, String settingsFile) {
 		
-		BufferedReader reader = loadFile(MISC_FOLDER, settingsFile);
+		BufferedReader reader = readFile(MISC_FOLDER, settingsFile);
 		
 		parser.parseFile(reader);
 		
@@ -34,7 +34,7 @@ public class CustomLoader extends Loader {
 	
 	public Terrain loadTerrain(TerrainFileParser parser, String terrainName) {
 		
-		BufferedReader reader = loadFile(TERRAIN_FOLDER, terrainName);
+		BufferedReader reader = readFile(TERRAIN_FOLDER, terrainName);
 		
 		parser.parseFile(reader);
 		

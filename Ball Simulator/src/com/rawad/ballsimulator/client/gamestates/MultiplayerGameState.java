@@ -1,8 +1,6 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
 import com.rawad.ballsimulator.client.Client;
@@ -23,8 +21,7 @@ import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.event.KeyboardEvent;
 import com.rawad.gamehelpers.input.event.MouseEvent;
-import com.rawad.gamehelpers.utils.Util;
-import com.rawad.gamehelpers.utils.strings.DrawableString;
+import com.rawad.gamehelpers.utils.strings.RenderedString;
 
 public class MultiplayerGameState extends State {
 	
@@ -34,7 +31,7 @@ public class MultiplayerGameState extends State {
 	
 	private PauseOverlay pauseScreen;
 	
-	private DrawableString debugMessage;
+	private RenderedString debugMessage;
 	
 	private SettingsFileParser settings;
 	
@@ -62,7 +59,7 @@ public class MultiplayerGameState extends State {
 		
 		addGuiComponent(mess);
 		
-		debugMessage = new DrawableString();
+		debugMessage = new RenderedString("");
 		
 	}
 	
@@ -110,7 +107,7 @@ public class MultiplayerGameState extends State {
 					
 					textOutput.addNewLine("You> " + text);
 					
-					DrawableString textObj = textInput.getTextObject();
+					RenderedString textObj = textInput.getTextObject();
 					
 					textObj.setContent("");
 					textObj.setCaretPosition(0, 0);// Because, reasons. (DrawableString.newLine() changing position
@@ -165,8 +162,9 @@ public class MultiplayerGameState extends State {
 			String message = "Connecting to \"" + settings.getIp() + "\"...";
 			debugMessage.setContent(message);
 			
-			debugMessage.render(g, Color.RED, Util.TRANSPARENT, Util.TRANSPARENT, 
-					new Rectangle(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT), true, false);
+			// TODO: More inherited rendering stuff.
+//			debugMessage.render(g, Color.RED, Util.TRANSPARENT, Util.TRANSPARENT, 
+//					new Rectangle(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT), true, false);
 			
 		}
 		

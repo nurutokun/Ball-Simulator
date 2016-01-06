@@ -26,9 +26,12 @@ import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.renderengine.gui.BackgroundRender;
 import com.rawad.gamehelpers.renderengine.gui.GuiRender;
 import com.rawad.gamehelpers.resources.ResourceManager;
-import com.rawad.gamehelpers.utils.strings.FontData;
 
 public class BallSimulator extends Game {
+	
+	// CHM = C, DGD = TUE, LAB = TUE
+	// ANP = C
+	// ENG = K, DGD = 2
 	
 	/**
 	 * Temporary
@@ -48,8 +51,6 @@ public class BallSimulator extends Game {
 	
 	private DebugRender debugRender;
 	
-	private FontData fontData;// here...?
-	
 	private CustomLoader loader;
 	
 	private boolean showSquares;
@@ -68,12 +69,6 @@ public class BallSimulator extends Game {
 	@Override
 	public void clientInit() {
 		super.clientInit();
-		
-		fontData = new FontData();
-//		fontData.readFile("arial(SD)");
-//		fontData.setTextureId(Loader.loadTexture("", ""));
-		fontData.readFile(gameHelpersLoader.loadFontFile("arial(SD)"));
-		fontData.setTextureId(gameHelpersLoader.loadTexture("fonts", "arial"));
 		
 		SettingsFileParser settings = new SettingsFileParser();
 		fileParsers.put(SettingsFileParser.class, settings);
