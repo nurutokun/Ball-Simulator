@@ -33,6 +33,7 @@ import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.renderengine.MasterRender;
+import java.awt.CardLayout;
 
 public class WindowManager {
 
@@ -129,10 +130,11 @@ public class WindowManager {
 		frame.setIconImage(GameManager.instance().getCurrentGame().getIcon());
 		frame.getContentPane().setPreferredSize(
 				new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));// default.
+		frame.getContentPane().setLayout(new CardLayout(0, 0));
 
 		basePanel = new JPanel();
 		basePanel.setBackground(Color.WHITE);
-		frame.getContentPane().add(basePanel, BorderLayout.CENTER);
+		frame.getContentPane().add(basePanel, "name_511060659806441");
 		basePanel.setLayout(new BoxLayout(basePanel, BoxLayout.X_AXIS));
 
 		splitPane = new JSplitPane();

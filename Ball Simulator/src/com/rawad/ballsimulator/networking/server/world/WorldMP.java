@@ -7,7 +7,6 @@ import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.input.event.MouseEvent;
 
 public class WorldMP extends World {
 	
@@ -29,7 +28,7 @@ public class WorldMP extends World {
 		super.update(timePassed);
 		
 		for(EntityPlayerMP player: players) {
-			player.update(timePassed, new MouseEvent(0, 0, false, false));
+			player.update(timePassed, -100, -100);
 			
 			// TODO: do an "isMoved()" check right here for efficiency.
 			SPacket02Move move = new SPacket02Move(player.getName(), player.getX(), player.getY(), player.getVx(), player.getVy(), 

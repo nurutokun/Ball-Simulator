@@ -47,7 +47,7 @@ public class World {
 		
 	}
 	
-	public synchronized void render(Graphics2D g) {
+	public void render(Graphics2D g) {
 		
 		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, width, height);
@@ -149,8 +149,6 @@ public class World {
 	}
 	
 	public void addEntity(Entity e) {
-		
-//		generateCoordinates(e);
 		
 		this.entities.add(e);
 		

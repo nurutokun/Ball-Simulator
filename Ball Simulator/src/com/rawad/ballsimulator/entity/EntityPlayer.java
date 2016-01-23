@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
-import com.rawad.gamehelpers.input.event.MouseEvent;
+import com.rawad.gamehelpers.input.MouseInput;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class EntityPlayer extends EntityRotatingBase {
@@ -36,10 +36,10 @@ public class EntityPlayer extends EntityRotatingBase {
 		
 	}
 	
-	public void update(long timePassed, MouseEvent e) {
+	public void update(long timePassed, int x, int y) {
 		super.update(timePassed);
 		
-		if(intersects(e.getX(), e.getY()) && e.isLeftButtonDown()) {
+		if(intersects(x, y) && MouseInput.isButtonDown(MouseInput.LEFT_MOUSE_BUTTON)) {
 			this.hit(0.2d);
 			
 		}

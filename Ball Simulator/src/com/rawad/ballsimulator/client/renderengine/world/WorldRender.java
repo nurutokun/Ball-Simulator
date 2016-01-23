@@ -37,12 +37,12 @@ public class WorldRender extends LayeredRender {
 		if(world == null || camera == null) return;
 		
 		AffineTransform af = g.getTransform();
+
+		g.scale(camera.getXScale(), camera.getYScale());
 		
 		g.rotate(camera.getTheta());
 		
 		g.translate(-camera.getX(), -camera.getY());
-		
-		g.scale(camera.getXScale(), camera.getYScale());
 		
 		Terrain terrain = world.getTerrain();
 		
@@ -71,9 +71,6 @@ public class WorldRender extends LayeredRender {
 		playerRender.render(g);
 		
 		g.setTransform(af);
-		
-		world = null;
-		camera = null;
 		
 	}
 	

@@ -1,8 +1,14 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
+import java.awt.BorderLayout;
+import java.awt.Graphics;
 
+import javax.swing.JPanel;
+
+import com.jgoodies.forms.factories.FormFactory;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
@@ -15,70 +21,108 @@ import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
-import com.rawad.gamehelpers.gui.TextEdit;
 import com.rawad.gamehelpers.gui.TextLabel;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
-import com.rawad.gamehelpers.input.KeyboardInput;
-import com.rawad.gamehelpers.input.event.KeyboardEvent;
-import com.rawad.gamehelpers.input.event.MouseEvent;
-import com.rawad.gamehelpers.utils.strings.RenderedString;
 
 public class MultiplayerGameState extends State {
 	
+	private static final String CONNECTING_CARD = "Connecting";
+	
 	private Client client;
+	
+	private JPanel mainCard;
+	private JPanel connectingCard;
 	
 	private Messenger mess;
 	
 	private PauseOverlay pauseScreen;
 	
-	private RenderedString debugMessage;
-	
 	private SettingsFileParser settings;
+	private TextLabel lblConnectingMessage;
 	
 	public MultiplayerGameState(Client client) {
 		super(EState.MULTIPLAYER_GAME);
 		
 		this.client = client;
 		
-		int screenWidth = Game.SCREEN_WIDTH;
-		int screenHeight = Game.SCREEN_HEIGHT;
+	}
+	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	@Override
+	protected void initialize() {
+		super.initialize();
 		
-		pauseScreen = new PauseOverlay(screenWidth, screenHeight);
-		
+		pauseScreen = new PauseOverlay();
 		addOverlay(pauseScreen);
 		
-		int width = 128;
-		int height = 128;
+		addOverlay(client.getPlayerInventory());
 		
-		int padding = 10;
+		mainCard = new JPanel() {
+
+			/**
+			 * Generated serial version UID.
+			 */
+			private static final long serialVersionUID = 6136162253341289592L;
+			
+			@Override
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				
+				if(client.getNetworkManager().isConnectedToServer()) {
+					
+					client.render(g, getWidth(), getHeight());
+					
+				}
+				
+			}
+			
+		};
 		
-		int x = padding + (width/2);
-		int y = screenHeight - (height/2) - padding;
+		mainCard.setLayout(new FormLayout(new ColumnSpec[] {
+				ColumnSpec.decode("center:pref"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("right:450px:grow"),},
+			new RowSpec[] {
+				RowSpec.decode("200px:grow"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("fill:pref"),}));
 		
-		mess = new Messenger("Mess", x, y, width, height);
+		mess = new Messenger();
+		mainCard.add(mess, "1, 3, fill, fill");
 		
-		addGuiComponent(mess);
+		container.add(mainCard, "Main Card");
 		
-		debugMessage = new RenderedString("");
+		connectingCard = new JPanel();
+		
+		connectingCard.setLayout(new BorderLayout(0, 0));
+		
+		lblConnectingMessage = new TextLabel("Connecting to Server...");
+		lblConnectingMessage.setDrawBackground(false);
+		
+		connectingCard.add(lblConnectingMessage, BorderLayout.CENTER);
+		
+		container.add(connectingCard, CONNECTING_CARD);
+		
+		show(CONNECTING_CARD);
 		
 	}
 	
 	@Override
 	protected void handleButtonClick(Button butt) {
 		
-		mess.handleButtonClick(butt);
-		
 		switch(butt.getId()) {
 		
 		case "Resume":
-			pauseScreen.setPaused(false);
+			
+			show("Main Card");// TODO: Ensure we can only pause when connected.
+			
 			break;
 		
 		case "Main Menu":
 			
 			client.getNetworkManager().requestDisconnect();
-			
-			pauseScreen.setPaused(false);
 			
 			sm.setState(EState.MENU);
 			
@@ -88,42 +132,29 @@ public class MultiplayerGameState extends State {
 	}
 	
 	@Override
-	public void update(MouseEvent me, KeyboardEvent ke) {
+	public void update() {
+		super.update();
 		
-		TextEdit textInput = mess.getInputField();
-		TextLabel textOutput = mess.getOutputField();
+		String text = mess.getText();
 		
-		// If the textEditor is focused and shift isn't being held down while enter is, get the content and send the message
-		if(textInput.isFocused()) {
+		if(!"".equals(text)) {
 			
-			if(!KeyboardInput.isKeyDown(KeyEvent.VK_SHIFT, false) && KeyboardInput.isKeyDown(KeyEvent.VK_ENTER)) {
-				
-				if(!textInput.getText().isEmpty()) {
-					
-					String text = textInput.getText();// Should also use this to display on another GuiComponent
-					
-					client.getNetworkManager().getConnectionManager().sendPacketToServer(
-							new CPacket03Message(client.getPlayer().getName(), text));
-					
-					textOutput.addNewLine("You> " + text);
-					
-					RenderedString textObj = textInput.getTextObject();
-					
-					textObj.setContent("");
-					textObj.setCaretPosition(0, 0);// Because, reasons. (DrawableString.newLine() changing position
-					// automatically)
-				}
-					
-			}
+			client.getNetworkManager().getConnectionManager().sendPacketToServer(
+					new CPacket03Message(client.getPlayer().getName(), text));
+			
+			mess.addNewLine("You> " + text);
 			
 		}
 		
-		super.update(me, ke);
-		super.updateOverlays(me, ke);
+		client.update(GameManager.instance().getDeltaTime());
 		
-		client.update(me, ke, GameManager.instance().getDeltaTime());
+		mainCard.repaint();
 		
-		pauseScreen.setPaused(client.showPauseScreen());
+//		if(client.showPauseScreen()) {
+//			cl.show(this, pauseScreen.getId());
+//		} else {
+//			cl.show(this, "Main Card");
+//		}
 		
 		if(DisplayManager.isCloseRequested()) {
 			client.getNetworkManager().requestDisconnect();
@@ -132,39 +163,17 @@ public class MultiplayerGameState extends State {
 		ClientNetworkManager networkManager = client.getNetworkManager();
 		
 		if(networkManager.isDisconnectedFromServer()) {
-			textOutput.setText("");
+			mess.clearText();
 			client.getNetworkManager().setConnectionState(ConnectionState.NOT_CONNECTED);
 			sm.setState(EState.MENU);//TODO: or could show a sreen telling the client some debug info.
 			
 		} else if(networkManager.isConnectedToServer()) {
 			
-			String text = client.getNetworkManager().getMessages();
+			text = client.getNetworkManager().getMessages();
 			
 			if(!text.isEmpty()) {
-				textOutput.addNewLine(text);
+				mess.addNewLine(text);
 			}
-			
-		}
-		
-	}
-	
-	@Override
-	public void render(Graphics2D g) {
-		
-		if(client.getNetworkManager().isConnectedToServer()) {
-			
-			client.render(g);
-			
-			super.render(g);// For GUI stuff.
-			
-		} else {
-			
-			String message = "Connecting to \"" + settings.getIp() + "\"...";
-			debugMessage.setContent(message);
-			
-			// TODO: More inherited rendering stuff.
-//			debugMessage.render(g, Color.RED, Util.TRANSPARENT, Util.TRANSPARENT, 
-//					new Rectangle(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT), true, false);
 			
 		}
 		
@@ -182,7 +191,20 @@ public class MultiplayerGameState extends State {
 		
 		loader.loadSettings(settings, game.getSettingsFileName());
 		
-		client.connectToServer(settings.getIp());
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				client.connectToServer(settings.getIp());// TODO: Separate this.
+				
+			}
+			
+		}).start();
+		
+		lblConnectingMessage.setText("Connecting To " + settings.getIp() + " ...");
+		
+		show(CONNECTING_CARD);
+		
 	}
 	
 	@Override

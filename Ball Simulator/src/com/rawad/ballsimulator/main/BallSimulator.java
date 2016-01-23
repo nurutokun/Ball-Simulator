@@ -23,8 +23,6 @@ import com.rawad.gamehelpers.gamemanager.GameManager;
 import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
-import com.rawad.gamehelpers.renderengine.gui.BackgroundRender;
-import com.rawad.gamehelpers.renderengine.gui.GuiRender;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class BallSimulator extends Game {
@@ -43,11 +41,8 @@ public class BallSimulator extends Game {
 	private Client client;
 	
 	private Background background;
-	private BackgroundRender bcRender;
 	
 	private WorldRender worldRender;
-	
-	private GuiRender guiRender;
 	
 	private DebugRender debugRender;
 	
@@ -57,12 +52,6 @@ public class BallSimulator extends Game {
 	 
 	public BallSimulator() {
 		super();
-		
-	}
-	
-	static {
-		
-		ICON = ResourceManager.UNKNOWN;
 		
 	}
 	
@@ -76,33 +65,37 @@ public class BallSimulator extends Game {
 		
 		DisplayManager.changeFullScreenResolution(settings.getFullScreenResolution());
 		
-		bcRender = new BackgroundRender();
 		worldRender = new WorldRender();
-		guiRender = new GuiRender();
 		debugRender = new DebugRender();
 		
-		bcRender.setBackground(background);
-		
-		masterRender.registerRender(bcRender);
 		masterRender.registerRender(worldRender);
-		masterRender.registerRender(guiRender);
 		masterRender.registerRender(debugRender);
 		
 		client = new Client(masterRender);
-		
-		background = new Background();
-		
-		sm.init();
-		
+
 		sm.addState(new MenuState());
 		sm.addState(new GameState(client));
 		sm.addState(new OptionState());
 		sm.addState(new WorldEditorState());
 		sm.addState(new MultiplayerGameState(client));
 		
-		sm.setState(EState.MENU);
+		background = Background.instance();
 		
 		showSquares = false;
+		
+	}
+	
+	@Override
+	public void initGUI() {
+		super.initGUI();
+		
+		debugRender.initGUI();
+		
+		client.initGUI();
+		
+		sm.initialize();
+		
+		sm.setState(EState.MENU);
 		
 	}
 	
@@ -114,9 +107,7 @@ public class BallSimulator extends Game {
 		
 		loaders.put(NAME, loader);
 		
-		if(ICON == ResourceManager.UNKNOWN) {
-			ICON = loader.loadTexture("", "game_icon");
-		}
+		ICON = loader.loadTexture("", "game_icon");
 		
 		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
 		
@@ -127,12 +118,12 @@ public class BallSimulator extends Game {
 		
 		background.update(timePassed);
 		
-		bcRender.setBackground(background);
-		
 		handleKeyboardInput();
 		
 		debugRender.setShow(isDebug());
 		debugRender.setCamera(client.getViewport().getCamera());
+		
+		client.update(timePassed);
 		
 		sm.update();
 		
@@ -153,11 +144,12 @@ public class BallSimulator extends Game {
 		
 	}
 	
+	@Override
 	public void render(Graphics2D g) {
 		
 		background.render(g);
-			
-		sm.render(g);
+		
+//		client.render(g);
 		
 		if(debug) {
 			renderDebugOverlay(g);
@@ -181,14 +173,14 @@ public class BallSimulator extends Game {
 		g.drawString(DisplayManager.getDisplayWidth() + ", " + DisplayManager.getDisplayHeight() + " | " +
 			GameManager.instance().getFPS() + " | " + GameManager.instance().getDeltaTime(), 10, 10);
 		
-		g.drawString(MouseInput.getX() + ", " + MouseInput.getY(), 10, 20);
+		g.drawString(MouseInput.getX(true) + ", " + MouseInput.getY(true), 10, 20);
 		
 		boolean useOldRendering = GameManager.instance().shouldUseOldRendering();
 		
 		g.drawString("Rendering: " + (useOldRendering? "Inherited Rendering":"MCV Rendering"), 10, 30);
 		
 		g.setColor(Color.RED);
-		g.fillRect(MouseInput.getX(), MouseInput.getY(), 1, 1);
+		g.fillRect(MouseInput.getX(true), MouseInput.getY(true), 1, 1);
 		
 		g.setColor(Color.WHITE);
 		g.drawString(Runtime.getRuntime().freeMemory() + "", 10, 40);

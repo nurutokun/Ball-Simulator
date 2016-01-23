@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.client;
 
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
@@ -12,20 +12,16 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.gamemanager.Game;
 import com.rawad.gamehelpers.gamemanager.GameManager;
-import com.rawad.gamehelpers.gui.GuiManager;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.MouseInput;
-import com.rawad.gamehelpers.input.event.KeyboardEvent;
-import com.rawad.gamehelpers.input.event.MouseEvent;
 import com.rawad.gamehelpers.renderengine.MasterRender;
-import com.rawad.gamehelpers.renderengine.gui.GuiRender;
 
 public class Client {
 	
 	// 17:00, episode 427
 	// MRN 150, 9:30 and at 11 am, Sept. 8
 	
-	private GuiRender guiRender;
+	private MasterRender masterRender;
 	
 	private Viewport viewport;
 	
@@ -35,8 +31,6 @@ public class Client {
 	
 	private ClientNetworkManager networkManager;
 	
-	private GuiManager guiManager;
-	
 	private PlayerInventory inventory;
 	
 	private boolean paused;
@@ -44,7 +38,7 @@ public class Client {
 	
 	public Client(MasterRender masterRender) {
 		
-		this.guiRender = (GuiRender) masterRender.getRender(GuiRender.class);
+		this.masterRender = masterRender;
 		
 		world = new World();
 		
@@ -55,26 +49,19 @@ public class Client {
 		
 		networkManager = new ClientNetworkManager(this);
 		
-		guiManager = new GuiManager();// Could make this an argument.
+	}
+	
+	public void initGUI() {
 		
-		inventory = new PlayerInventory("Player Inventory", 
-				Game.SCREEN_WIDTH/2, Game.SCREEN_HEIGHT/2);
-		
-		guiManager.addComponent(inventory);
+		inventory = new PlayerInventory();
 		
 	}
 	
-	public void update(MouseEvent me, KeyboardEvent ke, long timePassed) {
+	public void update(long timePassed) {
 		
-		guiManager.update(me, ke);
+		handleKeyboardInput();
 		
-		if(!ke.isConsumed()) {
-			handleKeyboardInput(ke);
-		}
-		
-		if(!me.isConsumed()) {
-			handleMouseInput(me);
-		}
+		handleMouseInput();
 		
 		if(!paused) {
 			
@@ -83,8 +70,8 @@ public class Client {
 			if(updateGameLogic) {
 				world.update(timePassed);
 				
-				player.update(timePassed, new MouseEvent(MouseInput.getX() + (int) viewport.getCamera().getX(),
-						MouseInput.getY() + (int) viewport.getCamera().getY()));
+				player.update(timePassed, MouseInput.getX(true) + (int) viewport.getCamera().getX(),
+						MouseInput.getY(true) + (int) viewport.getCamera().getY());
 				
 			}
 			
@@ -92,11 +79,9 @@ public class Client {
 		
 		viewport.update(timePassed);
 		
-		guiRender.addGuiComponents(guiManager.getComponents());
-		
 	}
 	
-	private void handleKeyboardInput(KeyboardEvent e) {
+	private void handleKeyboardInput() {
 		
 		boolean togglePause = KeyboardInput.isKeyDown(KeyEvent.VK_ESCAPE);
 		
@@ -105,8 +90,6 @@ public class Client {
 			setShowPauseScreen(!showPauseScreen());
 			
 			setPaused(showPauseScreen() || inventory.isShowing());
-			
-			e.consume();
 			
 		}
 		
@@ -118,7 +101,6 @@ public class Client {
 			
 			setPaused(inventory.isShowing());
 			
-			e.consume();
 		}
 		
 		KeyboardInput.setConsumeAfterRequest(false);
@@ -151,8 +133,6 @@ public class Client {
 				player.moveLeft();
 			}
 			
-			e.consume();
-			
 		} 
 //		else if(!(pressedKeys.length > 0)) {
 //			player.stopMoving();
@@ -166,7 +146,7 @@ public class Client {
 		
 	}
 	
-	private void handleMouseInput(MouseEvent e) {
+	private void handleMouseInput() {
 		
 		viewport.setCameraLocked(!MouseInput.isClamped());
 		
@@ -174,18 +154,18 @@ public class Client {
 	
 	public void onExit() {
 		
-		inventory.hide();
+		inventory.setVisible(false);
 		
 		setPaused(false);
 		setShowPauseScreen(false);
 		
 	}
 	
-	public void render(Graphics2D g) {
+	public void render(Graphics g, int width, int height) {
 		
-		viewport.render(g);
+		masterRender.render();
 		
-		guiManager.render(g);
+		g.drawImage(masterRender.getBuffer(), 0, 0, width, height, null);
 		
 	}
 	
@@ -235,6 +215,10 @@ public class Client {
 		world.setTerrain(loader.loadTerrain(parser, terrainName));
 		world.generateCoordinates(player);// TODO: Keep this marked for changing in future.
 		
+	}
+	
+	public PlayerInventory getPlayerInventory() {
+		return inventory;
 	}
 	
 	public EntityPlayer getPlayer() {

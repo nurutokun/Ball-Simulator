@@ -15,17 +15,17 @@ public class TerrainComponentRender extends LayeredRender {
 	}
 	
 	@Override
-	public void render(Graphics2D g) {
+	public synchronized void render(Graphics2D g) {
 		
 		for(TerrainComponent comp: components) {
 			comp.render(g, comp.getHighLightColor());
 		}
 		
 		components.clear();
-		
+			
 	}
 	
-	public void addComponent(TerrainComponent comp) {
+	public synchronized void addComponent(TerrainComponent comp) {
 		components.add(comp);
 	}
 	

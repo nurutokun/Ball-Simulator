@@ -34,15 +34,42 @@ public class Camera {
 		
 	}
 	
-	public void update(double x, double y, int viewportWidth, int viewportHeight) {
+	public void update(double x, double y, double worldWidth, double worldHeight, 
+			double maxWidth, double maxHeight) {
 		
-		this.x = x - (viewportWidth/2);
-		this.y = y - (viewportHeight/2);
+		maxWidth /= xScale;
+		maxHeight /= yScale;
+		
+		x -= (maxWidth/2d);
+		y -= (maxHeight/2d);
+		
+		worldWidth -= maxWidth;
+		worldHeight -= maxHeight;
+		
+		if(x < 0) {
+			x = 0;
+			
+		} else if(x > worldWidth) {
+			x = worldWidth;
+			
+		}
+		
+		if(y < 0) {
+			y = 0;
+			
+		} else if(y > worldHeight) {
+			y = worldHeight;
+			
+		}
+		
+		this.x = x;
+		this.y = y;
 		
 	}
 	
-	public void update() {
-		update(trackedEntity.getX(), trackedEntity.getY(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+	public void update(double worldWidth, double worldHeight) {
+		update(trackedEntity.getX(), trackedEntity.getY(), worldWidth, worldHeight, 
+				Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 	}
 	
 	public void increaseRotation(double delta) {

@@ -40,7 +40,7 @@ public class ViewportShell extends JPanel {
 		setFocusable(true);
 		setRequestFocusEnabled(true);
 		
-		addKeyListener(new EventHandler());
+		addKeyListener(EventHandler.instance());
 		addMouseListener(new FocusKeeper());
 		
 		setIgnoreRepaint(true);

@@ -45,30 +45,16 @@ public class Viewport {
 		
 		if(lockCameraToPlayer) {
 			
-			camera.update();
+			camera.setScale(1d/2d, 1d/2d);
 			
-			camera.setScale(1, 1);
-			
-			final int maxWidth = world.getWidth() - Game.SCREEN_WIDTH;
-			final int maxHeight = world.getHeight() - Game.SCREEN_HEIGHT;
-			
-			if(camera.getX() < 0) {
-				camera.setX(0);
-			} else if(camera.getX() > maxWidth) {
-				camera.setX(maxWidth);
-			}
-			
-			if(camera.getY() < 0) {
-				camera.setY(0);
-			} else if(camera.getY() > maxHeight) {
-				camera.setY(maxHeight);
-			}
+			camera.update(world.getWidth(), world.getHeight());
 			
 		} else {
 			
-			camera.update(camera.getX() + dx, camera.getY() + dy, 0, 0);
+			camera.update(camera.getX() + dx, camera.getY() + dy, world.getHeight(), world.getWidth(), 
+					Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 			
-			double mouseDelta = MouseInput.getMouseWheelPosition()/2d;
+			double mouseDelta = (double) MouseInput.getMouseWheelPosition()/2d;
 			
 			if(mouseDelta > 0) {
 				camera.setScale(camera.getXScale() / mouseDelta, camera.getYScale() / mouseDelta);
@@ -92,11 +78,12 @@ public class Viewport {
 		int dy = 0;
 		
 		if(MouseInput.isClamped()) {
-			dx = MouseInput.getX();
-			dy = MouseInput.getY();
+			dx = MouseInput.getX(false);
+			dy = MouseInput.getY(false);
 		}
 		
 		this.update(timePassed, dx, dy);
+		
 	}
 	
 	public void handleKeyboardInput(boolean rotRight, boolean rotLeft, boolean rotReset) {
@@ -119,8 +106,8 @@ public class Viewport {
 		double translateY = camera.getY();
 		
 		if(camera.getTrackedEntity() != null) {
-			g.rotate(camera.getTheta(), camera.getTrackedEntity().getX() + translateX, camera.getTrackedEntity().getY() + 
-					translateY);
+			g.rotate(camera.getTheta(), camera.getTrackedEntity().getX() + translateX, 
+					camera.getTrackedEntity().getY() + translateY);
 		}
 		
 		g.translate(-translateX, -translateY);

@@ -86,13 +86,13 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 			newX = width;
 		} else if(newX + width >= world.getWidth()) {
 			ax /= 2;
-			vx = -vx/2;
+			vx = -vx*3/4;
 			
 			newX = world.getWidth() - width;
 		}
 		
 		if(world.mapCollision(tempHitbox)) {
-			vx = -vx/2;
+			vx = -vx*3/4;
 			
 			newX = x;
 		}
@@ -103,12 +103,12 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		
 		if(newY - height <= 0) {
 			ay /= 2;
-			vy = -vy/2;
+			vy = -vy*3/4;
 			
 			newY = height;
 		} else if(newY + height >= world.getHeight()) {
 			ay /= 2;
-			vy = -vy/2;
+			vy = -vy*3/4;
 			
 			newY = world.getHeight() - height;
 		}

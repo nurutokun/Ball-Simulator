@@ -16,7 +16,7 @@ public class PlayerRender extends LivingBaseRender {
 	}
 	
 	@Override
-	public void render(Graphics2D g) {
+	public synchronized void render(Graphics2D g) {
 		
 		for(EntityPlayer player: players) {
 			player.render(g);
@@ -26,7 +26,7 @@ public class PlayerRender extends LivingBaseRender {
 		
 	}
 	
-	public void addPlayer(EntityPlayer player) {
+	public synchronized void addPlayer(EntityPlayer player) {
 		players.add(player);
 	}
 	

@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.gui.entity.item;
 
-import java.awt.Graphics2D;
+import java.awt.Dimension;
+import java.awt.Graphics;
 
 import com.rawad.ballsimulator.entity.item.Item;
 import com.rawad.ballsimulator.loader.CustomLoader;
@@ -10,6 +11,11 @@ import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class ItemSlot extends Button {
+	
+	/**
+	 * Generated serial version UID.
+	 */
+	private static final long serialVersionUID = 6554805239312950335L;
 	
 	public static final int WIDTH;
 	public static final int HEIGHT;
@@ -21,25 +27,22 @@ public class ItemSlot extends Button {
 	
 	private int count;
 	
-	public ItemSlot(Item item, int count, int texture, int x, int y) {
-		super("Item Slot", "", x, y, 0, 0);
-//		super("Item Slot", x, y);
+	private int width;
+	private int height;
+	
+	public ItemSlot(Item item, int count) {
+		super("Item Slot", "");
 		
 		this.item = item;
 		
 		this.count = count;
 		
-		this.texture = texture;
+		this.width = ResourceManager.getTexture(DEFAULT_BACKGROUND).getWidth();
+		this.height = ResourceManager.getTexture(DEFAULT_BACKGROUND).getHeight();
 		
-		this.width = ResourceManager.getTexture(texture).getWidth();
-		this.height = ResourceManager.getTexture(texture).getHeight();
+		setRolloverIcon(ResourceManager.getImageIcon(DEFAULT_FOREGROUND));
+		setRolloverSelectedIcon(ResourceManager.getImageIcon(DEFAULT_FOREGROUND));
 		
-		updateHitbox();
-		
-	}
-	
-	public ItemSlot(Item item, int count, int x, int y) {
-		this(item, count, DEFAULT_BACKGROUND, x, y);
 	}
 	
 	static {
@@ -55,13 +58,17 @@ public class ItemSlot extends Button {
 		HEIGHT = ResourceManager.getTexture(DEFAULT_BACKGROUND).getHeight();
 		
 	}
+	@Override
+	public void paintComponents(Graphics g) {
+		super.paintComponents(g);
+		
+		// Render item stack + count of items in stack.
+		
+	}
 	
 	@Override
-	public void render(Graphics2D g) {
-		super.render(g, texture, DEFAULT_FOREGROUND, texture, texture);
-		
-		// Render Item Stack
-		
+	public Dimension getPreferredSize() {
+		return new Dimension(width, height);
 	}
 	
 	public Item getItem() {

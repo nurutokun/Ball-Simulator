@@ -1,1 +1,2 @@
-ip=Made You Look.
+fullscreenResolution=1280x720
+ip=localhost
