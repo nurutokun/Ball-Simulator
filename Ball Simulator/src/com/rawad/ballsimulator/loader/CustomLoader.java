@@ -7,15 +7,22 @@ import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.world.terrain.Terrain;
 import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class CustomLoader extends Loader {
 	
 	private static final String MISC_FOLDER = "files";
 	private static final String TERRAIN_FOLDER = "terrains";
 	
+	private static final String GUI_FOLDER = ResourceManager.getString("Gui.base");
+	
 	public CustomLoader() {
 		super(BallSimulator.NAME);
 		
+	}
+	
+	public int loadGuiTexture(String subGuiFolder, String guiTextureFile) {
+		return loadTexture(getProperPath(GUI_FOLDER, subGuiFolder), guiTextureFile);
 	}
 	
 	public void loadSettings(SettingsFileParser parser, String settingsFile) {

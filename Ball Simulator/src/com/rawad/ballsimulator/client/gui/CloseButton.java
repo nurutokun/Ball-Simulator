@@ -38,7 +38,7 @@ public class CloseButton extends Button {
 		BACKGROUND_LOCATION = loader.loadGuiTexture(base, "close_background");
 		FOREGROUND_LOCATION = loader.loadGuiTexture(base, "close_foreground");
 		ONCLICK_LOCATION = loader.loadGuiTexture(base, "close_onclick");
-		DISABLED_LOCATION = ResourceManager.loadTexture("");// TODO: Unknown for now...
+		DISABLED_LOCATION = BACKGROUND_LOCATION;
 		
 	}
 	/*/
