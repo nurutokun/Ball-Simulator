@@ -18,12 +18,6 @@ public abstract class EntityRotatingBase extends EntityMovingBase {
 	}
 	
 	@Override
-	public void update(long timePassed) {
-		super.update(timePassed);
-		
-	}
-	
-	@Override
 	public void updateHitbox() {
 		super.updateHitbox();
 		

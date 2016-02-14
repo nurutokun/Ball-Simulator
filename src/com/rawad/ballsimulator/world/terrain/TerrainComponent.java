@@ -37,7 +37,11 @@ public class TerrainComponent {
 			g.setColor(Color.RED);
 		}
 		
-		g.drawRect((int) x, (int) y, width, height);
+		g.translate(x, y);
+		
+		g.drawRect(0, 0, width, height);
+		
+		g.translate(-x, -y);
 		
 	}
 	

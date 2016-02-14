@@ -18,7 +18,7 @@ public class Item extends Entity{
 	}
 
 	@Override
-	public void update(long timePassed) {
+	public void update() {
 		
 	}
 

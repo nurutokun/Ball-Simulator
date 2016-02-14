@@ -2,120 +2,79 @@ package com.rawad.ballsimulator.networking.server;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.client.Viewport;
-import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
-import com.rawad.ballsimulator.networking.server.main.ViewportShell;
 import com.rawad.ballsimulator.networking.server.main.WindowManager;
-import com.rawad.ballsimulator.networking.server.world.WorldMP;
-import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameManager;
+import com.rawad.gamehelpers.game.Proxy;
+import com.rawad.gamehelpers.input.Mouse;
 import com.rawad.gamehelpers.log.Logger;
 
-public class Server {
+public class Server extends Proxy {
 	
 	public static final int PORT = 8008;
 	
 	public static final String TERRAIN_NAME = "terrain";
 	
-	private final Game game;
+	private Game game;
 	
 	private ServerNetworkManager networkManager;
 	
-	private ViewportShell viewportShell;
-	
-	private WorldMP world;
-	
-	private Thread mainLooper;
-	
-	private boolean running;
+	private ServerController viewportController;
 	
 	public Server() { 
 		
+	}
+	
+	@Override
+	public void init(Game game) {
+		
+		this.game = game;
+		
 		networkManager = new ServerNetworkManager(this);
-		
-		world = new WorldMP(this);
-		
-		game = GameManager.instance().getCurrentGame();
-		
-		CustomLoader loader = game.getLoader(BallSimulator.NAME);
-		
-		TerrainFileParser parser = game.getFileParser(TerrainFileParser.class);
-		
-		world.setTerrain(loader.loadTerrain(parser, TERRAIN_NAME));
-		
-		mainLooper = new Thread(new Looper(), "Looper");
-		
-	}
-	
-	public void initGUI() {
-
-		viewportShell = new ViewportShell(new Viewport(game.getMasterRender(), world));
-		
-	}
-	
-	public void start() {
-		// Initialize server stuff
-		
-		running = true;
-		
-		mainLooper.start();
 		
 		networkManager.init();
 		
+		viewportController = new ServerController(this);
+		
+		viewportController.init(game);
+		
 	}
 	
-	private void update(long timePassed) {
+	@Override
+	public void initGUI() {
 		
-		world.update(timePassed);
+		viewportController.initGUI();
 		
-		viewportShell.update(timePassed);
+		WindowManager.instance().initialize(this);
+		
+	}
+	
+	@Override
+	public void tick() {
+		
+		viewportController.tick();
 		
 		WindowManager wm = WindowManager.instance();
 		
-		if(wm.getConsoleOutput() != null) {
-			wm.addDebugText(Logger.getBuffer());
+		String logBuffer = Logger.getBuffer();
+		
+		if(!logBuffer.isEmpty()) {
+			wm.addDebugText(logBuffer);
 		}
 		
-		viewportShell.repaint();
+		Mouse.update(viewportController.getPanel());
 		
 	}
 	
-	private class Looper implements Runnable {
+	public void stop() {
 		
-		@Override
-		public void run() {
-			
-			long prevTime = System.currentTimeMillis();
-			
-			while(running) {
-				
-				long curTime = System.currentTimeMillis();
-				
-				long timePassed = curTime - prevTime;
-				
-				update(timePassed);
-				
-				prevTime = curTime;
-				
-				try {
-					Thread.sleep(1000/DisplayManager.REFRESH_RATE);
-				} catch(Exception ex) {
-					ex.printStackTrace();
-					break;
-				}
-				
-			}
-		}
+		WindowManager.instance().close();
 		
 	}
 	
 	public void updatePlayerNamesList() {
 		
-		ArrayList<EntityPlayerMP> players = world.getPlayers();
+		ArrayList<EntityPlayerMP> players = viewportController.getWorld().getPlayers();
 		
 		String[] names = new String[players.size()];
 		
@@ -137,16 +96,12 @@ public class Server {
 		return networkManager;
 	}
 	
-	public ViewportShell getViewportShell() {
-		return viewportShell;
-	}
-	
-	public WorldMP getWorld() {
-		return world;
-	}
-	
-	public boolean isRunning() {
-		return running;
+	/**
+	 * Overriden to return a proper <code>IController</code>, more relevant for the <code>Server</code>'s context.
+	 */
+	@Override
+	public ServerController getController() {
+		return viewportController;
 	}
 	
 }

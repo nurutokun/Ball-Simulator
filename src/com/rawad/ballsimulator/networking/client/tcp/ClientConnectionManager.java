@@ -55,30 +55,28 @@ public class ClientConnectionManager {
 				networkManager.setConnectionState(ConnectionState.CONNECTED);
 				networkManager.onConnect();
 				
-				CPacket01Login loginPacket = new CPacket01Login(networkManager.getClient().getPlayer().getName());
+				connectionHandler = new Thread(new ConnectionHandler(socket), "Connection Handler");
 				
-				sendPacketToServer(loginPacket);
+				connectionHandler.start();
 				
 			} catch(Exception ex) {
-				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't connect to \"" + address + "\", on the port " + port);
+				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't connect to \"" + address 
+						+ "\", on the port " + port);
 				
 				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
+				
+				networkManager.onDisconnect();
 				
 				return;
 			}
 			
-			connectionHandler = new Thread(new ConnectionHandler(socket), "Connection Handler");
-			
-			connectionHandler.start();
 		}
 		
 	}
 	
 	public synchronized void disconnect() {
 		
-//		if(socket != null && !socket.isClosed()) {
-		
-		CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(),
+		CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(), 
 				socket.getInetAddress().getHostAddress());
 		
 		sendPacketToServer(logoutPacket);
@@ -87,18 +85,17 @@ public class ClientConnectionManager {
 			
 			socket.close();
 			
-			networkManager.setConnectionState(ConnectionState.DISCONNECTED);
 			networkManager.onDisconnect();
 			
 		} catch (Exception ex) {
 			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; couldn't close client socket.");
 		}
 		
-//		}
-		
 	}
 	
 	private void handleServerInput(String input) {
+		
+		Logger.log(Logger.DEBUG, "ClientConnectionManager got packet data from server: \"" + input + "\"");
 		
 		byte[] data = input.getBytes();
 		
@@ -112,9 +109,12 @@ public class ClientConnectionManager {
 			
 			EntityPlayer mainClientPlayer = networkManager.getClient().getPlayer();
 			
-			if(!loginReplyPacket.canLogin() && mainClientPlayer.getName().equals(loginReplyPacket.getUsername())) {// Denied login
+			// Denied login
+			if(!loginReplyPacket.canLogin() && mainClientPlayer.getName().equals(loginReplyPacket.getUsername())) {
 				Logger.log(Logger.DEBUG, "Login denied by server.");
+				networkManager.requestDisconnect();
 				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
+				
 				break;
 			}
 			
@@ -122,7 +122,8 @@ public class ClientConnectionManager {
 			
 			String receivedUsername = loginReplyPacket.getUsername();
 			
-			if(!player.getName().equals(receivedUsername)) {// Player that is logging in isn't the client's player, so create a new player.
+			// Player that is logging in isn't the client's player, so create a new player.
+			if(!player.getName().equals(receivedUsername)) {
 				player = new EntityPlayer(networkManager.getClient().getWorld());
 				
 				player.setName(loginReplyPacket.getUsername());
@@ -139,7 +140,7 @@ public class ClientConnectionManager {
 			
 			player.updateHitbox();
 			
-			networkManager.getClient().init(loginReplyPacket.getTerrainName());
+			networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
 			
 			networkManager.setLoggedIn(true);
 			
@@ -153,10 +154,13 @@ public class ClientConnectionManager {
 			
 			if(mainPlayer.getName().equals(logoutPacket.getUsername())) {
 				networkManager.setLoggedIn(false);
-				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
+				
 				networkManager.onDisconnect();
+				
 			} else {
+				
 				networkManager.getClient().getWorld().removeEntityByName(logoutPacket.getUsername());
+				
 			}
 			
 			break;
@@ -208,10 +212,9 @@ public class ClientConnectionManager {
 		@Override
 		public void run() {
 			
-			
-			
-			try (	BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-					) {
+			try {
+				
+				BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
 				
 				while(!client.isClosed()) {
 					
@@ -226,9 +229,12 @@ public class ClientConnectionManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client lost connection to server or"
 						+ " socket was closed by other means.");
+				
+				networkManager.onDisconnect();
+				
 			}
 			
-			disconnect();// After breaking out of loop, request to disconnect from server.
+//			disconnect();// After breaking out of loop, request to disconnect from server. //(socket already closed)
 			
 		}
 		

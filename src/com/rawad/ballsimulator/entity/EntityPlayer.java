@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.entity;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
@@ -28,12 +29,12 @@ public class EntityPlayer extends EntityRotatingBase {
 		
 		Game game = GameManager.instance().getCurrentGame();
 		
-		DEFAULT_TEXTURE = game.getLoader(game.toString()).loadTexture("entity", "player");
+		DEFAULT_TEXTURE = game.getLoader(CustomLoader.class).loadTexture("entity", "player");
 		
 	}
 	
-	public void update(long timePassed, int x, int y) {
-		super.update(timePassed);
+	public void update(int x, int y) {
+		super.update();
 		
 		if(intersects(x, y) && Mouse.isButtonDown(Mouse.LEFT_MOUSE_BUTTON)) {
 			this.hit(0.2d);
@@ -47,12 +48,16 @@ public class EntityPlayer extends EntityRotatingBase {
 		
 		BufferedImage image = ResourceManager.getTexture(texture);
 		
-		int x = (int) (getX() - (width/2d));
-		int y = (int) (getY() - (height/2d));
+		double x = getX() - ((double) width/2d);
+		double y = getY() - ((double) height/2d);
 		
 		g.rotate(theta, getX(), getY());
 		
-		g.drawImage(image, x, y, width, height, null);
+		g.translate(x, y);
+		
+		g.drawImage(image, 0, 0, width, height, null);
+		
+		g.translate(-x, -y);
 		
 		g.rotate(-theta, getX(), getY());
 		

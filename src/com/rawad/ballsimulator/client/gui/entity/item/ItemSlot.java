@@ -39,13 +39,15 @@ public class ItemSlot extends Button {
 		setOnclickTexture(DEFAULT_FOREGROUND);
 		setDisabledTexture(DEFAULT_BACKGROUND);
 		
+		setFocusable(false);
+		
 	}
 	
 	static {
 		
 		Game game = GameManager.instance().getCurrentGame();
 		
-		CustomLoader loader = game.getLoader(game.toString());
+		CustomLoader loader = game.getLoader(CustomLoader.class);
 		
 		DEFAULT_BACKGROUND = loader.loadGuiTexture("inventory", "item_slot_background");
 		DEFAULT_FOREGROUND = loader.loadGuiTexture("inventory", "item_slot_foreground");
@@ -59,7 +61,7 @@ public class ItemSlot extends Button {
 		super.paintComponent(g);
 		
 		// Render item stack + count of items in stack.
-		
+		g.drawString("Items: " + count, 0, 0);
 	}
 	
 	@Override

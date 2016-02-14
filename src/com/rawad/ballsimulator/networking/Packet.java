@@ -140,7 +140,8 @@ public abstract class Packet {
 	 * @return
 	 */
 	private static String parsePacketData(byte[] data) {
-		return getStringFromData(data).substring(IDENTIFIER_LENGTH);// Skips the first 2 cahracters because those are our identifiers
+		return getStringFromData(data).substring(IDENTIFIER_LENGTH);// Skips the first 2 cahracters 
+		// because those are our identifiers
 	}
 	
 	private static String[] appendStringToBeginning(String stringToAppend, String[] arrayToAppendTo) {

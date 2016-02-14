@@ -5,8 +5,6 @@ import java.awt.Graphics;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.input.Mouse;
 import com.rawad.gamehelpers.renderengine.MasterRender;
 
 public class Viewport {
@@ -16,70 +14,37 @@ public class Viewport {
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
-	private World world;
-	
-	private Camera camera;
-	
-	public Viewport(MasterRender masterRender, World world) {
+	public Viewport() {
 		
-		this.world = world;
+		masterRender = new MasterRender();
 		
-		this.masterRender = masterRender;
+		worldRender = new WorldRender();
+		debugRender = new DebugRender();
 		
-		worldRender = masterRender.getRender(WorldRender.class);
-		debugRender = masterRender.getRender(DebugRender.class);
-		
-		camera = new Camera();
+		masterRender.registerRender(worldRender);
+		masterRender.registerRender(debugRender);
 		
 	}
 	
-	public void update(long timePassed, double x, double y) {
+	/**
+	 * Simply resets the <code>World</code> and <code>Camera</code> objects of this <code>Viewport</code>, including
+	 * those in the renders.
+	 * 
+	 * @param world
+	 * @param camera
+	 */
+	public void update(World world, Camera camera) {
 		
-//		camera.setScale(1/2d, 1/2d);
-		camera.setScale((double) Game.SCREEN_WIDTH / (double) world.getWidth(), 
-				(double) Game.SCREEN_HEIGHT / (double) world.getHeight());
-		
-		camera.update(x, y, world.getWidth(), world.getHeight(), 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-		
-		worldRender.setWorld(world);
-		worldRender.setCamera(camera);
-		debugRender.setCamera(camera);
-		
-	}
-	
-	public void update(long timePassed, int dx, int dy) {
-		
-		camera.update(camera.getX() + dx, camera.getY() + dy, world.getHeight(), world.getWidth(), 0, 0, 
-				Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-		
-		double mouseDelta = (double) Mouse.getMouseWheelPosition()/2d;
-		
-		if(mouseDelta > 0) {
-			camera.setScale(camera.getXScale() / mouseDelta, camera.getYScale() / mouseDelta);
-			
-		} else if(mouseDelta < 0) {
-			mouseDelta *= -1;
-			camera.setScale(camera.getXScale() * mouseDelta, camera.getYScale() * mouseDelta);
-			
-		}
+		setWorld(world);
+		setCamera(camera);
 		
 	}
 	
-	public void handleKeyboardInput(boolean rotRight, boolean rotLeft, boolean rotReset) {
-		
-		if(rotRight) {
-			camera.increaseRotation(0.01d);
-		} else if(rotLeft) {
-			camera.increaseRotation(-0.01d);
-		} else if(rotReset) {
-			camera.setTheta(0d);
-		}
-		
-	}
-	
-	public void render(Graphics g, int width, int height) {
-		
+	public void render() {
 		masterRender.render();
+	}
+	
+	public void drawScene(Graphics g, int width, int height) {
 		
 		g.drawImage(masterRender.getBuffer(), 0, 0, width, height, null);
 		
@@ -89,16 +54,17 @@ public class Viewport {
 		return masterRender;
 	}
 	
-	public Camera getCamera() {
-		return camera;
+	public void setCamera(Camera camera) {
+		
+		worldRender.setCamera(camera);
+		debugRender.setCamera(camera);
+		
 	}
 	
 	public void setWorld(World world) {
-		this.world = world;
-	}
-	
-	public World getWorld() {
-		return world;
+		
+		worldRender.setWorld(world);
+		
 	}
 	
 }

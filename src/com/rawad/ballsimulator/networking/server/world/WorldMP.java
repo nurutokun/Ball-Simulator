@@ -24,11 +24,11 @@ public class WorldMP extends World {
 	}
 	
 	@Override
-	public synchronized void update(long timePassed) {
-		super.update(timePassed);
+	public synchronized void update() {
+		super.update();
 		
 		for(EntityPlayerMP player: players) {
-			player.update(timePassed, -100, -100);
+			player.update(-100, -100);
 			
 			// TODO: do an "isMoved()" check right here for efficiency.
 			SPacket02Move move = new SPacket02Move(player.getName(), player.getX(), player.getY(), player.getVx(), player.getVy(), 

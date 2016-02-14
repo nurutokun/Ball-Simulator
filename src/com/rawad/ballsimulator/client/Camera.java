@@ -1,17 +1,10 @@
 package com.rawad.ballsimulator.client;
 
-
-/**
- * DisplayManager-specific or Ball Simulator-specific?
- * 
- * @author Rawad
- */
 public class Camera {
 	
 	private double x;
 	private double y;
 	
-	// For zooming
 	private double xScale;
 	private double yScale;
 	
@@ -29,8 +22,6 @@ public class Camera {
 		
 	}
 	
-	// TODO: Figure out all of these methods... Make them work for world editor too (for that, should make limit
-	// equal to one screen's width (maxWidth) on every side and corner).
 	public void update(double x, double y, int worldWidth, int worldHeight, 
 			int minX, int minY, int viewWidth, int viewHeight) {
 		

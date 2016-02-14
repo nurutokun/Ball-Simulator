@@ -4,12 +4,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import com.rawad.ballsimulator.entity.EntityMovingBase;
+import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.networking.Packet;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
-import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.log.Logger;
 
 public class ClientDatagramManager {
@@ -28,16 +27,17 @@ public class ClientDatagramManager {
 		
 		try {
 			
-			socket = new DatagramSocket(networkManager.getConnectionManager().getSocket().getLocalPort());// It's better to leave it 
-			// the same port, it also needs to be for the server to work right.
+			socket = new DatagramSocket(networkManager.getConnectionManager().getSocket().getLocalPort());
+			// It's better to leave it the same port, it also needs to be for the server to work right.
 			
-			if(packetReceiver == null || !packetReceiver.isAlive()) {
-				packetReceiver = new Thread(new PacketReceiver(socket), "Datagram Manager");
-				packetReceiver.start();
-			}
+			Logger.log(Logger.DEBUG, "Datagram socket opened on Client Side");
+			
+			packetReceiver = new Thread(new PacketReceiver(socket), "Datagram Manager");
+			packetReceiver.start();
 			
 		} catch(Exception ex) {
-			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; Datagram socket couldn't be bound on client's side.");
+			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; Datagram socket couldn't be bound on client's "
+					+ "side.");
 		}
 		
 	}
@@ -59,20 +59,21 @@ public class ClientDatagramManager {
 			
 			SPacket02Move moveReply = new SPacket02Move(data);
 			
-			World world = networkManager.getClient().getWorld();
+			EntityPlayer player = (EntityPlayer) networkManager.getClient().getWorld()
+					.getEntityByName(moveReply.getUsername());
 			
-			EntityMovingBase entityToMove = (EntityMovingBase) world.getEntityByName(moveReply.getUsername());
+//			EntityMovingBase entityToMove = (EntityMovingBase) world.getEntityByName(moveReply.getUsername());
 			
-			entityToMove.setX(moveReply.getX());
-			entityToMove.setY(moveReply.getY());
+			player.setX(moveReply.getX());
+			player.setY(moveReply.getY());
 			
-			entityToMove.setVx(moveReply.getVx());
-			entityToMove.setVy(moveReply.getVy());
+			player.setVx(moveReply.getVx());
+			player.setVy(moveReply.getVy());
 			
-			entityToMove.setAx(moveReply.getAx());
-			entityToMove.setAy(moveReply.getAy());
+			player.setAx(moveReply.getAx());
+			player.setAy(moveReply.getAy());
 			
-			entityToMove.updateHitbox();
+			player.updateHitbox();
 			
 			break;
 		
@@ -88,17 +89,20 @@ public class ClientDatagramManager {
 	public void sendPacket(Packet packet, String address, int port) {
 		
 		if(networkManager.isConnectedToServer() && !socket.isClosed()) {
+			
 			try {
 				
 				byte[] data = packet.getData();
 				
-				DatagramPacket dataPacket = new DatagramPacket(data, data.length, InetAddress.getByName(address), port);
+				DatagramPacket dataPacket = new DatagramPacket(data, data.length, InetAddress.getByName(address), 
+						port);
 				
 				socket.send(dataPacket);
 				
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't send packet from client.");
 			}
+			
 		}
 		
 	}
@@ -113,6 +117,7 @@ public class ClientDatagramManager {
 		
 		@Override
 		public void run() {
+			
 			while(networkManager.isConnectedToServer()) {
 				
 				try {
@@ -126,7 +131,8 @@ public class ClientDatagramManager {
 					handlePacketData(dataBuffer);
 					
 				} catch(Exception ex) {
-					Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't receive packet from server or socket was closed.");
+					Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't receive packet from server or "
+							+ "socket was closed.");
 				}
 				
 			}

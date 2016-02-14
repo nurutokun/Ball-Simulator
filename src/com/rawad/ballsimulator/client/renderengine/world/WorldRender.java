@@ -37,7 +37,7 @@ public class WorldRender extends LayeredRender {
 		if(world == null || camera == null) return;
 		
 		AffineTransform af = g.getTransform();
-
+		
 		g.scale(camera.getXScale(), camera.getYScale());
 		
 		g.rotate(camera.getTheta());

@@ -2,10 +2,8 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -17,7 +15,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.client.Camera;
-import com.rawad.ballsimulator.client.renderengine.DebugRender;
+import com.rawad.ballsimulator.client.Viewport;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.client.renderengine.world.terrain.TerrainComponentRender;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -25,28 +23,27 @@ import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.Terrain;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
-import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.IController;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
+import com.rawad.gamehelpers.input.EventHandler;
 import com.rawad.gamehelpers.input.KeyboardInput;
 import com.rawad.gamehelpers.input.Mouse;
-import com.rawad.gamehelpers.renderengine.MasterRender;
 import com.rawad.gamehelpers.utils.Util;
 
-public class WorldEditorState extends State {
+public class WorldEditorState extends State implements IController {
 	
 	private static final String[] DIMS = {"2", "4", "8", "16", "32", "64", "128", "256", "512"};
 	
-	private MasterRender masterRender;
-	private WorldRender worldRender;
+	private Viewport viewport;
+	
 	private TerrainComponentRender tcRender;
 	
-	private Camera camera;
-	
 	private World world;
+	private Camera camera;
 	
 	private TerrainComponent comp;// TODO: Fix comp getting (0,0) after unpause.
 	private TerrainComponent intersectedComp;
@@ -61,14 +58,16 @@ public class WorldEditorState extends State {
 	
 	private PauseOverlay pauseScreen;
 	
-	private AbstractAction pauseAction;
-	
 	private boolean prevPlaced;
 	private boolean prevRemoved;
 	
 	// TODO: Add "Move TerrainComponent" mode?
 	public WorldEditorState() {
 		super(EState.WORLD_EDITOR);
+		
+		viewport = new Viewport();
+		
+		world = new World();
 		
 		camera = new Camera();
 		
@@ -99,41 +98,28 @@ public class WorldEditorState extends State {
 			 */
 			private static final long serialVersionUID = 3532511606383035732L;
 			
-			{
-				setIgnoreRepaint(true);
+			@Override
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				
+				viewport.drawScene(g, getWidth(), getHeight());
+				
 			}
 			
 			@Override
-			public void paintComponent(Graphics graphics) {
-				super.paintComponent(graphics);
-				
-				masterRender.render();
-				
-				graphics.drawImage(masterRender.getBuffer(), 0, 0, mainCard.getWidth(), 
-						mainCard.getHeight(), mainCard);// Must scale because of how master render buffer size.
-				
-				/*/
-				Graphics2D g = (Graphics2D) graphics;
-				
-				BackgroundRender.instance().render(g);
-				
-				double scaleX = (double) DisplayManager.getDisplayWidth() / (double) Game.SCREEN_WIDTH;
-				double scaleY = (double) DisplayManager.getDisplayHeight() / (double) Game.SCREEN_HEIGHT;
-				
-				g.scale(scaleX, scaleY);
-				
-				worldRender.render(g);
-				
-//				tcRender.addComponent(comp);
-//				tcRender.render(g);
-				
-				debugRender.render(g);
-				
-				g.scale(1d/scaleX, 1d/scaleY);/**/
-				
+			public void transferFocus() {
+				container.transferFocus();
 			}
 			
 		};
+		
+		EventHandler l = EventHandler.instance();
+		
+		mainCard.addKeyListener(l);
+		mainCard.addMouseListener(l);
+		mainCard.addMouseMotionListener(l);
+		mainCard.addMouseWheelListener(l);
+		mainCard.addComponentListener(l);
 		
 		mainCard.setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("max(20dlu;default):grow"),
@@ -151,28 +137,15 @@ public class WorldEditorState extends State {
 		heightSelector = new DropDown("Height", DIMS[3], DIMS);
 		mainCard.add(heightSelector, "4, 2, fill, fill");
 		
-		InputMap input = mainCard.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		InputMap input = mainCard.getInputMap(JComponent.WHEN_FOCUSED);
 		ActionMap action = mainCard.getActionMap();
 		
-		pauseAction = new AbstractAction() {
-			
-			/**
-			 * Generated serial version UID.
-			 */
-			private static final long serialVersionUID = 5131682721309115959L;
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pauseScreen.setActive(!pauseScreen.isActive());
-			}
-			
-		};
+		input.put(KeyStroke.getKeyStroke("ESCAPE"), pauseScreen.getId());
+		action.put(pauseScreen.getId(), pauseScreen.getActiveChanger());
 		
-		input.put(KeyStroke.getKeyStroke("ESCAPE"), "doPause");
-		action.put("doPause", pauseAction);
-		
-		pauseScreen.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "doPause");
-		pauseScreen.getActionMap().put("doPause", pauseAction);
+		pauseScreen.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), 
+				pauseScreen.getId());
+		pauseScreen.getActionMap().put(pauseScreen.getId(), pauseScreen.getActiveChanger());
 		
 		container.add(mainCard, "Main Card");
 		
@@ -181,31 +154,42 @@ public class WorldEditorState extends State {
 	@Override
 	public void update() {
 		
-		checkForGamePause();
+	}
+	
+	@Override
+	public void tick() {
 		
-		if(DisplayManager.isCloseRequested()) {
-			saveTerrain("terrain");
-		}
+		checkForGamePause();
 		
 		if(!pauseScreen.isActive()) {
 			
-			scaleView();
+			handleKeyboardInput();
+			handleMouseInput();
 			
-			moveView();
+			viewport.update(world, camera);
 			
-			checkPlacement();
+			tcRender.addComponent(new TerrainComponent(comp.getX() + camera.getX(), 
+					comp.getY() + camera.getY(), comp.getWidth(), comp.getHeight()));
+			
+			viewport.render();
 			
 		}
 		
-		worldRender.setWorld(world);
-		worldRender.setCamera(camera);
+	}
+	
+	@Override
+	public void handleMouseInput() {
 		
-		masterRender.getRender(DebugRender.class).setCamera(camera);
+		scaleView();
+
+		checkPlacement();
 		
-		tcRender.addComponent(new TerrainComponent(comp.getX() + camera.getX(), 
-				comp.getY() + camera.getY(), comp.getWidth(), comp.getHeight()));
+	}
+	
+	@Override
+	public void handleKeyboardInput() {
 		
-		mainCard.repaint();
+		moveView();
 		
 	}
 	
@@ -213,11 +197,9 @@ public class WorldEditorState extends State {
 		
 		if(pauseScreen.isActive()) {
 			
-			saveTerrain("terrain");
-			
 			Mouse.setClamped(false, 0, 0);
 			
-			pauseScreen.setBackground(masterRender.getBuffer());
+			pauseScreen.setBackground(viewport.getMasterRender().getBuffer());
 			
 			show(pauseScreen.getId());
 			
@@ -231,16 +213,16 @@ public class WorldEditorState extends State {
 	
 	private void updatePosition(double dx, double dy) {
 		
-		// TODO: Fix certain zoom levels moving slightly.
-		// Apparently it's because, although player moves ahead, camera gets stuck behind...
-		
 		int maxWidth = Game.SCREEN_WIDTH;
 		int maxHeight = Game.SCREEN_HEIGHT;
 		
-		camera.update(camera.getX() + (int) (maxWidth / camera.getXScale()/2) + dx, camera.getY() + 
-				(int) (maxHeight / camera.getYScale()/2) + dy, 
-				world.getWidth() + maxWidth, world.getHeight() + maxHeight, -maxWidth, 
-				-maxHeight, maxWidth, maxHeight);
+		// Casting x/y to int fixes slow sliding at larger zoom levels.
+		camera.update((int) (camera.getX() + (maxWidth / camera.getXScale() / 2d + dx)),
+				(int) (camera.getY() + (maxHeight / camera.getYScale() / 2d + dy)), 
+				(int) (world.getWidth() + maxWidth / camera.getXScale()), 
+				(int) (world.getHeight() + maxHeight / camera.getYScale()), 
+				-maxWidth, -maxHeight, 
+				maxWidth, maxHeight);
 		
 	}
 	
@@ -409,31 +391,30 @@ public class WorldEditorState extends State {
 		
 		Game game = sm.getGame();
 		
-		loader = game.getLoader(game.toString());
+		loader = game.getLoader(CustomLoader.class);
 		terrainFileParser = game.getFileParser(TerrainFileParser.class);
 		
-		if(world == null) {
-			world = loadWorld();
-			
-		}
+		world.setTerrain(loader.loadTerrain(terrainFileParser, "terrain"));
 		
-		masterRender = game.getMasterRender();
-		
-		worldRender = masterRender.getRender(WorldRender.class);
-		tcRender = worldRender.getTerrainComponentRender();
+		game.getProxy().setController(this);
 		
 		pauseScreen.setActive(false);
-
+		
+		viewport.setWorld(world);
+		viewport.setCamera(camera);
+		
+		tcRender = viewport.getMasterRender().getRender(WorldRender.class).getTerrainComponentRender();
+		
 		show("Main Card");
 		
 	}
 	
-	private World loadWorld() {
-		World re = new World();
+	@Override
+	protected void onDeactivate() {
+		super.onDeactivate();
 		
-		re.setTerrain(loader.loadTerrain(terrainFileParser, "terrain"));
+		saveTerrain("terrain");
 		
-		return re;
 	}
 	
 	private void saveTerrain(String terrainName) {
@@ -441,8 +422,6 @@ public class WorldEditorState extends State {
 		Terrain terrain = world.getTerrain();
 		
 		terrainFileParser.setTerrain(terrain);
-		
-		CustomLoader loader = sm.getGame().getLoader(sm.getGame().toString());
 		
 		loader.saveTerrain(terrainFileParser, terrainName);
 		

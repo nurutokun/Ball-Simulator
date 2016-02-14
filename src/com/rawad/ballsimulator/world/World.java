@@ -30,12 +30,12 @@ public class World {
 		
 	}
 	
-	public synchronized void update(long timePassed) {
+	public synchronized void update() {
 		
 		for(Entity e: entities) {
 			
 			if(!(e instanceof EntityPlayer)) {// Players are handled in a special way, for now.
-				e.update(timePassed);
+				e.update();
 			}
 			
 		}

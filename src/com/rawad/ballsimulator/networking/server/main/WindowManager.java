@@ -25,8 +25,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 
-import com.rawad.ballsimulator.client.renderengine.DebugRender;
-import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
@@ -34,7 +32,7 @@ import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.input.EventHandler;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.renderengine.MasterRender;
+import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
 
 public class WindowManager {
@@ -43,10 +41,12 @@ public class WindowManager {
 
 	private final Server server;
 	
-	private ViewportShell panel;
+	private BallSimulator game;
 	
 	private JFrame frame;
 	private JPanel basePanel;
+	
+	private JPanel viewportPanel;
 	
 	private JSplitPane serverInfoPanel;
 	private JPanel consolePanel;
@@ -61,10 +61,14 @@ public class WindowManager {
 	private JCheckBoxMenuItem menuCheckboxDebug;
 	
 	public static void main(String[] args) {
-
+		
+		ResourceManager.init(args);
+		
 		instance = instance();
 		
-		Util.invokeAndWait(new Runnable() {
+		GameManager.instance().launchGame(instance.game, instance.server);
+		
+		Util.invokeLater(new Runnable() {
 			
 			public void run() {
 
@@ -76,37 +80,18 @@ public class WindowManager {
 						Logger.log(Logger.WARNING, "Couldn't load native system's look and feel.");
 					}
 					
-					instance.initialize(instance.server);
-					instance.frame.setVisible(true);
-					
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
 			}
 			
 		});
 		
-		instance.server.start();// Wait for server application to be visible
-		// before starting the grunt workers...
-		
 	}
 
 	private WindowManager() {
 		
-		BallSimulator game = new BallSimulator();
-		
-		game.serverInit();
-		
-		MasterRender render = game.getMasterRender();
-		
-		render.registerRender(new WorldRender());// Because we are rendering the scene on the server as well...
-		render.registerRender(new DebugRender());
-		
-		GameManager.instance().registerGame(game);
-		// For things that need them, mainly for the isDebug() method right now.
-		// Also, this shouldn't waste any extra resourses because the init
-		// method for the game isn't being called. It will cause the Icon to be
-		// loaded though...
+		game = new BallSimulator();
 		
 		server = new Server();
 		// Here because game needs to initialize the fileparsers so that terrain can be loaded here
@@ -115,22 +100,33 @@ public class WindowManager {
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @wbp.parser.entryPoint
 	 * 
 	 */
-	public void initialize(Server server) {
+	public void initialize(final Server server) {
 		
-		server.initGUI();
-		
-		frame = new JFrame();
+		frame = new JFrame() {
+			
+			/**
+			 * Generated serial version UID.
+			 */
+			private static final long serialVersionUID = 2494144741047124345L;
+
+			@Override
+			public boolean requestFocusInWindow() {
+				return server.getController().getPanel().requestFocusInWindow();
+			}
+			
+		};
 		frame.setTitle(BallSimulator.NAME);
 		frame.setPreferredSize(new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));// Is okay?
-		frame.setIconImage(GameManager.instance().getCurrentGame().getIcon());
 		frame.addWindowListener(EventHandler.instance());
+		frame.setIconImage(server.getGame().getIcon());
 		
 		basePanel = new JPanel();
 		basePanel.setBackground(Color.WHITE);
 		basePanel.setLayout(new BoxLayout(basePanel, BoxLayout.X_AXIS));
-		frame.add(basePanel);
+		frame.getContentPane().add(basePanel);
 
 		splitPane = new JSplitPane();
 		splitPane.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -148,12 +144,11 @@ public class WindowManager {
 		serverInfoPanel.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setLeftComponent(serverInfoPanel);
 		
-		// panel = new ViewportShell(null);
-		panel = server.getViewportShell();
-		panel.setBorder(new TitledBorder(null, "Server World",
+		viewportPanel = server.getController().getPanel();
+		viewportPanel.setBorder(new TitledBorder(null, "Server World",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-		serverInfoPanel.setTopComponent(panel);
+		viewportPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+		serverInfoPanel.setTopComponent(viewportPanel);
 		
 		playerList = new JList<String>();
 		playerList.setToolTipText("Players");
@@ -181,12 +176,8 @@ public class WindowManager {
 		consolePanel.add(consoleOutputHolder, BorderLayout.CENTER);
 		
 		consoleOutput = new JTextArea();
-		consoleOutputHolder.setViewportView(consoleOutput);
 		consoleOutput.setEditable(false);
-		
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		consoleOutputHolder.setViewportView(consoleOutput);
 		
 		menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -197,6 +188,12 @@ public class WindowManager {
 		menuCheckboxDebug = new JCheckBoxMenuItem("Debug");
 		menuCheckboxDebug.addActionListener(new MenuCheckboxDebugActionListener());
 		menuOptions.add(menuCheckboxDebug);
+		
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		frame.setVisible(true);
 		
 	}
 
@@ -244,7 +241,6 @@ public class WindowManager {
 			@Override
 			public void run() {
 				playerList.setListData(playerNames);
-				playerList.revalidate();
 			}
 			
 		});
@@ -258,11 +254,14 @@ public class WindowManager {
 			@Override
 			public void run() {
 				consoleOutput.setText(consoleOutput.getText() + debugText);
-//				consoleOutput.revalidate();
 			}
 			
 		});
 		
+	}
+	
+	public void close() {
+		frame.dispose();
 	}
 	
 	public static WindowManager instance() {

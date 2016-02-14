@@ -1,38 +1,61 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.rawad.ballsimulator.client.Client;
-import com.rawad.gamehelpers.game.GameManager;
+import com.rawad.ballsimulator.client.Camera;
+import com.rawad.ballsimulator.client.Viewport;
+import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
+import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.world.World;
+import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.IController;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.overlay.PauseOverlay;
 import com.rawad.gamehelpers.input.EventHandler;
+import com.rawad.gamehelpers.input.KeyboardInput;
+import com.rawad.gamehelpers.input.Mouse;
 
-public class GameState extends State {
-	
-	// TODO: Shift entire BallSimulator game to here.
-	
-	private Client client;
+public class GameState extends State implements IController {
 	
 	private PauseOverlay pauseScreen;
 	
 	private JPanel mainCard;
 	
-	private AbstractAction pauseAction;
+	private Viewport viewport;
 	
-	public GameState(Client client) {
+	private World world;
+	private Camera camera;
+	
+	private EntityPlayer player;
+	private PlayerInventory inventory;
+	
+	private boolean showEntireWorld;
+	private boolean paused;
+	
+	public GameState() {
 		super(EState.GAME);
 		
-		this.client = client;
+		viewport = new Viewport();
+		
+		world = new World();
+		
+		camera = new Camera();
+		
+		player = new EntityPlayer(world);
+//		player.setName("Player" + (int) (new Random().nextDouble()*999));
+		
+		showEntireWorld = false;
+		paused = false;
 		
 	}
 	
@@ -47,7 +70,9 @@ public class GameState extends State {
 		
 		addOverlay(pauseScreen);
 		
-		addOverlay(client.getPlayerInventory());
+		inventory = new PlayerInventory();
+		
+		addOverlay(inventory);
 		
 		mainCard = new JPanel() {
 
@@ -56,23 +81,28 @@ public class GameState extends State {
 			 */
 			private static final long serialVersionUID = -4873917145932784820L;
 			
-			{
-				setIgnoreRepaint(true);
+			@Override
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				
+				viewport.drawScene(g, mainCard.getWidth(), mainCard.getHeight());
+				
 			}
 			
 			@Override
-			public void paint(Graphics g) {
-				super.paint(g);
-				
-				client.render(g, getWidth(), getHeight());
-				
+			public void transferFocus() {
+				container.transferFocus();
 			}
 			
 		};
 		
-		mainCard.addKeyListener(EventHandler.instance());
+		EventHandler l = EventHandler.instance();
 		
-		mainCard.setIgnoreRepaint(true);
+		mainCard.addKeyListener(l);
+		mainCard.addMouseListener(l);
+		mainCard.addMouseMotionListener(l);
+		mainCard.addMouseWheelListener(l);
+		mainCard.addComponentListener(l);
 		
 		container.add(mainCard, "Main Card");
 		
@@ -82,28 +112,22 @@ public class GameState extends State {
 	
 	private void initializeKeyBindings() {
 		
-		InputMap input = mainCard.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		InputMap input = mainCard.getInputMap(JComponent.WHEN_FOCUSED);
 		ActionMap action = mainCard.getActionMap();
 		
-		pauseAction = new AbstractAction() {
-			
-			/**
-			 * Generated serial version UID.
-			 */
-			private static final long serialVersionUID = 5131682721309115959L;
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pauseScreen.setActive(!pauseScreen.isActive());
-			}
-			
-		};
+		input.put(KeyStroke.getKeyStroke("ESCAPE"), pauseScreen.getId());
+		action.put(pauseScreen.getId(), pauseScreen.getActiveChanger());
 		
-		input.put(KeyStroke.getKeyStroke("ESCAPE"), "doPause");
-		action.put("doPause", pauseAction);
+		pauseScreen.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), 
+				pauseScreen.getId());
+		pauseScreen.getActionMap().put(pauseScreen.getId(), pauseScreen.getActiveChanger());
 		
-		pauseScreen.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "doPause");
-		pauseScreen.getActionMap().put("doPause", pauseAction);
+		input.put(KeyStroke.getKeyStroke("E"), inventory.getId());
+		action.put(inventory.getId(), inventory.getActiveChanger());
+		
+		inventory.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("E"), 
+				inventory.getId());
+		inventory.getActionMap().put(inventory.getId(), inventory.getActiveChanger());
 		
 	}
 	
@@ -111,34 +135,124 @@ public class GameState extends State {
 	public void update() {
 		super.update();
 		
+	}
+	
+	@Override
+	public void tick() {
+		
 		if(pauseScreen.isActive()) {
 			
 			show(pauseScreen.getId());
 			
-			pauseScreen.setBackground(client.getViewport().getMasterRender().getBuffer());
+			pauseScreen.setBackground(viewport.getMasterRender().getBuffer());
 			
-			client.setPaused(true);
-			client.setShowPauseScreen(true);
-			
-		} else if(client.getPlayerInventory().isActive()) {
-			
-			show(client.getPlayerInventory().getId());
-			
-			client.setPaused(true);
-			client.setShowPauseScreen(false);
+			paused = true;
 			
 		} else {
 			
-			show("Main Card");
+			if(inventory.isActive()) {
+				show(inventory.getId());
+				
+				inventory.setBackground(viewport.getMasterRender().getBuffer());
+				
+				paused = true;
+				
+			} else {
+				show("Main Card");
+				
+				paused = false;
+				
+			}
 			
-			client.setPaused(false);// TODO: Marker. Will probably need to be modified for inventory.
-			client.setShowPauseScreen(false);
-			
-			mainCard.repaint();
+			handleKeyboardInput();
+			handleMouseInput();
 			
 		}
 		
-		client.update(GameManager.instance().getDeltaTime());
+		if(!paused) {
+			updateGameLogic();
+			
+			viewport.update(world, camera);
+			
+			viewport.render();
+			
+		}
+		
+		
+	}
+	
+	private void updateGameLogic() {
+		
+		if(showEntireWorld) {
+			camera.setScale((double) Game.SCREEN_WIDTH / (double) world.getWidth(), 
+				(double) Game.SCREEN_HEIGHT / (double) world.getHeight());
+		} else {
+			camera.setScale(1d/2d, 1d/2d);
+		}
+		
+		KeyboardInput.setConsumeAfterRequest(false);
+		
+		boolean up = KeyboardInput.isKeyDown(KeyEvent.VK_UP) | KeyboardInput.isKeyDown(KeyEvent.VK_W);
+		boolean down = KeyboardInput.isKeyDown(KeyEvent.VK_DOWN) | KeyboardInput.isKeyDown(KeyEvent.VK_S);
+		boolean right = KeyboardInput.isKeyDown(KeyEvent.VK_RIGHT) | KeyboardInput.isKeyDown(KeyEvent.VK_D);
+		boolean left = KeyboardInput.isKeyDown(KeyEvent.VK_LEFT) | KeyboardInput.isKeyDown(KeyEvent.VK_A);
+		
+		KeyboardInput.setConsumeAfterRequest(true);
+		
+		if(up || down || right || left) {
+			
+			// For buffered key press events.
+			player.stopMoving();
+			
+			if(up) {
+				player.moveUp();
+			} else if(down) {
+				player.moveDown();
+			}
+			
+			if(right) {
+				player.moveRight();
+			} else if(left) {
+				player.moveLeft();
+			}
+			
+		}
+		
+		world.update();
+		
+		player.update(Mouse.getX(true) + (int) camera.getX(), Mouse.getY(true) + (int) camera.getY());
+		
+		camera.update(player.getX(), player.getY(), world.getWidth(), world.getHeight(), 0, 0, 
+				Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		
+	}
+	
+	private void handleCameraRotation(boolean rotRight, boolean rotLeft, boolean rotReset) {
+		
+		if(rotRight) {
+			camera.increaseRotation(0.01d);
+		} else if(rotLeft) {
+			camera.increaseRotation(-0.01d);
+		} else if(rotReset) {
+			camera.setTheta(0d);
+		}
+		
+	}
+	
+	@Override
+	public void handleMouseInput() {
+		
+	}
+	
+	@Override
+	public void handleKeyboardInput() {
+		
+		handleCameraRotation(KeyboardInput.isKeyDown(KeyEvent.VK_C), KeyboardInput.isKeyDown(KeyEvent.VK_Z), 
+				KeyboardInput.isKeyDown(KeyEvent.VK_X));
+		
+		if(KeyboardInput.isKeyDown(KeyEvent.VK_L)) {
+			showEntireWorld = !showEntireWorld;
+		}
 		
 	}
 	
@@ -167,9 +281,17 @@ public class GameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		client.init("terrain");
+		sm.getClient().setController(this);
 		
-		pauseScreen.setActive(false);
+		CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);
+		
+		TerrainFileParser parser = sm.getGame().getFileParser(TerrainFileParser.class);
+		
+		world.setTerrain(loader.loadTerrain(parser, "terrain"));
+		world.generateCoordinates(player);
+		
+		viewport.setWorld(world);
+		viewport.setCamera(camera);
 		
 		show("Main Card");
 		
@@ -179,7 +301,8 @@ public class GameState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		client.onExit();
+		inventory.setActive(false);
+		pauseScreen.setActive(false);
 		
 	}
 	

@@ -1,11 +1,8 @@
 package com.rawad.ballsimulator.networking.client;
 
-import java.util.ArrayList;
-
-import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.entity.Entity;
-import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.networking.ConnectionState;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
 import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
@@ -14,7 +11,7 @@ import com.rawad.gamehelpers.utils.Util;
 
 public class ClientNetworkManager {
 	
-	private Client client;
+	private MultiplayerGameState client;
 	
 	private ClientConnectionManager connectionManager;
 	private ClientDatagramManager datagramManager;
@@ -34,9 +31,7 @@ public class ClientNetworkManager {
 	 */
 	private boolean loggedIn;
 	
-	public ClientNetworkManager(Client client) {
-		
-		this.client = client;
+	public ClientNetworkManager() {
 		
 		connectionManager = new ClientConnectionManager(this);
 		datagramManager = new ClientDatagramManager(this);
@@ -58,36 +53,35 @@ public class ClientNetworkManager {
 	 */
 	public void onConnect() {
 		
+		CPacket01Login loginPacket = new CPacket01Login(client.getPlayer().getName());
+		
+		connectionManager.sendPacketToServer(loginPacket);
+		
 		datagramManager.start();
 		
 	}
 	
+	/**
+	 * Mainly does the resetting work for the next time a connection is needed to be made.
+	 */
 	public void onDisconnect() {
 		
-		datagramManager.stop();
+		connectionState = ConnectionState.NOT_CONNECTED;
 		
-		ArrayList<Entity> entities = client.getWorld().getEntities();
-		ArrayList<Entity> entitiesToRemove = new ArrayList<Entity>();
+		setLoggedIn(false);
 		
-		for(Entity e: entities) {
-			
-			if(e instanceof EntityPlayer && !e.equals(client.getPlayer())) {
-				entitiesToRemove.add(e);
-			}
-			
-		}
-		
-		for(Entity e: entitiesToRemove) {
-			
-			client.getWorld().removeEntity(e);
-			
-		}
+		client.onDisconnect();
 		
 	}
 	
 	public void requestDisconnect() {
 		
-		connectionManager.disconnect();
+		if(isConnectedToServer()) {
+			
+			datagramManager.stop();
+			connectionManager.disconnect();
+			
+		}
 		
 	}
 	
@@ -103,7 +97,7 @@ public class ClientNetworkManager {
 		return connectionManager;
 	}
 	
-	public Client getClient() {
+	public MultiplayerGameState getClient() {
 		return client;
 	}
 	
@@ -146,6 +140,10 @@ public class ClientNetworkManager {
 		this.messages = "";
 		
 		return temp;
+	}
+	
+	public void setController(MultiplayerGameState client) {
+		this.client = client;
 	}
 	
 }

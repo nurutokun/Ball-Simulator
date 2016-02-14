@@ -33,7 +33,7 @@ public abstract class Entity {
 		
 	}
 	
-	public abstract void update(long timePassed);
+	public abstract void update();
 	
 	public abstract void render(Graphics2D g);
 	

@@ -1,10 +1,16 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import java.awt.AWTKeyStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -18,6 +24,7 @@ import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
 import com.rawad.gamehelpers.renderengine.BackgroundRender;
 import com.rawad.gamehelpers.utils.Util;
+import com.jgoodies.forms.factories.FormFactory;
 
 public class OptionState extends State {
 	
@@ -63,33 +70,46 @@ public class OptionState extends State {
 			
 		};
 		
-		resolutions = new DropDown("Fullscreen Resolution", DisplayManager.getFullScreenResolution(), 
-				DisplayManager.getCompatibleDisplayModeResolutions());
-		
 		mainCard.setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("default:grow"),
-				ColumnSpec.decode("257px"),
+				ColumnSpec.decode("pref:grow"),
+				ColumnSpec.decode("min:grow"),
+				FormFactory.PREF_COLSPEC,
+				ColumnSpec.decode("min:grow"),
+				ColumnSpec.decode("pref:grow"),
 				ColumnSpec.decode("default:grow"),},
 			new RowSpec[] {
-				RowSpec.decode("30px:grow"),
+				RowSpec.decode("30dlu:grow"),
 				RowSpec.decode("max(50dlu;pref)"),
 				RowSpec.decode("max(10dlu;pref):grow"),
 				RowSpec.decode("max(25dlu;pref)"),
-				RowSpec.decode("35px:grow"),
-				RowSpec.decode("22px"),
+				RowSpec.decode("35dlu:grow"),
+				RowSpec.decode("20dlu"),
 				RowSpec.decode("max(10dlu;pref):grow"),
 				RowSpec.decode("max(25dlu;pref)"),
 				RowSpec.decode("default:grow"),}));
-		mainCard.add(resolutions, "2, 2, fill, fill");
+		
+		resolutions = new DropDown("Fullscreen Resolution", DisplayManager.getFullScreenResolution(), 
+				DisplayManager.getCompatibleDisplayModeResolutions());
+		mainCard.add(resolutions, "3, 2, 3, 1, fill, fill");
 		
 		btnWorldEditor = new Button("World Editor");
-		mainCard.add(btnWorldEditor, "2, 4, fill, fill");
+		mainCard.add(btnWorldEditor, "4, 4, fill, fill");
 		
 		ipHolder = new JTextField("");
-		mainCard.add(ipHolder, "2, 6, fill, fill");
+		mainCard.add(ipHolder, "3, 6, 3, 1, fill, fill");
 		
 		btnMainMenu = new Button("Main Menu");
-		mainCard.add(btnMainMenu, "2, 8, fill, fill");
+		mainCard.add(btnMainMenu, "4, 8, fill, fill");
+		
+		Set<AWTKeyStroke> forwardTraversalKeys = new HashSet<AWTKeyStroke>();
+		Set<AWTKeyStroke> backwardTraversalKeys = new HashSet<AWTKeyStroke>();
+		
+		forwardTraversalKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, false));
+		backwardTraversalKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false));
+		
+		mainCard.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forwardTraversalKeys);
+		mainCard.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardTraversalKeys);
 		
 		container.add(mainCard, "Main Card");
 		
@@ -102,12 +122,6 @@ public class OptionState extends State {
 		if(!settings.getIp().equals(ipHolder.getText())) {
 			settings.setIp(ipHolder.getText());
 		}
-		
-		if(DisplayManager.isCloseRequested()) {
-			loader.saveSettings(settings, sm.getGame().getSettingsFileName());
-		}
-		
-		mainCard.repaint();
 		
 	}
 	
@@ -158,13 +172,21 @@ public class OptionState extends State {
 		
 		settings = game.getFileParser(SettingsFileParser.class);
 		
-		loader = game.getLoader(sm.getGame().toString());// Or could do BallSimulator.NAME
+		loader = game.getLoader(CustomLoader.class);
 		
 		loader.loadSettings(settings, game.getSettingsFileName());
 		
 		Util.setTextSafely(ipHolder, settings.getIp());
 		
 		show("Main Card");
+		
+	}
+	
+	@Override
+	protected void onDeactivate() {
+		super.onDeactivate();
+		
+		loader.saveSettings(settings, sm.getGame().getSettingsFileName());
 		
 	}
 	

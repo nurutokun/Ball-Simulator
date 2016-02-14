@@ -31,12 +31,10 @@ public abstract class EntityLivingBase extends Entity {
 	}
 	
 	@Override
-	public void update(long timePassed) {
-		
-		double delta = timePassed/100d;
+	public void update() {
 		
 		if(canRegen && this.health < maxHealth) {
-			double newHealth = this.health + (regen * delta);
+			double newHealth = this.health + regen;
 			
 			if(newHealth <= maxHealth) {
 				this.health = newHealth;

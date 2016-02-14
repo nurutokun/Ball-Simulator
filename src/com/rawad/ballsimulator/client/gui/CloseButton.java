@@ -33,7 +33,7 @@ public class CloseButton extends Button {
 		
 		String base = ResourceManager.getString("Button.base");
 		
-		GameHelpersLoader loader = GameManager.instance().getCurrentGame().getLoader(GameHelpersLoader.BASE);
+		GameHelpersLoader loader = GameManager.instance().getCurrentGame().getLoader(GameHelpersLoader.class);
 		
 		BACKGROUND_LOCATION = loader.loadGuiTexture(base, "close_background");
 		FOREGROUND_LOCATION = loader.loadGuiTexture(base, "close_foreground");

@@ -11,7 +11,8 @@ public class CPacket02Move extends UDPPacket {
 	private static final int LEFT_INDEX = 4;
 	
 	public CPacket02Move(String username, boolean up, boolean down, boolean right, boolean left) {
-		super(UDPPacketType.MOVE, username, Boolean.toString(up), Boolean.toString(down), Boolean.toString(right), Boolean.toString(left));
+		super(UDPPacketType.MOVE, username, Boolean.toString(up), Boolean.toString(down), Boolean.toString(right), 
+				Boolean.toString(left));
 	}
 	
 	public CPacket02Move(byte[] data) {

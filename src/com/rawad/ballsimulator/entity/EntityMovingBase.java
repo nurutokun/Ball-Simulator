@@ -8,9 +8,10 @@ import com.rawad.ballsimulator.world.World;
 
 public abstract class EntityMovingBase extends EntityLivingBase {
 	
+	// Make all of these relative to single game tick (~200 ms)
 	private static final double JERK = 0.9d;// 0.1d
 	
-	private static final double MAX_ACCEL = JERK * 4;// 2.0d
+	private static final double MAX_ACCEL = JERK * 2;// 2.0d
 	private static final double MIN_ACCEL = 0.1d;// 0.01d
 	private static final double MIN_VELOCITY = 0.4d;// 0.4d
 	
@@ -35,10 +36,8 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 	}
 	
 	@Override
-	public void update(long timePassed) {
-		super.update(timePassed);
-		
-		double delta = timePassed/700d;
+	public void update() {
+		super.update();
 		
 		if(up) {
 			ay -= JERK;
@@ -64,11 +63,8 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 			ax = left? -MAX_ACCEL: right? MAX_ACCEL:ax;
 		}
 		
-		double finalAccelX = ax * delta;
-		double finalAccelY = ay * delta;
-		
-		vx += finalAccelX;//Math.sqrt(Math.pow(vx, 2) + (ax));
-		vy += finalAccelY;//Math.sqrt(Math.pow(vy, 2) + (ay));
+		vx += ax;//Math.sqrt(Math.pow(vx, 2) + (ax));
+		vy += ay;//Math.sqrt(Math.pow(vy, 2) + (ay));
 		
 		double newX = x + vx;
 		double newY = y + vy;

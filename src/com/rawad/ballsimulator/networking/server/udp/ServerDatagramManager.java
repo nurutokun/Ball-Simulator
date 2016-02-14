@@ -61,13 +61,15 @@ public class ServerDatagramManager {
 			
 			CPacket02Move moveRequest = new CPacket02Move(data);
 			
-			EntityPlayerMP player = (EntityPlayerMP) networkManager.getServer().getWorld().getEntityByName(moveRequest.getUsername());
+			EntityPlayerMP player = (EntityPlayerMP) networkManager.getServer().getController().getWorld()
+					.getEntityByName(moveRequest.getUsername());
 			
 			handleMoveRequest(moveRequest, player);
 			
-//			SPacket02Move moveReply = new SPacket02Move(moveRequest.getUsername(), player.getX(), player.getY(), player.getVx(), 
-//					player.getVy(), player.getAx(), player.getAy());
-//			sendPacketToAllClients(moveReply);
+			SPacket02Move moveReply = new SPacket02Move(moveRequest.getUsername(), player.getX(), player.getY(), 
+					player.getVx(), player.getVy(), player.getAx(), player.getAy());
+			
+			sendPacketToAllClients(moveReply);
 			
 			break;
 		
@@ -127,7 +129,7 @@ public class ServerDatagramManager {
 		
 		@Override
 		public void run() {
-			while(networkManager.getServer().isRunning()) {
+			while(networkManager.getServer().getGame().isRunning()) {
 				
 				try {
 					

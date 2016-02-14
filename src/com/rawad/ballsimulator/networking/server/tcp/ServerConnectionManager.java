@@ -20,7 +20,8 @@ import com.rawad.ballsimulator.networking.server.world.WorldMP;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
- * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in general.
+ * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in 
+ * general.
  * 
  * @author Rawad
  *
@@ -56,7 +57,7 @@ public class ServerConnectionManager {
 		
 		TCPPacketType type = Packet.getTCPPacketTypeFromData(data);
 		
-		WorldMP world = networkManager.getServer().getWorld();
+		WorldMP world = networkManager.getServer().getController().getWorld();
 		
 		String username;
 		
@@ -72,7 +73,8 @@ public class ServerConnectionManager {
 			
 			if(world.getEntityByName(username) != null) {// Entity already exists
 				canLogin = false;
-				Logger.log(Logger.DEBUG, "Player with name \"" + username + "\" is already logged in, disconnecting new player.");
+				Logger.log(Logger.DEBUG, "Player with name \"" + username + "\" is already logged in, "
+						+ "disconnecting new player.");
 			}
 			
 			EntityPlayerMP player = null;
@@ -87,24 +89,11 @@ public class ServerConnectionManager {
 			
 			if(canLogin) {
 				
-				player = new EntityPlayerMP(world, clientLoginPacket.getUsername(), client.getInetAddress().getHostAddress());
+				player = new EntityPlayerMP(world, clientLoginPacket.getUsername(), client.getInetAddress()
+						.getHostAddress());
 				// Player automatically added to server's world.
 				
 				world.generateCoordinates(player);
-				
-//				playerWidth = player.getWidth();
-//				playerHeight = player.getHeight();
-				
-//				x = r.nextDouble() * (double) world.getWidth() - (playerWidth/2);
-//				y = r.nextDouble() * (double) world.getHeight() - (playerHeight/2);
-				
-//				if(x < playerWidth/2) {
-//					x = 0 + playerWidth/2;
-//				}
-				
-//				if(y < playerHeight/2) {
-//					y = 0 + playerHeight/2;
-//				}
 				
 				x = player.getX();
 				y = player.getY();
@@ -133,19 +122,21 @@ public class ServerConnectionManager {
 				
 				getClientInputManager(client).setName(username);
 				
-				sendPacketToAllClients(null, serverLoginResponsePacket);// Inform all current players of this new player's login.
+				// Inform all current players of this new player's login.
+				sendPacketToAllClients(null, serverLoginResponsePacket);
 				
 				ArrayList<EntityPlayerMP> players = world.getPlayers();
 				
-				for(EntityPlayerMP playerInWorld: players) {// Informs players that just logged in of previously logged-in players.
+				// Informs player that just logged in of previously logged-in players.
+				for(EntityPlayerMP playerInWorld: players) {
 					
 					String name = playerInWorld.getName();
 					
 					if(!player.getName().equals(name)) {
 						
-						serverLoginResponsePacket = new SPacket01Login(name, playerInWorld.getX(), playerInWorld.getY(),
-								playerInWorld.getWidth(), playerInWorld.getHeight(), playerInWorld.getTheta(),Server.TERRAIN_NAME,
-								canLogin);
+						serverLoginResponsePacket = new SPacket01Login(name, playerInWorld.getX(), 
+								playerInWorld.getY(), playerInWorld.getWidth(), playerInWorld.getHeight(), 
+								playerInWorld.getTheta(), Server.TERRAIN_NAME, canLogin);
 						
 						sendPacketToClient(client, serverLoginResponsePacket);
 						
@@ -187,7 +178,8 @@ public class ServerConnectionManager {
 			
 			username = messagePacket.getUsername();
 			
-			String message = username + "> " + messagePacket.getMessage();// Send message to other clients with the username indicated
+			String message = username + "> " + messagePacket.getMessage();
+			// Send message to other clients with the username indicated
 			
 			SPacket03Message replyPacket = new SPacket03Message(username, message);
 			
@@ -305,13 +297,15 @@ public class ServerConnectionManager {
 		public void run() {
 			
 			try {
-				serverSocket = new ServerSocket(Server.PORT);// Rather initialize this here than in the constructor....
+				// Rather initialize this here than in the constructor...
+				serverSocket = new ServerSocket(Server.PORT);
 			} catch(Exception ex) {
-				Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; server socket for TCP connection couldn't be initialized.");
+				Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; server socket for TCP connection couldn't "
+						+ "be initialized.");
 				System.exit(-1);
 			}
 			
-			while(networkManager.getServer().isRunning()) {
+			while(networkManager.getServer().getGame().isRunning()) {
 				
 				try {
 					Socket client = serverSocket.accept();
@@ -346,8 +340,9 @@ public class ServerConnectionManager {
 		@Override
 		public void run() {
 			
-			try (	BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-					) {
+			try {
+				
+				BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
 				
 				while(!client.isClosed()) {
 					
@@ -360,15 +355,16 @@ public class ServerConnectionManager {
 				}
 				
 			} catch(Exception ex) {
-//				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client " + client.getInetAddress().getHostName()
-//						+ " disconnected.");
+				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client " + client.getInetAddress()
+						.getHostName() + " disconnected.");
 			}
 			
 			// Ensure client is disconnected in case of an unexpected disconnect?
 //			disconnectClient(client, client.getInetAddress().getHostAddress(), server.getWorld());
 			
 			if(!disconnectedByPacket) {
-				CPacket02Logout ensureLogout = new CPacket02Logout(clientName, client.getInetAddress().getHostAddress());
+				CPacket02Logout ensureLogout = new CPacket02Logout(clientName, 
+						client.getInetAddress().getHostAddress());
 				
 				handleClientInput(client, ensureLogout.getDataAsString());
 				

@@ -1,15 +1,20 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import java.awt.AWTKeyStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import com.rawad.gamehelpers.display.DisplayManager;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
@@ -78,7 +83,7 @@ public class MenuState extends State {
 				RowSpec.decode("5dlu:grow"),}));
 		
 		lblTitle = new TextLabel(GameManager.instance().getCurrentGame().toString());
-		mainCard.add(lblTitle, "3, 2, 3, 1, fill, fill");// x,y , width,height
+		mainCard.add(lblTitle, "3, 2, 3, 1, fill, fill");
 		
 		btnSingleplayer = new Button("Singleplayer");
 		mainCard.add(btnSingleplayer, "4, 4, fill, fill");
@@ -92,15 +97,16 @@ public class MenuState extends State {
 		btnExit = new Button("Exit");
 		mainCard.add(btnExit, "4, 10, fill, fill");
 		
+		Set<AWTKeyStroke> forwardTraversalKeys = new HashSet<AWTKeyStroke>();
+		Set<AWTKeyStroke> backwardTraversalKeys = new HashSet<AWTKeyStroke>();
+		
+		forwardTraversalKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, false));
+		backwardTraversalKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false));
+		
+		mainCard.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forwardTraversalKeys);
+		mainCard.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardTraversalKeys);
+		
 		container.add(mainCard, "Main Card");
-		
-	}
-	
-	@Override
-	protected void update() {
-		super.update();
-		
-		mainCard.repaint();
 		
 	}
 	
@@ -127,9 +133,10 @@ public class MenuState extends State {
 			sm.requestStateChange(EState.OPTION);
 			break;
 		case "Exit":
-			DisplayManager.requestClose();
+			sm.getGame().requestStop();
 			break;
 		}
 		
 	}
+	
 }

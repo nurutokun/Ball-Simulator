@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,7 +27,6 @@ public class Messenger extends JPanel {
 	private JTextField input;
 	private JScrollPane outputContainer;
 	private JTextArea output;
-	private CloseButton closeButton;
 	
 	private String buffer;
 	
@@ -36,10 +36,15 @@ public class Messenger extends JPanel {
 		super();
 		
 		initialize();
+		
 	}
 	
 	private void initialize() {
-		setLayout(new BorderLayout(0, 0));
+		
+		setBackground(Util.TRANSPARENT);
+		setFocusable(false);
+		
+		setLayout(new BorderLayout());
 		
 		input = new JTextField();
 		input.addActionListener(new ActionListener() {
@@ -52,6 +57,8 @@ public class Messenger extends JPanel {
 				
 				textReady = true;
 				
+				Messenger.this.getParent().requestFocusInWindow();
+				
 			}
 			
 		});
@@ -63,24 +70,15 @@ public class Messenger extends JPanel {
 		add(outputContainer, BorderLayout.CENTER);
 		
 		output = new JTextArea();
+		output.setBackground(Util.TRANSPARENT);
+		output.setForeground(Color.WHITE);
 		output.setWrapStyleWord(true);
 		output.setTabSize(4);
 		output.setLineWrap(true);
 		output.setEditable(false);
+		output.setFocusable(false);
 		outputContainer.setViewportView(output);
 		
-		closeButton = new CloseButton();
-		closeButton.setText("");
-		closeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Messenger.this.setVisible(!Messenger.this.isVisible());
-			}
-			
-		});
-		
-		outputContainer.setColumnHeaderView(closeButton);
 	}
 	
 	public String getText() {
@@ -105,6 +103,11 @@ public class Messenger extends JPanel {
 	public void clearText() {
 		Util.setTextSafely(output, "");
 		Util.setTextSafely(input, "");
+	}
+	
+	@Override
+	public boolean requestFocusInWindow() {
+		return input.requestFocusInWindow();
 	}
 	
 	@Override

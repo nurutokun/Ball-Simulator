@@ -1,9 +1,16 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
-import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 
+import javax.swing.JPanel;
+
+import com.jgoodies.forms.factories.FormFactory;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.gui.overlay.Overlay;
 
 public class PlayerInventory extends Overlay {
@@ -20,6 +27,8 @@ public class PlayerInventory extends Overlay {
 	
 	private ArrayList<ItemSlot> itemSlots;
 	
+	private JPanel slotContainer;
+	
 	public PlayerInventory() {
 		super("Player Inventory");
 		
@@ -31,10 +40,19 @@ public class PlayerInventory extends Overlay {
 	
 	private void generateSlots() {
 		
-		setLayout(new FlowLayout());
+		slotContainer = new JPanel();
 		
-//		width = COLUMNS * ItemSlot.WIDTH + ((COLUMNS+1) * PADDING);
-//		height = ROWS * ItemSlot.HEIGHT + ((ROWS+1) * PADDING);
+		slotContainer.setLayout(new GridLayout(ROWS, COLUMNS, Game.SCREEN_WIDTH/(COLUMNS - 1)/10, 
+				Game.SCREEN_HEIGHT/(ROWS - 1)/10));
+		
+		setLayout(new FormLayout(new ColumnSpec[] {
+				ColumnSpec.decode("center:default:grow"),
+				FormFactory.PREF_COLSPEC,
+				ColumnSpec.decode("center:default:grow"),},
+			new RowSpec[] {
+				RowSpec.decode("pref:grow"),
+				FormFactory.PREF_ROWSPEC,
+				RowSpec.decode("default:grow"),}));
 		
 		for(int col = 0; col < COLUMNS; col++) {
 			
@@ -42,14 +60,14 @@ public class PlayerInventory extends Overlay {
 				
 				ItemSlot curSlot = new ItemSlot(null, 0);
 				
-//				setBounds(x + (col * ItemSlot.WIDTH) + (col * PADDING), y + (row * ItemSlot.HEIGHT) + (row * PADDING),
-//						ItemSlot.WIDTH, ItemSlot.HEIGHT);
-				
 				itemSlots.add(curSlot);
+				slotContainer.add(curSlot);
 				
 			}
 			
 		}
+		
+		this.add(slotContainer, "2, 2, fill, fill");
 		
 	}
 	
