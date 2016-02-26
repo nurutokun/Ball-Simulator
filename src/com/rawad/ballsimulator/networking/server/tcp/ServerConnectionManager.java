@@ -111,6 +111,9 @@ public class ServerConnectionManager {
 				
 				Logger.log(Logger.DEBUG, loginMessage);
 				
+				clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
+				// clients that haven't logged in yet
+				
 				sendPacketToAllClients(null, new SPacket03Message(username, loginMessage));
 				
 			}
@@ -221,7 +224,7 @@ public class ServerConnectionManager {
 	
 	private synchronized void startNewClientInputManager(Socket client) {
 		
-		clients.add(client);
+//		clients.add(client);// Moved to where the player logs in.
 		
 		ClientInputManager clientInputManager = new ClientInputManager(client);
 		

@@ -5,8 +5,6 @@ import java.awt.Graphics;
 
 import com.rawad.ballsimulator.entity.item.Item;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
@@ -17,11 +15,11 @@ public class ItemSlot extends Button {
 	 */
 	private static final long serialVersionUID = 6554805239312950335L;
 	
-	public static final int WIDTH;
-	public static final int HEIGHT;
+	public static int WIDTH;
+	public static int HEIGHT;
 	
-	private static final int DEFAULT_BACKGROUND;
-	private static final int DEFAULT_FOREGROUND;
+	private static int DEFAULT_BACKGROUND;
+	private static int DEFAULT_FOREGROUND;
 	
 	private Item item;
 	
@@ -43,22 +41,19 @@ public class ItemSlot extends Button {
 		
 	}
 	
-	static {
-		
-		Game game = GameManager.instance().getCurrentGame();
-		
-		CustomLoader loader = game.getLoader(CustomLoader.class);
+	public static void registerTextures(CustomLoader loader) {
 		
 		DEFAULT_BACKGROUND = loader.loadGuiTexture("inventory", "item_slot_background");
 		DEFAULT_FOREGROUND = loader.loadGuiTexture("inventory", "item_slot_foreground");
 		
-		WIDTH = ResourceManager.getTexture(DEFAULT_BACKGROUND).getWidth();
-		HEIGHT = ResourceManager.getTexture(DEFAULT_BACKGROUND).getHeight();
-		
 	}
+	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
+		WIDTH = ResourceManager.getTexture(DEFAULT_BACKGROUND).getWidth();// TODO: Third spot for postInit; these were final
+		HEIGHT = ResourceManager.getTexture(DEFAULT_BACKGROUND).getHeight();
 		
 		// Render item stack + count of items in stack.
 		g.drawString("Items: " + count, 0, 0);

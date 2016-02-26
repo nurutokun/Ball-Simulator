@@ -95,8 +95,6 @@ public class ClientConnectionManager {
 	
 	private void handleServerInput(String input) {
 		
-		Logger.log(Logger.DEBUG, "ClientConnectionManager got packet data from server: \"" + input + "\"");
-		
 		byte[] data = input.getBytes();
 		
 		TCPPacketType type = Packet.getTCPPacketTypeFromData(data);

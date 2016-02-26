@@ -121,7 +121,7 @@ public class WindowManager {
 		frame.setTitle(BallSimulator.NAME);
 		frame.setPreferredSize(new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));// Is okay?
 		frame.addWindowListener(EventHandler.instance());
-		frame.setIconImage(server.getGame().getIcon());
+//		frame.setIconImage(server.getGame().getIcon());// TODO: Get the icon working for the server.
 		
 		basePanel = new JPanel();
 		basePanel.setBackground(Color.WHITE);

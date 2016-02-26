@@ -14,9 +14,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Viewport;
@@ -135,12 +135,12 @@ public class MultiplayerGameState extends State implements IController {
 		mainCard.addComponentListener(l);
 		
 		mainCard.setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.PREF_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC,
+				FormSpecs.PREF_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("center:pref:grow"),},
 			new RowSpec[] {
 				RowSpec.decode("pref:grow"),
-				FormFactory.RELATED_GAP_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("fill:pref"),}));
 		
 		mess = new Messenger();

@@ -10,9 +10,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Viewport;
@@ -88,6 +88,24 @@ public class WorldEditorState extends State implements IController {
 		super.initialize();
 		
 		pauseScreen = new PauseOverlay();
+
+		pauseScreen.removeAll();
+		pauseScreen.setLayout(new FormLayout(new ColumnSpec[] {
+				ColumnSpec.decode("pref:grow"),
+				FormSpecs.PREF_COLSPEC,
+				ColumnSpec.decode("pref:grow"),},
+			new RowSpec[] {
+				RowSpec.decode("pref:grow"),
+				FormSpecs.PREF_ROWSPEC,
+				RowSpec.decode("5dlu"),
+				FormSpecs.PREF_ROWSPEC,
+				RowSpec.decode("5dlu"),
+				FormSpecs.PREF_ROWSPEC,
+				RowSpec.decode("pref:grow"),}));
+		
+		pauseScreen.add(pauseScreen.getResumeButton(), "2, 2, fill, fill");
+		pauseScreen.add(new Button("Options Menu"), "2, 4, fill, fill");
+		pauseScreen.add(pauseScreen.getMainMenuButton(), "2, 6, fill, fill");
 		
 		addOverlay(pauseScreen);
 		
@@ -123,9 +141,9 @@ public class WorldEditorState extends State implements IController {
 		
 		mainCard.setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("max(20dlu;default):grow"),
-				FormFactory.PREF_COLSPEC,
+				FormSpecs.PREF_COLSPEC,
 				ColumnSpec.decode("5dlu"),
-				FormFactory.PREF_COLSPEC,
+				FormSpecs.PREF_COLSPEC,
 				ColumnSpec.decode("5dlu"),},
 			new RowSpec[] {
 				RowSpec.decode("max(10dlu;min)"),

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.rawad.ballsimulator.entity.Entity;
-import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.world.terrain.Terrain;
 
 public class World {
@@ -33,11 +32,7 @@ public class World {
 	public synchronized void update() {
 		
 		for(Entity e: entities) {
-			
-			if(!(e instanceof EntityPlayer)) {// Players are handled in a special way, for now.
-				e.update();
-			}
-			
+			e.update();
 		}
 		
 	}

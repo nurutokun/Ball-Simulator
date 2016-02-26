@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
 import com.rawad.gamehelpers.game.Game;
@@ -47,11 +47,11 @@ public class PlayerInventory extends Overlay {
 		
 		setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("center:default:grow"),
-				FormFactory.PREF_COLSPEC,
+				FormSpecs.PREF_COLSPEC,
 				ColumnSpec.decode("center:default:grow"),},
 			new RowSpec[] {
 				RowSpec.decode("pref:grow"),
-				FormFactory.PREF_ROWSPEC,
+				FormSpecs.PREF_ROWSPEC,
 				RowSpec.decode("default:grow"),}));
 		
 		for(int col = 0; col < COLUMNS; col++) {

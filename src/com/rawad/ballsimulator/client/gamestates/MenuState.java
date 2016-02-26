@@ -11,9 +11,9 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.gamestates.State;
@@ -65,7 +65,7 @@ public class MenuState extends State {
 				ColumnSpec.decode("center:default:grow"),
 				ColumnSpec.decode("default:grow"),
 				ColumnSpec.decode("pref:grow"),
-				FormFactory.PREF_COLSPEC,
+				FormSpecs.PREF_COLSPEC,
 				ColumnSpec.decode("pref:grow"),
 				ColumnSpec.decode("center:pref:grow"),
 				ColumnSpec.decode("center:default:grow"),},

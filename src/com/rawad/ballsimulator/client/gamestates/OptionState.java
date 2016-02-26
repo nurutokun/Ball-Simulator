@@ -14,6 +14,7 @@ import javax.swing.KeyStroke;
 
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
@@ -24,7 +25,6 @@ import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
 import com.rawad.gamehelpers.renderengine.BackgroundRender;
 import com.rawad.gamehelpers.utils.Util;
-import com.jgoodies.forms.factories.FormFactory;
 
 public class OptionState extends State {
 	
@@ -74,7 +74,7 @@ public class OptionState extends State {
 				ColumnSpec.decode("default:grow"),
 				ColumnSpec.decode("pref:grow"),
 				ColumnSpec.decode("min:grow"),
-				FormFactory.PREF_COLSPEC,
+				FormSpecs.PREF_COLSPEC,
 				ColumnSpec.decode("min:grow"),
 				ColumnSpec.decode("pref:grow"),
 				ColumnSpec.decode("default:grow"),},

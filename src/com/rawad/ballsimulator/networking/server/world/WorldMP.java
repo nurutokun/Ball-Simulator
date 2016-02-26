@@ -28,11 +28,10 @@ public class WorldMP extends World {
 		super.update();
 		
 		for(EntityPlayerMP player: players) {
-			player.update(-100, -100);
 			
 			// TODO: do an "isMoved()" check right here for efficiency.
-			SPacket02Move move = new SPacket02Move(player.getName(), player.getX(), player.getY(), player.getVx(), player.getVy(), 
-					player.getAx(), player.getAy());
+			SPacket02Move move = new SPacket02Move(player.getName(), player.getX(), player.getY(), player.getVx(), 
+					player.getVy(), player.getAx(), player.getAy());
 			
 			server.getNetworkManager().getDatagramManager().sendPacketToAllClients(move);
 			

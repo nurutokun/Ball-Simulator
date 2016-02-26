@@ -19,6 +19,8 @@ import com.rawad.ballsimulator.client.gamestates.MenuState;
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
+import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
+import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
@@ -28,9 +30,15 @@ import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.IController;
 import com.rawad.gamehelpers.game.Proxy;
 import com.rawad.gamehelpers.gamestates.StateManager;
+import com.rawad.gamehelpers.gui.Background;
+import com.rawad.gamehelpers.gui.Button;
+import com.rawad.gamehelpers.gui.DropDown;
+import com.rawad.gamehelpers.gui.TextLabel;
 import com.rawad.gamehelpers.input.Mouse;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.GameHelpersLoader;
+import com.rawad.gamehelpers.resources.ResourceManager;
+import com.rawad.gamehelpers.utils.Util;
 
 // TODO: Could make the whole "rotating base", "moving base", etc. just a bunch of interfaces; for the player that 
 // is. Could also make it component based (one entity class and just add the different components you want it to 
@@ -99,11 +107,40 @@ public class Client extends Proxy {
 		
 		setLookAndFeel();
 		
-		sm.initialize();
-		
-		sm.requestStateChange(EState.MENU);
+		sm.initializeLoadingScreen(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				initResources();
+				
+				ResourceManager.loadAllTextures();
+				
+				game.setBackground(Background.instance());
+				
+				Util.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						
+						DisplayManager.getDisplayMode().getDisplayMode().setIcon(ResourceManager.getTextureObject(
+								game.getIconLocation()).getTexture());
+						
+						sm.initialize();
+						
+						sm.requestStateChange(EState.MENU);
+						
+					}
+					
+				});
+				
+			}
+			
+		});
 		
 		DisplayManager.showDisplayMode(DisplayManager.Mode.WINDOWED, game);
+		
+		sm.showLoadingScreen();
 		
 	}
 	
@@ -161,6 +198,23 @@ public class Client extends Proxy {
 		
 	}
 	
+	private void initResources() {
+		
+		GameHelpersLoader ghLoader = game.getLoader(GameHelpersLoader.class);
+		CustomLoader loader = game.getLoader(CustomLoader.class);
+		
+		game.registerTextures();
+		
+		Button.registerTextures(ghLoader);
+		DropDown.registerTextures(ghLoader);
+		TextLabel.registerTextures(ghLoader);
+		Background.registerTextures(ghLoader);
+		
+		EntityPlayer.registerTextures(loader);
+		ItemSlot.registerTextures(loader);
+		
+	}
+	
 	@Override
 	public void init(Game game) {
 		
@@ -197,7 +251,9 @@ public class Client extends Proxy {
 			
 		}
 		
-		sm.update();// TODO: Lots of changes to be done here; remove "postTick()".
+		try {// TODO: Marker for the state manager update method, should be removed when init method is split.
+			sm.update();
+		} catch(Exception ex) {}
 		
 		Mouse.update(DisplayManager.getContainer());
 		

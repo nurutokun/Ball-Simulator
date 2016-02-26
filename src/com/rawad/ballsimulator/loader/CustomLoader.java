@@ -22,7 +22,7 @@ public class CustomLoader extends Loader {
 	}
 	
 	public int loadGuiTexture(String subGuiFolder, String guiTextureFile) {
-		return loadTexture(ResourceManager.getProperPath(GUI_FOLDER, subGuiFolder), guiTextureFile);
+		return registerTexture(ResourceManager.getProperPath(GUI_FOLDER, subGuiFolder), guiTextureFile);
 	}
 	
 	public void loadSettings(SettingsFileParser parser, String settingsFile) {

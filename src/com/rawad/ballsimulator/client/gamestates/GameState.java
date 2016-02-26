@@ -220,7 +220,13 @@ public class GameState extends State implements IController {
 		
 		world.update();
 		
-		player.update(Mouse.getX(true) + (int) camera.getX(), Mouse.getY(true) + (int) camera.getY());
+		if(Mouse.isButtonDown(Mouse.LEFT_MOUSE_BUTTON) && player.intersects(
+				(int) (Mouse.getX(true) / camera.getXScale() + camera.getX()), 
+				(int) (Mouse.getY(true) / camera.getYScale() + camera.getY()))) {
+			
+			player.hit(0.2d);
+			
+		}
 		
 		camera.update(player.getX(), player.getY(), world.getWidth(), world.getHeight(), 0, 0, 
 				Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);

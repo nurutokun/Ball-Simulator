@@ -5,14 +5,12 @@ import java.awt.image.BufferedImage;
 
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
-import com.rawad.gamehelpers.input.Mouse;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class EntityPlayer extends EntityRotatingBase {
 	
-	private static final int DEFAULT_TEXTURE;
+	private static int DEFAULT_TEXTURE;
 	
 	private int texture; 
 	
@@ -22,29 +20,18 @@ public class EntityPlayer extends EntityRotatingBase {
 		x = 0;
 		y = 0;
 		
-		setTexture(DEFAULT_TEXTURE);
 	}
 	
-	static {
+	public static void registerTextures(CustomLoader loader) {
 		
-		Game game = GameManager.instance().getCurrentGame();
-		
-		DEFAULT_TEXTURE = game.getLoader(CustomLoader.class).loadTexture("entity", "player");
-		
-	}
-	
-	public void update(int x, int y) {
-		super.update();
-		
-		if(intersects(x, y) && Mouse.isButtonDown(Mouse.LEFT_MOUSE_BUTTON)) {
-			this.hit(0.2d);
-			
-		}
+		DEFAULT_TEXTURE = loader.registerTexture("entity", "player");
 		
 	}
 	
 	@Override
 	public void render(Graphics2D g) {
+		
+		setTexture(DEFAULT_TEXTURE);// TODO: Another spot where a postInit would be useful.
 		
 		BufferedImage image = ResourceManager.getTexture(texture);
 		

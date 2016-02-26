@@ -1,13 +1,9 @@
 package com.rawad.ballsimulator.main;
 
-import java.awt.image.BufferedImage;
-
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.Proxy;
-import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class BallSimulator extends Game {
 	
@@ -26,25 +22,28 @@ public class BallSimulator extends Game {
 	}
 	
 	@Override
-	protected void init(Proxy clientOrServer) {
-		super.init(clientOrServer);
-
-		loader = new CustomLoader();
+	public void registerTextures() {
 		
-		loaders.put(CustomLoader.class, loader);
-		
-		ICON = loader.loadTexture("", "game_icon");
-		
-		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
-		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
-		
-		clientOrServer.init(this);
+		ICON = loader.registerTexture("", "game_icon");
 		
 	}
 	
 	@Override
-	public BufferedImage getIcon() {
-		return ResourceManager.getTexture(ICON);
+	protected void init() {
+		super.init();
+		
+		loader = new CustomLoader();
+		
+		loaders.put(CustomLoader.class, loader);
+		
+		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
+		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
+		
+	}
+	
+	@Override
+	public int getIconLocation() {
+		return ICON;
 	}
 	
 	@Override

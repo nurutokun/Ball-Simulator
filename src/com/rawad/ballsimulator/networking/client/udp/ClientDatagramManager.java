@@ -30,8 +30,6 @@ public class ClientDatagramManager {
 			socket = new DatagramSocket(networkManager.getConnectionManager().getSocket().getLocalPort());
 			// It's better to leave it the same port, it also needs to be for the server to work right.
 			
-			Logger.log(Logger.DEBUG, "Datagram socket opened on Client Side");
-			
 			packetReceiver = new Thread(new PacketReceiver(socket), "Datagram Manager");
 			packetReceiver.start();
 			
