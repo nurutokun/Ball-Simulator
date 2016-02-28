@@ -81,9 +81,6 @@ public class MultiplayerGameState extends State implements IController {
 		camera = new Camera();
 		camera.setScale(1d/2d, 1d/2d);
 		
-		player = new EntityPlayer(world);
-		player.setName("Player" + (int) (new Random().nextDouble()*999));
-		
 	}
 	
 	/**
@@ -328,6 +325,11 @@ public class MultiplayerGameState extends State implements IController {
 	@Override
 	protected void onActivate() {
 		super.onActivate();
+		
+		if(player == null) {
+			player = new EntityPlayer(world);
+			player.setName("Player" + (int) (new Random().nextDouble()*999));
+		}
 		
 		Game game = sm.getGame();
 		

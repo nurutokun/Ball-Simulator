@@ -251,9 +251,7 @@ public class Client extends Proxy {
 			
 		}
 		
-		try {// TODO: Marker for the state manager update method, should be removed when init method is split.
-			sm.update();
-		} catch(Exception ex) {}
+		sm.update();
 		
 		Mouse.update(DisplayManager.getContainer());
 		
@@ -267,6 +265,8 @@ public class Client extends Proxy {
 		sm.stop();
 		
 		DisplayManager.destroyWindow();
+		
+		game.setBackground(null);// For proper resetting of overall "game state".
 		
 	}
 	

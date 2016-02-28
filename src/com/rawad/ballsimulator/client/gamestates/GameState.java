@@ -1,8 +1,10 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -50,9 +52,6 @@ public class GameState extends State implements IController {
 		world = new World();
 		
 		camera = new Camera();
-		
-		player = new EntityPlayer(world);
-//		player.setName("Player" + (int) (new Random().nextDouble()*999));
 		
 		showEntireWorld = false;
 		paused = false;
@@ -128,6 +127,21 @@ public class GameState extends State implements IController {
 		inventory.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("E"), 
 				inventory.getId());
 		inventory.getActionMap().put(inventory.getId(), inventory.getActiveChanger());
+		
+		input.put(KeyStroke.getKeyStroke("R"), "resetPlayerPosition");
+		action.put("resetPlayerPosition", new AbstractAction() {
+			
+			/**
+			 * Generated serial version UID.
+			 */
+			private static final long serialVersionUID = 5131682721309115959L;
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				world.generateCoordinates(player);
+			}
+			
+		});
 		
 	}
 	
@@ -286,6 +300,10 @@ public class GameState extends State implements IController {
 	@Override
 	protected void onActivate() {
 		super.onActivate();
+		
+		if(player == null) {// To ensure texture is loaded
+			player = new EntityPlayer(world);
+		}
 		
 		sm.getClient().setController(this);
 		

@@ -7,18 +7,26 @@ import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.resources.ResourceManager;
+import com.rawad.gamehelpers.resources.TextureResource;
 
 public class EntityPlayer extends EntityRotatingBase {
 	
 	private static int DEFAULT_TEXTURE;
 	
-	private int texture; 
+	private int texture;
 	
 	public EntityPlayer(World world) {
 		super(world);
 		
 		x = 0;
 		y = 0;
+		
+		texture = DEFAULT_TEXTURE;
+		
+		TextureResource tex = ResourceManager.getTextureObject(texture);
+		
+		width = tex.getTexture().getWidth();
+		height = tex.getTexture().getHeight();
 		
 	}
 	
@@ -30,8 +38,6 @@ public class EntityPlayer extends EntityRotatingBase {
 	
 	@Override
 	public void render(Graphics2D g) {
-		
-		setTexture(DEFAULT_TEXTURE);// TODO: Another spot where a postInit would be useful.
 		
 		BufferedImage image = ResourceManager.getTexture(texture);
 		
@@ -54,16 +60,6 @@ public class EntityPlayer extends EntityRotatingBase {
 			super.renderHitbox(g);
 			super.renderVector(g);
 		}
-		
-	}
-	
-	public void setTexture(int texture) {
-		this.texture = texture;
-		
-		BufferedImage tex = ResourceManager.getTexture(texture);
-		
-		width = tex.getWidth();
-		height = tex.getHeight();
 		
 	}
 	

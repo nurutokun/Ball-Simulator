@@ -109,9 +109,9 @@ public class World {
 		
 		do {
 			
-			int x = (int) ((width/2) + (r.nextDouble() * (this.width - (width/2d))));
-			int y = (int) ((height/2) + (r.nextDouble() * (this.height - (height/2d))));
-			//   First one ^ keeps it from being too far left, second one ^ keeps it from being too far right.
+			int x = (int) (r.nextDouble() * (this.width - (width/2d)));
+			int y = (int) (r.nextDouble() * (this.height - (height/2d)));
+			// (Outdated)   First one ^ keeps it from being too far left, second one ^ keeps it from being too far right.
 			
 			e.setX(x);
 			e.setY(y);

@@ -7,6 +7,7 @@ import com.rawad.ballsimulator.entity.item.Item;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.resources.ResourceManager;
+import com.rawad.gamehelpers.resources.TextureResource;
 
 public class ItemSlot extends Button {
 	
@@ -46,14 +47,25 @@ public class ItemSlot extends Button {
 		DEFAULT_BACKGROUND = loader.loadGuiTexture("inventory", "item_slot_background");
 		DEFAULT_FOREGROUND = loader.loadGuiTexture("inventory", "item_slot_foreground");
 		
+		final TextureResource defaultBackground = ResourceManager.getTextureObject(DEFAULT_BACKGROUND);
+		
+		defaultBackground.setOnloadAction(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				WIDTH = defaultBackground.getTexture().getWidth();
+				HEIGHT = defaultBackground.getTexture().getHeight();
+				
+			}
+			
+		});
+		
 	}
 	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
-		WIDTH = ResourceManager.getTexture(DEFAULT_BACKGROUND).getWidth();// TODO: Third spot for postInit; these were final
-		HEIGHT = ResourceManager.getTexture(DEFAULT_BACKGROUND).getHeight();
 		
 		// Render item stack + count of items in stack.
 		g.drawString("Items: " + count, 0, 0);

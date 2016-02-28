@@ -19,6 +19,10 @@ public class BallSimulator extends Game {
 	public BallSimulator() {
 		super();
 		
+		loader = new CustomLoader();
+		
+		loaders.put(CustomLoader.class, loader);
+		
 	}
 	
 	@Override
@@ -31,10 +35,6 @@ public class BallSimulator extends Game {
 	@Override
 	protected void init() {
 		super.init();
-		
-		loader = new CustomLoader();
-		
-		loaders.put(CustomLoader.class, loader);
 		
 		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
 		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
