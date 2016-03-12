@@ -68,6 +68,7 @@ public class MultiplayerGameState extends State implements IController {
 	private EntityPlayer player;
 	private PlayerInventory inventory;
 	
+	// TODO: Fix major update lag somewhere in here... Seems like something on EDT causes spike every so often (not just here)
 	public MultiplayerGameState(ClientNetworkManager networkManager) {
 		super(EState.MULTIPLAYER_GAME);
 		
@@ -89,14 +90,6 @@ public class MultiplayerGameState extends State implements IController {
 	@Override
 	protected void initialize() {
 		super.initialize();
-		
-		pauseScreen = new PauseOverlay();
-		
-		addOverlay(pauseScreen);
-		
-		inventory = new PlayerInventory();
-		
-		addOverlay(inventory);
 		
 		mainCard = new JPanel() {
 
@@ -122,6 +115,14 @@ public class MultiplayerGameState extends State implements IController {
 			}
 			
 		};
+		
+		pauseScreen = new PauseOverlay();
+		
+		addOverlay(pauseScreen);
+		
+		inventory = new PlayerInventory();
+		
+		addOverlay(inventory);
 		
 		EventHandler l = EventHandler.instance();
 		
@@ -205,18 +206,19 @@ public class MultiplayerGameState extends State implements IController {
 			
 			if(!pauseScreen.isActive()) {
 				
-				handleKeyboardInput();// TODO: Doesn't move with keyboard...
+				handleKeyboardInput();
 				handleMouseInput();
 				
 			}
 			
+			world.update();
+			
 			camera.update(player.getX(), player.getY(), world.getWidth(), world.getHeight(), 0, 0, 
 					Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 			
-			player.update();
-			world.update();
-			
 			viewport.update(world, camera);
+			
+			viewport.render();
 			
 		}
 		
@@ -241,17 +243,17 @@ public class MultiplayerGameState extends State implements IController {
 		
 		networkManager.updatePlayerMovement(up, down, right, left);
 		
-//		if(up) {
-//			player.moveUp();
-//		} else if(down) {
-//			player.moveDown();
-//		}
-//		
-//		if(right) {
-//			player.moveRight();
-//		} else if(left) {
-//			player.moveLeft();
-//		}
+		if(up) {
+			player.moveUp();
+		} else if(down) {
+			player.moveDown();
+		}
+		
+		if(right) {
+			player.moveRight();
+		} else if(left) {
+			player.moveLeft();
+		}
 		
 	}
 	
@@ -268,8 +270,6 @@ public class MultiplayerGameState extends State implements IController {
 			mess.addNewLine("You> " + text);
 			
 		}
-		
-		viewport.render();
 		
 		if(networkManager.isConnectedToServer()) {
 			
@@ -295,7 +295,6 @@ public class MultiplayerGameState extends State implements IController {
 				
 			}
 			
-			
 		}
 		
 	}
@@ -313,9 +312,7 @@ public class MultiplayerGameState extends State implements IController {
 		
 		case "Main Menu":
 			
-//			networkManager.requestDisconnect();
-			
-			sm.requestStateChange(EState.MENU);
+			networkManager.requestDisconnect();// Calls onDisconnect() -> goes to main menu.
 			
 			break;
 		}
@@ -397,7 +394,7 @@ public class MultiplayerGameState extends State implements IController {
 			
 		}
 		
-		sm.requestStateChange(EState.MENU);//TODO: or could show a sreen telling the client some debug info.
+		sm.requestStateChange(EState.MENU);
 		
 	}
 	

@@ -42,6 +42,7 @@ public class ClientDatagramManager {
 	
 	public void stop() {
 		socket.close();
+		socket = null;
 	}
 	
 	private void handlePacketData(byte[] data) {
@@ -62,6 +63,7 @@ public class ClientDatagramManager {
 			
 //			EntityMovingBase entityToMove = (EntityMovingBase) world.getEntityByName(moveReply.getUsername());
 			
+			/**/
 			player.setX(moveReply.getX());
 			player.setY(moveReply.getY());
 			
@@ -71,7 +73,7 @@ public class ClientDatagramManager {
 			player.setAx(moveReply.getAx());
 			player.setAy(moveReply.getAy());
 			
-			player.updateHitbox();
+			player.updateHitbox();/**/
 			
 			break;
 		
@@ -116,9 +118,9 @@ public class ClientDatagramManager {
 		@Override
 		public void run() {
 			
-			while(networkManager.isConnectedToServer()) {
+			try {
 				
-				try {
+				while(networkManager.isConnectedToServer()) {
 					
 					byte[] dataBuffer = new byte[Packet.BUFFER_SIZE];
 					
@@ -128,11 +130,11 @@ public class ClientDatagramManager {
 					
 					handlePacketData(dataBuffer);
 					
-				} catch(Exception ex) {
-					Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't receive packet from server or "
-							+ "socket was closed.");
 				}
 				
+			} catch(Exception ex) {
+				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't receive packet from server or "
+						+ "socket was closed.");
 			}
 			
 		}

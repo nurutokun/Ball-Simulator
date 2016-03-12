@@ -121,7 +121,6 @@ public class WindowManager {
 		frame.setTitle(BallSimulator.NAME);
 		frame.setPreferredSize(new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));// Is okay?
 		frame.addWindowListener(EventHandler.instance());
-//		frame.setIconImage(server.getGame().getIcon());// TODO: Get the icon working for the server.
 		
 		basePanel = new JPanel();
 		basePanel.setBackground(Color.WHITE);
@@ -256,6 +255,18 @@ public class WindowManager {
 				consoleOutput.setText(consoleOutput.getText() + debugText);
 			}
 			
+		});
+		
+	}
+	
+	public void setIcon(final int location) {
+		
+		Util.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				frame.setIconImage(ResourceManager.getTexture(location));
+				frame.revalidate();
+			}
 		});
 		
 	}

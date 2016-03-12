@@ -70,18 +70,20 @@ public class ClientNetworkManager {
 		
 		setLoggedIn(false);
 		
-		client.onDisconnect();
-		
 	}
 	
 	public void requestDisconnect() {
 		
-		if(isConnectedToServer()) {
+		if(isLoggedIn()) {// isConnected
 			
 			datagramManager.stop();
 			connectionManager.disconnect();
 			
 		}
+		
+		connectionState = ConnectionState.DISCONNECTED;
+		
+		client.onDisconnect();
 		
 	}
 	

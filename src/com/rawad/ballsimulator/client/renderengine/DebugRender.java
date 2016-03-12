@@ -52,10 +52,10 @@ public class DebugRender extends LayeredRender {
 		drawLines(g, 0, 0,
 				DisplayManager.getDisplayWidth() + ", " + DisplayManager.getDisplayHeight() + " | "
 						+ GameManager.instance().getFPS() + " | " + GameManager.instance().getDeltaTime(),
-						Mouse.getX(true) + ", " + Mouse.getY(true),
-						Runtime.getRuntime().freeMemory() + "",
-						(camera == null? "":"CamScale: " + camera.getXScale() + ", " + camera.getYScale()),
-						(camera == null? "":"Cam (x,y): (" + camera.getX() + ", " + camera.getY() + ")"));
+				Mouse.getX(true) + ", " + Mouse.getY(true),
+				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory",
+				(camera == null? "":"CamScale: " + camera.getXScale() + ", " + camera.getYScale()),
+				(camera == null? "":"Cam (x,y): (" + camera.getX() + ", " + camera.getY() + ")"));
 		
 		g.setColor(Color.GREEN);
 		g.fillOval(screenWidth - 50, screenHeight - 50, 50, 50);

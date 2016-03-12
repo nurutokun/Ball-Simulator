@@ -2,8 +2,10 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -45,7 +47,7 @@ public class WorldEditorState extends State implements IController {
 	private World world;
 	private Camera camera;
 	
-	private TerrainComponent comp;// TODO: Fix comp getting (0,0) after unpause.
+	private TerrainComponent comp;
 	private TerrainComponent intersectedComp;
 	
 	private CustomLoader loader;
@@ -112,7 +114,7 @@ public class WorldEditorState extends State implements IController {
 		mainCard = new JPanel() {
 			
 			/**
-			 * 
+			 * Generated serial version UID.
 			 */
 			private static final long serialVersionUID = 3532511606383035732L;
 			
@@ -161,16 +163,32 @@ public class WorldEditorState extends State implements IController {
 		input.put(KeyStroke.getKeyStroke("ESCAPE"), pauseScreen.getId());
 		action.put(pauseScreen.getId(), pauseScreen.getActiveChanger());
 		
+		input.put(KeyStroke.getKeyStroke("C"), "changeMouseClamp");
+		action.put("changeMouseClamp", new AbstractAction() {
+			
+			/**
+			 * Generated serial version UID.
+			 */
+			private static final long serialVersionUID = 2497895133162069591L;
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				if(Mouse.isClamped()) {
+					Mouse.unclamp();
+				} else {
+					Mouse.clamp(Game.SCREEN_WIDTH/2, Game.SCREEN_HEIGHT/2);
+				}
+				
+			}
+			
+		});
+		
 		pauseScreen.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), 
 				pauseScreen.getId());
 		pauseScreen.getActionMap().put(pauseScreen.getId(), pauseScreen.getActiveChanger());
 		
 		container.add(mainCard, "Main Card");
-		
-	}
-	
-	@Override
-	public void update() {
 		
 	}
 	
@@ -215,7 +233,7 @@ public class WorldEditorState extends State implements IController {
 		
 		if(pauseScreen.isActive()) {
 			
-			Mouse.setClamped(false, 0, 0);
+			Mouse.unclamp();
 			
 			pauseScreen.setBackground(viewport.getMasterRender().getBuffer());
 			
@@ -261,18 +279,12 @@ public class WorldEditorState extends State implements IController {
 	
 	private void moveView() {
 		
-		boolean clampMouse = KeyboardInput.isKeyDown(KeyEvent.VK_C);
-		
-		if(clampMouse) {
-			Mouse.setClamped(!Mouse.isClamped(), Game.SCREEN_WIDTH/2, Game.SCREEN_HEIGHT/2);
-		}
-		
 		double mouseX = Mouse.getX(true) / camera.getXScale();// Ensures clamping is done first.
 		double mouseY = Mouse.getY(true) / camera.getYScale();
 		
 		if(Mouse.isClamped()) {
 			
-			updatePosition(mouseX, mouseY);// Should x/y be scaled to move based on zoom?
+			updatePosition(mouseX * camera.getXScale(), mouseY * camera.getYScale());
 			
 			mouseX = Mouse.getClampX() / camera.getXScale();
 			mouseY = Mouse.getClampY() / camera.getYScale();
@@ -288,7 +300,7 @@ public class WorldEditorState extends State implements IController {
 			
 			KeyboardInput.setConsumeAfterRequest(true);
 			
-			updatePosition(right? 5:left? -5:0, up? -5:down? 5:0);
+			updatePosition((right? 5:left? -5:0) * camera.getXScale(), (up? -5:down? 5:0) * camera.getYScale());
 			
 		}
 		

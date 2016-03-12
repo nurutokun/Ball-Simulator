@@ -2,12 +2,15 @@ package com.rawad.ballsimulator.networking.server;
 
 import java.util.ArrayList;
 
+import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.networking.server.main.WindowManager;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.Proxy;
 import com.rawad.gamehelpers.input.Mouse;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class Server extends Proxy {
 	
@@ -45,7 +48,29 @@ public class Server extends Proxy {
 		
 		viewportController.initGUI();
 		
+		game.registerTextures();
+		EntityPlayer.registerTextures(game.getLoader(CustomLoader.class));
+		
+		ResourceManager.getTextureObject(game.getIconLocation()).setOnloadAction(new Runnable() {
+			
+			@Override
+			public void run() {
+				WindowManager.instance().setIcon(game.getIconLocation());
+			}
+			
+		});
+		
 		WindowManager.instance().initialize(this);
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				ResourceManager.loadAllTextures();
+			}
+			
+		}, "Loader").start();
 		
 	}
 	

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import com.rawad.ballsimulator.entity.Entity;
 import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
-import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
 import com.rawad.ballsimulator.world.World;
 
 public class WorldMP extends World {
@@ -14,6 +13,9 @@ public class WorldMP extends World {
 	
 	private ArrayList<EntityPlayerMP> players;
 	
+	private int ticksPerUpdate;
+	private int tickCount;
+	
 	public WorldMP(Server server) {
 		super();
 		
@@ -21,19 +23,27 @@ public class WorldMP extends World {
 		
 		players = new ArrayList<EntityPlayerMP>();
 		
+		ticksPerUpdate = 20;// Update client view every 20 ticks
+		tickCount = 0;
+		
 	}
 	
 	@Override
 	public synchronized void update() {
 		super.update();
 		
-		for(EntityPlayerMP player: players) {
+		tickCount++;
+		
+		if(tickCount >= ticksPerUpdate) {
 			
-			// TODO: do an "isMoved()" check right here for efficiency.
-			SPacket02Move move = new SPacket02Move(player.getName(), player.getX(), player.getY(), player.getVx(), 
-					player.getVy(), player.getAx(), player.getAy());
+			/**/
+			for(EntityPlayerMP player: players) {
+				
+				server.getNetworkManager().getDatagramManager().sendMoveUpdate(player);
+				
+			}/**/
 			
-			server.getNetworkManager().getDatagramManager().sendPacketToAllClients(move);
+			tickCount = 0;
 			
 		}
 		

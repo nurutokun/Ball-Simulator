@@ -44,13 +44,18 @@ public class ClientConnectionManager {
 			
 			this.serverAddress = address;
 			
-			networkManager.setConnectionState(ConnectionState.CONNECTING);// Sometimes, previous thread doesn't stop fast enough, causing
-			// the multiplayer game state to go back to the main menu, thinking that it disconnected or something.
+			networkManager.setConnectionState(ConnectionState.CONNECTING);// Sometimes, previous thread doesn't stop fast
+			// enough, causing the multiplayer game state to go back to the main menu, thinking that it disconnected or
+			// something.
 			
 			try {// Initializing socket here fixes problem with player being logged in server-side only because of exiting 
 				// multiplayer too quickly
 				
 				socket = new Socket(address, port);
+				
+				if(networkManager.isDisconnectedFromServer()) {// If a disconnect was requested in the mean time
+					throw new Exception("Disconnect requested");
+				}
 				
 				networkManager.setConnectionState(ConnectionState.CONNECTED);
 				networkManager.onConnect();
@@ -63,9 +68,7 @@ public class ClientConnectionManager {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't connect to \"" + address 
 						+ "\", on the port " + port);
 				
-				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
-				
-				networkManager.onDisconnect();
+				networkManager.requestDisconnect();
 				
 				return;
 			}
@@ -76,16 +79,14 @@ public class ClientConnectionManager {
 	
 	public synchronized void disconnect() {
 		
-		CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(), 
-				socket.getInetAddress().getHostAddress());
-		
-		sendPacketToServer(logoutPacket);
-		
 		try {
 			
-			socket.close();
+			CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(), 
+					socket.getInetAddress().getHostAddress());
 			
-			networkManager.onDisconnect();
+			sendPacketToServer(logoutPacket);
+			
+			socket.close();
 			
 		} catch (Exception ex) {
 			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; couldn't close client socket.");
@@ -111,9 +112,9 @@ public class ClientConnectionManager {
 			if(!loginReplyPacket.canLogin() && mainClientPlayer.getName().equals(loginReplyPacket.getUsername())) {
 				Logger.log(Logger.DEBUG, "Login denied by server.");
 				networkManager.requestDisconnect();
-				networkManager.setConnectionState(ConnectionState.DISCONNECTED);
 				
 				break;
+				
 			}
 			
 			EntityPlayer player = mainClientPlayer;
@@ -153,7 +154,7 @@ public class ClientConnectionManager {
 			if(mainPlayer.getName().equals(logoutPacket.getUsername())) {
 				networkManager.setLoggedIn(false);
 				
-				networkManager.onDisconnect();
+				networkManager.requestDisconnect();
 				
 			} else {
 				
@@ -228,7 +229,7 @@ public class ClientConnectionManager {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client lost connection to server or"
 						+ " socket was closed by other means.");
 				
-				networkManager.onDisconnect();
+				networkManager.requestDisconnect();
 				
 			}
 			

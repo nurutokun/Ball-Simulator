@@ -11,8 +11,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
+import com.jgoodies.forms.layout.RowSpec;
 import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Viewport;
+import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -40,6 +45,8 @@ public class GameState extends State implements IController {
 	
 	private EntityPlayer player;
 	private PlayerInventory inventory;
+	
+	private Messenger mess;
 	
 	private boolean showEntireWorld;
 	private boolean paused;
@@ -102,6 +109,18 @@ public class GameState extends State implements IController {
 		mainCard.addMouseMotionListener(l);
 		mainCard.addMouseWheelListener(l);
 		mainCard.addComponentListener(l);
+
+		mainCard.setLayout(new FormLayout(new ColumnSpec[] {
+				FormSpecs.PREF_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("center:pref:grow"),},
+			new RowSpec[] {
+				RowSpec.decode("pref:grow"),
+				FormSpecs.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("fill:pref"),}));
+		
+		mess = new Messenger();
+		mainCard.add(mess, "1, 3, fill, fill");
 		
 		container.add(mainCard, "Main Card");
 		
@@ -143,12 +162,52 @@ public class GameState extends State implements IController {
 			
 		});
 		
+		input.put(KeyStroke.getKeyStroke("L"), "changePerspective");
+		action.put("changePerspective", new AbstractAction() {
+			
+			/**
+			 * Generated serial version UID.
+			 */
+			private static final long serialVersionUID = -1379042438428565494L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showEntireWorld = !showEntireWorld;
+			}
+			
+		});
+		
+		input.put(KeyStroke.getKeyStroke("ENTER"), "enterMess");
+		input.put(KeyStroke.getKeyStroke("released T"), "enterMess");// Released so that "T" isn't typed.
+		
+		action.put("enterMess", new AbstractAction() {
+			
+			/**
+			 * Generated serial version UID.
+			 */
+			private static final long serialVersionUID = 5131682721309115959L;
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mess.requestFocusInWindow();
+			}
+			
+		});
+		
 	}
 	
 	@Override
-	public void update() {
-		super.update();
+	protected void update() {
+		super.update();	
+
+		String text = mess.getText();
 		
+		if(!"".equals(text)) {
+			
+			mess.addNewLine("You> " + text);
+			
+		}
+			
 	}
 	
 	@Override
@@ -269,10 +328,6 @@ public class GameState extends State implements IController {
 		
 		handleCameraRotation(KeyboardInput.isKeyDown(KeyEvent.VK_C), KeyboardInput.isKeyDown(KeyEvent.VK_Z), 
 				KeyboardInput.isKeyDown(KeyEvent.VK_X));
-		
-		if(KeyboardInput.isKeyDown(KeyEvent.VK_L)) {
-			showEntireWorld = !showEntireWorld;
-		}
 		
 	}
 	

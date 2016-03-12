@@ -63,7 +63,7 @@ public class Client extends Proxy {
 	@Override
 	public void initGUI() {
 		
-		DisplayManager.init();
+		DisplayManager.init(game.toString());
 		
 		SuperContainer container = DisplayManager.getContainer();
 		
@@ -116,15 +116,10 @@ public class Client extends Proxy {
 				
 				ResourceManager.loadAllTextures();
 				
-				game.setBackground(Background.instance());
-				
 				Util.invokeLater(new Runnable() {
 					
 					@Override
 					public void run() {
-						
-						DisplayManager.getDisplayMode().getDisplayMode().setIcon(ResourceManager.getTextureObject(
-								game.getIconLocation()).getTexture());
 						
 						sm.initialize();
 						
@@ -138,7 +133,7 @@ public class Client extends Proxy {
 			
 		});
 		
-		DisplayManager.showDisplayMode(DisplayManager.Mode.WINDOWED, game);
+		DisplayManager.showDisplayMode(DisplayManager.Mode.WINDOWED);
 		
 		sm.showLoadingScreen();
 		
@@ -205,10 +200,20 @@ public class Client extends Proxy {
 		
 		game.registerTextures();
 		
+		ResourceManager.getTextureObject(game.getIconLocation()).setOnloadAction(new Runnable() {
+			
+			@Override
+			public void run() {
+				DisplayManager.setIcon(ResourceManager.getTexture(game.getIconLocation()));
+			}
+			
+		});
+		
+		Background.registerTextures(ghLoader, game);
+		
 		Button.registerTextures(ghLoader);
 		DropDown.registerTextures(ghLoader);
 		TextLabel.registerTextures(ghLoader);
-		Background.registerTextures(ghLoader);
 		
 		EntityPlayer.registerTextures(loader);
 		ItemSlot.registerTextures(loader);
@@ -243,9 +248,9 @@ public class Client extends Proxy {
 	@Override
 	public void tick() {
 		
-		if(getController() != null) {
-			
-			IController controller = getController();
+		IController controller = getController();
+		
+		if(controller != null) {
 			
 			controller.tick();
 			

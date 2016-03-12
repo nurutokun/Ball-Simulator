@@ -35,6 +35,7 @@ public class ServerConnectionManager {
 	
 	private Thread connectionAcceptor;
 	
+	// TODO: Prevent clients from connecting before rest of server is initialized (e.g. world)
 	public ServerConnectionManager(ServerNetworkManager networkManager) {
 		this.networkManager = networkManager;
 		
@@ -123,7 +124,10 @@ public class ServerConnectionManager {
 			
 			if(canLogin) {
 				
-				getClientInputManager(client).setName(username);
+				ClientInputManager cim = getClientInputManager(client);
+				
+				cim.setName(username);
+				cim.setLoggedIn(true);
 				
 				// Inform all current players of this new player's login.
 				sendPacketToAllClients(null, serverLoginResponsePacket);
@@ -157,7 +161,7 @@ public class ServerConnectionManager {
 			
 			CPacket02Logout logoutPacket = new CPacket02Logout(data);
 			
-			getClientInputManager(client).setDisconnectedByPacket(true);
+			getClientInputManager(client).setLoggedIn(false);
 			
 			username = logoutPacket.getUsername();
 			
@@ -332,12 +336,11 @@ public class ServerConnectionManager {
 		
 		private String clientName;
 		
-		private boolean disconnectedByPacket;
+		private boolean loggedIn;
 		
 		public ClientInputManager(Socket client) {
 			this.client = client;
 			
-			disconnectedByPacket = false;
 		}
 		
 		@Override
@@ -362,12 +365,9 @@ public class ServerConnectionManager {
 						.getHostName() + " disconnected.");
 			}
 			
-			// Ensure client is disconnected in case of an unexpected disconnect?
-//			disconnectClient(client, client.getInetAddress().getHostAddress(), server.getWorld());
-			
-			if(!disconnectedByPacket) {
-				CPacket02Logout ensureLogout = new CPacket02Logout(clientName, 
-						client.getInetAddress().getHostAddress());
+			if(loggedIn) {// Mainly for when client closes game while still connecting (TCP is connected but not logged in yet)
+				
+				CPacket02Logout ensureLogout = new CPacket02Logout(clientName, client.getInetAddress().getHostAddress());
 				
 				handleClientInput(client, ensureLogout.getDataAsString());
 				
@@ -383,8 +383,8 @@ public class ServerConnectionManager {
 			this.clientName = clientName;
 		}
 		
-		public void setDisconnectedByPacket(boolean disconnectedByPacket) {
-			this.disconnectedByPacket = disconnectedByPacket;
+		public void setLoggedIn(boolean loggedIn) {
+			this.loggedIn = loggedIn;
 		}
 		
 	}

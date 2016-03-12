@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
+import com.rawad.ballsimulator.entity.EntityMovingBase;
 import com.rawad.ballsimulator.networking.Packet;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
@@ -66,13 +67,12 @@ public class ServerDatagramManager {
 			
 			handleMoveRequest(moveRequest, player);
 			
-			SPacket02Move moveReply = new SPacket02Move(moveRequest.getUsername(), player.getX(), player.getY(), 
-					player.getVx(), player.getVy(), player.getAx(), player.getAy());
-			
-			sendPacketToAllClients(moveReply);
+//			SPacket02Move moveReply = new SPacket02Move(moveRequest.getUsername(), player.getX(), player.getY(), 
+//					player.getVx(), player.getVy(), player.getAx(), player.getAy());
+//			sendPacketToAllClients(moveReply);// Doesn't really make sense here unless we want every player to interpolate pos.
 			
 			break;
-		
+			
 		case INVALID:
 		default:
 			Logger.log(Logger.WARNING, "Invalid packet: \"" + data + "\".");
@@ -94,6 +94,13 @@ public class ServerDatagramManager {
 		} else if(moveRequest.isLeft()) {
 			playerToMove.moveLeft();
 		}
+		
+	}
+	
+	public void sendMoveUpdate(EntityMovingBase entity) {
+		
+		sendPacketToAllClients(new SPacket02Move(entity.getName(), entity.getX(), entity.getY(), entity.getVx(), 
+				entity.getVy(), entity.getAx(), entity.getAy()));
 		
 	}
 	

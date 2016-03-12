@@ -9,7 +9,7 @@ import com.rawad.ballsimulator.world.World;
 public abstract class EntityMovingBase extends EntityLivingBase {
 	
 	// Make all of these relative to single game tick (~200 ms)
-	private static final double JERK = 0.9d;// 0.1d
+	private static final double JERK = 0.7d;// 0.1d
 	
 	private static final double MAX_ACCEL = JERK * 2;// 2.0d
 	private static final double MIN_ACCEL = 0.1d;// 0.01d
@@ -77,20 +77,25 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 		
 		if(newX - width <= 0) {
 			ax /= 2;
-			vx = -vx/2;
+			vx = -vx*3/4;
 			
 			newX = width;
+			
 		} else if(newX + width >= world.getWidth()) {
 			ax /= 2;
 			vx = -vx*3/4;
 			
 			newX = world.getWidth() - width;
+			
 		}
 		
 		if(world.mapCollision(tempHitbox)) {
+			
 			vx = -vx*3/4;
+			x += vx;
 			
 			newX = x;
+			
 		}
 		// end X-Component
 		
@@ -107,11 +112,15 @@ public abstract class EntityMovingBase extends EntityLivingBase {
 			vy = -vy*3/4;
 			
 			newY = world.getHeight() - height;
+			
 		}
 		
 		if(world.mapCollision(tempHitbox)) {
+			
+			vy = -vy*3/4;
+			y += vy;
+			
 			newY = y;
-			vy = -vy/2;
 		}
 		// end Y-Component
 		
