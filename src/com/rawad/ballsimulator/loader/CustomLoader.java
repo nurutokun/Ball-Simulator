@@ -1,11 +1,13 @@
 package com.rawad.ballsimulator.loader;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.main.BallSimulator;
 import com.rawad.ballsimulator.world.terrain.Terrain;
+import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.Loader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
@@ -29,7 +31,12 @@ public class CustomLoader extends Loader {
 		
 		BufferedReader reader = readFile(MISC_FOLDER, settingsFile);
 		
-		parser.parseFile(reader);
+		try {
+			parser.parseFile(reader);
+		} catch(IOException ex) {
+			Logger.log(Logger.WARNING, "Couldn't parse settings file.");
+			ex.printStackTrace();
+		}
 		
 	}
 	
@@ -43,7 +50,12 @@ public class CustomLoader extends Loader {
 		
 		BufferedReader reader = readFile(TERRAIN_FOLDER, terrainName);
 		
-		parser.parseFile(reader);
+		try {
+			parser.parseFile(reader);
+		} catch(IOException ex) {
+			Logger.log(Logger.WARNING, "Couldn't parse terrain file.");
+			ex.printStackTrace();
+		}
 		
 		return parser.getTerrain();
 		

@@ -263,7 +263,7 @@ public class MultiplayerGameState extends State implements IController {
 		
 		String text = mess.getText();
 		
-		if(!"".equals(text)) {
+		if(!text.isEmpty()) {//if(!"".equals(text)) {
 			
 			networkManager.getConnectionManager().sendPacketToServer(new CPacket03Message(player.getName(), text));
 			

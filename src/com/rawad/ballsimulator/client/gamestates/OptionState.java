@@ -24,7 +24,6 @@ import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.gui.Button;
 import com.rawad.gamehelpers.gui.DropDown;
 import com.rawad.gamehelpers.renderengine.BackgroundRender;
-import com.rawad.gamehelpers.utils.Util;
 
 public class OptionState extends State {
 	
@@ -176,7 +175,7 @@ public class OptionState extends State {
 		
 		loader.loadSettings(settings, game.getSettingsFileName());
 		
-		Util.setTextSafely(ipHolder, settings.getIp());
+		ipHolder.setText(settings.getIp());
 		
 		show("Main Card");
 		

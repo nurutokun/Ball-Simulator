@@ -74,7 +74,7 @@ public class ClientNetworkManager {
 	
 	public void requestDisconnect() {
 		
-		if(isLoggedIn()) {// isConnected
+		if(isConnectedToServer()) {// TODO: (ClientNetworkManager) isLoggedIn() <-- Why no work w/ is logged in?
 			
 			datagramManager.stop();
 			connectionManager.disconnect();

@@ -2,6 +2,8 @@ package com.rawad.ballsimulator.fileparser;
 
 import java.util.Set;
 
+import com.rawad.gamehelpers.display.DisplayManager;
+import com.rawad.gamehelpers.display.Fullscreen;
 import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -14,6 +16,10 @@ public class SettingsFileParser extends FileParser {
 	
 	public SettingsFileParser() {
 		super();
+		
+		data.put(KEY_IP, "localhost");// Just so there's some default value... Could also be done in start() method.
+		data.put(KEY_RES, DisplayManager.toResolution(Fullscreen.DEFAULT_FULLSCREEN_WIDTH, 
+				Fullscreen.DEFAULT_FULLSCREEN_HEIGHT));
 		
 	}
 	

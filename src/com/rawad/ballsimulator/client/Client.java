@@ -29,6 +29,7 @@ import com.rawad.gamehelpers.display.SuperContainer;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.IController;
 import com.rawad.gamehelpers.game.Proxy;
+import com.rawad.gamehelpers.gamestates.LoadingState;
 import com.rawad.gamehelpers.gamestates.StateManager;
 import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.gui.Button;
@@ -38,7 +39,6 @@ import com.rawad.gamehelpers.input.Mouse;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
-import com.rawad.gamehelpers.utils.Util;
 
 // TODO: Could make the whole "rotating base", "moving base", etc. just a bunch of interfaces; for the player that 
 // is. Could also make it component based (one entity class and just add the different components you want it to 
@@ -48,13 +48,15 @@ public class Client extends Proxy {
 	// 17:00, episode 427
 	// MRN 150, 9:30 and at 11 am, Sept. 8
 	
-	private static final String DEFAULT_FONT = "Xenotron";
+	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
 	private Game game;
 	
 	private StateManager sm;
 	
 	private ClientNetworkManager networkManager;
+	
+	private LoadingState loadingState;
 	
 	public Client() {
 		
@@ -107,35 +109,9 @@ public class Client extends Proxy {
 		
 		setLookAndFeel();
 		
-		sm.initializeLoadingScreen(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				initResources();
-				
-				ResourceManager.loadAllTextures();
-				
-				Util.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						
-						sm.initialize();
-						
-						sm.requestStateChange(EState.MENU);
-						
-					}
-					
-				});
-				
-			}
-			
-		});
+		sm.requestStateChange(LoadingState.class);
 		
 		DisplayManager.showDisplayMode(DisplayManager.Mode.WINDOWED);
-		
-		sm.showLoadingScreen();
 		
 	}
 	
@@ -237,6 +213,22 @@ public class Client extends Proxy {
 		
 		sm = new StateManager(game);
 		
+		loadingState = new LoadingState(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				initResources();
+				
+				ResourceManager.loadAllTextures();
+				
+				sm.requestStateChange(EState.MENU);
+				
+			}
+			
+		});
+		
+		sm.addState(loadingState);
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
 		sm.addState(new OptionState());
