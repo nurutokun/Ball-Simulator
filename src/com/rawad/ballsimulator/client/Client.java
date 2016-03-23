@@ -154,8 +154,8 @@ public class Client extends Proxy {
 		GameHelpersLoader gameHelpersLoader = game.getLoader(GameHelpersLoader.class);
 		
 		try {
-			Font f = Font.createFont(Font.PLAIN, gameHelpersLoader.loadFontFile(DEFAULT_FONT))
-					.deriveFont(12f);
+			
+			Font f = Font.createFont(Font.PLAIN, gameHelpersLoader.loadFontFile(DEFAULT_FONT)).deriveFont(13f);
 			
 			LookAndFeel laf = UIManager.getLookAndFeel();
 			laf.getDefaults().put("defaultFont", f);
