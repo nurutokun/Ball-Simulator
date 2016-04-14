@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory?>
+
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<fx:root type="PlayerInventory" xmlns:fx="http://javafx.com/javafx" >
+	
+	<visible>false</visible>
+	
+	<columnConstraints>
+		<ColumnConstraints hgrow="ALWAYS"/>
+		<ColumnConstraints hgrow="ALWAYS"/>
+	</columnConstraints>
+	
+	<rowConstraints>
+		<RowConstraints vgrow="ALWAYS" />
+		<RowConstraints vgrow="ALWAYS" />
+	</rowConstraints>
+	
+</fx:root>

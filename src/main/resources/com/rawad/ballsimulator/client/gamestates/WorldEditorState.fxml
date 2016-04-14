@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.rawad.gamehelpers.gui.PauseScreen?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<fx:root type="StackPane" xmlns:fx="http://javafx.com/fxml" >
+	<children>
+		<HBox alignment="TOP_RIGHT">
+			<children>
+			 	<ComboBox fx:id="widthSelector" promptText="Width" visibleRowCount="5" />
+				<ComboBox fx:id="heightSelector" promptText="Height" visibleRowCount="5" />
+			</children>
+		</HBox>
+		
+		<PauseScreen fx:id="pauseScreen" />
+		
+	</children>
+</fx:root>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.rawad.ballsimulator.client.gui.Messenger?>
+
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+
+<fx:root type="Messenger" xmlns:fx="http://javafx.com/fxml">
+	
+	<center>
+		<TextArea fx:id="outputArea" prefColumnCount="0" prefRowCount="0" editable="false" wrapText="true" >
+			<focusTraversable>false</focusTraversable>
+		</TextArea>
+	</center>
+	
+	<bottom>
+		<TextField fx:id="inputArea" prefColumnCount="0" promptText="Enter Message..." >
+			<visible>false</visible>
+		</TextField>
+	</bottom>
+	
+</fx:root>

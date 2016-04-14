@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.rawad.ballsimulator.client.gui.Messenger?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+
+<fx:root type="StackPane" xmlns:fx="http://javafx.com/fxml" >
+	
+	<children>
+		<Label fx:id="lblConnectingMessage" text="Connecting..." />
+			
+		<GridPane>
+			
+			<columnConstraints>
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+			</columnConstraints>
+			
+			<rowConstraints>
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+			</rowConstraints>
+			
+			<children>
+				<Messenger fx:id="mess" GridPane.rowIndex="2" >
+					<visible>false</visible>
+				</Messenger>
+			</children>
+			
+		</GridPane>
+	
+	</children>
+	
+</fx:root>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.rawad.ballsimulator.client.gui.Messenger?>
+<?import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory?>
+<?import com.rawad.gamehelpers.gui.PauseScreen?>
+
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+
+<fx:root type="StackPane" xmlns:fx="http://javafx.com/fxml" >
+	
+	<children>
+		
+		<GridPane>
+			
+			<columnConstraints>
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+			</columnConstraints>
+			
+			<rowConstraints>
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+			</rowConstraints>
+			
+			<children>
+				<Messenger fx:id="mess" GridPane.rowIndex="2" />
+			</children>
+			
+		</GridPane>
+		
+		<PauseScreen fx:id="pauseScreen" />
+		
+		<PlayerInventory fx:id="inventory" />
+		
+	</children>
+	
+</fx:root>
