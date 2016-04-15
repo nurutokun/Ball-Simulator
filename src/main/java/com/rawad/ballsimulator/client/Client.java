@@ -106,8 +106,6 @@ public class Client extends AClient {
 			
 		});
 		
-		stage.show();
-		
 	}
 	
 	private void loadFont() {
@@ -182,6 +180,8 @@ public class Client extends AClient {
 			Scene scene = new Scene(loadingState.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 			
 			stage.setScene(scene);
+			
+			stage.show();
 			
 			sm.requestStateChange(LoadingState.class);
 			

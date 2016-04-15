@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
   <jar>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator.jar</jar>
-  <outfile>C:\Users\Rawad\Desktop\Ball Simulator.exe</outfile>
+  <outfile>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator.exe</outfile>
   <errTitle></errTitle>
   <cmdLine>false</cmdLine>
   <chdir>.</chdir>
@@ -12,7 +12,7 @@
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>C:\Users\Rawad\Desktop\game_icon.ico</icon>
+  <icon>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\res\textures\game_icon.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
