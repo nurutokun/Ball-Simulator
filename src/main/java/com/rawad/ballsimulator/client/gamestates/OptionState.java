@@ -7,6 +7,7 @@ import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.renderengine.BackgroundRender;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -58,9 +59,16 @@ public class OptionState extends State {
 		
 		loader = game.getLoader(CustomLoader.class);
 		
-		loader.loadSettings(settings, game.getSettingsFileName());
-		
-		ipHolder.setText(settings.getIp());
+		sm.getClient().addTask(new Task<Integer>() {
+			protected Integer call() throws Exception {
+				
+				loader.loadSettings(settings, game.getSettingsFileName());
+				ipHolder.setText(settings.getIp());
+				
+				return 0;
+				
+			}
+		});
 		
 	}
 	

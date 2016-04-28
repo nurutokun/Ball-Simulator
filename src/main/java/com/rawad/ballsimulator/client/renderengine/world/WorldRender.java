@@ -40,9 +40,9 @@ public class WorldRender extends LayeredRender {
 		
 		Affine af = g.getTransform();
 		
-		g.scale(camera.getXScale(), camera.getYScale());
+		g.scale(camera.getScaleX(), camera.getScaleY());
 		
-		g.rotate(camera.getTheta());
+		g.rotate(camera.getRotation());
 		
 		g.translate(-camera.getX(), -camera.getY());
 		

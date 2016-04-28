@@ -1,2 +1,2 @@
-fullscreenResolution=1360x768
+fullscreenResolution=640x320
 ip=localhost

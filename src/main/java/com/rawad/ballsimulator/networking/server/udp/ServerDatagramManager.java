@@ -1,6 +1,5 @@
 package com.rawad.ballsimulator.networking.server.udp;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -11,10 +10,12 @@ import com.rawad.ballsimulator.entity.EntityMovingBase;
 import com.rawad.ballsimulator.networking.Packet;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
-import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
-import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
+import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.ServerController;
+import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.utils.Util;
 
 /**
  * Handles live-updates for live relaynig of information from server to client and back. 
@@ -43,10 +44,16 @@ public class ServerDatagramManager {
 			socket = new DatagramSocket(Server.PORT);
 		} catch (SocketException ex) {
 			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; couldn't start DatagramSocket.");
+			networkManager.getServer().getGame().requestStop();
+			return;
 		}
 		
 		packetReceiver.start();
 		
+	}
+	
+	public void stop() {
+		Util.silentClose(socket);
 	}
 	
 	private void handlePacket(byte[] data, String address, int port) {
@@ -62,14 +69,10 @@ public class ServerDatagramManager {
 			
 			CPacket02Move moveRequest = new CPacket02Move(data);
 			
-			EntityPlayerMP player = (EntityPlayerMP) networkManager.getServer().getController().getWorld()
+			EntityPlayerMP player = (EntityPlayerMP) networkManager.getServer().<ServerController>getController().getWorld()
 					.getEntityByName(moveRequest.getUsername());
 			
 			handleMoveRequest(moveRequest, player);
-			
-//			SPacket02Move moveReply = new SPacket02Move(moveRequest.getUsername(), player.getX(), player.getY(), 
-//					player.getVx(), player.getVy(), player.getAx(), player.getAy());
-//			sendPacketToAllClients(moveReply);// Doesn't really make sense here unless we want every player to interpolate pos.
 			
 			break;
 			
@@ -83,17 +86,10 @@ public class ServerDatagramManager {
 	
 	private void handleMoveRequest(CPacket02Move moveRequest, EntityPlayerMP playerToMove) {
 		
-		if(moveRequest.isUp()) {
-			playerToMove.moveUp();
-		} else if(moveRequest.isDown()) {
-			playerToMove.moveDown();
-		}
-		
-		if(moveRequest.isRight()) {
-			playerToMove.moveRight();
-		} else if(moveRequest.isLeft()) {
-			playerToMove.moveLeft();
-		}
+		playerToMove.setUp(moveRequest.isUp());
+		playerToMove.setDown(moveRequest.isDown());
+		playerToMove.setRight(moveRequest.isRight());
+		playerToMove.setLeft(moveRequest.isLeft());
 		
 	}
 	
@@ -136,9 +132,9 @@ public class ServerDatagramManager {
 		
 		@Override
 		public void run() {
-			while(networkManager.getServer().getGame().isRunning()) {
+			try {
 				
-				try {
+				while(networkManager.getServer().getGame().isRunning()) {
 					
 					byte[] dataBuffer = new byte[Packet.BUFFER_SIZE];
 					
@@ -148,13 +144,14 @@ public class ServerDatagramManager {
 					
 					handlePacket(packet.getData(), packet.getAddress().getHostAddress(), packet.getPort());
 					
-				} catch (IOException ex) {
-					Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; couldn't read packet.");
 				}
 				
+			} catch(Exception ex) {
+				Logger.log(Logger.WARNING, ex.getMessage() + "; bad packet or client disconnected.");
+//				ex.printStackTrace();
 			}
+			
 		}
-		
 	}
 	
 }

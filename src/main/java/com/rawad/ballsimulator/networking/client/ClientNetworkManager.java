@@ -6,8 +6,7 @@ import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
 import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
-import com.rawad.ballsimulator.networking.server.Server;
-import com.rawad.gamehelpers.utils.Util;
+import com.rawad.ballsimulator.server.Server;
 
 public class ClientNetworkManager {
 	
@@ -22,11 +21,6 @@ public class ClientNetworkManager {
 	private ConnectionState connectionState;
 	
 	/**
-	 * All the messages sent back and forth between clients.
-	 */
-	private String messages;
-	
-	/**
 	 * Hopefully temporary.
 	 */
 	private boolean loggedIn;
@@ -37,8 +31,6 @@ public class ClientNetworkManager {
 		datagramManager = new ClientDatagramManager(this);
 		
 		connectionState = ConnectionState.NOT_CONNECTED;
-		
-		messages = "";
 		
 	}
 	
@@ -76,7 +68,7 @@ public class ClientNetworkManager {
 	
 	public void requestDisconnect() {
 		
-		if(isConnectedToServer()) {// TODO: (ClientNetworkManager) isLoggedIn() <-- Why no work w/ is logged in?
+		if(isConnectedToServer()) {
 			
 			datagramManager.stop();
 			connectionManager.disconnect();
@@ -134,19 +126,7 @@ public class ClientNetworkManager {
 		return loggedIn;
 	}
 	
-	public void addUserMessage(String message) {
-		this.messages += message + Util.NL;
-	}
-	
-	public String getMessages() {
-		String temp = this.messages;
-		
-		this.messages = "";
-		
-		return temp;
-	}
-	
-	public void setController(MultiplayerGameState client) {
+	public void setClient(MultiplayerGameState client) {
 		this.client = client;
 	}
 	

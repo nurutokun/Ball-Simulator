@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.rawad.ballsimulator.client.gui.Messenger?>
+<?import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory?>
+<?import com.rawad.gamehelpers.gui.PauseScreen?>
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -34,7 +36,11 @@
 			</children>
 			
 		</GridPane>
-	
+				
+		<PlayerInventory fx:id="inventory" />
+		
+		<PauseScreen fx:id="pauseScreen" />
+		
 	</children>
 	
 </fx:root>

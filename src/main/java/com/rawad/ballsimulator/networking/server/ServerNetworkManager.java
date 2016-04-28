@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.networking.server;
 
 import com.rawad.ballsimulator.networking.server.tcp.ServerConnectionManager;
 import com.rawad.ballsimulator.networking.server.udp.ServerDatagramManager;
+import com.rawad.ballsimulator.server.Server;
 
 
 public class ServerNetworkManager {
@@ -24,6 +25,13 @@ public class ServerNetworkManager {
 		
 		connectionManager.start();
 		datagramManager.start();
+		
+	}
+	
+	public void stop() {
+		
+		connectionManager.stop();
+		datagramManager.stop();
 		
 	}
 	

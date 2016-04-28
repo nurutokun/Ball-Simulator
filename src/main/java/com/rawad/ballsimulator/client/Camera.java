@@ -1,113 +1,180 @@
 package com.rawad.ballsimulator.client;
 
+import com.rawad.gamehelpers.game.Game;
+
+import javafx.scene.shape.Rectangle;
+
 public class Camera {
 	
-	private double x;
-	private double y;
+	private static final double DEFAULT_MAX_SCALE = 5D;
 	
-	private double xScale;
-	private double yScale;
+	private static final double DEFAULT_MOVEMENT_SPEED = 5D;
 	
-	private double theta;
+	/** Area in which the camera is bound. */
+	private Rectangle outerBounds;
+	
+	/** Position of the camera within <code>outerBounds</code>. */
+	private Rectangle cameraBounds;
+	
+	private double scaleX;
+	private double scaleY;
+	
+	private double maxScaleX;
+	private double maxScaleY;
+	
+	private double movementSpeed;
+	
+	public Camera(Rectangle outerBounds) {
+		
+		this.outerBounds = outerBounds;
+		
+		cameraBounds = new Rectangle(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		
+		scaleX = 1;
+		scaleY = 1;
+		
+		maxScaleX = DEFAULT_MAX_SCALE;
+		maxScaleY = DEFAULT_MAX_SCALE;
+		
+		movementSpeed = DEFAULT_MOVEMENT_SPEED;
+		
+	}
 	
 	public Camera() {
-		
-		x = 0;
-		y = 0;
-		
-		xScale = 1d;
-		yScale = 1d;
-		
-		theta = 0d;
-		
+		this(new Rectangle(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));
 	}
 	
-	public void update(double x, double y, int worldWidth, int worldHeight, 
-			int minX, int minY, int viewWidth, int viewHeight) {
+	/**
+	 * For manually moving the camera around.
+	 * 
+	 * @param up
+	 * @param down
+	 * @param right
+	 * @param left
+	 */
+	public void update(boolean up, boolean down, boolean right, boolean left) {
 		
-		viewWidth /= xScale;
-		viewHeight /= yScale;
+		double dx = 0;
+		double dy = 0;
 		
-		minX /= xScale;
-		minY /= yScale;
-		
-		x -= (viewWidth/2d);
-		y -= (viewHeight/2d);
-		
-		worldWidth -= viewWidth;
-		worldHeight -= viewHeight;
-		
-		setX(x, minX, worldWidth);
-		setY(y, minY, worldHeight);
-		
-	}
-	
-	private void setX(double x, int minX, int worldWidth) {
-		
-		if(x < minX) {
-			x = minX;
-			
-		} else if(x > worldWidth) {
-			x = worldWidth;
-			
+		if(up) {
+			dy = -movementSpeed;
+		} else if(down) {
+			dy = movementSpeed;
 		}
 		
-		this.x = x;
+		if(right) {
+			dx = movementSpeed;
+		} else if(left) {
+			dx = -movementSpeed;
+		}
+		
+		setX(getX() + dx);
+		setY(getY() + dy);
 		
 	}
 	
-	private void setY(double y, int minY, int worldHeight) {
-		
-		if(y < minY) {
-			y = minY;
-			
-		} else if(y > worldHeight) {
-			y = worldHeight;
-			
-		}
-		
-		this.y = y;
-		
+	public void setOuterBounds(Rectangle outerBounds) {
+		this.outerBounds = outerBounds;
 	}
+	
+	public Rectangle getCameraBounds() {
+		return cameraBounds;
+	}
+	
+	/**
+	 * 
+	 * @param delta Angle of rotation in degrees.
+	 */
 	public void increaseRotation(double delta) {
-		theta += delta;
+		setRotation(cameraBounds.getRotate() + delta);
 	}
 	
-	public void setTheta(double theta) {
-		this.theta = theta;
+	public void setRotation(double theta) {
+		cameraBounds.setRotate(theta);
 	}
 	
-	public double getTheta() {
-		return theta;
+	public double getRotation() {
+		return cameraBounds.getRotate();
 	}
 	
-	public void setScale(double xScale, double yScale) {
-		this.xScale = xScale;
-		this.yScale = yScale;
+	public void setScale(double scaleX, double scaleY) {
+		
+		double minScaleX = cameraBounds.getWidth() / outerBounds.getWidth();
+		
+//		System.out.println("cam width: " + cameraBounds.getWidth() + ", outer width: " + outerBounds.getWidth() + ", "
+//				+ "min scale x: " + minScaleX);
+		
+		if(scaleX < minScaleX) {
+			scaleX = minScaleX;
+		} else if(scaleX > maxScaleX) {
+			scaleX = maxScaleX;
+		}
+		
+		double minScaleY = cameraBounds.getHeight() / outerBounds.getHeight();
+		
+		if(scaleY < minScaleY) {
+			scaleY = minScaleY;
+		} else if(scaleY > maxScaleY) {
+			scaleY = maxScaleY;
+		}
+		
+		this.scaleX = scaleX;
+		this.scaleY = scaleY;
 	}
 	
-	public double getXScale() {
-		return xScale;
+	public double getScaleX() {
+		return scaleX;
 	}
 	
-	public double getYScale() {
-		return yScale;
-	}
-	
-	public double getX() {
-		return x;
+	public double getScaleY() {
+		return scaleY;
 	}
 	
 	public void setX(double x) {
-		this.x = x;
+		
+		double minX = outerBounds.getX();
+		
+		double maxWidth = outerBounds.getWidth();
+		double camWidth = cameraBounds.getWidth() / scaleX;
+		
+		if(x < minX) {
+			x = minX;
+		} else if(x > maxWidth - camWidth) {
+			x = maxWidth - camWidth;
+		}
+		
+		cameraBounds.setX(x);
+		
 	}
 	
-	public double getY() {
-		return y;
+	public double getX() {
+		return cameraBounds.getX();
 	}
 	
 	public void setY(double y) {
-		this.y = y;
+		
+		double minY = outerBounds.getY();
+		
+		double maxHeight = outerBounds.getHeight();
+		double camHeight = cameraBounds.getHeight() / scaleY;
+		
+		if(y < minY) {
+			y = minY;
+		} else if(y > maxHeight - camHeight) {
+			y = maxHeight - camHeight;
+		}
+		
+		cameraBounds.setY(y);
+		
+	}
+	
+	public double getY() {
+		return cameraBounds.getY();
+	}
+	
+	public void setMovementSpeed(double movementSpeed) {
+		this.movementSpeed = movementSpeed;
 	}
 	
 }

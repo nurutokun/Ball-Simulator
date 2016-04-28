@@ -1,10 +1,10 @@
-package com.rawad.ballsimulator.networking.server.world;
+package com.rawad.ballsimulator.server.world;
 
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.Entity;
-import com.rawad.ballsimulator.networking.server.Server;
-import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
+import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.world.World;
 
 public class WorldMP extends World {

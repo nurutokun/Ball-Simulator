@@ -8,6 +8,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import com.rawad.ballsimulator.client.gamestates.GameState;
+import com.rawad.ballsimulator.client.gamestates.LoadingState;
 import com.rawad.ballsimulator.client.gamestates.MenuState;
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
@@ -17,17 +18,16 @@ import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.IController;
-import com.rawad.gamehelpers.gamestates.LoadingState;
 import com.rawad.gamehelpers.gamestates.StateManager;
 import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
+import com.rawad.gamehelpers.resources.TextureResource;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.Scene;
+import javafx.concurrent.Task;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -41,8 +41,6 @@ public class Client extends AClient {
 	// MRN 150, 9:30 and at 11 am, Sept. 8
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
-	
-	private Game game;
 	
 	private StateManager sm;
 	
@@ -108,13 +106,11 @@ public class Client extends AClient {
 		
 	}
 	
-	private void loadFont() {
-		
-		GameHelpersLoader gameHelpersLoader = game.getLoader(GameHelpersLoader.class);
+	private void loadFont(GameHelpersLoader loader) {
 		
 		try {
 			
-			Font f = Font.createFont(Font.PLAIN, gameHelpersLoader.loadFontFile(DEFAULT_FONT)).deriveFont(13f);
+			Font f = Font.createFont(Font.PLAIN, loader.loadFontFile(DEFAULT_FONT)).deriveFont(13f);
 			
 			LookAndFeel laf = UIManager.getLookAndFeel();
 			laf.getDefaults().put("defaultFont", f);
@@ -128,7 +124,6 @@ public class Client extends AClient {
 		
 	}
 	
-	@Override
 	public void initResources() {
 		
 		sm.addState(new MenuState());
@@ -141,6 +136,8 @@ public class Client extends AClient {
 		
 		GameHelpersLoader ghLoader = game.getLoader(GameHelpersLoader.class);
 		CustomLoader loader = game.getLoader(CustomLoader.class);
+		
+		loadFont(ghLoader);
 		
 		game.registerTextures();
 		
@@ -161,15 +158,66 @@ public class Client extends AClient {
 	
 	@Override
 	public void init(Game game) {
-		
-		this.game = game;
+		super.init(game);
 		
 		networkManager = new ClientNetworkManager();
 		
 		sm = new StateManager(game, this);
 		
-		loadingState = new LoadingState(MenuState.class);
+		Task<Integer> task = new Task<Integer>() {
+			
+			@Override
+			protected Integer call() throws Exception {
+				
+				String message = "Initializing client resources...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				initResources();
+				
+				message = "Registering unknown texture...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				ResourceManager.registerUnkownTexture();
+				
+				message = "Loading textures...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				int progress = 0;
+				
+				for(TextureResource texture: ResourceManager.getRegisteredTextures().values()) {
+					
+					message = "Loading \"" + texture.getPath() + "\"...";
+					updateMessage(message);
+					
+					ResourceManager.loadTexture(texture);
+					
+					updateProgress(progress++, ResourceManager.getRegisteredTextures().size());
+					
+				}
+				
+				message = "Done!";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				sm.requestStateChange(MenuState.class);
+				
+				return 0;
+				
+			}
+			
+		};
+		
+		loadingState = new LoadingState(task);
 		sm.addState(loadingState);
+		
+		addTask(task);
 		
 		Platform.runLater(() -> {
 			
@@ -177,34 +225,19 @@ public class Client extends AClient {
 			
 			loadingState.initGui();
 			
-			Scene scene = new Scene(loadingState.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-			
-			stage.setScene(scene);
-			
-			stage.show();
+			stage.setScene(sm.getScene());
 			
 			sm.requestStateChange(LoadingState.class);
 			
+			stage.show();
+			
 		});
-		
-		loadFont();
 		
 	}
 	
 	@Override
 	public void tick() {
-		
-		IController controller = getController();
-		
-		if(controller != null) {
-			
-			controller.tick();
-			
-			synchronized(renderingThread) {
-				renderingThread.notify();// Effectively renders the current controller.
-			}
-			
-		}
+		super.tick();
 		
 		sm.update();
 		
@@ -212,23 +245,20 @@ public class Client extends AClient {
 	
 	@Override
 	public void stop() {
+		super.stop();
 		
 		sm.stop();
 		
 		game.setBackground(null);// For proper resetting of overall "game state".
 		
-		synchronized(renderingThread) {
-			renderingThread.notify();
-		}
+		ResourceManager.releaseResources();
 		
 		Platform.runLater(() -> stage.close());
 		
 	}
 	
 	public void connectToServer(String serverAddress) {
-		
 		networkManager.init(serverAddress);
-		
 	}
 	
 	public ClientNetworkManager getNetworkManager() {

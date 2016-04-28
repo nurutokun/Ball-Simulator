@@ -1,4 +1,4 @@
-package com.rawad.ballsimulator.networking.server.entity;
+package com.rawad.ballsimulator.server.entity;
 
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.world.World;

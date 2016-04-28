@@ -17,8 +17,8 @@ import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
- * Handles connecting to the server and telling the server when to disconnect/knowing when to get disconnected. Also just handles TCP 
- * packets in general.
+ * Handles connecting to the server and telling the server when to disconnect/knowing when to get disconnected. Also just 
+ * handles TCP packets in general.
  * 
  * @author Rawad
  *
@@ -85,6 +85,8 @@ public class ClientConnectionManager {
 					socket.getInetAddress().getHostAddress());
 			
 			sendPacketToServer(logoutPacket);
+			
+			networkManager.onDisconnect();
 			
 			socket.close();
 			
@@ -166,10 +168,10 @@ public class ClientConnectionManager {
 			
 		case MESSAGE:
 			
-			// When receiving a message from another client.
+			// With current setup, sender doesn't receive their sent message (could be change to indicate if it made it)
 			SPacket03Message messagePacket = new SPacket03Message(data);
 			
-			networkManager.addUserMessage(messagePacket.getMessage());
+			networkManager.getClient().addUserMessage(messagePacket.getUsername(), messagePacket.getMessage());
 			
 			break;
 			
@@ -229,11 +231,11 @@ public class ClientConnectionManager {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client lost connection to server or"
 						+ " socket was closed by other means.");
 				
+			} finally {
+				
 				networkManager.requestDisconnect();
 				
 			}
-			
-//			disconnect();// After breaking out of loop, request to disconnect from server. //(socket already closed)
 			
 		}
 		

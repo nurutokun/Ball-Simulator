@@ -10,6 +10,7 @@ import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.utils.Util;
 
 public class ClientDatagramManager {
 	
@@ -41,7 +42,7 @@ public class ClientDatagramManager {
 	}
 	
 	public void stop() {
-		socket.close();
+		Util.silentClose(socket);// socket is null sometimes...
 		socket = null;
 	}
 	

@@ -16,13 +16,16 @@ import com.rawad.gamehelpers.gui.PauseScreen;
 import com.rawad.gamehelpers.input.Mouse;
 import com.rawad.gamehelpers.renderengine.BackgroundRender;
 
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class WorldEditorState extends State implements IClientController {
 	
@@ -49,13 +52,15 @@ public class WorldEditorState extends State implements IClientController {
 	private double mouseX;
 	private double mouseY;
 	
-	private double dx;
-	private double dy;
+	private boolean up;
+	private boolean down;
+	private boolean right;
+	private boolean left;
 	
 	private boolean requestPlace;
 	private boolean requestRemove;
 	
-	// TODO: Add "Move TerrainComponent" mode?
+	// TODO: Add "Move TerrainComponent" mode? Middle mouse button?
 	public WorldEditorState() {
 		super();
 		
@@ -104,22 +109,22 @@ public class WorldEditorState extends State implements IClientController {
 				
 			case UP:
 			case W:
-				dy = -5;
+				up = true;
 				break;
 				
 			case DOWN:
 			case S:
-				dy = 5;
+				down = true;
 				break;
 				
 			case LEFT:
 			case A:
-				dx = -5;
+				left = true;
 				break;
 				
 			case RIGHT:
 			case D:
-				dx = 5;
+				right = true;
 				break;
 				
 			default:
@@ -134,22 +139,22 @@ public class WorldEditorState extends State implements IClientController {
 			
 			case UP:
 			case W:
-				if(dy < 0) dy = 0;// Moving up; stop that.
+				up = false;
 				break;
 				
 			case DOWN:
 			case S:
-				if(dy > 0) dy = 0;// Moving Down; stop that.
+				down = false;
 				break;
 				
 			case RIGHT:
 			case D:
-				if(dx > 0) dx = 0;// Moving right; stop that.
+				right = false;
 				break;
 				
 			case LEFT:
 			case A:
-				if(dx < 0) dx = 0;// Moving left; stop that.
+				left = false;
 				break;
 			
 			default:
@@ -188,6 +193,17 @@ public class WorldEditorState extends State implements IClientController {
 			
 		});
 		
+		root.addEventHandler(ScrollEvent.SCROLL, e -> {
+			
+			double scaleFactor = e.getDeltaY() / 100d;
+			
+			camera.setScale(scaleFactor + camera.getScaleX(), scaleFactor + camera.getScaleY());
+			
+		});
+		
+		camera.getCameraBounds().widthProperty().bind(root.widthProperty());
+		camera.getCameraBounds().heightProperty().bind(root.heightProperty());
+		
 		Button optionsButton = new Button("Options");
 		optionsButton.setMaxWidth(Double.MAX_VALUE);
 		
@@ -216,11 +232,8 @@ public class WorldEditorState extends State implements IClientController {
 	public void tick() {
 		
 		if(!pauseScreen.isPaused()) {
-			scaleView();
 			checkPlacement();
 			moveView();
-			
-			viewport.update(world, camera);
 			
 		}
 		
@@ -239,57 +252,27 @@ public class WorldEditorState extends State implements IClientController {
 		
 	}
 	
-	private void updatePosition(double dx, double dy) {
-		
-		int maxWidth = Game.SCREEN_WIDTH;
-		int maxHeight = Game.SCREEN_HEIGHT;
-		
-		// Casting x/y to int fixes slow sliding at larger zoom levels.
-		camera.update((int) (camera.getX() + (maxWidth / camera.getXScale() / 2d + dx)),
-				(int) (camera.getY() + (maxHeight / camera.getYScale() / 2d + dy)), 
-				(int) (world.getWidth() + maxWidth / camera.getXScale()), 
-				(int) (world.getHeight() + maxHeight / camera.getYScale()), 
-				-maxWidth, -maxHeight, 
-				maxWidth, maxHeight);
-		
-	}
-	
-	private void scaleView() {
-		
-		/*
-		double mouseDelta = (double) Mouse.getMouseWheelPosition()/2d;
-		
-		if(mouseDelta > 0) {
-			camera.setScale(camera.getXScale() / mouseDelta, camera.getYScale() / mouseDelta);
-			
-		} else if(mouseDelta < 0) {
-			mouseDelta *= -1;
-			camera.setScale(camera.getXScale() * mouseDelta, camera.getYScale() * mouseDelta);
-			
-		}*/
-		
-	}
-	
 	private void moveView() {
 		
-		double mouseX = this.mouseX / camera.getXScale();// Ensures clamping is done first.
-		double mouseY = this.mouseY / camera.getYScale();
+		double mouseX = this.mouseX;
+		double mouseY = this.mouseY;
 		
 		if(Mouse.isClamped()) {
 			
-			mouseX = Mouse.getClampX() / camera.getXScale();
-			mouseY = Mouse.getClampY() / camera.getYScale();
+			mouseX = Mouse.getClampX();
+			mouseY = Mouse.getClampY();
 			
-			updatePosition(Mouse.getDx(), Mouse.getDy());
+			camera.setX(camera.getX() + Mouse.getDx());
+			camera.setY(camera.getY() + Mouse.getDy());
 			
 		} else {
 			
-			updatePosition(dx * camera.getXScale(), dy * camera.getYScale());
+			camera.update(up, down, right, left);
 			
 		}
 		
-		comp.setX(mouseX - (comp.getWidth()/2d));
-		comp.setY(mouseY - (comp.getHeight()/2d));
+		comp.setX(mouseX / camera.getScaleX() - (comp.getWidth()/2d));
+		comp.setY(mouseY / camera.getScaleY() - (comp.getHeight()/2d));
 		
 	}
 	
@@ -352,7 +335,12 @@ public class WorldEditorState extends State implements IClientController {
 		
 		terrainFileParser.setTerrain(terrain);
 		
-		loader.saveTerrain(terrainFileParser, terrainName);
+		sm.getClient().addTask(new Task<Integer>() {
+			protected Integer call() throws Exception {
+				loader.saveTerrain(terrainFileParser, terrainName);
+				return 0;
+			}
+		});
 		
 	}
 	
@@ -360,14 +348,23 @@ public class WorldEditorState extends State implements IClientController {
 	protected void onActivate() {
 		super.onActivate();
 		
-		Game game = sm.getGame();
+		sm.getClient().addTask(new Task<Integer>() {
+			protected Integer call() throws Exception {
+				
+				Game game = sm.getGame();
+				
+				loader = game.getLoader(CustomLoader.class);
+				terrainFileParser = game.getFileParser(TerrainFileParser.class);
+				
+				world.setTerrain(loader.loadTerrain(terrainFileParser, "terrain"));
+				viewport.setWorld(world);
+				
+				camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
+				
+				return 0;
+			}
+		});
 		
-		loader = game.getLoader(CustomLoader.class);
-		terrainFileParser = game.getFileParser(TerrainFileParser.class);
-		
-		world.setTerrain(loader.loadTerrain(terrainFileParser, "terrain"));
-		
-		viewport.setWorld(world);
 		viewport.setCamera(camera);
 		
 		tcRender = viewport.getMasterRender().getRender(WorldRender.class).getTerrainComponentRender();

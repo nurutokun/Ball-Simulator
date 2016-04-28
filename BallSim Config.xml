@@ -5,7 +5,7 @@
   <jar>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator.jar</jar>
   <outfile>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator.exe</outfile>
   <errTitle></errTitle>
-  <cmdLine>false</cmdLine>
+  <cmdLine>devEnv=false</cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>

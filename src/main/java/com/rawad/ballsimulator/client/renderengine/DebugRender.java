@@ -33,7 +33,7 @@ public class DebugRender extends LayeredRender {
 						+ GameManager.instance().getDeltaTime() + "\n" + 
 				mouseX + ", " + mouseY + "\n" +
 				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + "\n" +
-				(camera == null? "":"CamScale: " + camera.getXScale() + ", " + camera.getYScale()) + "\n" +
+				(camera == null? "":"CamScale: " + camera.getScaleX() + ", " + camera.getScaleY()) + "\n" +
 				(camera == null? "":"Cam (x,y): (" + camera.getX() + ", " + camera.getY() + ")"), 0, 0);
 		
 		g.setFill(Color.LAWNGREEN);

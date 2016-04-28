@@ -13,15 +13,16 @@ import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket02Logout;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
-import com.rawad.ballsimulator.networking.server.Server;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
-import com.rawad.ballsimulator.networking.server.entity.EntityPlayerMP;
-import com.rawad.ballsimulator.networking.server.world.WorldMP;
+import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.ServerController;
+import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
+import com.rawad.ballsimulator.server.world.WorldMP;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.utils.Util;
 
 /**
- * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in 
- * general.
+ * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in general.
  * 
  * @author Rawad
  *
@@ -32,6 +33,8 @@ public class ServerConnectionManager {
 	
 	private ArrayList<Socket> clients;
 	private ArrayList<ClientInputManager> clientInputManagers;
+	
+	private ServerSocket serverSocket;
 	
 	private Thread connectionAcceptor;
 	
@@ -48,7 +51,41 @@ public class ServerConnectionManager {
 	
 	public void start() {
 		
+		try {
+			// Rather initialize this here than in the constructor...
+			serverSocket = new ServerSocket(Server.PORT);
+		} catch(Exception ex) {
+			Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; server socket for TCP connection couldn't "
+					+ "be initialized.");
+			
+			networkManager.getServer().getGame().requestStop();
+			
+			return;
+		}
+		
 		connectionAcceptor.start();
+		
+	}
+	
+	public void stop() {
+		
+		for(ClientInputManager cim: clientInputManagers) {
+			
+			SPacket02Logout logoutPlayer = new SPacket02Logout(cim.getName());
+			
+			sendPacketToAllClients(null, logoutPlayer);
+			
+		}
+		
+		synchronized(clients) {
+			for(Socket client: clients) {
+				
+				Util.silentClose(client);
+				
+			}
+		}
+		
+		Util.silentClose(serverSocket);
 		
 	}
 	
@@ -58,7 +95,7 @@ public class ServerConnectionManager {
 		
 		TCPPacketType type = Packet.getTCPPacketTypeFromData(data);
 		
-		WorldMP world = networkManager.getServer().getController().getWorld();
+		WorldMP world = networkManager.getServer().<ServerController>getController().getWorld();
 		
 		String username;
 		
@@ -115,7 +152,7 @@ public class ServerConnectionManager {
 				clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
 				// clients that haven't logged in yet
 				
-				sendPacketToAllClients(null, new SPacket03Message(username, loginMessage));
+				sendPacketToAllClients(null, new SPacket03Message(Server.SIMPLE_NAME, loginMessage));
 				
 			}
 			
@@ -185,8 +222,9 @@ public class ServerConnectionManager {
 			
 			username = messagePacket.getUsername();
 			
-			String message = username + "> " + messagePacket.getMessage();
-			// Send message to other clients with the username indicated
+			String message = messagePacket.getMessage();
+			
+			Logger.log(Logger.DEBUG, username + " sent a message: " + message);
 			
 			SPacket03Message replyPacket = new SPacket03Message(username, message);
 			
@@ -212,11 +250,7 @@ public class ServerConnectionManager {
 			
 			removeClientInputManagerThread(client);
 			
-			try {
-				client.close();
-			} catch(Exception ex) {
-				Logger.log(Logger.SEVERE, "Couldn't disconnect client: " + client.getInetAddress().getAddress());
-			}
+			Util.silentClose(client);
 			
 	}
 	
@@ -227,8 +261,6 @@ public class ServerConnectionManager {
 	}
 	
 	private synchronized void startNewClientInputManager(Socket client) {
-		
-//		clients.add(client);// Moved to where the player logs in.
 		
 		ClientInputManager clientInputManager = new ClientInputManager(client);
 		
@@ -298,19 +330,8 @@ public class ServerConnectionManager {
 	
 	private class ConnectionAcceptor implements Runnable {
 		
-		private ServerSocket serverSocket;
-		
 		@Override
 		public void run() {
-			
-			try {
-				// Rather initialize this here than in the constructor...
-				serverSocket = new ServerSocket(Server.PORT);
-			} catch(Exception ex) {
-				Logger.log(Logger.SEVERE, ex.getLocalizedMessage() + "; server socket for TCP connection couldn't "
-						+ "be initialized.");
-				System.exit(-1);
-			}
 			
 			while(networkManager.getServer().getGame().isRunning()) {
 				
@@ -321,6 +342,9 @@ public class ServerConnectionManager {
 					
 				} catch(Exception ex) {
 					Logger.log(Logger.WARNING, ex.getMessage());
+					
+					networkManager.getServer().getGame().requestStop();
+					
 					break;
 				}
 				
@@ -340,7 +364,6 @@ public class ServerConnectionManager {
 		
 		public ClientInputManager(Socket client) {
 			this.client = client;
-			
 		}
 		
 		@Override
@@ -365,7 +388,8 @@ public class ServerConnectionManager {
 						.getHostName() + " disconnected.");
 			}
 			
-			if(loggedIn) {// Mainly for when client closes game while still connecting (TCP is connected but not logged in yet)
+			if(loggedIn) {// Mainly for when client closes game while still connecting (TCP is connected but not logged 
+				// in yet)
 				
 				CPacket02Logout ensureLogout = new CPacket02Logout(clientName, client.getInetAddress().getHostAddress());
 				
@@ -381,6 +405,10 @@ public class ServerConnectionManager {
 		
 		public void setName(String clientName) {
 			this.clientName = clientName;
+		}
+		
+		public String getName() {
+			return clientName;
 		}
 		
 		public void setLoggedIn(boolean loggedIn) {

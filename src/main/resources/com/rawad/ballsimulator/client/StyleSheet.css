@@ -1,0 +1,16 @@
+PauseScreen, PlayerInventory {
+	
+	-fx-background-color: #00000050;
+	
+}
+
+#outputArea .scroll-pane .content, #outputArea .scroll-pane .viewport, #outputArea .scroll-pane .scroll-bar:vertical {
+	-fx-background-color: transparent;
+}
+
+#outputArea, #inputArea {
+	
+	-fx-background-color: #00000050;
+	-fx-text-fill: white;
+	
+}
