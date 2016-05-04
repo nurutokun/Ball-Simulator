@@ -3,7 +3,7 @@ package com.rawad.ballsimulator.client;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.renderengine.MasterRender;
+import com.rawad.gamehelpers.client.renderengine.MasterRender;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

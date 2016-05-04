@@ -13,13 +13,16 @@ import com.rawad.ballsimulator.client.gamestates.MenuState;
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
+import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.game.PhysicsSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.StateManager;
-import com.rawad.gamehelpers.gui.Background;
+import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
@@ -32,21 +35,15 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-// TODO: Could make the whole "rotating base", "moving base", etc. just a bunch of interfaces; for the player that 
-// is. Could also make it component based (one entity class and just add the different components you want it to 
-// have, e.g. moving, rotating, health). Keep in mind having it mobile-portable.
 public class Client extends AClient {
 	
-	// 17:00, episode 427
-	// MRN 150, 9:30 and at 11 am, Sept. 8
+	// episode 427
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
 	private StateManager sm;
 	
 	private ClientNetworkManager networkManager;
-	
-	private LoadingState loadingState;
 	
 	private SimpleStringProperty gameTitle;
 	
@@ -150,9 +147,13 @@ public class Client extends AClient {
 			
 		});
 		
-		Background.registerTextures(ghLoader, game);
+		Background.registerTextures(loader);
 		
 		EntityPlayer.registerTextures(loader);
+		
+		GameEngine gameEngine = game.getGameEngine();
+		
+		gameEngine.addGameSystem(new PhysicsSystem());
 		
 	}
 	
@@ -214,7 +215,7 @@ public class Client extends AClient {
 			
 		};
 		
-		loadingState = new LoadingState(task);
+		LoadingState loadingState = new LoadingState(task);
 		sm.addState(loadingState);
 		
 		addTask(task);
@@ -239,6 +240,10 @@ public class Client extends AClient {
 	public void tick() {
 		super.tick();
 		
+		Background.instance().tick();
+		
+		Mouse.update();
+		
 		sm.update();
 		
 	}
@@ -248,8 +253,6 @@ public class Client extends AClient {
 		super.stop();
 		
 		sm.stop();
-		
-		game.setBackground(null);// For proper resetting of overall "game state".
 		
 		ResourceManager.releaseResources();
 		

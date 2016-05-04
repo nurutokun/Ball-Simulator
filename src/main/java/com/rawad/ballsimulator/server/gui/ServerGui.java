@@ -6,6 +6,9 @@ import java.io.PrintStream;
 
 import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Viewport;
+import com.rawad.ballsimulator.client.gui.CanvasPane;
+import com.rawad.ballsimulator.client.gui.Messenger;
+import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
@@ -23,14 +26,13 @@ import com.rawad.gamehelpers.resources.TextureResource;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -46,11 +48,16 @@ public class ServerGui extends Application {
 	private FXMLLoader loader;
 	
 	@FXML private TabPane tabPane;
-	@FXML private StackPane canvasContainer;
-	@FXML private Canvas canvas;
-	@FXML private TextArea consoleOutput;
-	@FXML private TextField consoleInput;
+	
+	@FXML private CanvasPane canvasPane;
+	
+	@FXML private Messenger console;
+	
 	@FXML private CheckMenuItem debugChanger;
+	
+	@FXML private PlayerList playerList;
+	
+	private Canvas canvas;
 	
 	private PrintStream consolePrinter;
 	
@@ -76,7 +83,7 @@ public class ServerGui extends Application {
 			
 			@Override
 			public void write(int b) throws IOException {
-				appendTextToConsole(String.valueOf((char) b));
+				 console.getOutputArea().appendText(String.valueOf((char) b));
 			}
 			
 			@Override
@@ -86,7 +93,7 @@ public class ServerGui extends Application {
 			
 			@Override
 			public void write(byte[] b, int off, int len) throws IOException {
-				appendTextToConsole(new String(b, off, len));
+				console.getOutputArea().appendText(new String(b, off, len));
 			}
 			
 		}, true);
@@ -121,14 +128,32 @@ public class ServerGui extends Application {
 		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 		});
+		
 		tabPane.getSelectionModel().selectedItemProperty().addListener((e, oldValue, newValue) -> {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 		});
 		
-		camera.getCameraBounds().widthProperty().bind(canvasContainer.widthProperty());
-		camera.getCameraBounds().heightProperty().bind(canvasContainer.heightProperty());
+		canvas = canvasPane.getCanvas();
 		
-		canvasContainer.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+		camera.getCameraBounds().widthProperty().bind(canvas.widthProperty());
+		camera.getCameraBounds().heightProperty().bind(canvas.heightProperty());
+		
+		playerList.setItems(server.<ServerController>getController().getWorld().getPlayers());
+		
+		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
+			
+			String input = console.getInputArea().getText();
+			
+			Logger.log(Logger.DEBUG, input);
+			
+			parseConsoleInput(input);
+			
+		});
+		console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
+		console.getOutputArea().setWrapText(false);
+		console.setShowing(true);
+		
+		canvasPane.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
 			switch(keyEvent.getCode()) {
 			
@@ -167,7 +192,7 @@ public class ServerGui extends Application {
 			
 		});
 		
-		canvasContainer.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
+		canvasPane.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
 			switch(keyEvent.getCode()) {
 
@@ -286,21 +311,9 @@ public class ServerGui extends Application {
 		
 	}
 	
-	@FXML private void handleConsoleInput() {
-		
-		String input = consoleInput.getText();
-		
-		Logger.log(Logger.DEBUG, input);
-		
-		parseConsoleInput(input);
-		
-		consoleInput.setText("");
-		
-	}
-	
 	private void parseConsoleInput(String input) {
 		
-		final String command = "/send";
+		final String command = "/send ";
 		
 		if(input.length() > command.length()) {
 			if (input.substring(0, command.length()).equalsIgnoreCase(command)) {
@@ -311,10 +324,6 @@ public class ServerGui extends Application {
 			}
 		}
 		
-	}
-	
-	private void appendTextToConsole(String text) {
-		consoleOutput.appendText(text);
 	}
 	
 	@FXML private void requestClose() {

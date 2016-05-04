@@ -1,7 +1,9 @@
 package com.rawad.ballsimulator.world.terrain;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
+
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
 public class Terrain {
 	
@@ -15,7 +17,7 @@ public class Terrain {
 		
 		for(TerrainComponent comp: terrainComponents) {
 			
-			if(comp.intersects(hitbox)) {
+			if(Shape.intersect(comp.getHitbox(), hitbox) != null) {
 				return true;
 			}
 			
@@ -29,7 +31,7 @@ public class Terrain {
 		
 		for(TerrainComponent comp: terrainComponents) {
 			
-			if(comp.intersects(x, y)) {
+			if(comp.getHitbox().contains(x, y)) {
 				return comp;
 			}
 			
@@ -39,8 +41,8 @@ public class Terrain {
 		
 	}
 	
-	public synchronized void addTerrainComponent(double x, double y, int width, int height) {
-		terrainComponents.add(new TerrainComponent(x, y, width, height));
+	public synchronized void addTerrainComponent(TerrainComponent comp) {
+		terrainComponents.add(comp);
 	}
 	
 	public synchronized void removeTerrainComponent(TerrainComponent comp) {

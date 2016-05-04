@@ -6,20 +6,21 @@ import java.util.Random;
 import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Viewport;
 import com.rawad.ballsimulator.client.gui.Messenger;
+import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
+import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
+import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.Entity;
-import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
+import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.world.World;
+import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.gui.PauseScreen;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.renderengine.BackgroundRender;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -36,6 +37,7 @@ public class MultiplayerGameState extends State {
 	private SettingsFileParser settingsParser;
 	
 	@FXML private Messenger mess;
+	@FXML private PlayerList playerList;
 	@FXML private PlayerInventory inventory;
 	@FXML private PauseScreen pauseScreen;
 	@FXML private Label lblConnectingMessage;
@@ -47,7 +49,7 @@ public class MultiplayerGameState extends State {
 	private World world;
 	private Camera camera;
 	
-	private EntityPlayer player;
+	private EntityPlayerMP player;
 	
 	public MultiplayerGameState(ClientNetworkManager networkManager) {
 		super();
@@ -59,8 +61,8 @@ public class MultiplayerGameState extends State {
 		
 		world = new World();
 		
-		player = new EntityPlayer(world);
-		player.setName("Player" + (int) (new Random().nextDouble()*999));
+		player = new EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address"
+				+ " wasn't final.");
 		
 		camera = new Camera();
 		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
@@ -91,8 +93,8 @@ public class MultiplayerGameState extends State {
 					break;
 				}
 				
-			} else {
-
+			} else if(!playerList.isVisible()) {
+				
 				switch(keyEvent.getCode()) {
 					
 				case ESCAPE:
@@ -112,6 +114,13 @@ public class MultiplayerGameState extends State {
 					
 				case ENTER:
 					if(!mess.isShowing()) mess.setShowing(true);
+					break;
+					
+				case TAB:
+					playerList.setVisible(true);
+					
+					keyEvent.consume();
+					
 					break;
 					
 				case UP:
@@ -151,6 +160,10 @@ public class MultiplayerGameState extends State {
 			
 			case T:
 				if(!pauseScreen.isPaused() && !inventory.isVisible()) mess.setShowing(true);
+				break;
+				
+			case TAB:
+				playerList.setVisible(false);
 				break;
 			
 			case UP:
@@ -238,7 +251,7 @@ public class MultiplayerGameState extends State {
 				terrainParser = game.getFileParser(TerrainFileParser.class);
 				settingsParser = game.getFileParser(SettingsFileParser.class);
 				
-				loader.loadSettings(settingsParser, game.getSettingsFileName());
+				loader.loadSettings(settingsParser, sm.getClient().getSettingsFileName());
 				
 				String text = "Connecting To " + settingsParser.getIp() + " ...";
 				
@@ -279,17 +292,17 @@ public class MultiplayerGameState extends State {
 		
 		for(Entity e: entities) {
 			
-			if(e instanceof EntityPlayer && !e.equals(player)) {
+			if(e instanceof EntityPlayerMP && !e.equals(player)) {
 				entitiesToRemove.add(e);
 			}
 			
 		}
 		
-		for(Entity e: entitiesToRemove) {
-			
-			world.removeEntity(e);
-			
-		}
+		world.getEntities().removeAll(entitiesToRemove);
+		
+		entitiesToRemove.add(player);
+		
+		playerList.getItems().remove(entitiesToRemove);
 		
 		sm.requestStateChange(MenuState.class);
 		
@@ -307,6 +320,25 @@ public class MultiplayerGameState extends State {
 		
 	}
 	
+	public void addPlayer(EntityPlayerMP player) {
+		playerList.getItems().add(player);
+	}
+	
+	public void removePlayer(String username) {
+		
+		EntityPlayerMP playerToRemove = null;
+		
+		for(EntityPlayerMP player: playerList.getItems()) {
+			if(player.getName().equals(username)) {
+				playerToRemove = player;
+				break;
+			}
+		}
+		
+		if(playerToRemove != null) playerList.getItems().remove(playerToRemove);
+		
+	}
+	
 	public void addUserMessage(String usernameOfSender, String message) {
 		
 		if(!usernameOfSender.isEmpty()) {
@@ -320,7 +352,7 @@ public class MultiplayerGameState extends State {
 		return world;
 	}
 	
-	public EntityPlayer getPlayer() {
+	public EntityPlayerMP getPlayer() {
 		return player;
 	}
 	

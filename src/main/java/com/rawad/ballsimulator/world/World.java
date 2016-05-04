@@ -1,11 +1,11 @@
 package com.rawad.ballsimulator.world;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Random;
 
 import com.rawad.ballsimulator.entity.Entity;
 import com.rawad.ballsimulator.world.terrain.Terrain;
+
+import javafx.scene.shape.Rectangle;
 
 public class World {
 	
@@ -59,11 +59,7 @@ public class World {
 	
 	public synchronized void removeEntityByName(String name) {
 		
-		Entity entityToRemove = getEntityByName(name);
-		
-		if(entityToRemove != null) {
-			entities.remove(entityToRemove);
-		}
+		entities.remove(getEntityByName(name));
 		
 	}
 	
@@ -100,29 +96,6 @@ public class World {
 	
 	public void generateCoordinates(Entity e) {
 		
-		boolean entityBlocked = true;
-		
-		int width = e.getWidth();
-		int height = e.getHeight();
-		
-		Random r = new Random();
-		
-		do {
-			
-			int x = (int) (r.nextDouble() * (this.width - (width/2d)));
-			int y = (int) (r.nextDouble() * (this.height - (height/2d)));
-			// (Outdated)   First one ^ keeps it from being too far left, second one ^ keeps it from being too far right.
-			
-			e.setX(x);
-			e.setY(y);
-			
-			e.updateHitbox();
-			
-			if(!mapCollision(e.getHitbox())) {
-				entityBlocked = false;
-			}
-			
-		} while(entityBlocked);
 		
 	}
 	

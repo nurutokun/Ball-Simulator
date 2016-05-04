@@ -1,11 +1,11 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.State;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.renderengine.BackgroundRender;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -62,7 +62,7 @@ public class OptionState extends State {
 		sm.getClient().addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.loadSettings(settings, game.getSettingsFileName());
+				loader.loadSettings(settings, sm.getClient().getSettingsFileName());
 				ipHolder.setText(settings.getIp());
 				
 				return 0;
@@ -76,7 +76,7 @@ public class OptionState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		loader.saveSettings(settings, sm.getGame().getSettingsFileName());
+		loader.saveSettings(settings, sm.getClient().getSettingsFileName());
 		
 	}
 	

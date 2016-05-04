@@ -1,9 +1,6 @@
 package com.rawad.ballsimulator.server;
 
-import java.util.ArrayList;
-
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
@@ -42,20 +39,6 @@ public class Server extends AServer {
 				return 0;
 			}
 		});
-		
-	}
-	
-	public void updatePlayerNamesList() {
-		
-		ArrayList<EntityPlayerMP> players = this.<ServerController>getController().getWorld().getPlayers();
-		
-		String[] names = new String[players.size()];
-		
-		for(int i = 0; i < players.size(); i++) {
-			
-			names[i] = players.get(i).getName();
-			
-		}
 		
 	}
 	

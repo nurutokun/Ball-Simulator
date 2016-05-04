@@ -1,11 +1,10 @@
-package com.rawad.ballsimulator.entity;
-
-import java.awt.Rectangle;
 
 import com.rawad.ballsimulator.world.World;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public abstract class Entity {
 	
@@ -16,13 +15,13 @@ public abstract class Entity {
 	
 	protected Rectangle hitbox;
 	
-	protected String name = "";
+	protected String name;
 	
-	protected double x;
-	protected double y;
+	protected SimpleDoubleProperty x;
+	protected SimpleDoubleProperty y;
 	
-	protected int width;
-	protected int height;
+	protected SimpleDoubleProperty width;
+	protected SimpleDoubleProperty height;
 	
 	public Entity(World world) {
 		
@@ -30,7 +29,14 @@ public abstract class Entity {
 		
 		hitbox = new Rectangle();
 		
+		hitbox.xProperty().bind(xProperty());
+		hitbox.yProperty().bind(yProperty());
+		hitbox.widthProperty().bind(widthProperty());
+		hitbox.heightProperty().bind(heightProperty());
+		
 		this.world.addEntity(this);
+		
+		name = "";
 		
 	}
 	
@@ -41,7 +47,7 @@ public abstract class Entity {
 	public void renderHitbox(GraphicsContext g) {
 		
 		g.setStroke(Color.BLACK);
-		g.strokeRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+		g.strokeRect(hitbox.getX(), hitbox.getY(), hitbox.getWidth(), hitbox.getHeight());
 		
 	}
 	

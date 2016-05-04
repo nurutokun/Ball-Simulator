@@ -20,7 +20,7 @@ public abstract class LivingBaseRender extends EntityRender {
 		double y = entity.getY() - (entity.getHeight()/2) - height;
 		
 		g.setColor(Color.BLACK);
-		g.draw(entity.getHitbox());
+//		g.draw(entity.getHitbox());
 		
 		g.fillRect((int) x, (int) y, (int) width, (int) height);
 		

@@ -14,27 +14,22 @@ public class BallSimulator extends Game {
 	
 	private static int ICON;
 	
-	private CustomLoader loader;
-	
 	public BallSimulator() {
 		super();
-		
-		loader = new CustomLoader();
-		
-		loaders.put(CustomLoader.class, loader);
-		
 	}
 	
 	@Override
 	public void registerTextures() {
 		
-		ICON = loader.registerTexture("", "game_icon");
+		ICON = loaders.get(CustomLoader.class).registerTexture("", "game_icon");
 		
 	}
 	
 	@Override
 	protected void init() {
 		super.init();
+		
+		loaders.put(CustomLoader.class, new CustomLoader());
 		
 		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
 		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
@@ -49,11 +44,6 @@ public class BallSimulator extends Game {
 	@Override
 	public String toString() {
 		return NAME;
-	}
-	
-	@Override
-	public String getSettingsFileName() {
-		return "settings";
 	}
 	
 }

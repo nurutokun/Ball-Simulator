@@ -2,7 +2,8 @@
 
 <?import com.rawad.ballsimulator.client.gui.Messenger?>
 <?import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory?>
-<?import com.rawad.gamehelpers.gui.PauseScreen?>
+<?import com.rawad.ballsimulator.client.gui.entity.player.PlayerList?>
+<?import com.rawad.gamehelpers.client.gui.PauseScreen?>
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -13,6 +14,7 @@
 <fx:root type="StackPane" xmlns:fx="http://javafx.com/fxml" >
 	
 	<children>
+		
 		<Label fx:id="lblConnectingMessage" text="Connecting..." />
 			
 		<GridPane>
@@ -33,6 +35,27 @@
 				<Messenger fx:id="mess" GridPane.rowIndex="2" >
 					<visible>false</visible>
 				</Messenger>
+			</children>
+			
+		</GridPane>
+		
+		<GridPane>
+			
+			<columnConstraints>
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+			</columnConstraints>
+			
+			<rowConstraints>
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+				<RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+			</rowConstraints>
+			
+			<children>
+				<PlayerList fx:id="playerList" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 			</children>
 			
 		</GridPane>

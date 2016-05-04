@@ -1,11 +1,11 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
+import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -71,7 +71,7 @@ public class PlayerInventory extends GridPane {
 				
 				if(row == startRow) getColumnConstraints().add(col, COL_CONSTRAINT);// Add cols.
 				
-				Button inventorySlot = new Button();
+				ItemSlot inventorySlot = new ItemSlot(null, 0);
 				inventorySlot.setPrefSize(40, 40);
 				
 				add(inventorySlot, col, row);

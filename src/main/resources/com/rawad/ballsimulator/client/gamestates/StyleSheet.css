@@ -4,6 +4,10 @@ PauseScreen, PlayerInventory {
 	
 }
 
+PlayerList {
+	
+}
+
 #outputArea .scroll-pane .content, #outputArea .scroll-pane .viewport, #outputArea .scroll-pane .scroll-bar:vertical {
 	-fx-background-color: transparent;
 }

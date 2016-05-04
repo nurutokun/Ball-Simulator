@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.renderengine.BackgroundRender;
+import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
+import com.rawad.gamehelpers.client.gamestates.State;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

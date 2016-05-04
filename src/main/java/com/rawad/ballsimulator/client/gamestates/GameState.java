@@ -4,16 +4,21 @@ import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.Viewport;
 import com.rawad.ballsimulator.client.gui.Messenger;
+import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
-import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.PhysicsSystem;
+import com.rawad.ballsimulator.game.PlayerControlSystem;
+import com.rawad.ballsimulator.game.PositionGenerationSystem;
+import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.client.IClientController;
+import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.gui.PauseScreen;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.concurrent.Task;
@@ -29,7 +34,7 @@ public class GameState extends State implements IClientController {
 	private World world;
 	private Camera camera;
 	
-	private EntityPlayer player;
+	private Entity player;
 	
 	@FXML private PauseScreen pauseScreen;
 	
@@ -48,12 +53,17 @@ public class GameState extends State implements IClientController {
 		
 		world = new World();
 		
-		player = new EntityPlayer(world);
+		player = new Entity();
 		
 		camera = new Camera();
 		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
 		
 		viewport.update(world, camera);
+		
+		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new PlayerControlSystem());
+		gameSystems.add(new PhysicsSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new RenderingSystem());
 		
 		showEntireWorld = false;
 		
@@ -99,7 +109,7 @@ public class GameState extends State implements IClientController {
 					break;
 					
 				case R:
-					world.generateCoordinates(player);
+					player.getComponent(RandomPositionComponent.class).setGenerateNewPosition(true);
 					break;
 					
 				case L:

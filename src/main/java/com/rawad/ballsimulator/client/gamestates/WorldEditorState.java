@@ -2,6 +2,8 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Viewport;
+import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
 import com.rawad.ballsimulator.client.renderengine.world.terrain.TerrainComponentRender;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -10,14 +12,11 @@ import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.Terrain;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
 import com.rawad.gamehelpers.client.IClientController;
+import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.gui.PauseScreen;
-import com.rawad.gamehelpers.input.Mouse;
-import com.rawad.gamehelpers.renderengine.BackgroundRender;
 
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -29,7 +28,7 @@ import javafx.scene.shape.Rectangle;
 
 public class WorldEditorState extends State implements IClientController {
 	
-	private static final Integer[] DIMS = {2, 4, 8, 16, 32, 64, 128, 256, 512};
+	private static final Double[] DIMS = {2D, 4D, 8D, 16D, 32D, 64D, 128D, 256D, 512D};
 	
 	private Viewport viewport;
 	
@@ -46,11 +45,8 @@ public class WorldEditorState extends State implements IClientController {
 	
 	@FXML private PauseScreen pauseScreen;
 	
-	@FXML private ComboBox<Integer> widthSelector;
-	@FXML private ComboBox<Integer> heightSelector;
-	
-	private double mouseX;
-	private double mouseY;
+	@FXML private ComboBox<Double> widthSelector;
+	@FXML private ComboBox<Double> heightSelector;
 	
 	private boolean up;
 	private boolean down;
@@ -59,8 +55,8 @@ public class WorldEditorState extends State implements IClientController {
 	
 	private boolean requestPlace;
 	private boolean requestRemove;
+	private boolean requestSelect;
 	
-	// TODO: Add "Move TerrainComponent" mode? Middle mouse button?
 	public WorldEditorState() {
 		super();
 		
@@ -86,8 +82,8 @@ public class WorldEditorState extends State implements IClientController {
 		widthSelector.getItems().addAll(DIMS);
 		heightSelector.getItems().addAll(DIMS);
 		
-		widthSelector.setOnAction(e -> comp.setWidth(widthSelector.getValue()));
-		heightSelector.setOnAction(e -> comp.setHeight(heightSelector.getValue()));
+		comp.widthProperty().bind(widthSelector.getSelectionModel().selectedItemProperty());
+		comp.heightProperty().bind(heightSelector.getSelectionModel().selectedItemProperty());
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
@@ -164,16 +160,6 @@ public class WorldEditorState extends State implements IClientController {
 			
 		});
 		
-		EventHandler<MouseEvent> mouseEventHandler = mouseEvent -> {
-			
-			mouseX = mouseEvent.getX();
-			mouseY = mouseEvent.getY();
-			
-		};
-		
-		root.addEventHandler(MouseEvent.MOUSE_MOVED, mouseEventHandler);
-		root.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseEventHandler);
-		
 		root.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 			
 			switch(mouseEvent.getButton()) {
@@ -186,6 +172,10 @@ public class WorldEditorState extends State implements IClientController {
 				requestRemove = true;
 				break;
 			
+			case MIDDLE:
+				requestSelect = true;
+				break;
+				
 			default:
 				break;
 			
@@ -254,8 +244,8 @@ public class WorldEditorState extends State implements IClientController {
 	
 	private void moveView() {
 		
-		double mouseX = this.mouseX;
-		double mouseY = this.mouseY;
+		double mouseX = Mouse.getX();
+		double mouseY = Mouse.getY();;
 		
 		if(Mouse.isClamped()) {
 			
@@ -306,8 +296,8 @@ public class WorldEditorState extends State implements IClientController {
 			if(compX >= 0 && compY >= 0 && compX + comp.getWidth() <= world.getWidth() &&
 					compY + comp.getHeight() <= world.getHeight()) {
 				
-				world.getTerrain().addTerrainComponent(compX, compY, 
-						comp.getWidth(), comp.getHeight());
+				world.getTerrain().addTerrainComponent(new TerrainComponent(compX, compY, 
+						comp.getWidth(), comp.getHeight()));
 				
 			}
 			
@@ -324,6 +314,19 @@ public class WorldEditorState extends State implements IClientController {
 			}
 			
 			requestRemove = false;
+			
+		}
+		
+		if(requestSelect) {
+			
+			if(intersectedComp != null) {
+				
+				widthSelector.getSelectionModel().select(intersectedComp.getWidth());
+				heightSelector.getSelectionModel().select(intersectedComp.getHeight());
+				
+			}
+			
+			requestSelect = false;
 			
 		}
 		

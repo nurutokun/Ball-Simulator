@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
+import com.rawad.gamehelpers.client.renderengine.LayeredRender;
 import com.rawad.gamehelpers.game.GameManager;
-import com.rawad.gamehelpers.renderengine.LayeredRender;
 
 public abstract class EntityRender extends LayeredRender {
 	

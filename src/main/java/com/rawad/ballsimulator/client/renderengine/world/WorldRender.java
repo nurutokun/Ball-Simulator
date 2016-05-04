@@ -10,7 +10,7 @@ import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.ballsimulator.world.terrain.Terrain;
 import com.rawad.ballsimulator.world.terrain.TerrainComponent;
-import com.rawad.gamehelpers.renderengine.LayeredRender;
+import com.rawad.gamehelpers.client.renderengine.LayeredRender;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

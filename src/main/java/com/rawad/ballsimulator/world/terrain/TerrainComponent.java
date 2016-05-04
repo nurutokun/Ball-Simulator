@@ -1,43 +1,41 @@
 package com.rawad.ballsimulator.world.terrain;
 
-import java.awt.Rectangle;
-
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class TerrainComponent {
 	
 	/** Temporary */
 	private Color highlightColor;
 	
-	private double x;
-	private double y;
+	private Rectangle hitbox;
 	
-	private int width;
-	private int height;
+	private SimpleDoubleProperty x;
+	private SimpleDoubleProperty y;
+	
+	private SimpleDoubleProperty width;
+	private SimpleDoubleProperty height;
 	
 	private boolean selected;
 	
-	public TerrainComponent(double x, double y, int width, int height) {
+	public TerrainComponent(double x, double y, double width, double height) {
 		
 		highlightColor = Color.GREEN;
 		
-		this.x = x;
-		this.y = y;
+		this.x = new SimpleDoubleProperty(x);
+		this.y = new SimpleDoubleProperty(y);
 		
-		this.width = width;
-		this.height = height;
+		this.width = new SimpleDoubleProperty(width);
+		this.height = new SimpleDoubleProperty(height);
 		
-	}
-	
-	public boolean intersects(Rectangle hitbox) {
-		Rectangle curHit = new Rectangle((int) x, (int) y, width, height);
+		hitbox = new Rectangle(x, y, width, height);
 		
-		return curHit.intersects(hitbox);
+		hitbox.xProperty().bind(xProperty());
+		hitbox.yProperty().bind(yProperty());
+		hitbox.widthProperty().bind(widthProperty());
+		hitbox.heightProperty().bind(heightProperty());
 		
-	}
-	
-	public boolean intersects(int x, int y) {
-		return new Rectangle((int) this.x, (int) this.y, width, height).contains(x, y);
 	}
 	
 	public boolean isSelected() {
@@ -48,36 +46,52 @@ public class TerrainComponent {
 		this.selected = selected;
 	}
 	
-	public double getX() {
+	public SimpleDoubleProperty xProperty() {
 		return x;
 	}
 	
-	public void setX(double x) {
-		this.x = x;
+	public double getX() {
+		return xProperty().get();
 	}
 	
-	public double getY() {
+	public void setX(double x) {
+		xProperty().set(x);
+	}
+	
+	public SimpleDoubleProperty yProperty() {
 		return y;
 	}
 	
-	public void setY(double y) {
-		this.y = y;
+	public double getY() {
+		return yProperty().get();
 	}
 	
-	public int getWidth() {
+	public void setY(double y) {
+		yProperty().set(y);
+	}
+	
+	public SimpleDoubleProperty widthProperty() {
 		return width;
 	}
 	
-	public void setWidth(int width) {
-		this.width = width;
+	public double getWidth() {
+		return widthProperty().get();
 	}
 	
-	public int getHeight() {
+	public void setWidth(double width) {
+		widthProperty().set(width);
+	}
+	
+	public SimpleDoubleProperty heightProperty() {
 		return height;
 	}
 	
-	public void setHeight(int height) {
-		this.height = height;
+	public double getHeight() {
+		return heightProperty().get();
+	}
+	
+	public void setHeight(double height) {
+		heightProperty().set(height);
 	}
 	
 	public void setHighlightColor(Color color) {
@@ -88,5 +102,8 @@ public class TerrainComponent {
 		return highlightColor;
 	}
 	
+	public Rectangle getHitbox() {
+		return hitbox;
+	}
 	
 }
