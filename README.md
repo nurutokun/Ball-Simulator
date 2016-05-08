@@ -3,7 +3,7 @@
 Very basic 2D, physics-based game about a bouncing, rolling circle that traverses some obstacles. Supports multiplayer, fullscreen, and creation of own terrain (a.k.a obstacles).
 
 Features include:
-* JavaFX GUI
+* JavaFX GUI <br/>
 ![alt tag](screenshots/Main Menu.png)
 * Scaling GUI <br/>
 ![alt tag](screenshots/Main Menu \(Scaled\).png)
