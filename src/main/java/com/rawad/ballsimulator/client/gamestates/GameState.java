@@ -65,6 +65,8 @@ public class GameState extends State implements IClientController {
 		gameSystems.add(new PhysicsSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RenderingSystem());
 		
+		viewport
+		
 		showEntireWorld = false;
 		
 	}

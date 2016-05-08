@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.client;
 
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.world.WorldRender;
+import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.client.renderengine.MasterRender;
 
@@ -15,11 +16,11 @@ public class Viewport {
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
-	public Viewport() {
+	public Viewport(RenderingSystem renderingSystem) {
 		
 		masterRender = new MasterRender();
 		
-		worldRender = new WorldRender();
+		worldRender = new WorldRender(renderingSystem);
 		debugRender = new DebugRender();
 		
 		masterRender.registerRender(worldRender);

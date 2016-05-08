@@ -151,10 +151,6 @@ public class Client extends AClient {
 		
 		EntityPlayer.registerTextures(loader);
 		
-		GameEngine gameEngine = game.getGameEngine();
-		
-		gameEngine.addGameSystem(new PhysicsSystem());
-		
 	}
 	
 	@Override
