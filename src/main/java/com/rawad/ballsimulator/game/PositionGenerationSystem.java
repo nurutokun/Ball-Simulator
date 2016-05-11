@@ -30,9 +30,9 @@ public class PositionGenerationSystem extends GameSystem {
 	@Override
 	public void tick(Entity e) {
 		
-		RandomPositionComponent randomPosComp = e.getComponent(RandomPositionComponent.class);
+		RandomPositionComponent randomPositionComp = e.getComponent(RandomPositionComponent.class);
 		
-		if(randomPosComp.isGenerateNewPosition()) {
+		if(randomPositionComp.isGenerateNewPosition()) {
 			
 			TransformComponent transformComp = e.getComponent(TransformComponent.class);
 			CollisionComponent collisionComp = e.getComponent(CollisionComponent.class); 
@@ -62,6 +62,8 @@ public class PositionGenerationSystem extends GameSystem {
 			
 			transformComp.setX(hitbox.getX());
 			transformComp.setY(hitbox.getY());
+			
+			randomPositionComp.setGenerateNewPosition(false);
 			
 		}
 		

@@ -19,8 +19,8 @@ public class StaticRender extends LayeredRender {
 			
 			Rectangle hitbox = collisionComp.getHitbox();
 			
-			g.setStroke(Color.RED);
-			g.strokeRect(hitbox.getX(), hitbox.getY(), hitbox.getWidth(), hitbox.getHeight());
+			g.setFill(Color.RED);
+			g.fillRect(hitbox.getX(), hitbox.getY(), hitbox.getWidth(), hitbox.getHeight());
 			
 		}
 		

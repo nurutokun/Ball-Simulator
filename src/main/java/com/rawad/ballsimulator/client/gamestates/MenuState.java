@@ -1,6 +1,5 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.gamehelpers.client.gamestates.State;
 
 import javafx.fxml.FXML;
@@ -26,14 +25,6 @@ public class MenuState extends State {
 		btnMultiplayer.setOnAction(e -> sm.requestStateChange(MultiplayerGameState.class));
 		btnOptions.setOnAction(e -> sm.requestStateChange(OptionState.class));
 		btnExit.setOnAction(e -> sm.getGame().requestStop());
-		
-	}
-	
-	@Override
-	public void render() {
-		super.render();
-		
-		BackgroundRender.instance().render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
 		
 	}
 	

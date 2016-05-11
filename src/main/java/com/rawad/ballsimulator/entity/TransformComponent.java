@@ -13,7 +13,7 @@ public class TransformComponent extends Component {
 	private double x;
 	private double y;
 	
-	private double scale;
+	private double scale = 1d;
 	
 	/** In degrees. */
 	private double theta;

@@ -2,7 +2,7 @@ package com.rawad.ballsimulator.entity;
 
 import com.rawad.gamehelpers.game.entity.Component;
 
-public class MovingComponent extends Component {
+public class MovementComponent extends Component {
 	
 	private double ax;
 	private double ay;

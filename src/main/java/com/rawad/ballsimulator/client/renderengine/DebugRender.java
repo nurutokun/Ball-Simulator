@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client.renderengine;
 
-import com.rawad.ballsimulator.client.Camera;
-import com.rawad.gamehelpers.client.renderengine.LayeredRender;
+import com.rawad.gamehelpers.client.renderengine.Camera;
+import com.rawad.gamehelpers.client.renderengine.Render;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
 
@@ -9,9 +9,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class DebugRender extends LayeredRender {
-	
-	private Camera camera;
+public class DebugRender extends Render {
 	
 	private int mouseX;
 	private int mouseY;
@@ -19,13 +17,12 @@ public class DebugRender extends LayeredRender {
 	private SimpleDoubleProperty displayWidth = new SimpleDoubleProperty();
 	private SimpleDoubleProperty displayHeight = new SimpleDoubleProperty();
 	
-	@Override
-	public void render(GraphicsContext g) {
+	public void render(GraphicsContext g, Camera camera) {
 		
 		if(GameManager.instance().getCurrentGame().isDebug() == false) return;
 		
-		int screenWidth = Game.SCREEN_WIDTH;
-		int screenHeight = Game.SCREEN_HEIGHT;
+		double screenWidth = Game.SCREEN_WIDTH * camera.getScaleX();
+		double screenHeight = Game.SCREEN_HEIGHT * camera.getScaleY();
 		
 		g.setFill(Color.WHITE);
 		g.fillText(
@@ -42,10 +39,6 @@ public class DebugRender extends LayeredRender {
 		g.setFill(Color.RED);
 		g.fillRect(mouseX, mouseY, 1, 1);
 		
-	}
-	
-	public void setCamera(Camera camera) {
-		this.camera = camera;
 	}
 	
 	/**

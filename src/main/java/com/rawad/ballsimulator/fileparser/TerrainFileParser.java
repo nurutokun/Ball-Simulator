@@ -2,9 +2,13 @@ package com.rawad.ballsimulator.fileparser;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.world.terrain.Terrain;
-import com.rawad.ballsimulator.world.terrain.TerrainComponent;
+import com.rawad.ballsimulator.entity.CollisionComponent;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.fileparser.FileParser;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
+import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.utils.Util;
 
 public class TerrainFileParser extends FileParser {
@@ -16,7 +20,9 @@ public class TerrainFileParser extends FileParser {
 	private static final int INDEX_WIDTH = 2;
 	private static final int INDEX_HEIGHT = 3;
 	
-	private Terrain terrain;
+	private ArrayList<Entity> staticEntities = new ArrayList<Entity>();
+	
+	private World world;
 	
 	@Override
 	protected void parseLine(String line) {
@@ -29,7 +35,21 @@ public class TerrainFileParser extends FileParser {
 		double width = Util.parseDouble(tokens[INDEX_WIDTH]);
 		double height = Util.parseDouble(tokens[INDEX_HEIGHT]);
 		
-		terrain.addTerrainComponent(new TerrainComponent(x, y, width, height));
+		Entity staticEntity = Entity.createEntity(EEntity.STATIC);
+		world.addEntity(staticEntity);
+		staticEntities.add(staticEntity);
+		
+		TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
+		transformComp.setX(x);
+		transformComp.setY(y);
+		
+		CollisionComponent collisionComp = staticEntity.getComponent(CollisionComponent.class);
+		
+		Rectangle hitbox = collisionComp.getHitbox();
+		hitbox.setX(x);
+		hitbox.setY(y);
+		hitbox.setWidth(width);
+		hitbox.setHeight(height);
 		
 	}
 	
@@ -37,22 +57,24 @@ public class TerrainFileParser extends FileParser {
 	protected void start() {
 		super.start();
 		
-		terrain = new Terrain();
+		staticEntities = new ArrayList<Entity>();
 		
 	}
 	
 	@Override
 	public String getContent() {
 		
-		ArrayList<TerrainComponent> terrainComponents = terrain.getTerrainComponents();
-		
-		String[] lines = new String[terrainComponents.size()];
+		String[] lines = new String[staticEntities.size()];
 		
 		int i = 0;
 		
-		for(TerrainComponent comp: terrainComponents) {
+		for(Entity staticEntity: staticEntities) {
 			
-			lines[i] = comp.getX() + REGEX + comp.getY() + REGEX + comp.getWidth() + REGEX + comp.getHeight();
+			CollisionComponent collisionComp = staticEntity.getComponent(CollisionComponent.class);
+			
+			Rectangle hitbox = collisionComp.getHitbox();
+			
+			lines[i] = hitbox.getX() + REGEX + hitbox.getY() + REGEX + hitbox.getWidth() + REGEX + hitbox.getHeight();
 			
 			i++;
 		}
@@ -61,13 +83,11 @@ public class TerrainFileParser extends FileParser {
 		
 	}
 	
-	public Terrain getTerrain() {
-		return terrain;
-	}
-	
-	public void setTerrain(Terrain terrain) {
+	public void setWorld(World world) {
+		this.world = world;
 		
-		this.terrain.setTerrainComponents(terrain.getTerrainComponents());
+		world.getEntitiesAsList().removeAll(staticEntities);
+		staticEntities.clear();
 		
 	}
 	

@@ -10,12 +10,6 @@ import javafx.scene.transform.Affine;
 
 public class BackgroundRender extends Render {
 	
-	private static BackgroundRender instance;
-	
-	private BackgroundRender() {
-		
-	}
-	
 	public void render(GraphicsContext g, double width, double height) {
 		
 		Background background = Background.instance();
@@ -26,27 +20,19 @@ public class BackgroundRender extends Render {
 		Image texture = ResourceManager.getTexture(background.getTexture());
 		Image flippedTexture = ResourceManager.getTexture(background.getFlippedTexture());
 		
+		if(texture == null || flippedTexture == null) return;
+		
 		Affine affine = g.getTransform();
 		
-		double scaleX = width / texture.getWidth();
-		double scaleY = height / texture.getHeight();
+		double scaleX = width / background.getMaxWidth();
+		double scaleY = height / background.getMaxHeight();
 		
 		g.scale(scaleX, scaleY);
-		                       
+		
 		g.drawImage(texture, x, 0);
 		g.drawImage(flippedTexture, secondX, 0);
 		
 		g.setTransform(affine);
-		
-	}
-	
-	public static BackgroundRender instance() {
-		
-		if(instance == null) {
-			instance = new BackgroundRender();
-		}
-		
-		return instance;
 		
 	}
 	

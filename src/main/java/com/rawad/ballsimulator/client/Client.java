@@ -14,15 +14,13 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
-import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.ballsimulator.game.PhysicsSystem;
+import com.rawad.ballsimulator.client.renderengine.MasterRender;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
@@ -40,6 +38,8 @@ public class Client extends AClient {
 	// episode 427
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
+	
+	private MasterRender masterRender;
 	
 	private StateManager sm;
 	
@@ -123,11 +123,13 @@ public class Client extends AClient {
 	
 	public void initResources() {
 		
+		masterRender = new MasterRender();
+		
 		sm.addState(new MenuState());
-		sm.addState(new GameState());
+		sm.addState(new GameState(masterRender));
 		sm.addState(new OptionState());
-		sm.addState(new WorldEditorState());
-		sm.addState(new MultiplayerGameState(networkManager));
+		sm.addState(new WorldEditorState(masterRender));
+		sm.addState(new MultiplayerGameState(masterRender, networkManager));
 		
 		sm.initGui();
 		
@@ -149,7 +151,7 @@ public class Client extends AClient {
 		
 		Background.registerTextures(loader);
 		
-		EntityPlayer.registerTextures(loader);
+//		EntityPlayer.registerTextures(loader);
 		
 	}
 	
@@ -166,19 +168,19 @@ public class Client extends AClient {
 			@Override
 			protected Integer call() throws Exception {
 				
-				String message = "Initializing client resources...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				initResources();
-				
-				message = "Registering unknown texture...";
+				String message = "Registering unknown texture...";
 				
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
 				
 				ResourceManager.registerUnkownTexture();
+				
+				message = "Initializing client resources...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				initResources();
 				
 				message = "Loading textures...";
 				
@@ -245,6 +247,13 @@ public class Client extends AClient {
 	}
 	
 	@Override
+	protected void render() {
+		
+		masterRender.render(sm.getCurrentState().getCanvas().getGraphicsContext2D(), sm.getCurrentState().getCamera());
+		
+	}
+	
+	@Override
 	public void stop() {
 		super.stop();
 		
@@ -262,6 +271,10 @@ public class Client extends AClient {
 	
 	public ClientNetworkManager getNetworkManager() {
 		return networkManager;
+	}
+	
+	public MasterRender getMasterRender() {
+		return masterRender;
 	}
 	
 }

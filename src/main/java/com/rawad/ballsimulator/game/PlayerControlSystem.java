@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.game;
 
-import com.rawad.ballsimulator.entity.MovingComponent;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.gamehelpers.game.GameSystem;
@@ -15,14 +15,14 @@ public class PlayerControlSystem extends GameSystem {
 		
 		compatibleComponentTypes.add(UserControlComponent.class);
 		compatibleComponentTypes.add(TransformComponent.class);
-		compatibleComponentTypes.add(MovingComponent.class);
+		compatibleComponentTypes.add(MovementComponent.class);
 		
 	}
 	
 	@Override
 	public void tick(Entity e) {
 		
-		MovingComponent movingComp = e.getComponent(MovingComponent.class);
+		MovementComponent movingComp = e.getComponent(MovementComponent.class);
 		
 	}
 	

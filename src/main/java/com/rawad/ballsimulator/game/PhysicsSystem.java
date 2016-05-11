@@ -3,7 +3,7 @@ package com.rawad.ballsimulator.game;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.CollisionComponent;
-import com.rawad.ballsimulator.entity.MovingComponent;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -17,7 +17,7 @@ public class PhysicsSystem extends GameSystem {
 	private static final double MIN_ACCEL = 0.1d;// 0.01d
 	private static final double MIN_VELOCITY = 0.4d;// 0.4d
 	
-	private static final double FRICTION = 0.99d;
+	private static final double FRICTION = 0.8d;
 	
 	private double maxWidth;
 	private double maxHeight;
@@ -26,7 +26,7 @@ public class PhysicsSystem extends GameSystem {
 		super();
 		
 		compatibleComponentTypes.add(TransformComponent.class);
-		compatibleComponentTypes.add(MovingComponent.class);
+		compatibleComponentTypes.add(MovementComponent.class);
 		compatibleComponentTypes.add(CollisionComponent.class);
 		
 		this.maxWidth = maxWidth;
@@ -38,7 +38,7 @@ public class PhysicsSystem extends GameSystem {
 	public void tick(Entity e) {
 		
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
-		MovingComponent movingComp = e.getComponent(MovingComponent.class);
+		MovementComponent movingComp = e.getComponent(MovementComponent.class);
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
 		move(movingComp);
@@ -56,7 +56,7 @@ public class PhysicsSystem extends GameSystem {
 		
 	}
 	
-	private void move(MovingComponent movingComp) {
+	private void move(MovementComponent movingComp) {
 		
 		double ay = movingComp.getAy();
 		
@@ -71,7 +71,7 @@ public class PhysicsSystem extends GameSystem {
 			ay /= 2;
 		}
 		
-		if(Math.abs(ay) > 2) {
+		if(Math.abs(ay) > MAX_ACCEL) {
 			ay = up? -MAX_ACCEL: down? MAX_ACCEL:ay;
 		}
 		
@@ -88,7 +88,7 @@ public class PhysicsSystem extends GameSystem {
 			ax /= 2d;
 		}
 		
-		if(Math.abs(ax) > 2) {
+		if(Math.abs(ax) > MAX_ACCEL) {
 			ax = left? -MAX_ACCEL: right? MAX_ACCEL:ax;
 		}
 		
@@ -97,6 +97,14 @@ public class PhysicsSystem extends GameSystem {
 		
 		vx += ax;//Math.sqrt(Math.pow(vx, 2) + (ax));
 		vy += ay;//Math.sqrt(Math.pow(vy, 2) + (ay));
+		
+		if(Math.abs(ax) < MIN_ACCEL) {
+			ax = 0;
+		}
+		
+		if(Math.abs(ay) < MIN_ACCEL) {
+			ay = 0;
+		}
 		
 		if(ax == 0) {
 			vx *= FRICTION;
@@ -116,14 +124,6 @@ public class PhysicsSystem extends GameSystem {
 			
 		}
 		
-		if(Math.abs(ax) < MIN_ACCEL) {
-			ax = 0;
-		}
-		
-		if(Math.abs(ay) < MIN_ACCEL) {
-			ay = 0;
-		}
-		
 		movingComp.setAy(ay);
 		movingComp.setAx(ax);
 		
@@ -132,11 +132,11 @@ public class PhysicsSystem extends GameSystem {
 		
 	}
 	
-	private void stopMoving(MovingComponent movingComp) {
+	private void stopMoving(MovementComponent movingComp) {
 		
 	}
 	
-	private void checkCollision(Entity currentEntity, TransformComponent transformComp, MovingComponent movingComp, 
+	private void checkCollision(Entity currentEntity, TransformComponent transformComp, MovementComponent movingComp, 
 			CollisionComponent collisionComp) {
 		
 		double x = transformComp.getX();
@@ -153,23 +153,20 @@ public class PhysicsSystem extends GameSystem {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
-		double widthOffset = (hitbox.getWidth()/2);
-		double heightOffset = (hitbox.getHeight()/2);
-		
 		// X-Component
-		Rectangle tempHitbox = new Rectangle(newX - widthOffset, y - heightOffset, hitbox.getWidth(), hitbox.getHeight());
+		Rectangle tempHitbox = new Rectangle(newX, y, hitbox.getWidth(), hitbox.getHeight());
 		
-		if(newX - widthOffset <= 0) {
+		if(newX <= 0) {
 			ax /= 2;
 			vx = -vx*3/4;
 			
-			newX = widthOffset;
+			newX = 0;
 			
-		} else if(newX + widthOffset >= maxWidth) {
+		} else if(newX >= maxWidth) {
 			ax /= 2;
 			vx = -vx*3/4;
 			
-			newX = maxWidth - widthOffset;
+			newX = maxWidth;
 			
 		}
 		
@@ -183,19 +180,20 @@ public class PhysicsSystem extends GameSystem {
 		// end X-Component
 		
 		// Y-Component
-		tempHitbox.setX(x - widthOffset);
-		tempHitbox.setY(newY - heightOffset);
+		tempHitbox.setX(x);
+		tempHitbox.setY(newY);
 		
-		if(newY - heightOffset <= 0) {
+		if(newY <= 0) {
 			ay /= 2;
 			vy = -vy*3/4;
 			
-			newY = heightOffset;
-		} else if(newY + heightOffset >= maxHeight) {
+			newY = 0;
+			
+		} else if(newY >= maxHeight) {
 			ay /= 2;
 			vy = -vy*3/4;
 			
-			newY = maxHeight - heightOffset;
+			newY = maxHeight;
 			
 		}
 		

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.rawad.gamehelpers.client.gui.PauseScreen?>
+<?import com.rawad.ballsimulator.client.gui.PauseScreen?>
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.ColumnConstraints?>

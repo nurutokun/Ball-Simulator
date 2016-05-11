@@ -3,7 +3,7 @@
 <?import com.rawad.ballsimulator.client.gui.Messenger?>
 <?import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory?>
 <?import com.rawad.ballsimulator.client.gui.entity.player.PlayerList?>
-<?import com.rawad.gamehelpers.client.gui.PauseScreen?>
+<?import com.rawad.ballsimulator.client.gui.PauseScreen?>
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>

@@ -14,16 +14,9 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class CollisionComponent extends Component {
 	
-	private Rectangle hitbox;
+	private Rectangle hitbox = new Rectangle(0, 0, 0, 0);
 	
-	private SimpleObjectProperty<Entity> collidingWith;
-	
-	public CollisionComponent(Rectangle hitbox) {
-		this.hitbox = hitbox;
-		
-		collidingWith = new SimpleObjectProperty<Entity>();
-		
-	}
+	private SimpleObjectProperty<Entity> collidingWith = new SimpleObjectProperty<Entity>();
 	
 	public Rectangle getHitbox() {
 		return hitbox;

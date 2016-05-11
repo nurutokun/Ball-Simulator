@@ -11,7 +11,7 @@ public class Background {
 	
 	private static final String DEFAULT_TEXTURE_FILE = "game_background";
 	
-	private static double PIXELS_PER_TICK = 0.5;
+	private static double PIXELS_PER_TICK = 2.5;
 	
 	private static int DEFAULT_TEXTURE;
 	private static int DEFAULT_FLIPPED_TEXTURE;
@@ -29,13 +29,6 @@ public class Background {
 	
 	private Background() {
 		
-		texture = DEFAULT_TEXTURE;
-		
-		flippedTexture = DEFAULT_FLIPPED_TEXTURE;
-		
-		maxWidth = (int) ResourceManager.getTexture(texture).getWidth();
-		maxHeight = (int) ResourceManager.getTexture(texture).getHeight();
-		
 		x = 0;
 		secondX = -maxWidth;
 		
@@ -47,6 +40,9 @@ public class Background {
 		
 		DEFAULT_FLIPPED_TEXTURE = loader.registerTexture("", DEFAULT_TEXTURE_FILE + " (flipped)");
 		
+		Background.instance().texture = DEFAULT_TEXTURE;
+		Background.instance().flippedTexture = DEFAULT_FLIPPED_TEXTURE;
+		
 		final TextureResource texture = ResourceManager.getTextureObject(DEFAULT_TEXTURE);
 		final TextureResource flippedTexture = ResourceManager.getTextureObject(DEFAULT_FLIPPED_TEXTURE);
 		
@@ -55,6 +51,9 @@ public class Background {
 			@Override
 			public void run() {
 				flippedTexture.setTexture(getHorizontallyFlippedImage(ResourceManager.getTexture(DEFAULT_TEXTURE)));
+				
+				Background.instance().maxWidth = texture.getTexture().getWidth();
+				Background.instance().maxHeight = texture.getTexture().getHeight();
 				
 			}
 			
@@ -65,19 +64,6 @@ public class Background {
 	public void tick() {
 		
 		double delta = PIXELS_PER_TICK;
-		
-		/*/
-		double offset = x - secondX;
-		
-		if(Math.abs(offset) - maxWidth > 0) {
-			
-			if(offset > 0) {
-				secondX = x - maxWidth;
-			} else if(offset < 0) {
-				x = secondX - maxWidth;
-			}
-			
-		}/**/
 		
 		x += delta;
 		secondX += delta;

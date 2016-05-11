@@ -1,6 +1,5 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.gamehelpers.client.gamestates.State;
 
 import javafx.concurrent.Task;
@@ -23,14 +22,6 @@ public class LoadingState extends State {
 	
 	public LoadingState(Task<Integer> taskToWatch) {
 		this.taskToWatch = taskToWatch;	
-	}
-	
-	@Override
-	public void render() {
-		super.render();
-		
-		BackgroundRender.instance().render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
-		
 	}
 	
 	@Override

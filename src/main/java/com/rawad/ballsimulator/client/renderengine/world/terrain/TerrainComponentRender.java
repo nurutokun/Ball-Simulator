@@ -2,7 +2,7 @@ package com.rawad.ballsimulator.client.renderengine.world.terrain;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.world.terrain.TerrainComponent;
+import com.rawad.ballsimulator.terrain.TerrainComponent;
 import com.rawad.gamehelpers.client.renderengine.LayeredRender;
 
 import javafx.scene.canvas.GraphicsContext;

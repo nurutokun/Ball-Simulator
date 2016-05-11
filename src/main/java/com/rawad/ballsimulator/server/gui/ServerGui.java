@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Viewport;
 import com.rawad.ballsimulator.client.gui.CanvasPane;
 import com.rawad.ballsimulator.client.gui.Messenger;
@@ -16,6 +15,7 @@ import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.ServerController;
 import com.rawad.ballsimulator.server.main.ServerStart;
 import com.rawad.ballsimulator.server.world.WorldMP;
+import com.rawad.gamehelpers.client.renderengine.Camera;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.log.Logger;

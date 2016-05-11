@@ -1,25 +1,26 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import java.util.ArrayList;
-import java.util.Random;
-
-import com.rawad.ballsimulator.client.Camera;
-import com.rawad.ballsimulator.client.Viewport;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
-import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
-import com.rawad.ballsimulator.entity.Entity;
+import com.rawad.ballsimulator.client.renderengine.MasterRender;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.MovementComponent;
+import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.PhysicsSystem;
+import com.rawad.ballsimulator.game.PlayerControlSystem;
+import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
-import com.rawad.ballsimulator.world.World;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 
 import javafx.application.Platform;
@@ -31,6 +32,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Rectangle;
 
 public class MultiplayerGameState extends State {
+	
+	private MasterRender masterRender;
+	
+	private RenderingSystem renderingSystem;
 	
 	private CustomLoader loader;
 	private TerrainFileParser terrainParser;
@@ -44,31 +49,35 @@ public class MultiplayerGameState extends State {
 	
 	private ClientNetworkManager networkManager;
 	
-	private Viewport viewport;
+	private Entity player;
+	private TransformComponent playerTransform;
+	private MovementComponent playerMovement;
 	
-	private World world;
-	private Camera camera;
-	
-	private EntityPlayerMP player;
-	
-	public MultiplayerGameState(ClientNetworkManager networkManager) {
+	public MultiplayerGameState(MasterRender masterRender, ClientNetworkManager networkManager) {
 		super();
+		
+		this.masterRender = masterRender;
 		
 		this.networkManager = networkManager;
 		networkManager.setClient(this);
 		
-		viewport = new Viewport();
+		player = Entity.createEntity(EEntity.NETWORKING_PLAYER);
+//		EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address"	+ " wasn't final.
+//		");
+		playerTransform = player.getComponent(TransformComponent.class);
+		playerMovement = player.getComponent(MovementComponent.class);
 		
-		world = new World();
+		world.addEntity(player);
 		
-		player = new EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address"
-				+ " wasn't final.");
-		
-		camera = new Camera();
 		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
 		camera.setScale(1d/2d, 1d/2d);
 		
-		viewport.update(world, camera);
+		renderingSystem = new RenderingSystem();
+		
+		gameSystems.add(new PlayerControlSystem());
+		//gameSystems.add(new NetworkPlayerControlSystem(networkManager));
+		gameSystems.add(new PhysicsSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(renderingSystem);
 		
 	}
 	
@@ -125,26 +134,26 @@ public class MultiplayerGameState extends State {
 					
 				case UP:
 				case W:
-					player.setUp(true);
-					player.setDown(false);
+					playerMovement.setUp(true);
+					playerMovement.setDown(false);
 					break;
 					
 				case LEFT:
 				case A:
-					player.setLeft(true);
-					player.setRight(false);
+					playerMovement.setLeft(true);
+					playerMovement.setRight(false);
 					break;
 					
 				case DOWN:
 				case S:
-					player.setDown(true);
-					player.setUp(false);
+					playerMovement.setDown(true);
+					playerMovement.setUp(false);
 					break;
 					
 				case RIGHT:
 				case D:
-					player.setRight(true);
-					player.setLeft(false);
+					playerMovement.setRight(true);
+					playerMovement.setLeft(false);
 					break;
 					
 				default:
@@ -168,22 +177,22 @@ public class MultiplayerGameState extends State {
 			
 			case UP:
 			case W:
-				player.setUp(false);
+				playerMovement.setUp(false);
 				break;
 			
 			case LEFT:
 			case A:
-				player.setLeft(false);
+				playerMovement.setLeft(false);
 				break;
 			
 			case DOWN:
 			case S:
-				player.setDown(false);
+				playerMovement.setDown(false);
 				break;
 			
 			case RIGHT:
 			case D:
-				player.setRight(false);
+				playerMovement.setRight(false);
 				break;
 			
 			default:
@@ -197,7 +206,8 @@ public class MultiplayerGameState extends State {
 		
 		mess.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
-			CPacket03Message message = new CPacket03Message(player.getName(), mess.getInputArea().getText());
+			CPacket03Message message = new CPacket03Message(player.toString(), mess.getInputArea().getText());
+			// TODO: (MPGameState) Figure out player username.
 			
 			networkManager.getConnectionManager().sendPacketToServer(message);
 			
@@ -213,26 +223,13 @@ public class MultiplayerGameState extends State {
 		
 		if(networkManager.isLoggedIn()) {// Start updating world, player and camera once login is successful
 			
-			networkManager.updatePlayerMovement(player.isUp(), player.isDown(), player.isRight(), player.isLeft());
+//			networkManager.updatePlayerMovement(player.isUp(), player.isDown(), player.isRight(), player.isLeft());
 			
-			world.update();
-			
-			camera.setX(player.getX() - (Game.SCREEN_WIDTH / camera.getScaleX() / 2));
-			camera.setY(player.getY() - (Game.SCREEN_HEIGHT / camera.getScaleY() / 2));
+			camera.setX(playerTransform.getX() - (Game.SCREEN_WIDTH / camera.getScaleX() / 2));
+			camera.setY(playerTransform.getY() - (Game.SCREEN_HEIGHT / camera.getScaleY() / 2));
 			
 		}
 		
-	}
-	
-	@Override
-	public void render() {
-		super.render();
-		
-		if(networkManager.isLoggedIn()) {
-			viewport.render(canvas, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-		} else {
-			BackgroundRender.instance().render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
-		}
 	}
 	
 	@Override
@@ -278,31 +275,22 @@ public class MultiplayerGameState extends State {
 		mess.setVisible(false);
 		lblConnectingMessage.setVisible(true);
 		
+		masterRender.setRenderingSystem(null);
+		
 	}
 	
 	public void onConnect() {
 		mess.setVisible(true);
 		lblConnectingMessage.setVisible(false);
+		
+		masterRender.setRenderingSystem(renderingSystem);
+		
 	}
 	
 	public void onDisconnect() {
 		
-		ArrayList<Entity> entities = world.getEntities();
-		ArrayList<Entity> entitiesToRemove = new ArrayList<Entity>();
-		
-		for(Entity e: entities) {
-			
-			if(e instanceof EntityPlayerMP && !e.equals(player)) {
-				entitiesToRemove.add(e);
-			}
-			
-		}
-		
-		world.getEntities().removeAll(entitiesToRemove);
-		
-		entitiesToRemove.add(player);
-		
-		playerList.getItems().remove(entitiesToRemove);
+		world.getEntitiesAsList().clear();// We're reloading terrain each time anyways
+		playerList.getItems().clear();
 		
 		sm.requestStateChange(MenuState.class);
 		
@@ -313,7 +301,7 @@ public class MultiplayerGameState extends State {
 		sm.getClient().addTask(new Task<Integer>() {
 			@Override
 			protected Integer call() throws Exception {
-				world.setTerrain(loader.loadTerrain(terrainParser, terrainName));
+				loader.loadTerrain(terrainParser, world, terrainName);
 				return 0;
 			}
 		});
@@ -329,7 +317,7 @@ public class MultiplayerGameState extends State {
 		EntityPlayerMP playerToRemove = null;
 		
 		for(EntityPlayerMP player: playerList.getItems()) {
-			if(player.getName().equals(username)) {
+			if(player.toString().equals(username)) {// TODO: (MPGameState) Figure out player username.
 				playerToRemove = player;
 				break;
 			}
@@ -348,12 +336,9 @@ public class MultiplayerGameState extends State {
 		mess.appendNewLine(message);
 	}
 	
+	@Override
 	public World getWorld() {
 		return world;
-	}
-	
-	public EntityPlayerMP getPlayer() {
-		return player;
 	}
 	
 }

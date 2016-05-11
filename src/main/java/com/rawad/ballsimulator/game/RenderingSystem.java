@@ -15,21 +15,31 @@ public class RenderingSystem extends GameSystem {
 	public RenderingSystem() {
 		super();
 		
+		staticEntities = new ArrayList<Entity>();
+		
 		compatibleComponentTypes.add(RenderingComponent.class);
 		compatibleComponentTypes.add(TransformComponent.class);
 		
 	}
 	
 	@Override
-	public void tick(Entity e) {
+	public void tick() {
 		
 		staticEntities = new ArrayList<Entity>();
+		
+		super.tick();
+		
+	}
+	
+	@Override
+	public void tick(Entity e) {
+		
 		staticEntities.add(e);
 		
 	}
 	
 	public ArrayList<Entity> getStaticEntities() {
-		return staticEntities;
+		return new ArrayList<Entity>(staticEntities);
 	}
 	
 }

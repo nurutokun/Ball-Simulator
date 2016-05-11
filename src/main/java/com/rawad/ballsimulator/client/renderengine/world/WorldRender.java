@@ -2,13 +2,13 @@ package com.rawad.ballsimulator.client.renderengine.world;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.renderengine.entity.PlayerRender;
 import com.rawad.ballsimulator.client.renderengine.world.terrain.TerrainComponentRender;
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.game.RenderingSystem;
+import com.rawad.ballsimulator.terrain.Terrain;
 import com.rawad.ballsimulator.world.World;
-import com.rawad.ballsimulator.world.terrain.Terrain;
+import com.rawad.gamehelpers.client.renderengine.Camera;
 import com.rawad.gamehelpers.client.renderengine.LayeredRender;
 import com.rawad.gamehelpers.game.entity.Entity;
 
@@ -38,7 +38,7 @@ public class WorldRender extends LayeredRender {
 	}
 	
 	@Override
-	public void render(GraphicsContext g) {
+	public void render(GraphicsContext g, Entity e) {
 		
 		if(world == null || camera == null) return;
 		

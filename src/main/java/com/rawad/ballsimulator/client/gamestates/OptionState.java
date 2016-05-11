@@ -1,6 +1,5 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
@@ -42,14 +41,6 @@ public class OptionState extends State {
 	}
 	
 	@Override
-	public void render() {
-		super.render();
-		
-		BackgroundRender.instance().render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
-		
-	}
-	
-	@Override
 	protected void onActivate() {
 		super.onActivate();
 		
@@ -76,7 +67,15 @@ public class OptionState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		loader.saveSettings(settings, sm.getClient().getSettingsFileName());
+		sm.getClient().addTask(new Task<Integer>() {
+			protected Integer call() throws Exception {
+				
+				loader.saveSettings(settings, sm.getClient().getSettingsFileName());
+				
+				return 0;
+				
+			}
+		});
 		
 	}
 	
