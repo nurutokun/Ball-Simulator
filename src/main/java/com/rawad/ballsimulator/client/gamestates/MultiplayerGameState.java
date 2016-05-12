@@ -10,7 +10,7 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.game.PhysicsSystem;
+import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PlayerControlSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
@@ -76,7 +76,7 @@ public class MultiplayerGameState extends State {
 		
 		gameSystems.add(new PlayerControlSystem());
 		//gameSystems.add(new NetworkPlayerControlSystem(networkManager));
-		gameSystems.add(new PhysicsSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new MovementSystem());
 		gameSystems.add(renderingSystem);
 		
 	}

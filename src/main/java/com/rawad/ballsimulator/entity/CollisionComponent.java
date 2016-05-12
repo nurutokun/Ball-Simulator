@@ -18,12 +18,73 @@ public class CollisionComponent extends Component {
 	
 	private SimpleObjectProperty<Entity> collidingWith = new SimpleObjectProperty<Entity>();
 	
+	private boolean collidingUp = false;
+	private boolean collidingDown = false;
+	private boolean collidingRight = false;
+	private boolean collidingLeft = false;
+	
 	public Rectangle getHitbox() {
 		return hitbox;
 	}
 	
 	public SimpleObjectProperty<Entity> getCollidingWithEntity() {
 		return collidingWith;
+	}
+	
+	/**
+	 * @return the collidingUp
+	 */
+	public boolean isCollidingUp() {
+		return collidingUp;
+	}
+	
+	/**
+	 * @param collidingUp the collidingUp to set
+	 */
+	public void setCollidingUp(boolean collidingUp) {
+		this.collidingUp = collidingUp;
+	}
+	
+	/**
+	 * @return the collidingDown
+	 */
+	public boolean isCollidingDown() {
+		return collidingDown;
+	}
+	
+	/**
+	 * @param collidingDown the collidingDown to set
+	 */
+	public void setCollidingDown(boolean collidingDown) {
+		this.collidingDown = collidingDown;
+	}
+	
+	/**
+	 * @return the collidingRight
+	 */
+	public boolean isCollidingRight() {
+		return collidingRight;
+	}
+	
+	/**
+	 * @param collidingRight the collidingRight to set
+	 */
+	public void setCollidingRight(boolean collidingRight) {
+		this.collidingRight = collidingRight;
+	}
+	
+	/**
+	 * @return the collidingLeft
+	 */
+	public boolean isCollidingLeft() {
+		return collidingLeft;
+	}
+	
+	/**
+	 * @param collidingLeft the collidingLeft to set
+	 */
+	public void setCollidingLeft(boolean collidingLeft) {
+		this.collidingLeft = collidingLeft;
 	}
 	
 }

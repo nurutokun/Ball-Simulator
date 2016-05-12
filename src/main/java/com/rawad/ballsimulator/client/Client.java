@@ -249,7 +249,8 @@ public class Client extends AClient {
 	@Override
 	protected void render() {
 		
-		masterRender.render(sm.getCurrentState().getCanvas().getGraphicsContext2D(), sm.getCurrentState().getCamera());
+		if(sm.getCurrentState() != null)
+			masterRender.render(sm.getCurrentState().getCanvas().getGraphicsContext2D(), sm.getCurrentState().getCamera());
 		
 	}
 	

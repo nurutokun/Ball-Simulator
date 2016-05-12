@@ -54,7 +54,7 @@ public class PositionGenerationSystem extends GameSystem {
 				hitbox.setX(x);
 				hitbox.setY(y);
 				
-				if(!PhysicsSystem.isColliding(compatibleEntities, e, collisionComp)) {
+				if(!CollisionSystem.checkEntityCollision(compatibleEntities, e, collisionComp)) {
 					entityBlocked = false;
 				}
 				

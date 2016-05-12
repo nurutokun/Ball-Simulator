@@ -2,7 +2,6 @@ package com.rawad.ballsimulator.client.renderengine;
 
 import com.rawad.gamehelpers.client.renderengine.Camera;
 import com.rawad.gamehelpers.client.renderengine.Render;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
 
 import javafx.beans.property.SimpleDoubleProperty;
@@ -21,8 +20,8 @@ public class DebugRender extends Render {
 		
 		if(GameManager.instance().getCurrentGame().isDebug() == false) return;
 		
-		double screenWidth = Game.SCREEN_WIDTH * camera.getScaleX();
-		double screenHeight = Game.SCREEN_HEIGHT * camera.getScaleY();
+		double screenWidth = camera.getCameraBounds().getWidth();
+		double screenHeight = camera.getCameraBounds().getHeight();
 		
 		g.setFill(Color.WHITE);
 		g.fillText(

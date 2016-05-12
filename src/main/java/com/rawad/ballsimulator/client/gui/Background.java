@@ -27,12 +27,7 @@ public class Background {
 	private double maxWidth;
 	private double maxHeight;// Solely for rendering.
 	
-	private Background() {
-		
-		x = 0;
-		secondX = -maxWidth;
-		
-	}
+	private Background() {}
 	
 	public static void registerTextures(CustomLoader loader) {
 		
@@ -54,6 +49,9 @@ public class Background {
 				
 				Background.instance().maxWidth = texture.getTexture().getWidth();
 				Background.instance().maxHeight = texture.getTexture().getHeight();
+				
+				Background.instance().x = 0;
+				Background.instance().secondX = -Background.instance().maxWidth;
 				
 			}
 			

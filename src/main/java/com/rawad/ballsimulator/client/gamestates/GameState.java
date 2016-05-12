@@ -6,19 +6,20 @@ import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.MasterRender;
+import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.game.PhysicsSystem;
+import com.rawad.ballsimulator.game.CollisionSystem;
+import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PlayerControlSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.IClientController;
 import com.rawad.gamehelpers.client.gamestates.State;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 
@@ -55,6 +56,11 @@ public class GameState extends State implements IClientController {
 		player = Entity.createEntity(EEntity.USER_CONTROLLABLE_PLAYER);
 		playerTransform = player.getComponent(TransformComponent.class);
 		playerMovement = player.getComponent(MovementComponent.class);
+		playerRandomPositioner = player.getComponent(RandomPositionComponent.class);
+		
+		com.rawad.gamehelpers.geometry.Rectangle playerHitbox = player.getComponent(CollisionComponent.class).getHitbox();
+		playerHitbox.setWidth(40);
+		playerHitbox.setHeight(40);
 		
 		world.addEntity(player);
 		
@@ -62,7 +68,8 @@ public class GameState extends State implements IClientController {
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new PlayerControlSystem());
-		gameSystems.add(new PhysicsSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new MovementSystem());
 		gameSystems.add(renderingSystem);
 		
 		showEntireWorld = false;
@@ -117,11 +124,11 @@ public class GameState extends State implements IClientController {
 					break;
 					
 				case C:
-					camera.increaseRotation(10);
+					camera.increaseRotation(5);
 					break;
 					
 				case Z:
-					camera.increaseRotation(-10);
+					camera.increaseRotation(-5);
 					break;
 					
 				case X:
@@ -234,8 +241,8 @@ public class GameState extends State implements IClientController {
 				camera.setScale(1d/2d, 1d/2d);
 			}
 			
-			camera.setX(playerTransform.getX() - (Game.SCREEN_WIDTH / camera.getScaleX() / 2d));
-			camera.setY(playerTransform.getY() - (Game.SCREEN_HEIGHT / camera.getScaleY() / 2d));
+			camera.setX(playerTransform.getX() - (camera.getCameraBounds().getWidth() / camera.getScaleX() / 2d));
+			camera.setY(playerTransform.getY() - (camera.getCameraBounds().getHeight() / camera.getScaleY() / 2d));
 			
 		}
 		
@@ -247,7 +254,7 @@ public class GameState extends State implements IClientController {
 		
 		sm.getClient().addTask(new Task<Integer>() {
 			
-			protected Integer call() throws Exception {
+			protected Integer call() {
 				
 				CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);
 				

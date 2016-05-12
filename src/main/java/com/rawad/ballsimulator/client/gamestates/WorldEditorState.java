@@ -2,7 +2,6 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.renderengine.MasterRender;
-import com.rawad.ballsimulator.client.renderengine.world.terrain.TerrainComponentRender;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
@@ -28,8 +27,6 @@ public class WorldEditorState extends State implements IClientController {
 	private MasterRender masterRender;
 	
 	private RenderingSystem renderingSystem;
-	
-	private TerrainComponentRender tcRender;
 	
 //	private TerrainComponent comp;
 //	private TerrainComponent intersectedComp;

@@ -11,7 +11,7 @@ public class TerrainRender extends LayeredRender {
 	@Override
 	public void render(GraphicsContext g) {
 		
-		g.setFill(Color.GREEN);
+		g.setFill(Color.GRAY);
 		g.fillRect(0, 0, 2048, 2048);
 		
 	}
