@@ -1,7 +1,5 @@
 package com.rawad.ballsimulator.game;
 
-import java.util.ArrayList;
-
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
@@ -25,14 +23,28 @@ public class CollisionSystem extends GameSystem {
 	@Override
 	public void tick(Entity e) {
 		
+		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
-		collisionComp.setCollidingUp(isCollidingUp(collisionComp, bounds));
-		collisionComp.setCollidingDown(isCollidingDown(collisionComp, bounds));
-		collisionComp.setCollidingRight(isCollidingRight(collisionComp, bounds));
-		collisionComp.setCollidingLeft(isCollidingLeft(collisionComp, bounds));
+		boolean oobUp = isOutOfBoundsUp(collisionComp, bounds);
+		boolean oobDown = isOutOfBoundsDown(collisionComp, bounds);
+		boolean oobRight = isOutOfBoundsRight(collisionComp, bounds);
+		boolean oobLeft = isOutOfBoundsLeft(collisionComp, bounds);
 		
-		checkEntityCollision(compatibleEntities, e, collisionComp);
+		Rectangle hitbox = collisionComp.getHitbox();
+		
+		double x = oobRight ? bounds.getX() + bounds.getWidth() - hitbox.getWidth():oobLeft ? bounds.getX():
+			transformComp.getX();
+		double y = oobUp ? bounds.getY():oobDown ? bounds.getY() + bounds.getHeight() - hitbox.getHeight():
+			transformComp.getY();
+		
+		transformComp.setX(x);
+		transformComp.setY(y);
+		
+		hitbox.setX(x);
+		hitbox.setY(y);
+		
+		checkEntityCollision(e, collisionComp);
 		
 	}
 	
@@ -44,8 +56,7 @@ public class CollisionSystem extends GameSystem {
 	 * @param collisionComp
 	 * @return Whether the {@code currentEntity} is intersecting with another {@code Entity} from {@code compatibleEntities}.
 	 */
-	public static boolean checkEntityCollision(ArrayList<Entity> compatibleEntities, Entity currentEntity, 
-			CollisionComponent collisionComp) {
+	public boolean checkEntityCollision(Entity currentEntity, CollisionComponent collisionComp) {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
@@ -56,34 +67,29 @@ public class CollisionSystem extends GameSystem {
 			CollisionComponent otherCollisionComp = e.getComponent(CollisionComponent.class);
 			Rectangle otherHitbox = otherCollisionComp.getHitbox();
 			
-			boolean collidingUp = true;
-			boolean collidingDown = true;
-			boolean collidingRight = true;
-			boolean collidingLeft = true;
+			boolean colliding = true;
 			
-			if(otherHitbox.getY() + otherHitbox.getHeight() < hitbox.getY()) collidingUp = false;
-			if(hitbox.getY() + hitbox.getHeight() < otherHitbox.getY()) collidingDown = false;
+			if(		hitbox.getX() + hitbox.getWidth() < otherHitbox.getX() || 
+					hitbox.getY() + hitbox.getHeight() < otherHitbox.getY() || 
+					otherHitbox.getX() + otherHitbox.getWidth() < hitbox.getX() ||
+					otherHitbox.getY() + otherHitbox.getHeight() < hitbox.getY()) {
+				colliding = false;
+			}
 			
-			if(hitbox.getX() + hitbox.getWidth() < otherHitbox.getX()) collidingRight = false;
-			if(otherHitbox.getX() + otherHitbox.getWidth() < hitbox.getX()) collidingLeft = false;
-			
-			collisionComp.setCollidingUp(collidingUp);
-			collisionComp.setCollidingDown(collidingDown);
-			collisionComp.setCollidingRight(collidingRight);
-			collisionComp.setCollidingLeft(collidingLeft);
-			
-			if(collidingUp || collidingDown || collidingRight || collidingLeft) {
+			if(colliding) {
 				collisionComp.getCollidingWithEntity().set(e);
 				return true;
 			}
 			
 		}
 		
+		collisionComp.getCollidingWithEntity().set(null);
+		
 		return false;
 		
 	}
 	
-	public static boolean isCollidingUp(CollisionComponent collisionComp, Rectangle bounds) {
+	public static boolean isOutOfBoundsUp(CollisionComponent collisionComp, Rectangle bounds) {
 
 		Rectangle hitbox = collisionComp.getHitbox();
 		
@@ -93,7 +99,7 @@ public class CollisionSystem extends GameSystem {
 		
 	}
 	
-	public static boolean isCollidingDown(CollisionComponent collisionComp, Rectangle bounds) {
+	public static boolean isOutOfBoundsDown(CollisionComponent collisionComp, Rectangle bounds) {
 
 		Rectangle hitbox = collisionComp.getHitbox();
 		
@@ -103,7 +109,7 @@ public class CollisionSystem extends GameSystem {
 		
 	}
 	
-	public static boolean isCollidingRight(CollisionComponent collisionComp, Rectangle bounds) {
+	public static boolean isOutOfBoundsRight(CollisionComponent collisionComp, Rectangle bounds) {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
@@ -113,11 +119,11 @@ public class CollisionSystem extends GameSystem {
 		
 	}
 	
-	public static boolean isCollidingLeft(CollisionComponent collisionComp, Rectangle bounds) {
+	public static boolean isOutOfBoundsLeft(CollisionComponent collisionComp, Rectangle bounds) {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
-		if(hitbox.getY() < bounds.getY()) return true;
+		if(hitbox.getX() < bounds.getX()) return true;
 		
 		return false;
 		

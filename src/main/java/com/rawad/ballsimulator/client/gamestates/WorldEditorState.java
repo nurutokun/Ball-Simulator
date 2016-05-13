@@ -53,6 +53,8 @@ public class WorldEditorState extends State implements IClientController {
 		
 		this.masterRender = masterRender;
 		
+		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
+		
 		renderingSystem = new RenderingSystem();
 		
 //		comp = new TerrainComponent(0, 0, DIMS[3], DIMS[3]);// Make the default a size you can actually see...
@@ -335,8 +337,6 @@ public class WorldEditorState extends State implements IClientController {
 				terrainFileParser = game.getFileParser(TerrainFileParser.class);
 				
 				loader.loadTerrain(terrainFileParser, world, "terrain");
-				
-				camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
 				
 				return 0;
 			}

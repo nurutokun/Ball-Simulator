@@ -9,7 +9,6 @@ import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
-
 public class PositionGenerationSystem extends GameSystem {
 	
 	private double maxWidth;
@@ -48,13 +47,13 @@ public class PositionGenerationSystem extends GameSystem {
 			
 			do {
 				
-				double x = r.nextDouble() * (maxWidth - (width / 2d));
-				double y = r.nextDouble() * (maxHeight - (height / 2d));
+				double x = r.nextDouble() * (maxWidth - width);
+				double y = r.nextDouble() * (maxHeight - height);
 				
 				hitbox.setX(x);
 				hitbox.setY(y);
 				
-				if(!CollisionSystem.checkEntityCollision(compatibleEntities, e, collisionComp)) {
+				if(!gameEngine.getGameSystem(CollisionSystem.class).checkEntityCollision(e, collisionComp)) {
 					entityBlocked = false;
 				}
 				

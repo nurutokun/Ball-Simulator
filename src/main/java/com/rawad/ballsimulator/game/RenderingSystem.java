@@ -17,8 +17,8 @@ public class RenderingSystem extends GameSystem {
 		
 		staticEntities = new ArrayList<Entity>();
 		
-		compatibleComponentTypes.add(RenderingComponent.class);
 		compatibleComponentTypes.add(TransformComponent.class);
+		compatibleComponentTypes.add(RenderingComponent.class);
 		
 	}
 	

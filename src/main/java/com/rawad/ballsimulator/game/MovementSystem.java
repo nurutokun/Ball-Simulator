@@ -101,7 +101,7 @@ public class MovementSystem extends GameSystem {
 		
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
-		if(collisionComp != null) {
+		if(collisionComp != null && collisionComp.getCollidingWithEntity().get() != null) {
 			
 			boolean collidingUp = collisionComp.isCollidingUp();
 			boolean collidingDown = collisionComp.isCollidingDown();
@@ -109,27 +109,31 @@ public class MovementSystem extends GameSystem {
 			boolean collidingLeft = collisionComp.isCollidingLeft();
 			
 			if(collidingUp || collidingDown) {
+				newX = transformComp.getX() - vx;
+				
 				ax /= 2;
 				vx = -vx*3/4;
-				
-				newX = transformComp.getX();
 				
 			}
 			
 			if(collidingRight || collidingLeft) {
+				newY = transformComp.getY() - vy;
+				
 				ay /= 2;
 				vy = -vy*3/4;
 				
-				newY = transformComp.getY();
 			}
 			
-			if(collidingUp || collidingDown || collidingRight || collidingLeft) 
-				collisionComp.getCollidingWithEntity().set(null);
+//			if(collidingUp || collidingDown || collidingRight || collidingLeft) 
+//				collisionComp.getCollidingWithEntity().set(null);
 			
-			collisionComp.setCollidingUp(!(collidingUp || true));
-			collisionComp.setCollidingDown(!(collidingDown || true));
-			collisionComp.setCollidingRight(!(collidingRight || true));
-			collisionComp.setCollidingLeft(!(collidingLeft || true));
+//			collisionComp.setCollidingUp(false);
+//			collisionComp.setCollidingDown(false);
+//			collisionComp.setCollidingRight(false);
+//			collisionComp.setCollidingLeft(false);
+			
+			collisionComp.getHitbox().setX(newX);
+			collisionComp.getHitbox().setY(newY);
 			
 		}
 		

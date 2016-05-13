@@ -36,8 +36,6 @@ public class TerrainFileParser extends FileParser {
 		double height = Util.parseDouble(tokens[INDEX_HEIGHT]);
 		
 		Entity staticEntity = Entity.createEntity(EEntity.STATIC);
-		world.addEntity(staticEntity);
-		staticEntities.add(staticEntity);
 		
 		TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
 		transformComp.setX(x);
@@ -51,13 +49,15 @@ public class TerrainFileParser extends FileParser {
 		hitbox.setWidth(width);
 		hitbox.setHeight(height);
 		
+		staticEntities.add(staticEntity);
+		
 	}
 	
 	@Override
-	protected void start() {
-		super.start();
+	public void stop() {
+		super.stop();
 		
-		staticEntities = new ArrayList<Entity>();
+		world.getEntitiesAsList().addAll(staticEntities);
 		
 	}
 	

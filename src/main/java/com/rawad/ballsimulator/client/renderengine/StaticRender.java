@@ -26,10 +26,10 @@ public class StaticRender extends LayeredRender {
 			g.rotate(transformComp.getTheta());
 			g.translate(transformComp.getX(), transformComp.getY());
 			
-			if(e.getComponent(MovementComponent.class) != null) {
-				g.setFill(Color.BLUE);
-			} else {
+			if(e.getComponent(MovementComponent.class) == null) {
 				g.setFill(Color.RED);
+			} else {
+				g.setFill(Color.BLUE);
 			}
 			
 			g.fillRect(0, 0, hitbox.getWidth(), hitbox.getHeight());
