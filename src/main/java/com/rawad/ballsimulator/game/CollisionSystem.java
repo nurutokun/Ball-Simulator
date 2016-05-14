@@ -26,25 +26,18 @@ public class CollisionSystem extends GameSystem {
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
-		boolean oobUp = isOutOfBoundsUp(collisionComp, bounds);
-		boolean oobDown = isOutOfBoundsDown(collisionComp, bounds);
-		boolean oobRight = isOutOfBoundsRight(collisionComp, bounds);
-		boolean oobLeft = isOutOfBoundsLeft(collisionComp, bounds);
+		collisionComp.setOutOfBoundsUp(isOutOfBoundsUp(collisionComp, bounds));
+		collisionComp.setOutOfBoundsDown(isOutOfBoundsDown(collisionComp, bounds));
+		collisionComp.setOutOfBoundsRight(isOutOfBoundsRight(collisionComp, bounds));
+		collisionComp.setOutOfBoundsLeft(isOutOfBoundsLeft(collisionComp, bounds));
 		
-		Rectangle hitbox = collisionComp.getHitbox();
+		if(collisionComp.isOutOfBoundsUp() || collisionComp.isOutOfBoundsDown() || collisionComp.isOutOfBoundsRight() ||
+				collisionComp.isOutOfBoundsLeft()) {
+			transformComp.setX(collisionComp.getHitbox().getX());
+			transformComp.setY(collisionComp.getHitbox().getY());
+		}
 		
-		double x = oobRight ? bounds.getX() + bounds.getWidth() - hitbox.getWidth():oobLeft ? bounds.getX():
-			transformComp.getX();
-		double y = oobUp ? bounds.getY():oobDown ? bounds.getY() + bounds.getHeight() - hitbox.getHeight():
-			transformComp.getY();
-		
-		transformComp.setX(x);
-		transformComp.setY(y);
-		
-		hitbox.setX(x);
-		hitbox.setY(y);
-		
-		checkEntityCollision(e, collisionComp);
+		checkEntityCollision(e, transformComp, collisionComp);
 		
 	}
 	
@@ -56,9 +49,12 @@ public class CollisionSystem extends GameSystem {
 	 * @param collisionComp
 	 * @return Whether the {@code currentEntity} is intersecting with another {@code Entity} from {@code compatibleEntities}.
 	 */
-	public boolean checkEntityCollision(Entity currentEntity, CollisionComponent collisionComp) {
+	public boolean checkEntityCollision(Entity currentEntity, TransformComponent transformComp, 
+			CollisionComponent collisionComp) {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
+		Rectangle newHitbox = new Rectangle(transformComp.getX(), transformComp.getY(), hitbox.getWidth(), 
+				hitbox.getHeight());
 		
 		for(Entity e: compatibleEntities) {
 			
@@ -67,23 +63,52 @@ public class CollisionSystem extends GameSystem {
 			CollisionComponent otherCollisionComp = e.getComponent(CollisionComponent.class);
 			Rectangle otherHitbox = otherCollisionComp.getHitbox();
 			
+			boolean collidingUp = true;
+			boolean collidingDown = true;
+			boolean collidingRight = true;
+			boolean collidingLeft = true;
+			
+			if(otherHitbox.getY() + otherHitbox.getHeight() < newHitbox.getY()) collidingUp = false;
+			if(newHitbox.getY() + newHitbox.getHeight() < otherHitbox.getY()) collidingDown = false;
+			
+			if(newHitbox.getX() + newHitbox.getWidth() < otherHitbox.getX()) collidingRight = false;
+			if(otherHitbox.getX() + otherHitbox.getWidth() < newHitbox.getX()) collidingLeft = false;
+			
 			boolean colliding = true;
 			
-			if(		hitbox.getX() + hitbox.getWidth() < otherHitbox.getX() || 
-					hitbox.getY() + hitbox.getHeight() < otherHitbox.getY() || 
-					otherHitbox.getX() + otherHitbox.getWidth() < hitbox.getX() ||
-					otherHitbox.getY() + otherHitbox.getHeight() < hitbox.getY()) {
+			if(		newHitbox.getX() + newHitbox.getWidth() < otherHitbox.getX() || 
+					newHitbox.getY() + newHitbox.getHeight() < otherHitbox.getY() || 
+					otherHitbox.getX() + otherHitbox.getWidth() < newHitbox.getX() ||
+					otherHitbox.getY() + otherHitbox.getHeight() < newHitbox.getY()) {
 				colliding = false;
 			}
 			
+			
 			if(colliding) {
 				collisionComp.getCollidingWithEntity().set(e);
+				
+				collisionComp.setCollidingUp(collidingUp);
+				collisionComp.setCollidingDown(collidingDown);
+				collisionComp.setCollidingRight(collidingRight);
+				collisionComp.setCollidingLeft(collidingLeft);
+				
+				transformComp.setX(hitbox.getX());
+				transformComp.setY(hitbox.getY());
+				
 				return true;
 			}
 			
 		}
 		
 		collisionComp.getCollidingWithEntity().set(null);
+		
+		collisionComp.setCollidingUp(false);
+		collisionComp.setCollidingDown(false);
+		collisionComp.setCollidingRight(false);
+		collisionComp.setCollidingLeft(false);
+		
+		hitbox.setX(transformComp.getX());
+		hitbox.setY(transformComp.getY());
 		
 		return false;
 		

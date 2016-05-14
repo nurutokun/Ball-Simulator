@@ -68,8 +68,8 @@ public class GameState extends State implements IClientController {
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new PlayerControlSystem());
-		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new MovementSystem());
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(renderingSystem);
 		
 		showEntireWorld = false;

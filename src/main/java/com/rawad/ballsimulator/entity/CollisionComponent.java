@@ -23,6 +23,11 @@ public class CollisionComponent extends Component {
 	private boolean collidingRight = false;
 	private boolean collidingLeft = false;
 	
+	private boolean outOfBoundsUp = false;
+	private boolean outOfBoundsDown = false;
+	private boolean outOfBoundsRight = false;
+	private boolean outOfBoundsLeft = false;
+	
 	public Rectangle getHitbox() {
 		return hitbox;
 	}
@@ -85,6 +90,62 @@ public class CollisionComponent extends Component {
 	 */
 	public void setCollidingLeft(boolean collidingLeft) {
 		this.collidingLeft = collidingLeft;
+	}
+	
+	/**
+	 * @return the outOfBoundsUp
+	 */
+	public boolean isOutOfBoundsUp() {
+		return outOfBoundsUp;
+	}
+	
+	/**
+	 * @param outOfBoundsUp the outOfBoundsUp to set
+	 */
+	public void setOutOfBoundsUp(boolean outOfBoundsUp) {
+		this.outOfBoundsUp = outOfBoundsUp;
+	}
+	
+	/**
+	 * @return the outOfBoundsDown
+	 */
+	public boolean isOutOfBoundsDown() {
+		return outOfBoundsDown;
+	}
+	
+	/**
+	 * @param outOfBoundsDown the outOfBoundsDown to set
+	 */
+	public void setOutOfBoundsDown(boolean outOfBoundsDown) {
+		this.outOfBoundsDown = outOfBoundsDown;
+	}
+	
+	/**
+	 * @return the outOfBoundsRight
+	 */
+	public boolean isOutOfBoundsRight() {
+		return outOfBoundsRight;
+	}
+	
+	/**
+	 * @param outOfBoundsRight the outOfBoundsRight to set
+	 */
+	public void setOutOfBoundsRight(boolean outOfBoundsRight) {
+		this.outOfBoundsRight = outOfBoundsRight;
+	}
+	
+	/**
+	 * @return the outOfBoundsLeft
+	 */
+	public boolean isOutOfBoundsLeft() {
+		return outOfBoundsLeft;
+	}
+	
+	/**
+	 * @param outOfBoundsLeft the outOfBoundsLeft to set
+	 */
+	public void setOutOfBoundsLeft(boolean outOfBoundsLeft) {
+		this.outOfBoundsLeft = outOfBoundsLeft;
 	}
 	
 }

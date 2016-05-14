@@ -57,6 +57,8 @@ public class WorldEditorState extends State implements IClientController {
 		
 		renderingSystem = new RenderingSystem();
 		
+		gameSystems.add(renderingSystem);
+		
 //		comp = new TerrainComponent(0, 0, DIMS[3], DIMS[3]);// Make the default a size you can actually see...
 //		comp.setHighlightColor(Color.CYAN);
 		
@@ -314,9 +316,8 @@ public class WorldEditorState extends State implements IClientController {
 		sm.getClient().addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				terrainFileParser.setWorld(world);
-				
-				loader.saveTerrain(terrainFileParser, terrainName);
+				loader.saveTerrain(terrainFileParser, terrainName);// TODO: add/remove sttic entities to/from world AND 
+				// terrainFileParser.
 				
 				return 0;
 			}

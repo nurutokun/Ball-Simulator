@@ -14,7 +14,7 @@ public class MovementSystem extends GameSystem {
 	private static final double MIN_ACCEL = 0.1d;// 0.01d
 	private static final double MIN_VELOCITY = 0.4d;// 0.4d
 	
-	private static final double FRICTION = 0.1d;
+	private static final double FRICTION = 0.9d;
 	
 	public MovementSystem() {
 		super();
@@ -101,39 +101,20 @@ public class MovementSystem extends GameSystem {
 		
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
-		if(collisionComp != null && collisionComp.getCollidingWithEntity().get() != null) {
+		if(collisionComp != null) {
 			
-			boolean collidingUp = collisionComp.isCollidingUp();
-			boolean collidingDown = collisionComp.isCollidingDown();
-			boolean collidingRight = collisionComp.isCollidingRight();
-			boolean collidingLeft = collisionComp.isCollidingLeft();
-			
-			if(collidingUp || collidingDown) {
-				newX = transformComp.getX() - vx;
-				
-				ax /= 2;
-				vx = -vx*3/4;
-				
+			if(collisionComp.isCollidingRight() || collisionComp.isCollidingLeft() || collisionComp.isOutOfBoundsRight() ||
+					collisionComp.isOutOfBoundsLeft()) {
+//				ax /= 2;
+//				vx = -vx*3/4;
 			}
 			
-			if(collidingRight || collidingLeft) {
-				newY = transformComp.getY() - vy;
-				
-				ay /= 2;
-				vy = -vy*3/4;
-				
+			if(collisionComp.isCollidingUp() || collisionComp.isCollidingDown() || collisionComp.isOutOfBoundsUp() ||
+					collisionComp.isOutOfBoundsDown()) {
+//				ay /= 2;
+//				vy = -vy*3/4;
 			}
 			
-//			if(collidingUp || collidingDown || collidingRight || collidingLeft) 
-//				collisionComp.getCollidingWithEntity().set(null);
-			
-//			collisionComp.setCollidingUp(false);
-//			collisionComp.setCollidingDown(false);
-//			collisionComp.setCollidingRight(false);
-//			collisionComp.setCollidingLeft(false);
-			
-			collisionComp.getHitbox().setX(newX);
-			collisionComp.getHitbox().setY(newY);
 			
 		}
 		
