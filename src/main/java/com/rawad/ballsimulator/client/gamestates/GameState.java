@@ -58,19 +58,24 @@ public class GameState extends State implements IClientController {
 		playerMovement = player.getComponent(MovementComponent.class);
 		playerRandomPositioner = player.getComponent(RandomPositionComponent.class);
 		
-		com.rawad.gamehelpers.geometry.Rectangle playerHitbox = player.getComponent(CollisionComponent.class).getHitbox();
+		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
+		
+		com.rawad.gamehelpers.geometry.Rectangle playerHitbox = playerCollision.getHitbox();
 		playerHitbox.setWidth(40);
 		playerHitbox.setHeight(40);
 		
 		world.addEntity(player);
 		
+		MovementSystem movementSystem = new MovementSystem();
 		renderingSystem = new RenderingSystem();
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new PlayerControlSystem());
-		gameSystems.add(new MovementSystem());
+		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(renderingSystem);
+		
+		playerCollision.getListeners().add(movementSystem);
 		
 		showEntireWorld = false;
 		

@@ -37,16 +37,19 @@ public class StaticRender extends LayeredRender {
 			g.setFill(Color.WHITE);
 			g.scale(2, 2);
 			
-//			if(e.getComponent(MovementComponent.class) != null) {
+			MovementComponent movementComp = e.getComponent(MovementComponent.class);
+			
+			if(movementComp != null) {
 				g.fillText("E: " + e, 0, 0);
 				g.fillText("E-Collide: " + collisionComp.getCollidingWithEntity().get(), 0, 10);
-				if(collisionComp.isCollidingUp()) g.fillText("Up", 0, 20);
-				if(collisionComp.isCollidingDown()) g.fillText("Down", 0, 30);
-				if(collisionComp.isCollidingRight()) g.fillText("Right", 0, 40);
-				if(collisionComp.isCollidingLeft()) g.fillText("Left", 0, 50);
-//			}
+				if(collisionComp.isCollideX()) g.fillText("X-collide", 0, 20);
+				if(collisionComp.isCollideY()) g.fillText("Y-collide", 0, 30);
+			}
 			
 			g.scale(1d/2d, 1d/2d);
+			
+			g.strokeRect(hitbox.getX() - transformComp.getX(), hitbox.getY() - transformComp.getY(), hitbox.getWidth(), 
+					hitbox.getHeight());
 			
 			g.translate(-transformComp.getX(), -transformComp.getY());
 			g.rotate(-transformComp.getTheta());

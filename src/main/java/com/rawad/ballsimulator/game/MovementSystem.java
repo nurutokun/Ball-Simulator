@@ -5,8 +5,9 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.Listener;
 
-public class MovementSystem extends GameSystem {
+public class MovementSystem extends GameSystem implements Listener<CollisionComponent> {
 	
 	private static final double JERK = 0.7d;// 0.1d
 	
@@ -28,12 +29,12 @@ public class MovementSystem extends GameSystem {
 	public void tick(Entity e) {
 		
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
-		MovementComponent movingComp = e.getComponent(MovementComponent.class);
+		MovementComponent movementComp = e.getComponent(MovementComponent.class);
 		
-		double ay = movingComp.getAy();
+		double ay = movementComp.getAy();
 		
-		boolean up = movingComp.isUp();
-		boolean down = movingComp.isDown();
+		boolean up = movementComp.isUp();
+		boolean down = movementComp.isDown();
 		
 		if(up) {
 			ay -= JERK;
@@ -47,10 +48,10 @@ public class MovementSystem extends GameSystem {
 			ay = up? -MAX_ACCEL: down? MAX_ACCEL:ay;
 		}
 		
-		double ax = movingComp.getAx();
+		double ax = movementComp.getAx();
 		
-		boolean right = movingComp.isRight();
-		boolean left = movingComp.isLeft();
+		boolean right = movementComp.isRight();
+		boolean left = movementComp.isLeft();
 		
 		if(right) {
 			ax += JERK;
@@ -64,8 +65,8 @@ public class MovementSystem extends GameSystem {
 			ax = left? -MAX_ACCEL: right? MAX_ACCEL:ax;
 		}
 		
-		double vx = movingComp.getVx();
-		double vy = movingComp.getVy();
+		double vx = movementComp.getVx();
+		double vy = movementComp.getVy();
 		
 		vx += ax;//Math.sqrt(Math.pow(vx, 2) + (ax));
 		vy += ay;//Math.sqrt(Math.pow(vy, 2) + (ay));
@@ -99,30 +100,55 @@ public class MovementSystem extends GameSystem {
 		double newX = transformComp.getX() + vx;
 		double newY = transformComp.getY() + vy;
 		
-		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
+		movementComp.setAy(ay);
+		movementComp.setAx(ax);
 		
-		if(collisionComp != null) {
+		movementComp.setVx(vx);
+		movementComp.setVy(vy);
+		
+		transformComp.setX(newX);
+		transformComp.setY(newY);
+		
+	}
+	
+	@Override
+	public void onEvent(Entity e, CollisionComponent collisionComp) {
+		
+		TransformComponent transformComp = e.getComponent(TransformComponent.class);
+		MovementComponent movementComp = e.getComponent(MovementComponent.class);
+		
+		double ax = movementComp.getAx();
+		double ay = movementComp.getAy();
+		
+		double vx = movementComp.getVx();
+		double vy = movementComp.getVy();
+		
+		double newX = transformComp.getX();
+		double newY = transformComp.getY();
+		
+		if(collisionComp.isCollideX()) {
 			
-			if(collisionComp.isCollidingRight() || collisionComp.isCollidingLeft() || collisionComp.isOutOfBoundsRight() ||
-					collisionComp.isOutOfBoundsLeft()) {
-//				ax /= 2;
-//				vx = -vx*3/4;
-			}
+			newX -= vx;
 			
-			if(collisionComp.isCollidingUp() || collisionComp.isCollidingDown() || collisionComp.isOutOfBoundsUp() ||
-					collisionComp.isOutOfBoundsDown()) {
-//				ay /= 2;
-//				vy = -vy*3/4;
-			}
-			
+			ax /= -2;
+			vx = -vx*3/4;
 			
 		}
 		
-		movingComp.setAy(ay);
-		movingComp.setAx(ax);
+		if(collisionComp.isCollideY()) {
+			
+			newY -= vy;
+			
+			ay /= -2;
+			vy = -vy*3/4;
+			
+		}
 		
-		movingComp.setVx(vx);
-		movingComp.setVy(vy);
+		movementComp.setAy(ay);
+		movementComp.setAx(ax);
+		
+		movementComp.setVx(vx);
+		movementComp.setVy(vy);
 		
 		transformComp.setX(newX);
 		transformComp.setY(newY);

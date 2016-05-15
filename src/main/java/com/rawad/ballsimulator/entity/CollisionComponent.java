@@ -1,7 +1,10 @@
 package com.rawad.ballsimulator.entity;
 
+import java.util.ArrayList;
+
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.Listener;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -18,15 +21,10 @@ public class CollisionComponent extends Component {
 	
 	private SimpleObjectProperty<Entity> collidingWith = new SimpleObjectProperty<Entity>();
 	
-	private boolean collidingUp = false;
-	private boolean collidingDown = false;
-	private boolean collidingRight = false;
-	private boolean collidingLeft = false;
+	private ArrayList<Listener<CollisionComponent>> listeners = new ArrayList<Listener<CollisionComponent>>();
 	
-	private boolean outOfBoundsUp = false;
-	private boolean outOfBoundsDown = false;
-	private boolean outOfBoundsRight = false;
-	private boolean outOfBoundsLeft = false;
+	private boolean collideX = false;
+	private boolean collideY = false;
 	
 	public Rectangle getHitbox() {
 		return hitbox;
@@ -36,116 +34,36 @@ public class CollisionComponent extends Component {
 		return collidingWith;
 	}
 	
-	/**
-	 * @return the collidingUp
-	 */
-	public boolean isCollidingUp() {
-		return collidingUp;
+	public ArrayList<Listener<CollisionComponent>> getListeners() {
+		return listeners;
 	}
 	
 	/**
-	 * @param collidingUp the collidingUp to set
+	 * @return the collideX
 	 */
-	public void setCollidingUp(boolean collidingUp) {
-		this.collidingUp = collidingUp;
+	public boolean isCollideX() {
+		return collideX;
 	}
 	
 	/**
-	 * @return the collidingDown
+	 * @param collideX the collideX to set
 	 */
-	public boolean isCollidingDown() {
-		return collidingDown;
+	public void setCollideX(boolean collideX) {
+		this.collideX = collideX;
 	}
 	
 	/**
-	 * @param collidingDown the collidingDown to set
+	 * @return the collideY
 	 */
-	public void setCollidingDown(boolean collidingDown) {
-		this.collidingDown = collidingDown;
+	public boolean isCollideY() {
+		return collideY;
 	}
 	
 	/**
-	 * @return the collidingRight
+	 * @param collideY the collideY to set
 	 */
-	public boolean isCollidingRight() {
-		return collidingRight;
-	}
-	
-	/**
-	 * @param collidingRight the collidingRight to set
-	 */
-	public void setCollidingRight(boolean collidingRight) {
-		this.collidingRight = collidingRight;
-	}
-	
-	/**
-	 * @return the collidingLeft
-	 */
-	public boolean isCollidingLeft() {
-		return collidingLeft;
-	}
-	
-	/**
-	 * @param collidingLeft the collidingLeft to set
-	 */
-	public void setCollidingLeft(boolean collidingLeft) {
-		this.collidingLeft = collidingLeft;
-	}
-	
-	/**
-	 * @return the outOfBoundsUp
-	 */
-	public boolean isOutOfBoundsUp() {
-		return outOfBoundsUp;
-	}
-	
-	/**
-	 * @param outOfBoundsUp the outOfBoundsUp to set
-	 */
-	public void setOutOfBoundsUp(boolean outOfBoundsUp) {
-		this.outOfBoundsUp = outOfBoundsUp;
-	}
-	
-	/**
-	 * @return the outOfBoundsDown
-	 */
-	public boolean isOutOfBoundsDown() {
-		return outOfBoundsDown;
-	}
-	
-	/**
-	 * @param outOfBoundsDown the outOfBoundsDown to set
-	 */
-	public void setOutOfBoundsDown(boolean outOfBoundsDown) {
-		this.outOfBoundsDown = outOfBoundsDown;
-	}
-	
-	/**
-	 * @return the outOfBoundsRight
-	 */
-	public boolean isOutOfBoundsRight() {
-		return outOfBoundsRight;
-	}
-	
-	/**
-	 * @param outOfBoundsRight the outOfBoundsRight to set
-	 */
-	public void setOutOfBoundsRight(boolean outOfBoundsRight) {
-		this.outOfBoundsRight = outOfBoundsRight;
-	}
-	
-	/**
-	 * @return the outOfBoundsLeft
-	 */
-	public boolean isOutOfBoundsLeft() {
-		return outOfBoundsLeft;
-	}
-	
-	/**
-	 * @param outOfBoundsLeft the outOfBoundsLeft to set
-	 */
-	public void setOutOfBoundsLeft(boolean outOfBoundsLeft) {
-		this.outOfBoundsLeft = outOfBoundsLeft;
+	public void setCollideY(boolean collideY) {
+		this.collideY = collideY;
 	}
 	
 }

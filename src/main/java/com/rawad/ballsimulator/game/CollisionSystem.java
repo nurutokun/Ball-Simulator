@@ -4,6 +4,7 @@ import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.Listener;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
 public class CollisionSystem extends GameSystem {
@@ -26,129 +27,79 @@ public class CollisionSystem extends GameSystem {
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
-		collisionComp.setOutOfBoundsUp(isOutOfBoundsUp(collisionComp, bounds));
-		collisionComp.setOutOfBoundsDown(isOutOfBoundsDown(collisionComp, bounds));
-		collisionComp.setOutOfBoundsRight(isOutOfBoundsRight(collisionComp, bounds));
-		collisionComp.setOutOfBoundsLeft(isOutOfBoundsLeft(collisionComp, bounds));
+		Rectangle hitbox = collisionComp.getHitbox();
 		
-		if(collisionComp.isOutOfBoundsUp() || collisionComp.isOutOfBoundsDown() || collisionComp.isOutOfBoundsRight() ||
-				collisionComp.isOutOfBoundsLeft()) {
-			transformComp.setX(collisionComp.getHitbox().getX());
-			transformComp.setY(collisionComp.getHitbox().getY());
+		Rectangle hitboxX = new Rectangle(transformComp.getX(), hitbox.getY(), hitbox.getWidth(), hitbox.getHeight());
+		
+		Entity collidingWithX = checkEntityCollision(e, hitboxX);
+		
+		boolean collideX = isOutOfBounds(hitboxX, bounds) || collidingWithX != null;
+		
+		Rectangle hitboxY = new Rectangle(hitbox.getX(), transformComp.getY(), hitbox.getWidth(), hitbox.getHeight());
+		
+		Entity collidingWithY = checkEntityCollision(e, hitboxY);
+		
+		boolean collideY = isOutOfBounds(hitboxY, bounds) || collidingWithY != null;
+		
+		collisionComp.getCollidingWithEntity().set(collidingWithX == collidingWithY? collidingWithX:collidingWithY);
+		
+		collisionComp.setCollideX(collideX);
+		collisionComp.setCollideY(collideY);
+		
+		for(Listener<CollisionComponent> listener: collisionComp.getListeners()) {
+			listener.onEvent(e, collisionComp);
 		}
 		
-		checkEntityCollision(e, transformComp, collisionComp);
+		hitbox.setX(transformComp.getX());
+		hitbox.setY(transformComp.getY());
 		
 	}
 	
 	/**
 	 * Directly updates {@code collisionComp} with the necessary data about collision with another {@code Entity}.
 	 * 
-	 * @param compatibleEntities
 	 * @param currentEntity
-	 * @param collisionComp
-	 * @return Whether the {@code currentEntity} is intersecting with another {@code Entity} from {@code compatibleEntities}.
+	 * @param hitbox
+	 * @return {@code Entity} colliding with the {@code currentEntity} from {@code compatibleEntities}.
 	 */
-	public boolean checkEntityCollision(Entity currentEntity, TransformComponent transformComp, 
-			CollisionComponent collisionComp) {
-		
-		Rectangle hitbox = collisionComp.getHitbox();
-		Rectangle newHitbox = new Rectangle(transformComp.getX(), transformComp.getY(), hitbox.getWidth(), 
-				hitbox.getHeight());
+	public Entity checkEntityCollision(Entity currentEntity, Rectangle hitbox) {
 		
 		for(Entity e: compatibleEntities) {
 			
 			if(currentEntity.equals(e)) continue;
 			
-			CollisionComponent otherCollisionComp = e.getComponent(CollisionComponent.class);
-			Rectangle otherHitbox = otherCollisionComp.getHitbox();
+			Rectangle otherHitbox = e.getComponent(CollisionComponent.class).getHitbox();
 			
-			boolean collidingUp = true;
-			boolean collidingDown = true;
-			boolean collidingRight = true;
-			boolean collidingLeft = true;
+			boolean collision = true;
 			
-			if(otherHitbox.getY() + otherHitbox.getHeight() < newHitbox.getY()) collidingUp = false;
-			if(newHitbox.getY() + newHitbox.getHeight() < otherHitbox.getY()) collidingDown = false;
+			if(		hitbox.getX() + hitbox.getWidth() < otherHitbox.getX() || 
+					otherHitbox.getX() + otherHitbox.getWidth() < hitbox.getX() || 
+					otherHitbox.getY() + otherHitbox.getHeight() < hitbox.getY() || 
+					hitbox.getY() + hitbox.getHeight() < otherHitbox.getY())
+				collision = false;
 			
-			if(newHitbox.getX() + newHitbox.getWidth() < otherHitbox.getX()) collidingRight = false;
-			if(otherHitbox.getX() + otherHitbox.getWidth() < newHitbox.getX()) collidingLeft = false;
-			
-			boolean colliding = true;
-			
-			if(		newHitbox.getX() + newHitbox.getWidth() < otherHitbox.getX() || 
-					newHitbox.getY() + newHitbox.getHeight() < otherHitbox.getY() || 
-					otherHitbox.getX() + otherHitbox.getWidth() < newHitbox.getX() ||
-					otherHitbox.getY() + otherHitbox.getHeight() < newHitbox.getY()) {
-				colliding = false;
-			}
-			
-			
-			if(colliding) {
-				collisionComp.getCollidingWithEntity().set(e);
+			if(collision) {
+//				collisionComp.getCollidingWithEntity().set(e);
+//				
+//				collisionComp.setCollideX(newHitbox.getX() + newHitbox.getWidth() < otherHitbox.getX() ||
+//						otherHitbox.getX() + otherHitbox.getWidth() < newHitbox.getX());
+//				collisionComp.setCollideY(newHitbox.getY() + newHitbox.getHeight() < otherHitbox.getY() ||
+//						otherHitbox.getY() + otherHitbox.getHeight() < newHitbox.getY());
 				
-				collisionComp.setCollidingUp(collidingUp);
-				collisionComp.setCollidingDown(collidingDown);
-				collisionComp.setCollidingRight(collidingRight);
-				collisionComp.setCollidingLeft(collidingLeft);
-				
-				transformComp.setX(hitbox.getX());
-				transformComp.setY(hitbox.getY());
-				
-				return true;
+				return e;
 			}
 			
 		}
 		
-		collisionComp.getCollidingWithEntity().set(null);
-		
-		collisionComp.setCollidingUp(false);
-		collisionComp.setCollidingDown(false);
-		collisionComp.setCollidingRight(false);
-		collisionComp.setCollidingLeft(false);
-		
-		hitbox.setX(transformComp.getX());
-		hitbox.setY(transformComp.getY());
-		
-		return false;
+		return null;
 		
 	}
 	
-	public static boolean isOutOfBoundsUp(CollisionComponent collisionComp, Rectangle bounds) {
-
-		Rectangle hitbox = collisionComp.getHitbox();
+	public static boolean isOutOfBounds(Rectangle hitbox, Rectangle bounds) {
 		
-		if(hitbox.getY() < bounds.getY()) return true;
-		
-		return false;
-		
-	}
-	
-	public static boolean isOutOfBoundsDown(CollisionComponent collisionComp, Rectangle bounds) {
-
-		Rectangle hitbox = collisionComp.getHitbox();
-		
-		if(hitbox.getY() + hitbox.getHeight() > bounds.getY() + bounds.getHeight()) return true;
-		
-		return false;
-		
-	}
-	
-	public static boolean isOutOfBoundsRight(CollisionComponent collisionComp, Rectangle bounds) {
-		
-		Rectangle hitbox = collisionComp.getHitbox();
-		
-		if(hitbox.getX() + hitbox.getWidth() > bounds.getX() + bounds.getWidth()) return true;
-		
-		return false;
-		
-	}
-	
-	public static boolean isOutOfBoundsLeft(CollisionComponent collisionComp, Rectangle bounds) {
-		
-		Rectangle hitbox = collisionComp.getHitbox();
-		
-		if(hitbox.getX() < bounds.getX()) return true;
+		if(hitbox.getX() + hitbox.getWidth() > bounds.getX() + bounds.getWidth() || hitbox.getX() < bounds.getX() ||
+				hitbox.getY() < bounds.getY() || hitbox.getY() + hitbox.getHeight() > bounds.getY() + bounds.getHeight()) 
+			return true;
 		
 		return false;
 		
