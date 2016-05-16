@@ -10,7 +10,7 @@ import com.rawad.gamehelpers.geometry.Rectangle;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class StaticRender extends LayeredRender {
+public class EntityRender extends LayeredRender {
 	
 	@Override
 	public void render(GraphicsContext g, Entity e) {

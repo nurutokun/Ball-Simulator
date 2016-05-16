@@ -42,6 +42,7 @@ public class CollisionSystem extends GameSystem {
 		boolean collideY = isOutOfBounds(hitboxY, bounds) || collidingWithY != null;
 		
 		collisionComp.getCollidingWithEntity().set(collidingWithX == collidingWithY? collidingWithX:collidingWithY);
+		// TODO: Which entity gets collided with? Horizontal or vertical? Maybe both?
 		
 		collisionComp.setCollideX(collideX);
 		collisionComp.setCollideY(collideY);

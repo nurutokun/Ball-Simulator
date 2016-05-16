@@ -5,6 +5,7 @@ import com.rawad.gamehelpers.utils.Util;
 
 public enum EEntity {
 	
+	CAMERA(new TransformComponent(), new CollisionComponent()),// Transform for scaling, collision for keeping in bounds
 	STATIC(new TransformComponent(), new CollisionComponent(), new RenderingComponent()),
 	PLAYER(new TransformComponent(), new CollisionComponent(), new HealthComponent(), new MovementComponent(), new RenderingComponent()),
 	USER_CONTROLLABLE_PLAYER(PLAYER.getComponents(), new GuiComponent(), new UserControlComponent(), new RandomPositionComponent()),

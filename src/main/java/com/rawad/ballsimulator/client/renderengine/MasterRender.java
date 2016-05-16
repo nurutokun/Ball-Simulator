@@ -18,7 +18,7 @@ public class MasterRender extends AMasterRender {
 	
 	private BackgroundRender backgroundRender;
 	private TerrainRender terrainRender;
-	private StaticRender staticRender;
+	private EntityRender entityRender;
 	private DebugRender debugRender;
 	
 	public MasterRender() {
@@ -26,11 +26,11 @@ public class MasterRender extends AMasterRender {
 		
 		backgroundRender = new BackgroundRender();
 		terrainRender = new TerrainRender();
-		staticRender = new StaticRender();
+		entityRender = new EntityRender();
 		debugRender = new DebugRender();
 		
 		registerRender(terrainRender);
-		registerRender(staticRender);
+		registerRender(entityRender);
 		
 	}
 	
@@ -39,7 +39,7 @@ public class MasterRender extends AMasterRender {
 		backgroundRender.render(g, camera.getCameraBounds().getWidth(), camera.getCameraBounds().getHeight());
 		
 		if(renderingSystem != null) {
-			staticRender.setEntities(renderingSystem.getStaticEntities());
+			entityRender.setEntities(renderingSystem.getCompatibleEntities());
 			
 			super.render(g, camera);
 		}

@@ -9,13 +9,12 @@ import com.rawad.gamehelpers.game.entity.Entity;
 
 public class RenderingSystem extends GameSystem {
 	
-	/** Remaining entities with no additional componentss that effect rendering. */
-	private ArrayList<Entity> staticEntities;
+	private ArrayList<Entity> compatibleEntitiesWrapper;
 	
 	public RenderingSystem() {
 		super();
 		
-		staticEntities = new ArrayList<Entity>();
+		compatibleEntitiesWrapper = new ArrayList<Entity>();
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(RenderingComponent.class);
@@ -25,21 +24,19 @@ public class RenderingSystem extends GameSystem {
 	@Override
 	public void tick() {
 		
-		staticEntities = new ArrayList<Entity>();
+		compatibleEntitiesWrapper = new ArrayList<Entity>();
+		compatibleEntitiesWrapper.addAll(compatibleEntities);
 		
 		super.tick();
-		
 	}
 	
 	@Override
-	public void tick(Entity e) {
-		
-		staticEntities.add(e);
-		
-	}
+	public void tick(Entity e) {}
 	
-	public ArrayList<Entity> getStaticEntities() {
-		return new ArrayList<Entity>(staticEntities);
+	@Override
+	public ArrayList<Entity> getCompatibleEntities() {
+		return compatibleEntitiesWrapper;
+		
 	}
 	
 }
