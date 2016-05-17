@@ -4,15 +4,18 @@ import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
-import com.rawad.ballsimulator.client.renderengine.MasterRender;
+import com.rawad.ballsimulator.client.renderengine.DebugRender;
+import com.rawad.ballsimulator.client.renderengine.WorldRender;
+import com.rawad.ballsimulator.entity.AttachmentComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PlayerControlSystem;
-import com.rawad.ballsimulator.game.RenderingSystem;
+import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
@@ -21,6 +24,7 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
+import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 
 import javafx.application.Platform;
@@ -29,13 +33,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.shape.Rectangle;
 
 public class MultiplayerGameState extends State {
 	
-	private MasterRender masterRender;
-	
-	private RenderingSystem renderingSystem;
+	private WorldRender worldRender;
+	private DebugRender debugRender;
 	
 	private CustomLoader loader;
 	private TerrainFileParser terrainParser;
@@ -49,35 +51,42 @@ public class MultiplayerGameState extends State {
 	
 	private ClientNetworkManager networkManager;
 	
+	private Entity camera;
+	
 	private Entity player;
-	private TransformComponent playerTransform;
 	private MovementComponent playerMovement;
 	
-	public MultiplayerGameState(MasterRender masterRender, ClientNetworkManager networkManager) {
+	public MultiplayerGameState(ClientNetworkManager networkManager) {
 		super();
-		
-		this.masterRender = masterRender;
 		
 		this.networkManager = networkManager;
 		networkManager.setClient(this);
 		
 		player = Entity.createEntity(EEntity.NETWORKING_PLAYER);
-//		EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address"	+ " wasn't final.
-//		");
-		playerTransform = player.getComponent(TransformComponent.class);
+//		EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address wasn't final.");
 		playerMovement = player.getComponent(MovementComponent.class);
-		
 		world.addEntity(player);
 		
-		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
-		camera.setScale(1d/2d, 1d/2d);
+		camera = Entity.createEntity(EEntity.CAMERA);
 		
-		renderingSystem = new RenderingSystem();
+		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
+		
+		TransformComponent cameraTransform = camera.getComponent(TransformComponent.class);
+		cameraTransform.setScaleX(1d / 2d);
+		cameraTransform.setScaleY(1d / 2d);
+		
+		world.addEntity(camera);
+		
+		worldRender = new WorldRender(world, camera);
+		debugRender = new DebugRender(camera);
+		
+		masterRender.registerRender(worldRender);
+		masterRender.registerRender(debugRender);
 		
 		gameSystems.add(new PlayerControlSystem());
 		//gameSystems.add(new NetworkPlayerControlSystem(networkManager));
 		gameSystems.add(new MovementSystem());
-		gameSystems.add(renderingSystem);
+		gameSystems.add(new RollingSystem());
 		
 	}
 	
@@ -216,6 +225,10 @@ public class MultiplayerGameState extends State {
 			
 		});
 		
+		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
+		viewport.widthProperty().bind(root.widthProperty());
+		viewport.heightProperty().bind(root.heightProperty());
+		
 	}
 	
 	@Override
@@ -225,8 +238,8 @@ public class MultiplayerGameState extends State {
 			
 //			networkManager.updatePlayerMovement(player.isUp(), player.isDown(), player.isRight(), player.isLeft());
 			
-			camera.setX(playerTransform.getX() - (Game.SCREEN_WIDTH / camera.getScaleX() / 2));
-			camera.setY(playerTransform.getY() - (Game.SCREEN_HEIGHT / camera.getScaleY() / 2));
+//			camera.setX(playerTransform.getX() - (Game.SCREEN_WIDTH / camera.getScaleX() / 2));
+//			camera.setY(playerTransform.getY() - (Game.SCREEN_HEIGHT / camera.getScaleY() / 2));
 			
 		}
 		
@@ -275,16 +288,11 @@ public class MultiplayerGameState extends State {
 		mess.setVisible(false);
 		lblConnectingMessage.setVisible(true);
 		
-		masterRender.setRenderingSystem(null);
-		
 	}
 	
 	public void onConnect() {
 		mess.setVisible(true);
 		lblConnectingMessage.setVisible(false);
-		
-		masterRender.setRenderingSystem(renderingSystem);
-		
 	}
 	
 	public void onDisconnect() {

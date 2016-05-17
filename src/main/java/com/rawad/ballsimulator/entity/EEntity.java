@@ -5,9 +5,10 @@ import com.rawad.gamehelpers.utils.Util;
 
 public enum EEntity {
 	
-	CAMERA(new TransformComponent(), new CollisionComponent()),// Transform for scaling, collision for keeping in bounds
+	CAMERA(new TransformComponent(), new AttachmentComponent(), new UserViewComponent()),// Transform for scaling, collision for keeping in bounds
+	USER_CONTROLLABLE_CAMERA(new TransformComponent(), new MovementComponent(), new UserControlComponent(), new UserViewComponent()),
 	STATIC(new TransformComponent(), new CollisionComponent(), new RenderingComponent()),
-	PLAYER(new TransformComponent(), new CollisionComponent(), new HealthComponent(), new MovementComponent(), new RenderingComponent()),
+	PLAYER(new TransformComponent(), new CollisionComponent(), new HealthComponent(), new MovementComponent(), new RollingComponent(), new RenderingComponent()),
 	USER_CONTROLLABLE_PLAYER(PLAYER.getComponents(), new GuiComponent(), new UserControlComponent(), new RandomPositionComponent()),
 	NETWORKING_PLAYER(PLAYER.getComponents(), new GuiComponent());// NetworkControlComponent? (or that + UserControlComponent)
 	

@@ -5,38 +5,43 @@ import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
-import com.rawad.ballsimulator.client.renderengine.MasterRender;
+import com.rawad.ballsimulator.client.renderengine.WorldRender;
+import com.rawad.ballsimulator.entity.AttachmentComponent;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PlayerControlSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
-import com.rawad.ballsimulator.game.RenderingSystem;
+import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.IClientController;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Rectangle;
 
 public class GameState extends State implements IClientController {
 	
-	private MasterRender masterRender;
+	private WorldRender worldRender;
+	private DebugRender debugRender;
 	
-	private RenderingSystem renderingSystem;
+	private TransformComponent cameraTransform;
+	
+	private Entity camera;
 	
 	private Entity player;
-	private TransformComponent playerTransform;
 	private MovementComponent playerMovement;
 	private RandomPositionComponent playerRandomPositioner;
 	
@@ -46,36 +51,45 @@ public class GameState extends State implements IClientController {
 	
 	private boolean showEntireWorld;
 	
-	public GameState(MasterRender masterRender) {
+	public GameState() {
 		super();
 		
-		this.masterRender = masterRender;
-		
-		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
-		
 		player = Entity.createEntity(EEntity.USER_CONTROLLABLE_PLAYER);
-		playerTransform = player.getComponent(TransformComponent.class);
 		playerMovement = player.getComponent(MovementComponent.class);
 		playerRandomPositioner = player.getComponent(RandomPositionComponent.class);
 		
 		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
 		
-		com.rawad.gamehelpers.geometry.Rectangle playerHitbox = playerCollision.getHitbox();
+		Rectangle playerHitbox = playerCollision.getHitbox();
 		playerHitbox.setWidth(40);
 		playerHitbox.setHeight(40);
 		
 		world.addEntity(player);
 		
+		camera = Entity.createEntity(EEntity.CAMERA);
+		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
+		
+		cameraTransform = camera.getComponent(TransformComponent.class);
+		cameraTransform.setMaxScaleX(5);
+		cameraTransform.setMaxScaleY(5);
+		
+		world.addEntity(camera);
+		
 		MovementSystem movementSystem = new MovementSystem();
-		renderingSystem = new RenderingSystem();
+		playerCollision.getListeners().add(movementSystem);
+		
+		worldRender = new WorldRender(world, camera);
+		debugRender = new DebugRender(camera);
+		
+		masterRender.registerRender(worldRender);
+		masterRender.registerRender(debugRender);
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new PlayerControlSystem());
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(renderingSystem);
-		
-		playerCollision.getListeners().add(movementSystem);
+		gameSystems.add(new RollingSystem());
+		gameSystems.add(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		
 		showEntireWorld = false;
 		
@@ -129,15 +143,15 @@ public class GameState extends State implements IClientController {
 					break;
 					
 				case C:
-					camera.increaseRotation(5);
+					cameraTransform.setTheta(cameraTransform.getTheta() + 5);
 					break;
 					
 				case Z:
-					camera.increaseRotation(-5);
+					cameraTransform.setTheta(cameraTransform.getTheta() - 5);
 					break;
 					
 				case X:
-					camera.setRotation(0);
+					cameraTransform.setTheta(0);
 					break;
 					
 				case ENTER:
@@ -219,8 +233,6 @@ public class GameState extends State implements IClientController {
 			
 		});
 		
-		DebugRender debugRender = masterRender.getDebugRender();
-		
 		root.addEventHandler(MouseEvent.ANY, mouseEvent -> {
 			
 			debugRender.setMouseX(mouseEvent.getX());
@@ -230,6 +242,10 @@ public class GameState extends State implements IClientController {
 		
 		debugRender.widthProperty().bind(root.widthProperty());
 		debugRender.heightProperty().bind(root.heightProperty());
+		
+		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
+		viewport.widthProperty().bind(root.widthProperty());
+		viewport.heightProperty().bind(root.heightProperty());
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
@@ -241,13 +257,15 @@ public class GameState extends State implements IClientController {
 		if(!pauseScreen.isPaused() && !inventory.isVisible()) {
 			
 			if(showEntireWorld) {
-				camera.setScale(Double.MIN_VALUE, Double.MIN_VALUE);
+				cameraTransform.setScaleX(Double.MIN_VALUE);
+				cameraTransform.setScaleY(Double.MIN_VALUE);
 			} else {
-				camera.setScale(1d/2d, 1d/2d);
+				cameraTransform.setScaleX(1d / 2d);
+				cameraTransform.setScaleY(1d / 2d);
 			}
 			
-			camera.setX(playerTransform.getX() - (camera.getCameraBounds().getWidth() / camera.getScaleX() / 2d));
-			camera.setY(playerTransform.getY() - (camera.getCameraBounds().getHeight() / camera.getScaleY() / 2d));
+//			camera.setX(playerTransform.getX() - (camera.getCameraBounds().getWidth() / camera.getScaleX() / 2d));
+//			camera.setY(playerTransform.getY() - (camera.getCameraBounds().getHeight() / camera.getScaleY() / 2d));
 			
 		}
 		
@@ -275,16 +293,6 @@ public class GameState extends State implements IClientController {
 		});
 		
 		pauseScreen.setPaused(false);
-		
-		masterRender.setRenderingSystem(renderingSystem);
-		
-	}
-	
-	@Override
-	protected void onDeactivate() {
-		super.onDeactivate();
-		
-		masterRender.setRenderingSystem(null);
 		
 	}
 	

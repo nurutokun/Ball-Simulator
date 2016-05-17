@@ -1,22 +1,17 @@
 package com.rawad.ballsimulator.client.renderengine;
 
-import com.rawad.gamehelpers.client.renderengine.LayeredRender;
-import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.client.renderengine.Render;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class TerrainRender extends LayeredRender {
+public class TerrainRender extends Render {
 	
-	@Override
-	public void render(GraphicsContext g) {
+	public void render(GraphicsContext g, double width, double height) {
 		
 		g.setFill(Color.GRAY);
-		g.fillRect(0, 0, 2048, 2048);
+		g.fillRect(0, 0, width, height);
 		
 	}
-	
-	@Override
-	public void render(GraphicsContext g, Entity e) {}
 	
 }

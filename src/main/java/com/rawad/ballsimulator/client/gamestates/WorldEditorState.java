@@ -1,15 +1,20 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.gui.PauseScreen;
-import com.rawad.ballsimulator.client.renderengine.MasterRender;
+import com.rawad.ballsimulator.client.renderengine.DebugRender;
+import com.rawad.ballsimulator.client.renderengine.WorldRender;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.IClientController;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
+import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -18,15 +23,16 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.shape.Rectangle;
 
 public class WorldEditorState extends State implements IClientController {
 	
 	private static final Double[] DIMS = {2D, 4D, 8D, 16D, 32D, 64D, 128D, 256D, 512D};
 	
-	private MasterRender masterRender;
+	private WorldRender worldRender;
+	private DebugRender debugRender;
 	
-	private RenderingSystem renderingSystem;
+	private UserViewComponent userView;
+	private TransformComponent cameraTransform;
 	
 //	private TerrainComponent comp;
 //	private TerrainComponent intersectedComp;
@@ -48,16 +54,21 @@ public class WorldEditorState extends State implements IClientController {
 	private boolean requestRemove;
 	private boolean requestSelect;
 	
-	public WorldEditorState(MasterRender masterRender) {
+	public WorldEditorState() {
 		super();
 		
-		this.masterRender = masterRender;
+		Entity camera = Entity.createEntity(EEntity.USER_CONTROLLABLE_CAMERA);
 		
-		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
+		userView = camera.getComponent(UserViewComponent.class);
+		cameraTransform = camera.getComponent(TransformComponent.class);
 		
-		renderingSystem = new RenderingSystem();
+		world.addEntity(camera);
 		
-		gameSystems.add(renderingSystem);
+		worldRender = new WorldRender(world, camera);
+		debugRender = new DebugRender(camera);
+		
+		masterRender.registerRender(worldRender);
+		masterRender.registerRender(debugRender);
 		
 //		comp = new TerrainComponent(0, 0, DIMS[3], DIMS[3]);// Make the default a size you can actually see...
 //		comp.setHighlightColor(Color.CYAN);
@@ -179,7 +190,10 @@ public class WorldEditorState extends State implements IClientController {
 			
 			double scaleFactor = e.getDeltaY() / 100d;
 			
-			camera.setScale(scaleFactor + camera.getScaleX(), scaleFactor + camera.getScaleY());
+			cameraTransform.setScaleX(cameraTransform.getScaleX() + scaleFactor);
+			cameraTransform.setScaleY(cameraTransform.getScaleY() + scaleFactor);
+			
+//			camera.setScale(scaleFactor + camera.getScaleX(), scaleFactor + camera.getScaleY());
 			
 		});
 		
@@ -204,6 +218,10 @@ public class WorldEditorState extends State implements IClientController {
 			}
 			
 		});
+		
+		Rectangle viewport = userView.getViewport();
+		viewport.widthProperty().bind(root.widthProperty());
+		viewport.heightProperty().bind(root.heightProperty());
 		
 	}
 	
@@ -347,8 +365,6 @@ public class WorldEditorState extends State implements IClientController {
 		
 		pauseScreen.setPaused(false);
 		
-		masterRender.setRenderingSystem(renderingSystem);
-		
 	}
 	
 	@Override
@@ -356,8 +372,6 @@ public class WorldEditorState extends State implements IClientController {
 		super.onDeactivate();
 		
 		saveTerrain("terrain");
-		
-		masterRender.setRenderingSystem(null);
 		
 	}
 	

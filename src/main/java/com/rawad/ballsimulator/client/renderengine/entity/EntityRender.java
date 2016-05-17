@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import com.rawad.gamehelpers.client.renderengine.LayeredRender;
+import com.rawad.gamehelpers.client.renderengine.LayerRender;
 import com.rawad.gamehelpers.game.GameManager;
 
-public abstract class EntityRender extends LayeredRender {
+public abstract class EntityRender extends LayerRender {
 	
 	public void renderHitbox(Graphics2D g, Rectangle hitbox) {
 		

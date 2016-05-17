@@ -13,7 +13,13 @@ public class TransformComponent extends Component {
 	private double x;
 	private double y;
 	
-	private double scale = 1d;
+	private double scaleX;
+	private double scaleY;
+	
+	/** Maximum an {@code Entity} can be scaled (i.e. made smaller) in the x-direction. */
+	private double maxScaleX;
+	/** Maximum an {@code Entity} can be scaled (i.e. made smaller) in the y-direction. */
+	private double maxScaleY;
 	
 	/** In degrees. */
 	private double theta;
@@ -44,20 +50,62 @@ public class TransformComponent extends Component {
 	 */
 	public void setY(double y) {
 		this.y = y;
+	}	
+	
+	/**
+	 * @return the scaleX
+	 */
+	public double getScaleX() {
+		return scaleX;
 	}
 	
 	/**
-	 * @return the scale
+	 * @param scaleX the scaleX to set
 	 */
-	public double getScale() {
-		return scale;
+	public void setScaleX(double scaleX) {
+		this.scaleX = scaleX;
 	}
 	
 	/**
-	 * @param scale the scale to set
+	 * @return the scaleY
 	 */
-	public void setScale(double scale) {
-		this.scale = scale;
+	public double getScaleY() {
+		return scaleY;
+	}
+	
+	/**
+	 * @param scaleY the scaleY to set
+	 */
+	public void setScaleY(double scaleY) {
+		this.scaleY = scaleY;
+	}	
+	
+	/**
+	 * @return the maxScaleX
+	 */
+	public double getMaxScaleX() {
+		return maxScaleX;
+	}
+	
+	/**
+	 * @param maxScaleX the maxScaleX to set
+	 */
+	public void setMaxScaleX(double maxScaleX) {
+		this.maxScaleX = maxScaleX;
+	}
+	
+	/**
+	 * @return the maxScaleY
+	 */
+	public double getMaxScaleY() {
+		return maxScaleY;
+	}
+	
+	/**
+	 * @param maxScaleY the maxScaleY to set
+	 */
+	public void setMaxScaleY(double maxScaleY) {
+		this.maxScaleY = maxScaleY;
 	}
 	
 	/**
