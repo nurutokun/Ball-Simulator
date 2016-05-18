@@ -2,23 +2,28 @@ package com.rawad.ballsimulator.fileparser;
 
 import java.util.ArrayList;
 
+import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
 
 public class TerrainFileParser extends FileParser {
+	
+	public static final Double[] DIMS = {1D/16D, 1D/8D, 1D/4D, 1D/2D, 1D, 2D, 4D, 8D, 16D};// Base: 32x32
 	
 	private static final String REGEX = ",";
 	
 	private static final int INDEX_X = 0;
 	private static final int INDEX_Y = 1;
-	private static final int INDEX_WIDTH = 2;
-	private static final int INDEX_HEIGHT = 3;
+	private static final int INDEX_SCALE_X = 2;
+	private static final int INDEX_SCALE_Y = 3;
 	
 	private ArrayList<Entity> staticEntities = new ArrayList<Entity>();
 	
@@ -32,24 +37,46 @@ public class TerrainFileParser extends FileParser {
 		double x = Util.parseDouble(tokens[INDEX_X]);
 		double y = Util.parseDouble(tokens[INDEX_Y]);
 		
-		double width = Util.parseDouble(tokens[INDEX_WIDTH]);
-		double height = Util.parseDouble(tokens[INDEX_HEIGHT]);
+		double scaleX = Util.parseDouble(tokens[INDEX_SCALE_X]);
+		double scaleY = Util.parseDouble(tokens[INDEX_SCALE_Y]);
 		
 		Entity staticEntity = Entity.createEntity(EEntity.STATIC);
 		
 		TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
 		transformComp.setX(x);
 		transformComp.setY(y);
+		transformComp.setScaleX(scaleX);
+		transformComp.setScaleY(scaleY);
 		
-		CollisionComponent collisionComp = staticEntity.getComponent(CollisionComponent.class);
+		RenderingComponent renderingComp = staticEntity.getComponent(RenderingComponent.class);
+		renderingComp.setTexture(GameTextures.findTexture(EEntity.STATIC));
 		
-		Rectangle hitbox = collisionComp.getHitbox();
+		Rectangle hitbox = staticEntity.getComponent(CollisionComponent.class).getHitbox();
 		hitbox.setX(x);
 		hitbox.setY(y);
-		hitbox.setWidth(width);
-		hitbox.setHeight(height);
 		
 		staticEntities.add(staticEntity);
+		
+	}
+	
+	@Override
+	protected void start() {
+		super.start();
+		
+		ResourceManager.getTextureObject(GameTextures.findTexture(EEntity.STATIC)).setOnloadAction(texture -> {
+			
+			for(Entity staticEntity: staticEntities) {
+				
+				TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
+				
+				Rectangle hitbox = staticEntity.getComponent(CollisionComponent.class).getHitbox();
+				
+				hitbox.setWidth(transformComp.getScaleX() * texture.getTexture().getWidth());
+				hitbox.setHeight(transformComp.getScaleY() * texture.getTexture().getHeight());
+				
+			}
+			
+		});
 		
 	}
 	
@@ -70,11 +97,10 @@ public class TerrainFileParser extends FileParser {
 		
 		for(Entity staticEntity: staticEntities) {
 			
-			CollisionComponent collisionComp = staticEntity.getComponent(CollisionComponent.class);
+			TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
 			
-			Rectangle hitbox = collisionComp.getHitbox();
-			
-			lines[i] = hitbox.getX() + REGEX + hitbox.getY() + REGEX + hitbox.getWidth() + REGEX + hitbox.getHeight();
+			lines[i] = transformComp.getX() + REGEX + transformComp.getY() + REGEX + transformComp.getScaleX() + REGEX 
+					+ transformComp.getScaleY();
 			
 			i++;
 		}

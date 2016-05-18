@@ -14,7 +14,6 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
-import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
@@ -120,6 +119,8 @@ public class Client extends AClient {
 	
 	public void initResources() {
 		
+		GameTextures.registerTextures(game);
+		
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
 		sm.addState(new OptionState());
@@ -129,24 +130,12 @@ public class Client extends AClient {
 		sm.initGui();
 		
 		GameHelpersLoader ghLoader = game.getLoader(GameHelpersLoader.class);
-		CustomLoader loader = game.getLoader(CustomLoader.class);
 		
 		loadFont(ghLoader);
 		
-		game.registerTextures();
-		
-		ResourceManager.getTextureObject(game.getIconLocation()).setOnloadAction(new Runnable() {
-			
-			@Override
-			public void run() {
-				Platform.runLater(() -> stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation())));
-			}
-			
+		ResourceManager.getTextureObject(game.getIconLocation()).setOnloadAction(texture -> {
+			Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
 		});
-		
-		Background.registerTextures(loader);
-		
-//		EntityPlayer.registerTextures(loader);
 		
 	}
 	

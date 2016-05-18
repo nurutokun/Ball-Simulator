@@ -38,22 +38,18 @@ public class Background {
 		Background.instance().texture = DEFAULT_TEXTURE;
 		Background.instance().flippedTexture = DEFAULT_FLIPPED_TEXTURE;
 		
-		final TextureResource texture = ResourceManager.getTextureObject(DEFAULT_TEXTURE);
 		final TextureResource flippedTexture = ResourceManager.getTextureObject(DEFAULT_FLIPPED_TEXTURE);
 		
-		texture.setOnloadAction(new Runnable() {// In case they're not loaded in the order they're registered (which they are)
+		ResourceManager.getTextureObject(DEFAULT_TEXTURE).setOnloadAction(textureResource -> {// In case they're not loaded 
+			// in the order they're registered (which they are).
 			
-			@Override
-			public void run() {
-				flippedTexture.setTexture(getHorizontallyFlippedImage(ResourceManager.getTexture(DEFAULT_TEXTURE)));
+				flippedTexture.setTexture(getHorizontallyFlippedImage(textureResource.getTexture()));
 				
-				Background.instance().maxWidth = texture.getTexture().getWidth();
-				Background.instance().maxHeight = texture.getTexture().getHeight();
+				Background.instance().maxWidth = textureResource.getTexture().getWidth();
+				Background.instance().maxHeight = textureResource.getTexture().getHeight();
 				
 				Background.instance().x = 0;
 				Background.instance().secondX = -Background.instance().maxWidth;
-				
-			}
 			
 		});
 		

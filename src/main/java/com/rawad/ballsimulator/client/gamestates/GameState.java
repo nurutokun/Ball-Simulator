@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
@@ -11,6 +12,7 @@ import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
+import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -57,12 +59,18 @@ public class GameState extends State implements IClientController {
 		player = Entity.createEntity(EEntity.USER_CONTROLLABLE_PLAYER);
 		playerMovement = player.getComponent(MovementComponent.class);
 		playerRandomPositioner = player.getComponent(RandomPositionComponent.class);
+		RenderingComponent playerRender = player.getComponent(RenderingComponent.class);
+		
+		playerRender.setTexture(GameTextures.findTexture(EEntity.PLAYER));
+		playerRender.getTextureObject().setOnloadAction(texture -> {
+			
+			Rectangle hitbox = player.getComponent(CollisionComponent.class).getHitbox();
+			hitbox.setWidth(texture.getTexture().getWidth());
+			hitbox.setHeight(texture.getTexture().getHeight());
+			
+		});
 		
 		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
-		
-		Rectangle playerHitbox = playerCollision.getHitbox();
-		playerHitbox.setWidth(40);
-		playerHitbox.setHeight(40);
 		
 		world.addEntity(player);
 		
@@ -70,8 +78,8 @@ public class GameState extends State implements IClientController {
 		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);
-		cameraTransform.setMaxScaleX(5);
-		cameraTransform.setMaxScaleY(5);
+		cameraTransform.setMaxScaleX(5D);
+		cameraTransform.setMaxScaleY(5D);
 		
 		world.addEntity(camera);
 		
@@ -88,8 +96,8 @@ public class GameState extends State implements IClientController {
 		gameSystems.add(new PlayerControlSystem());
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(new RollingSystem());
 		gameSystems.add(new CameraFollowSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new RollingSystem());
 		
 		showEntireWorld = false;
 		

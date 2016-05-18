@@ -41,7 +41,7 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 		} else if(down) {
 			ay += JERK;
 		} else {
-			ay /= 2;
+			ay /= 2d;
 		}
 		
 		if(Math.abs(ay) > MAX_ACCEL) {
@@ -128,19 +128,20 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 		
 		if(collisionComp.isCollideX()) {
 			
-			newX -= vx;
+			newX -= vx * 5d/4d;// If you hit the corner of another entity just right you will get stuck; probably because
+			// of double precision or something.
 			
-			ax /= -2;
+			ax /= -2d;
 			vx = -vx*3/4;
 			
 		}
 		
 		if(collisionComp.isCollideY()) {
 			
-			newY -= vy;
+			newY -= vy * 5d/4d;
 			
-			ay /= -2;
-			vy = -vy*3/4;
+			ay /= -2d;
+			vy = -vy*3d/4d;
 			
 		}
 		

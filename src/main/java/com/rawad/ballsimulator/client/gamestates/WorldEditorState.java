@@ -26,8 +26,6 @@ import javafx.scene.input.ScrollEvent;
 
 public class WorldEditorState extends State implements IClientController {
 	
-	private static final Double[] DIMS = {2D, 4D, 8D, 16D, 32D, 64D, 128D, 256D, 512D};
-	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
@@ -82,8 +80,8 @@ public class WorldEditorState extends State implements IClientController {
 		widthSelector.setFocusTraversable(false);// Mainly for when in pause screen.
 		heightSelector.setFocusTraversable(false);
 		
-		widthSelector.getItems().addAll(DIMS);
-		heightSelector.getItems().addAll(DIMS);
+		widthSelector.getItems().addAll(TerrainFileParser.DIMS);
+		heightSelector.getItems().addAll(TerrainFileParser.DIMS);
 		
 //		comp.widthProperty().bind(widthSelector.getSelectionModel().selectedItemProperty());
 //		comp.heightProperty().bind(heightSelector.getSelectionModel().selectedItemProperty());

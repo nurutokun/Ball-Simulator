@@ -36,7 +36,7 @@ public class CameraFollowSystem extends GameSystem {
 		double minScaleX = viewport.getWidth() / bounds.getWidth();
 		
 		if(transformComp.getScaleX() < minScaleX) {
-			transformComp.setScaleX(minScaleX);
+//			transformComp.setScaleX(minScaleX);
 		} else if(transformComp.getScaleX() > transformComp.getMaxScaleX()) {
 			transformComp.setScaleX(transformComp.getMaxScaleX());
 		}
@@ -44,7 +44,7 @@ public class CameraFollowSystem extends GameSystem {
 		double minScaleY = viewport.getHeight() / bounds.getHeight();
 		
 		if(transformComp.getScaleY() < minScaleY) {
-			transformComp.setScaleY(minScaleY);
+//			transformComp.setScaleY(minScaleY);
 		} else if(transformComp.getScaleY() > transformComp.getMaxScaleY()) {
 			transformComp.setScaleY(transformComp.getMaxScaleY());
 		}

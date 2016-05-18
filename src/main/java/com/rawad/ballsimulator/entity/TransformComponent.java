@@ -10,19 +10,19 @@ import com.rawad.gamehelpers.game.entity.Component;
  */
 public class TransformComponent extends Component {
 	
-	private double x;
-	private double y;
+	private double x = 0;
+	private double y = 0;
 	
-	private double scaleX;
-	private double scaleY;
+	private double scaleX = 1;
+	private double scaleY = 1;
 	
 	/** Maximum an {@code Entity} can be scaled (i.e. made smaller) in the x-direction. */
-	private double maxScaleX;
+	private double maxScaleX = Double.MAX_VALUE;
 	/** Maximum an {@code Entity} can be scaled (i.e. made smaller) in the y-direction. */
-	private double maxScaleY;
+	private double maxScaleY = Double.MAX_VALUE;
 	
 	/** In degrees. */
-	private double theta;
+	private double theta = 0;
 	
 	/**
 	 * @return the x
