@@ -6,6 +6,7 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.geometry.Rectangle;
 
 public class MovementSystem extends GameSystem implements Listener<CollisionComponent> {
 	
@@ -126,10 +127,26 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 		double newX = transformComp.getX();
 		double newY = transformComp.getY();
 		
+		double distanceToMoveX = vx;
+		double distanceToMoveY = vy;
+		
+		Entity collidingWith = collisionComp.getCollidingWithEntity().get();
+		
+		if(collidingWith != null) {
+			
+			CollisionComponent collidingWithCollisionComp = collidingWith.getComponent(CollisionComponent.class);
+			
+			Rectangle hitbox = collisionComp.getHitbox();
+			Rectangle collidingWithHitbox = collidingWithCollisionComp.getHitbox();
+			
+			distanceToMoveX = Math.abs(hitbox.getX() + hitbox.getWidth() - collidingWithHitbox.getX());
+			distanceToMoveY = Math.abs(hitbox.getY() + hitbox.getHeight() - collidingWithHitbox.getY());
+			//TODO: Fix from bottom...
+		}
+		
 		if(collisionComp.isCollideX()) {
 			
-			newX -= vx * 5d/4d;// If you hit the corner of another entity just right you will get stuck; probably because
-			// of double precision or something.
+			newX -= distanceToMoveX;
 			
 			ax /= -2d;
 			vx = -vx*3/4;
@@ -138,7 +155,7 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 		
 		if(collisionComp.isCollideY()) {
 			
-			newY -= vy * 5d/4d;
+			newY -= distanceToMoveY;
 			
 			ay /= -2d;
 			vy = -vy*3d/4d;

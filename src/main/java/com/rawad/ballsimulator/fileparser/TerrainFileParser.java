@@ -11,7 +11,6 @@ import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Rectangle;
-import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
 
 public class TerrainFileParser extends FileParser {
@@ -60,29 +59,20 @@ public class TerrainFileParser extends FileParser {
 	}
 	
 	@Override
-	protected void start() {
-		super.start();
-		
-		ResourceManager.getTextureObject(GameTextures.findTexture(EEntity.STATIC)).setOnloadAction(texture -> {
-			
-			for(Entity staticEntity: staticEntities) {
-				
-				TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
-				
-				Rectangle hitbox = staticEntity.getComponent(CollisionComponent.class).getHitbox();
-				
-				hitbox.setWidth(transformComp.getScaleX() * texture.getTexture().getWidth());
-				hitbox.setHeight(transformComp.getScaleY() * texture.getTexture().getHeight());
-				
-			}
-			
-		});
-		
-	}
-	
-	@Override
-	public void stop() {
+	protected void stop() {
 		super.stop();
+		
+		for(Entity staticEntity: staticEntities) {
+			
+			TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
+			RenderingComponent renderingComp = staticEntity.getComponent(RenderingComponent.class);
+			
+			Rectangle hitbox = staticEntity.getComponent(CollisionComponent.class).getHitbox();
+			
+			hitbox.setWidth(transformComp.getScaleX() * renderingComp.getTexture().getWidth());
+			hitbox.setHeight(transformComp.getScaleY() * renderingComp.getTexture().getHeight());
+			
+		}
 		
 		world.getEntitiesAsList().addAll(staticEntities);
 		
@@ -114,6 +104,10 @@ public class TerrainFileParser extends FileParser {
 		
 		world.getEntitiesAsList().removeAll(staticEntities);
 		staticEntities.clear();
+		
+		for(Entity e: world.getEntitiesAsList()) {
+			if(Entity.compare(e, EEntity.STATIC.getComponents())) staticEntities.add(e);
+		}
 		
 	}
 	

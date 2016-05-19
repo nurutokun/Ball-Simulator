@@ -6,6 +6,7 @@ import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.resources.ResourceManager;
 
 public final class GameTextures {
 	
@@ -24,6 +25,8 @@ public final class GameTextures {
 	 * @param game
 	 */
 	public static void registerTextures(Game game) {
+		
+		ResourceManager.registerUnkownTexture();
 		
 		game.registerTextures();
 		

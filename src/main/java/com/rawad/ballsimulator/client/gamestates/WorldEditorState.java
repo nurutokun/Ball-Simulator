@@ -4,9 +4,11 @@ import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.IClientController;
 import com.rawad.gamehelpers.client.gamestates.State;
@@ -31,6 +33,7 @@ public class WorldEditorState extends State implements IClientController {
 	
 	private UserViewComponent userView;
 	private TransformComponent cameraTransform;
+	private MovementComponent cameraMovement;
 	
 //	private TerrainComponent comp;
 //	private TerrainComponent intersectedComp;
@@ -43,11 +46,6 @@ public class WorldEditorState extends State implements IClientController {
 	@FXML private ComboBox<Double> widthSelector;
 	@FXML private ComboBox<Double> heightSelector;
 	
-	private boolean up;
-	private boolean down;
-	private boolean right;
-	private boolean left;
-	
 	private boolean requestPlace;
 	private boolean requestRemove;
 	private boolean requestSelect;
@@ -59,6 +57,10 @@ public class WorldEditorState extends State implements IClientController {
 		
 		userView = camera.getComponent(UserViewComponent.class);
 		cameraTransform = camera.getComponent(TransformComponent.class);
+		cameraMovement = camera.getComponent(MovementComponent.class);
+		
+		cameraTransform.setMaxScaleX(5D);
+		cameraTransform.setMaxScaleY(5D);
 		
 		world.addEntity(camera);
 		
@@ -67,6 +69,8 @@ public class WorldEditorState extends State implements IClientController {
 		
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
+		
+		gameSystems.add(new CameraRoamingSystem(world.getWidth(), world.getHeight()));
 		
 //		comp = new TerrainComponent(0, 0, DIMS[3], DIMS[3]);// Make the default a size you can actually see...
 //		comp.setHighlightColor(Color.CYAN);
@@ -106,22 +110,22 @@ public class WorldEditorState extends State implements IClientController {
 				
 			case UP:
 			case W:
-				up = true;
+				cameraMovement.setUp(true);
 				break;
 				
 			case DOWN:
 			case S:
-				down = true;
-				break;
-				
-			case LEFT:
-			case A:
-				left = true;
+				cameraMovement.setDown(true);
 				break;
 				
 			case RIGHT:
 			case D:
-				right = true;
+				cameraMovement.setRight(true);
+				break;
+				
+			case LEFT:
+			case A:
+				cameraMovement.setLeft(true);
 				break;
 				
 			default:
@@ -136,22 +140,22 @@ public class WorldEditorState extends State implements IClientController {
 			
 			case UP:
 			case W:
-				up = false;
+				cameraMovement.setUp(false);
 				break;
 				
 			case DOWN:
 			case S:
-				down = false;
+				cameraMovement.setDown(false);
 				break;
 				
 			case RIGHT:
 			case D:
-				right = false;
+				cameraMovement.setRight(false);
 				break;
 				
 			case LEFT:
 			case A:
-				left = false;
+				cameraMovement.setLeft(false);
 				break;
 			
 			default:

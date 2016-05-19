@@ -151,15 +151,8 @@ public class Client extends AClient {
 			
 			@Override
 			protected Integer call() throws Exception {
-				try {
-				String message = "Registering unknown texture...";
 				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				ResourceManager.registerUnkownTexture();
-				
-				message = "Initializing client resources...";
+				String message = "Initializing client resources...";
 				
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
@@ -190,9 +183,7 @@ public class Client extends AClient {
 				Logger.log(Logger.DEBUG, message);
 				
 				sm.requestStateChange(MenuState.class);
-				} catch(Exception ex) {
-					ex.printStackTrace();
-				}
+				
 				return 0;
 				
 			}

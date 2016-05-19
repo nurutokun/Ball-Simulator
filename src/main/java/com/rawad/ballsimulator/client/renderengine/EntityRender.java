@@ -10,6 +10,7 @@ import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class EntityRender extends Render {
@@ -25,7 +26,6 @@ public class EntityRender extends Render {
 			Rectangle hitbox = collisionComp.getHitbox();
 			
 			g.translate(transformComp.getX() + (hitbox.getWidth() / 2d), transformComp.getY() + (hitbox.getHeight() / 2d));
-			g.scale(transformComp.getScaleX(), transformComp.getScaleY());
 			g.rotate(transformComp.getTheta());
 			
 			MovementComponent movementComp = e.getComponent(MovementComponent.class);
@@ -36,7 +36,10 @@ public class EntityRender extends Render {
 				g.setFill(Color.BLUE);
 			}
 			
-			g.drawImage(renderingComp.getTexture(), -hitbox.getWidth() / 2d, -hitbox.getHeight() / 2d);
+			Image texture = renderingComp.getTexture();
+			
+			g.drawImage(texture, -hitbox.getWidth() / 2d, -hitbox.getHeight() / 2d, texture.getWidth() * 
+					transformComp.getScaleX(), texture.getHeight() * transformComp.getScaleY());
 			
 			g.rotate(-transformComp.getTheta());
 			g.translate(-hitbox.getWidth() / 2d, -hitbox.getHeight() / 2d);
@@ -47,16 +50,17 @@ public class EntityRender extends Render {
 			if(movementComp != null) {
 				g.fillText("E: " + e, 0, 0);
 				g.fillText("E-Collide: " + collisionComp.getCollidingWithEntity().get(), 0, 10);
-				if(collisionComp.isCollideX()) g.fillText("X-collide", 0, 20);
-				if(collisionComp.isCollideY()) g.fillText("Y-collide", 0, 30);
+				g.fillText("x,y: " + (int) transformComp.getX() + ", " + (int) transformComp.getY(), 0, 20);
+				if(collisionComp.isCollideX()) g.fillText("X-collide", 0, 30);
+				if(collisionComp.isCollideY()) g.fillText("Y-collide", 0, 40);
 			}
 			
 			g.scale(1d / 2d, 1d / 2d);
 			
-			if(GameManager.instance().getCurrentGame().isDebug()) g.strokeRect(0, 0, hitbox.getWidth(), hitbox.getHeight());
-			
-			g.scale(1d / transformComp.getScaleX(), 1d / transformComp.getScaleY());
 			g.translate(-transformComp.getX(), -transformComp.getY());
+			
+			if(GameManager.instance().getCurrentGame().isDebug()) 
+				g.strokeRect(hitbox.getX(), hitbox.getY(), hitbox.getWidth(), hitbox.getHeight());
 			
 		}
 		

@@ -14,7 +14,7 @@ import com.rawad.gamehelpers.resources.ResourceManager;
 public class CustomLoader extends Loader {
 	
 	private static final String MISC_FOLDER = "files";
-	private static final String TERRAIN_FOLDER = "terrains";
+	public static final String TERRAIN_FOLDER = "terrains";
 	
 	private static final String GUI_FOLDER = ResourceManager.getString("Gui.base");
 	

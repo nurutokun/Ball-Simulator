@@ -44,9 +44,9 @@ public class WorldRender extends LayerRender {
 		
 		g.scale(cameraTransform.getScaleX(), cameraTransform.getScaleY());
 		
-		g.translate(-cameraTransform.getX(), -cameraTransform.getY());
-		
 		g.rotate(cameraTransform.getTheta());
+		
+		g.translate(-cameraTransform.getX(), -cameraTransform.getY());
 		
 		Affine affine = g.getTransform();
 		

@@ -77,7 +77,10 @@ public class GameState extends State implements IClientController {
 		camera = Entity.createEntity(EEntity.CAMERA);
 		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
 		
-		cameraTransform = camera.getComponent(TransformComponent.class);
+		cameraTransform = camera.getComponent(TransformComponent.class);		
+		cameraTransform.setScaleX(0.5D);
+		cameraTransform.setScaleY(0.5D);
+		
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
 		
@@ -148,6 +151,15 @@ public class GameState extends State implements IClientController {
 					
 				case L:
 					showEntireWorld = !showEntireWorld;
+					
+					if(showEntireWorld) {
+						cameraTransform.setScaleX(Double.MIN_VALUE);
+						cameraTransform.setScaleY(Double.MIN_VALUE);
+					} else {
+						cameraTransform.setScaleX(1d / 2d);
+						cameraTransform.setScaleY(1d / 2d);
+					}
+					
 					break;
 					
 				case C:
@@ -261,21 +273,6 @@ public class GameState extends State implements IClientController {
 	
 	@Override
 	public void tick() {
-		
-		if(!pauseScreen.isPaused() && !inventory.isVisible()) {
-			
-			if(showEntireWorld) {
-				cameraTransform.setScaleX(Double.MIN_VALUE);
-				cameraTransform.setScaleY(Double.MIN_VALUE);
-			} else {
-				cameraTransform.setScaleX(1d / 2d);
-				cameraTransform.setScaleY(1d / 2d);
-			}
-			
-//			camera.setX(playerTransform.getX() - (camera.getCameraBounds().getWidth() / camera.getScaleX() / 2d));
-//			camera.setY(playerTransform.getY() - (camera.getCameraBounds().getHeight() / camera.getScaleY() / 2d));
-			
-		}
 		
 	}
 	
