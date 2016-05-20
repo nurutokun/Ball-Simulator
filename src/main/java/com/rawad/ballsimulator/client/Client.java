@@ -143,7 +143,7 @@ public class Client extends AClient {
 	public void init(Game game) {
 		super.init(game);
 		
-		networkManager = new ClientNetworkManager();
+//		networkManager = new ClientNetworkManager();
 		
 		sm = new StateManager(game, this);
 		

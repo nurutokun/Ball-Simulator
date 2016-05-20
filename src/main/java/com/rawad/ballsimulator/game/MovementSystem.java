@@ -6,7 +6,6 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.Listener;
-import com.rawad.gamehelpers.geometry.Rectangle;
 
 public class MovementSystem extends GameSystem implements Listener<CollisionComponent> {
 	
@@ -127,37 +126,20 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 		double newX = transformComp.getX();
 		double newY = transformComp.getY();
 		
-		double distanceToMoveX = vx;
-		double distanceToMoveY = vy;
-		
-		Entity collidingWith = collisionComp.getCollidingWithEntity().get();
-		
-		if(collidingWith != null) {
-			
-			CollisionComponent collidingWithCollisionComp = collidingWith.getComponent(CollisionComponent.class);
-			
-			Rectangle hitbox = collisionComp.getHitbox();
-			Rectangle collidingWithHitbox = collidingWithCollisionComp.getHitbox();
-			
-			distanceToMoveX = Math.abs(hitbox.getX() + hitbox.getWidth() - collidingWithHitbox.getX());
-			distanceToMoveY = Math.abs(hitbox.getY() + hitbox.getHeight() - collidingWithHitbox.getY());
-			//TODO: Fix from bottom...
-		}
-		
 		if(collisionComp.isCollideX()) {
 			
-			newX -= distanceToMoveX;
+			newX -= vx;
 			
-			ax /= -2d;
+			ax /= 2d;
 			vx = -vx*3/4;
 			
 		}
 		
 		if(collisionComp.isCollideY()) {
 			
-			newY -= distanceToMoveY;
+			newY -= vy;
 			
-			ay /= -2d;
+			ay /= 2d;
 			vy = -vy*3d/4d;
 			
 		}

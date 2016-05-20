@@ -59,8 +59,8 @@ public class MultiplayerGameState extends State {
 	public MultiplayerGameState(ClientNetworkManager networkManager) {
 		super();
 		
-		this.networkManager = networkManager;
-		networkManager.setClient(this);
+//		this.networkManager = networkManager;
+//		networkManager.setClient(this);
 		
 		player = Entity.createEntity(EEntity.NETWORKING_PLAYER);
 //		EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address wasn't final.");

@@ -99,8 +99,8 @@ public class GameState extends State implements IClientController {
 		gameSystems.add(new PlayerControlSystem());
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
+		gameSystems.add(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		
 		showEntireWorld = false;
 		

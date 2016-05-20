@@ -87,9 +87,6 @@ public class WorldEditorState extends State implements IClientController {
 		widthSelector.getItems().addAll(TerrainFileParser.DIMS);
 		heightSelector.getItems().addAll(TerrainFileParser.DIMS);
 		
-//		comp.widthProperty().bind(widthSelector.getSelectionModel().selectedItemProperty());
-//		comp.heightProperty().bind(heightSelector.getSelectionModel().selectedItemProperty());
-		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
 			switch(keyEvent.getCode()) {
@@ -195,8 +192,6 @@ public class WorldEditorState extends State implements IClientController {
 			cameraTransform.setScaleX(cameraTransform.getScaleX() + scaleFactor);
 			cameraTransform.setScaleY(cameraTransform.getScaleY() + scaleFactor);
 			
-//			camera.setScale(scaleFactor + camera.getScaleX(), scaleFactor + camera.getScaleY());
-			
 		});
 		
 		Button optionsButton = new Button("Options");
@@ -215,7 +210,7 @@ public class WorldEditorState extends State implements IClientController {
 		
 		pauseScreen.visibleProperty().addListener((e, prevVisible, currentlyVisible) -> {
 			
-			if(!currentlyVisible) {
+			if(currentlyVisible) {
 				Mouse.unclamp();
 			}
 			
