@@ -14,7 +14,7 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.MovementSystem;
-import com.rawad.ballsimulator.game.PlayerControlSystem;
+import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
@@ -83,7 +83,7 @@ public class MultiplayerGameState extends State {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
-		gameSystems.add(new PlayerControlSystem());
+		gameSystems.add(new MovementControlSystem());
 		//gameSystems.add(new NetworkPlayerControlSystem(networkManager));
 		gameSystems.add(new MovementSystem());
 		gameSystems.add(new RollingSystem());
@@ -228,20 +228,6 @@ public class MultiplayerGameState extends State {
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
-		
-	}
-	
-	@Override
-	public void tick() {
-		
-		if(networkManager.isLoggedIn()) {// Start updating world, player and camera once login is successful
-			
-//			networkManager.updatePlayerMovement(player.isUp(), player.isDown(), player.isRight(), player.isLeft());
-			
-//			camera.setX(playerTransform.getX() - (Game.SCREEN_WIDTH / camera.getScaleX() / 2));
-//			camera.setY(playerTransform.getY() - (Game.SCREEN_HEIGHT / camera.getScaleY() / 2));
-			
-		}
 		
 	}
 	

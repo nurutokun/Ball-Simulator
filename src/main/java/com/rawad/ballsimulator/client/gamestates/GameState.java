@@ -10,7 +10,6 @@ import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
-import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
@@ -18,12 +17,11 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
+import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
-import com.rawad.ballsimulator.game.PlayerControlSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.gamehelpers.client.IClientController;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
@@ -32,19 +30,18 @@ import com.rawad.gamehelpers.resources.Loader;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 
-public class GameState extends State implements IClientController {
+public class GameState extends State {
+	
+	private MovementControlSystem movementControlSystem;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
+	private Entity camera;
 	private TransformComponent cameraTransform;
 	
-	private Entity camera;
-	
 	private Entity player;
-	private MovementComponent playerMovement;
 	private RandomPositionComponent playerRandomPositioner;
 	
 	@FXML private PauseScreen pauseScreen;
@@ -57,7 +54,6 @@ public class GameState extends State implements IClientController {
 		super();
 		
 		player = Entity.createEntity(EEntity.USER_CONTROLLABLE_PLAYER);
-		playerMovement = player.getComponent(MovementComponent.class);
 		playerRandomPositioner = player.getComponent(RandomPositionComponent.class);
 		RenderingComponent playerRender = player.getComponent(RenderingComponent.class);
 		
@@ -86,17 +82,19 @@ public class GameState extends State implements IClientController {
 		
 		world.addEntity(camera);
 		
-		MovementSystem movementSystem = new MovementSystem();
-		playerCollision.getListeners().add(movementSystem);
-		
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(camera);
 		
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
+		MovementSystem movementSystem = new MovementSystem();
+		playerCollision.getListeners().add(movementSystem);
+		
+		movementControlSystem = new MovementControlSystem();
+		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(new PlayerControlSystem());
+		gameSystems.add(movementControlSystem);
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
@@ -110,111 +108,100 @@ public class GameState extends State implements IClientController {
 	public void initGui() {
 		super.initGui();
 		
-		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+		root.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			if(pauseScreen.isPaused()) {
+			if(mess.isShowing()) {
+				switch(keyEvent.getCode()) {
+				
+				case ESCAPE:
+					mess.setShowing(false);
+					return;// So the pause screen doesn't show.
+				
+				default:
+					break;
+				
+				}
+			}
+			
+			if(pauseScreen.isPaused() || inventory.isVisible()) {
 				
 				switch(keyEvent.getCode()) {
 				
 				case ESCAPE:
 					pauseScreen.setPaused(false);
-					break;
-				
-				default:
-					break;
-				}
-				
-			} else {
-
-				switch(keyEvent.getCode()) {
-				
-				case ESCAPE:
-					
-					if(inventory.isVisible()) {
-						inventory.setVisible(false);
-					} else if(mess.isShowing()) {
-						mess.setShowing(false);
-					} else {
-						pauseScreen.setPaused(true);
-					}
-					
-					break;
-					
 				case E:
-					if(mess.isShowing()) break;
-					inventory.setVisible(!inventory.isVisible());
+					inventory.setVisible(false);
 					break;
-					
-				case R:
-					player.getComponent(RandomPositionComponent.class).setGenerateNewPosition(true);
-					break;
-					
-				case L:
-					showEntireWorld = !showEntireWorld;
-					
-					if(showEntireWorld) {
-						cameraTransform.setScaleX(Double.MIN_VALUE);
-						cameraTransform.setScaleY(Double.MIN_VALUE);
-					} else {
-						cameraTransform.setScaleX(1d / 2d);
-						cameraTransform.setScaleY(1d / 2d);
-					}
-					
-					break;
-					
-				case C:
-					cameraTransform.setTheta(cameraTransform.getTheta() + 5);
-					break;
-					
-				case Z:
-					cameraTransform.setTheta(cameraTransform.getTheta() - 5);
-					break;
-					
-				case X:
-					cameraTransform.setTheta(0);
-					break;
-					
-				case ENTER:
-					if(!mess.isShowing() && !inventory.isVisible()) mess.setShowing(true);
-					break;
-					
-				case F5:
-					
-					String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
-					
-					root.getScene().getStylesheets().remove(style);
-					root.getScene().getStylesheets().add(style);
-					
-					break;
-					
-				case UP:
-				case W:
-					playerMovement.setUp(true);
-					playerMovement.setDown(false);
-					break;
-					
-				case LEFT:
-				case A:
-					playerMovement.setLeft(true);
-					playerMovement.setRight(false);
-					break;
-					
-				case DOWN:
-				case S:
-					playerMovement.setDown(true);
-					playerMovement.setUp(false);
-					break;
-					
-				case RIGHT:
-				case D:
-					playerMovement.setRight(true);
-					playerMovement.setLeft(false);
-					break;
-					
+				
 				default:
 					break;
 				}
+				
+				keyEvent.consume();
+				
 			}
+			
+			
+		});
+		
+		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+			
+			switch(keyEvent.getCode()) {
+			
+			case ESCAPE:
+				pauseScreen.setPaused(true);
+				break;
+				
+			case E:
+				inventory.setVisible(true);
+				break;
+				
+			case R:
+				player.getComponent(RandomPositionComponent.class).setGenerateNewPosition(true);
+				break;
+				
+			case L:
+				showEntireWorld = !showEntireWorld;
+				
+				if(showEntireWorld) {
+					cameraTransform.setScaleX(Double.MIN_VALUE);
+					cameraTransform.setScaleY(Double.MIN_VALUE);
+				} else {
+					cameraTransform.setScaleX(1d / 2d);
+					cameraTransform.setScaleY(1d / 2d);
+				}
+				
+				break;
+				
+			case C:
+				cameraTransform.setTheta(cameraTransform.getTheta() + 5);
+				break;
+				
+			case Z:
+				cameraTransform.setTheta(cameraTransform.getTheta() - 5);
+				break;
+				
+			case X:
+				cameraTransform.setTheta(0);
+				break;
+				
+			case ENTER:
+				mess.setShowing(true);
+				break;
+				
+			case F5:
+				
+				String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
+				
+				root.getScene().getStylesheets().remove(style);
+				root.getScene().getStylesheets().add(style);
+				
+				break;
+				
+			default:
+				break;
+			}
+			
 			
 		});
 		
@@ -226,26 +213,6 @@ public class GameState extends State implements IClientController {
 				if(!pauseScreen.isPaused() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 			
-			case UP:
-			case W:
-				playerMovement.setUp(false);
-				break;
-			
-			case LEFT:
-			case A:
-				playerMovement.setLeft(false);
-				break;
-				
-			case DOWN:
-			case S:
-				playerMovement.setDown(false);
-				break;
-				
-			case RIGHT:
-			case D:
-				playerMovement.setRight(false);
-				break;
-			
 			default:
 				break;
 			
@@ -253,26 +220,14 @@ public class GameState extends State implements IClientController {
 			
 		});
 		
-		root.addEventHandler(MouseEvent.ANY, mouseEvent -> {
-			
-			debugRender.setMouseX(mouseEvent.getX());
-			debugRender.setMouseY(mouseEvent.getY());
-			
-		});
-		
-		debugRender.widthProperty().bind(root.widthProperty());
-		debugRender.heightProperty().bind(root.heightProperty());
-		
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
-	}
-	
-	@Override
-	public void tick() {
+		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
+		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
 		
 	}
 	

@@ -4,13 +4,12 @@ import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
-import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
+import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.gamehelpers.client.IClientController;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
@@ -26,14 +25,15 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
-public class WorldEditorState extends State implements IClientController {
+public class WorldEditorState extends State {
+	
+	private MovementControlSystem movementControlSystem;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
 	private UserViewComponent userView;
 	private TransformComponent cameraTransform;
-	private MovementComponent cameraMovement;
 	
 //	private TerrainComponent comp;
 //	private TerrainComponent intersectedComp;
@@ -57,7 +57,6 @@ public class WorldEditorState extends State implements IClientController {
 		
 		userView = camera.getComponent(UserViewComponent.class);
 		cameraTransform = camera.getComponent(TransformComponent.class);
-		cameraMovement = camera.getComponent(MovementComponent.class);
 		
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
@@ -70,6 +69,9 @@ public class WorldEditorState extends State implements IClientController {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
+		movementControlSystem = new MovementControlSystem();
+		
+		gameSystems.add(movementControlSystem);
 		gameSystems.add(new CameraRoamingSystem(world.getWidth(), world.getHeight()));
 		
 //		comp = new TerrainComponent(0, 0, DIMS[3], DIMS[3]);// Make the default a size you can actually see...
@@ -96,68 +98,21 @@ public class WorldEditorState extends State implements IClientController {
 				if(Mouse.isClamped()) {
 					Mouse.unclamp();
 				} else {
-					Mouse.clamp(root);
+					Mouse.clamp();
 				}
 				
 				break;
 			
+			case S:
+				if(keyEvent.isControlDown()) saveTerrain("terrain");
+				break;
+				
 			case ESCAPE:
 				pauseScreen.setPaused(!pauseScreen.isPaused());
 				break;
 				
-			case UP:
-			case W:
-				cameraMovement.setUp(true);
-				break;
-				
-			case DOWN:
-			case S:
-				cameraMovement.setDown(true);
-				break;
-				
-			case RIGHT:
-			case D:
-				cameraMovement.setRight(true);
-				break;
-				
-			case LEFT:
-			case A:
-				cameraMovement.setLeft(true);
-				break;
-				
 			default:
 				break;
-			}
-			
-		});
-		
-		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
-			
-			switch(keyEvent.getCode()) {
-			
-			case UP:
-			case W:
-				cameraMovement.setUp(false);
-				break;
-				
-			case DOWN:
-			case S:
-				cameraMovement.setDown(false);
-				break;
-				
-			case RIGHT:
-			case D:
-				cameraMovement.setRight(false);
-				break;
-				
-			case LEFT:
-			case A:
-				cameraMovement.setLeft(false);
-				break;
-			
-			default:
-				break;
-			
 			}
 			
 		});
@@ -193,6 +148,9 @@ public class WorldEditorState extends State implements IClientController {
 			cameraTransform.setScaleY(cameraTransform.getScaleY() + scaleFactor);
 			
 		});
+		
+		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
+		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
 		
 		Button optionsButton = new Button("Options");
 		optionsButton.setMaxWidth(Double.MAX_VALUE);
@@ -234,30 +192,6 @@ public class WorldEditorState extends State implements IClientController {
 		
 		tcRender.addComponent(new TerrainComponent(comp.getX() + camera.getX(), 
 				comp.getY() + camera.getY(), comp.getWidth(), comp.getHeight()));
-		
-	}
-	
-	private void moveView() {
-		
-		double mouseX = Mouse.getX();
-		double mouseY = Mouse.getY();;
-		
-		if(Mouse.isClamped()) {
-			
-			mouseX = Mouse.getClampX();
-			mouseY = Mouse.getClampY();
-			
-			camera.setX(camera.getX() + Mouse.getDx());
-			camera.setY(camera.getY() + Mouse.getDy());
-			
-		} else {
-			
-			camera.update(up, down, right, left);
-			
-		}
-		
-		comp.setX(mouseX / camera.getScaleX() - (comp.getWidth()/2d));
-		comp.setY(mouseY / camera.getScaleY() - (comp.getHeight()/2d));
 		
 	}
 	
@@ -368,7 +302,7 @@ public class WorldEditorState extends State implements IClientController {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		saveTerrain("terrain");
+//		saveTerrain("terrain");
 		
 	}
 	

@@ -29,6 +29,8 @@ public class CollisionSystem extends GameSystem {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
+		if(transformComp.getX() == hitbox.getX() && transformComp.getY() == hitbox.getY()) return;// Entity hasn't moved.
+		
 		Rectangle hitboxX = new Rectangle(transformComp.getX(), hitbox.getY(), hitbox.getWidth(), hitbox.getHeight());
 		
 		Entity collidingWithX = checkEntityCollision(e, hitboxX);
@@ -80,13 +82,6 @@ public class CollisionSystem extends GameSystem {
 				collision = false;
 			
 			if(collision) {
-//				collisionComp.getCollidingWithEntity().set(e);
-//				
-//				collisionComp.setCollideX(newHitbox.getX() + newHitbox.getWidth() < otherHitbox.getX() ||
-//						otherHitbox.getX() + otherHitbox.getWidth() < newHitbox.getX());
-//				collisionComp.setCollideY(newHitbox.getY() + newHitbox.getHeight() < otherHitbox.getY() ||
-//						otherHitbox.getY() + otherHitbox.getHeight() < newHitbox.getY());
-				
 				return e;
 			}
 			

@@ -16,7 +16,6 @@ import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.log.Logger;
@@ -36,8 +35,6 @@ public class Client extends AClient {
 	// episode 427
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
-	
-	private StateManager sm;
 	
 	private ClientNetworkManager networkManager;
 	
@@ -145,8 +142,6 @@ public class Client extends AClient {
 		
 //		networkManager = new ClientNetworkManager();
 		
-		sm = new StateManager(game, this);
-		
 		Task<Integer> task = new Task<Integer>() {
 			
 			@Override
@@ -203,9 +198,12 @@ public class Client extends AClient {
 			
 			stage.setScene(sm.getScene());
 			
-			sm.requestStateChange(LoadingState.class);
+			sm.setState(LoadingState.class);
 			
 			stage.show();
+			
+			readyToUpdate = true;
+			readyToRender = true;
 			
 		});
 		
@@ -213,27 +211,17 @@ public class Client extends AClient {
 	
 	@Override
 	public void tick() {
-		super.tick();
 		
 		Background.instance().tick();
 		
-		Mouse.update();
+		Mouse.update(sm.getCurrentState().getRoot());
 		
 		sm.update();
 		
 	}
 	
 	@Override
-	protected void render() {
-		
-		if(sm != null && sm.getCurrentState() != null)
-			sm.getCurrentState().render();
-//			masterRender.render(sm.getCurrentState().getCanvas().getGraphicsContext2D(), sm.getCurrentState().getCamera());
-	}
-	
-	@Override
 	public void stop() {
-		super.stop();
 		
 		sm.stop();
 		
