@@ -5,8 +5,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 
-import com.rawad.ballsimulator.entity.EntityMovingBase;
+import com.rawad.ballsimulator.entity.EntityRotatingBase;
 import com.rawad.ballsimulator.networking.Packet;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
@@ -93,16 +94,16 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendMoveUpdate(EntityMovingBase entity) {
+	public void sendMoveUpdate(EntityRotatingBase entity) {
 		
 		sendPacketToAllClients(new SPacket02Move(entity.getName(), entity.getX(), entity.getY(), entity.getVx(), 
-				entity.getVy(), entity.getAx(), entity.getAy()));
+				entity.getVy(), entity.getAx(), entity.getAy(), entity.getTheta()));
 		
 	}
 	
 	public void sendPacketToAllClients(Packet packet) {
 		
-		Socket[] clients = networkManager.getConnectionManager().getClients();
+		ArrayList<Socket> clients = networkManager.getConnectionManager().getClients();
 		
 		for(Socket client: clients) {
 			

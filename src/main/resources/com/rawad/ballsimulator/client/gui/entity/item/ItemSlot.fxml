@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.ImageView?>
+
+<fx:root type="ItemSlot" xmlns:fx="http://javafx.com/javafx" >
+	
+	<Button fx:id="button" mnemonicParsing="false" maxWidth="Infinity" maxHeight="Infinity">
+		<focusTraversable>false</focusTraversable>
+	</Button>
+	<ImageView fx:id="imageView" />
+	
+</fx:root>

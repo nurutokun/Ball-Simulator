@@ -1,11 +1,15 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.State;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.renderengine.BackgroundRender;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -14,6 +18,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
 public class OptionState extends State {
+	
+	private Entity camera;
 	
 	@FXML private ComboBox<String> resolutions;
 	
@@ -25,6 +31,17 @@ public class OptionState extends State {
 	private CustomLoader loader;
 	
 	private SettingsFileParser settings;
+	
+	public OptionState() {
+		super();
+		
+		camera = Entity.createEntity(EEntity.CAMERA);
+		
+		world.addEntity(camera);
+		
+		masterRender.registerRender(new BackgroundRender(camera));
+		
+	}
 	
 	@Override
 	public void initGui() {
@@ -39,13 +56,9 @@ public class OptionState extends State {
 		
 		resolutions.setOnAction(e -> Logger.log(Logger.DEBUG, "Changed resolution to: " + resolutions.getValue()));
 		
-	}
-	
-	@Override
-	public void render() {
-		super.render();
-		
-		BackgroundRender.instance().render(canvas.getGraphicsContext2D(), canvas.getWidth(), canvas.getHeight());
+		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
+		viewport.widthProperty().bind(root.widthProperty());
+		viewport.heightProperty().bind(root.heightProperty());
 		
 	}
 	
@@ -62,7 +75,7 @@ public class OptionState extends State {
 		sm.getClient().addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.loadSettings(settings, game.getSettingsFileName());
+				loader.loadSettings(settings, sm.getClient().getSettingsFileName());
 				ipHolder.setText(settings.getIp());
 				
 				return 0;
@@ -76,7 +89,15 @@ public class OptionState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		loader.saveSettings(settings, sm.getGame().getSettingsFileName());
+		sm.getClient().addTask(new Task<Integer>() {
+			protected Integer call() throws Exception {
+				
+				loader.saveSettings(settings, sm.getClient().getSettingsFileName());
+				
+				return 0;
+				
+			}
+		});
 		
 	}
 	

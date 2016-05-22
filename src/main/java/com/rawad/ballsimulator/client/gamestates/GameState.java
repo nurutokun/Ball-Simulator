@@ -1,59 +1,105 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.client.Camera;
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.Viewport;
+import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
+import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
-import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.client.renderengine.WorldRender;
+import com.rawad.ballsimulator.entity.AttachmentComponent;
+import com.rawad.ballsimulator.entity.CollisionComponent;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.RandomPositionComponent;
+import com.rawad.ballsimulator.entity.RenderingComponent;
+import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.CameraFollowSystem;
+import com.rawad.ballsimulator.game.CollisionSystem;
+import com.rawad.ballsimulator.game.MovementControlSystem;
+import com.rawad.ballsimulator.game.MovementSystem;
+import com.rawad.ballsimulator.game.PositionGenerationSystem;
+import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.ballsimulator.world.World;
-import com.rawad.gamehelpers.client.IClientController;
-import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.State;
-import com.rawad.gamehelpers.gui.PauseScreen;
+import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.resources.Loader;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Rectangle;
 
-public class GameState extends State implements IClientController {
+public class GameState extends State {
 	
-	private Viewport viewport;
+	private MovementControlSystem movementControlSystem;
 	
-	private World world;
-	private Camera camera;
+	private WorldRender worldRender;
+	private DebugRender debugRender;
 	
-	private EntityPlayer player;
+	private Entity camera;
+	private TransformComponent cameraTransform;
+	
+	private Entity player;
+	private RandomPositionComponent playerRandomPositioner;
 	
 	@FXML private PauseScreen pauseScreen;
-	
 	@FXML private PlayerInventory inventory;
-	
 	@FXML private Messenger mess;
-	
-	private DebugRender debugRender;
 	
 	private boolean showEntireWorld;
 	
 	public GameState() {
 		super();
 		
-		viewport = new Viewport();
+		player = Entity.createEntity(EEntity.USER_CONTROLLABLE_PLAYER);
+		playerRandomPositioner = player.getComponent(RandomPositionComponent.class);
+		RenderingComponent playerRender = player.getComponent(RenderingComponent.class);
 		
-		world = new World();
+		playerRender.setTexture(GameTextures.findTexture(EEntity.PLAYER));
+		playerRender.getTextureObject().setOnloadAction(texture -> {
+			
+			Rectangle hitbox = player.getComponent(CollisionComponent.class).getHitbox();
+			hitbox.setWidth(texture.getTexture().getWidth());
+			hitbox.setHeight(texture.getTexture().getHeight());
+			
+		});
 		
-		player = new EntityPlayer(world);
+		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
 		
-		camera = new Camera();
-		camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
+		world.addEntity(player);
 		
-		viewport.update(world, camera);
+		camera = Entity.createEntity(EEntity.CAMERA);
+		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
+		
+		cameraTransform = camera.getComponent(TransformComponent.class);		
+		cameraTransform.setScaleX(0.5D);
+		cameraTransform.setScaleY(0.5D);
+		
+		cameraTransform.setMaxScaleX(5D);
+		cameraTransform.setMaxScaleY(5D);
+		
+		world.addEntity(camera);
+		
+		worldRender = new WorldRender(world, camera);
+		debugRender = new DebugRender(camera);
+		
+		masterRender.registerRender(worldRender);
+		masterRender.registerRender(debugRender);
+		
+		movementControlSystem = new MovementControlSystem();
+		
+		MovementSystem movementSystem = new MovementSystem();
+		playerCollision.getListeners().add(movementSystem);
+		
+		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(movementControlSystem);
+		gameSystems.add(movementSystem);
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new RollingSystem());
+		gameSystems.add(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		
 		showEntireWorld = false;
 		
@@ -65,100 +111,80 @@ public class GameState extends State implements IClientController {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			if(pauseScreen.isPaused()) {
-				
+			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
 				switch(keyEvent.getCode()) {
 				
 				case ESCAPE:
-					pauseScreen.setPaused(false);
-					break;
-				
-				default:
-					break;
-				}
-				
-			} else {
-
-				switch(keyEvent.getCode()) {
-				
-				case ESCAPE:
-					
-					if(inventory.isVisible()) {
-						inventory.setVisible(false);
-					} else if(mess.isShowing()) {
-						mess.setShowing(false);
-					} else {
-						pauseScreen.setPaused(true);
-					}
-					
-					break;
-					
+					mess.setShowing(false);
+					pauseScreen.setVisible(false);
 				case E:
-					if(mess.isShowing()) break;
-					inventory.setVisible(!inventory.isVisible());
-					break;
-					
-				case R:
-					world.generateCoordinates(player);
-					break;
-					
-				case L:
-					showEntireWorld = !showEntireWorld;
-					break;
-					
-				case C:
-					camera.increaseRotation(0.1);
-					break;
-					
-				case Z:
-					camera.increaseRotation(-0.1);
-					break;
-					
-				case X:
-					camera.setRotation(0);
-					break;
-					
-				case ENTER:
-					if(!mess.isShowing() && !inventory.isVisible()) mess.setShowing(true);
-					break;
-					
-				case F5:
-					
-					String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
-					
-					root.getScene().getStylesheets().remove(style);
-					root.getScene().getStylesheets().add(style);
-					
-					break;
-					
-				case UP:
-				case W:
-					player.setUp(true);
-					player.setDown(false);
-					break;
-					
-				case LEFT:
-				case A:
-					player.setLeft(true);
-					player.setRight(false);
-					break;
-					
-				case DOWN:
-				case S:
-					player.setDown(true);
-					player.setUp(false);
-					break;
-					
-				case RIGHT:
-				case D:
-					player.setRight(true);
-					player.setLeft(false);
+					inventory.setVisible(false);
 					break;
 					
 				default:
 					break;
 				}
+				
+				return;
+				
 			}
+			
+			switch(keyEvent.getCode()) {
+			
+			case ESCAPE:
+				pauseScreen.setVisible(true);
+				break;
+				
+			case E:
+				inventory.setVisible(!inventory.isVisible());
+				break;
+				
+			case R:
+				player.getComponent(RandomPositionComponent.class).setGenerateNewPosition(true);
+				break;
+				
+			case L:
+				showEntireWorld = !showEntireWorld;
+				
+				if(showEntireWorld) {
+					cameraTransform.setScaleX(Double.MIN_VALUE);
+					cameraTransform.setScaleY(Double.MIN_VALUE);
+				} else {
+					cameraTransform.setScaleX(1d / 2d);
+					cameraTransform.setScaleY(1d / 2d);
+				}
+				
+				break;
+				
+			case C:
+				cameraTransform.setTheta(cameraTransform.getTheta() + 5);
+				break;
+				
+			case Z:
+				cameraTransform.setTheta(cameraTransform.getTheta() - 5);
+				break;
+				
+			case X:
+				cameraTransform.setTheta(0);
+				break;
+				
+			case ENTER:
+				mess.setShowing(true);
+				break;
+				
+			case F5:
+				
+				String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
+				
+				root.getScene().getStylesheets().remove(style);
+				root.getScene().getStylesheets().add(style);
+				
+				break;
+				
+			default:
+				break;
+			}
+			
 			
 		});
 		
@@ -167,27 +193,7 @@ public class GameState extends State implements IClientController {
 			switch(keyEvent.getCode()) {
 			
 			case T:
-				if(!pauseScreen.isPaused() && !inventory.isVisible()) mess.setShowing(true);
-				break;
-			
-			case UP:
-			case W:
-				player.setUp(false);
-				break;
-			
-			case LEFT:
-			case A:
-				player.setLeft(false);
-				break;
-				
-			case DOWN:
-			case S:
-				player.setDown(false);
-				break;
-				
-			case RIGHT:
-			case D:
-				player.setRight(false);
+				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 			
 			default:
@@ -197,60 +203,17 @@ public class GameState extends State implements IClientController {
 			
 		});
 		
-		root.addEventHandler(MouseEvent.ANY, mouseEvent -> {
-			
-			if(mouseEvent.isPrimaryButtonDown()) {
-				if(player.intersects(
-						(int) (mouseEvent.getX() / root.getWidth() * (double) Game.SCREEN_WIDTH / camera.getScaleX() 
-								+ camera.getX()), 
-						(int) (mouseEvent.getY() / root.getHeight() * (double) Game.SCREEN_HEIGHT / camera.getScaleY() 
-								+ camera.getY()))) {
-					
-					player.hit(0.2d);
-					
-				}
-				
-			}
-			
-			debugRender.setMouseX(mouseEvent.getX());
-			debugRender.setMouseY(mouseEvent.getY());
-			
-		});
-		
-		debugRender = viewport.getMasterRender().getRender(DebugRender.class);
-		
-		debugRender.widthProperty().bind(root.widthProperty());
-		debugRender.heightProperty().bind(root.heightProperty());
+		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
+		viewport.widthProperty().bind(root.widthProperty());
+		viewport.heightProperty().bind(root.heightProperty());
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
-	}
-	
-	@Override
-	public void tick() {
+		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
+		inventory.visibleProperty().addListener(e -> sm.getGame().setPaused(inventory.isVisible()));
 		
-		if(!pauseScreen.isPaused() && !inventory.isVisible()) {
-			
-			if(showEntireWorld) {
-				camera.setScale(Double.MIN_VALUE, Double.MIN_VALUE);
-			} else {
-				camera.setScale(1d/2d, 1d/2d);
-			}
-			
-			world.update();
-			
-			camera.setX(player.getX() - (Game.SCREEN_WIDTH / camera.getScaleX() / 2d));
-			camera.setY(player.getY() - (Game.SCREEN_HEIGHT / camera.getScaleY() / 2d));
-			
-		}
-		
-	}
-	
-	@Override
-	public void render() {
-		super.render();
-		
-		viewport.render(canvas, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
+		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
 		
 	}
 	
@@ -260,14 +223,14 @@ public class GameState extends State implements IClientController {
 		
 		sm.getClient().addTask(new Task<Integer>() {
 			
-			protected Integer call() throws Exception {
+			protected Integer call() {
 				
 				CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);
 				
 				TerrainFileParser parser = sm.getGame().getFileParser(TerrainFileParser.class);
 				
-				world.setTerrain(loader.loadTerrain(parser, "terrain"));
-				world.generateCoordinates(player);
+				loader.loadTerrain(parser, world, "terrain");
+				playerRandomPositioner.setGenerateNewPosition(true);
 				
 				return 0;
 				
@@ -275,7 +238,17 @@ public class GameState extends State implements IClientController {
 			
 		});
 		
-		pauseScreen.setPaused(false);
+	}
+	
+	@Override
+	protected void onDeactivate() {
+		super.onDeactivate();
+		
+		Platform.runLater(() -> {
+			pauseScreen.setVisible(false);
+			inventory.setVisible(false);
+			mess.setShowing(false);
+		});
 		
 	}
 	

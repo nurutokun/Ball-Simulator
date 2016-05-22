@@ -1,62 +1,58 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
-import java.util.ArrayList;
+import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
+import com.rawad.gamehelpers.resources.Loader;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableView;
+import javafx.util.Callback;
 
-import com.rawad.ballsimulator.entity.EntityPlayer;
+// TODO: Style PlayerList + PlayerInventory (/slots).
+public class PlayerList extends TableView<EntityPlayerMP> {
 
-/**
- * Need to implement better {@code String} rendering to allow us to get a proper width/height of the newly rendered 
- * {@code String}.
- * 
- * @author Rawad
- *
- */
-public class PlayerList extends JTable {// TODO: Could Make JList
+	@FXML private TableColumn<EntityPlayerMP, String> usernameColumn;
+	@FXML private TableColumn<EntityPlayerMP, String> infoColumn;
+	@FXML private TableColumn<EntityPlayerMP, Integer> pingColumn;
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5609701213952163115L;
-	
-	private final String id;
-
-	private DefaultTableModel model;
-	
-	private ArrayList<EntityPlayer> players;
-	
-	public PlayerList(String id) {
+	public PlayerList() {
 		super();
 		
-		this.id = "Player List";
+		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		loader.setController(this);
+		loader.setRoot(this);
 		
-		model = new DefaultTableModel(1, 1);
-		model.setColumnIdentifiers(new String[]{"Player"});
+		try {
+			loader.load();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
 		
-		players = new ArrayList<EntityPlayer>();
+		usernameColumn.setCellValueFactory(new Callback<CellDataFeatures<EntityPlayerMP, String>, ObservableValue<String>>() {
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<EntityPlayerMP, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().toString());// TODO: (PlayerList) Make a name component.
+			}
+		});
 		
+		infoColumn.setCellValueFactory(new Callback<CellDataFeatures<EntityPlayerMP, String>, ObservableValue<String>>() {
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<EntityPlayerMP, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().getAddress());
+			}
+		});
 		
-	}
-	
-	public String getId() {
-		return id;
-	}
-	
-	public void addPlayer(EntityPlayer player) {
+		pingColumn.setCellValueFactory(new Callback<CellDataFeatures<EntityPlayerMP, Integer>, ObservableValue<Integer>>() {
+			@Override
+			public ObservableValue<Integer> call(CellDataFeatures<EntityPlayerMP, Integer> p) {
+				return new ReadOnlyObjectWrapper<Integer>(-1);
+			}
+		});
 		
-		model.addRow(new String[]{player.getName()});
-		
-		players.add(model.getRowCount() - 1, player);// -1 to go from length -> index
-		
-	}
-	
-	public void removePlayer(EntityPlayer player) {
-		
-		model.removeRow(players.indexOf(player));
-		
-		players.remove(player);
 	}
 	
 }

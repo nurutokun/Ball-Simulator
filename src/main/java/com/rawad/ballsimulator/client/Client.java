@@ -13,13 +13,11 @@ import com.rawad.ballsimulator.client.gamestates.MenuState;
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
-import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
+import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.gamestates.StateManager;
-import com.rawad.gamehelpers.gui.Background;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
@@ -32,21 +30,13 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-// TODO: Could make the whole "rotating base", "moving base", etc. just a bunch of interfaces; for the player that 
-// is. Could also make it component based (one entity class and just add the different components you want it to 
-// have, e.g. moving, rotating, health). Keep in mind having it mobile-portable.
 public class Client extends AClient {
 	
-	// 17:00, episode 427
-	// MRN 150, 9:30 and at 11 am, Sept. 8
+	// episode 427
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
-	private StateManager sm;
-	
 	private ClientNetworkManager networkManager;
-	
-	private LoadingState loadingState;
 	
 	private SimpleStringProperty gameTitle;
 	
@@ -126,6 +116,8 @@ public class Client extends AClient {
 	
 	public void initResources() {
 		
+		GameTextures.registerTextures(game);
+		
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
 		sm.addState(new OptionState());
@@ -135,24 +127,12 @@ public class Client extends AClient {
 		sm.initGui();
 		
 		GameHelpersLoader ghLoader = game.getLoader(GameHelpersLoader.class);
-		CustomLoader loader = game.getLoader(CustomLoader.class);
 		
 		loadFont(ghLoader);
 		
-		game.registerTextures();
-		
-		ResourceManager.getTextureObject(game.getIconLocation()).setOnloadAction(new Runnable() {
-			
-			@Override
-			public void run() {
-				Platform.runLater(() -> stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation())));
-			}
-			
+		ResourceManager.getTextureObject(game.getIconLocation()).setOnloadAction(texture -> {
+			Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
 		});
-		
-		Background.registerTextures(ghLoader, game);
-		
-		EntityPlayer.registerTextures(loader);
 		
 	}
 	
@@ -160,9 +140,7 @@ public class Client extends AClient {
 	public void init(Game game) {
 		super.init(game);
 		
-		networkManager = new ClientNetworkManager();
-		
-		sm = new StateManager(game, this);
+//		networkManager = new ClientNetworkManager();
 		
 		Task<Integer> task = new Task<Integer>() {
 			
@@ -175,13 +153,6 @@ public class Client extends AClient {
 				Logger.log(Logger.DEBUG, message);
 				
 				initResources();
-				
-				message = "Registering unknown texture...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				ResourceManager.registerUnkownTexture();
 				
 				message = "Loading textures...";
 				
@@ -201,6 +172,8 @@ public class Client extends AClient {
 					
 				}
 				
+				readyToRender = true;
+				
 				message = "Done!";
 				
 				updateMessage(message);
@@ -214,7 +187,7 @@ public class Client extends AClient {
 			
 		};
 		
-		loadingState = new LoadingState(task);
+		LoadingState loadingState = new LoadingState(task);
 		sm.addState(loadingState);
 		
 		addTask(task);
@@ -227,9 +200,11 @@ public class Client extends AClient {
 			
 			stage.setScene(sm.getScene());
 			
-			sm.requestStateChange(LoadingState.class);
+			sm.setState(LoadingState.class);
 			
 			stage.show();
+			
+			readyToUpdate = true;
 			
 		});
 		
@@ -237,7 +212,10 @@ public class Client extends AClient {
 	
 	@Override
 	public void tick() {
-		super.tick();
+		
+		Background.instance().tick();
+		
+		Mouse.update(sm.getCurrentState().getRoot());
 		
 		sm.update();
 		
@@ -245,11 +223,11 @@ public class Client extends AClient {
 	
 	@Override
 	public void stop() {
-		super.stop();
+		
+		readyToUpdate = false;
+		readyToRender = false;
 		
 		sm.stop();
-		
-		game.setBackground(null);// For proper resetting of overall "game state".
 		
 		ResourceManager.releaseResources();
 		

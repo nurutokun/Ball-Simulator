@@ -14,6 +14,7 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
+import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
@@ -96,7 +97,7 @@ public class ClientConnectionManager {
 		
 	}
 	
-	private void handleServerInput(String input) {
+	private void handleServerInput(Socket client, String input) {
 		
 		byte[] data = input.getBytes();
 		
@@ -108,7 +109,7 @@ public class ClientConnectionManager {
 			
 			SPacket01Login loginReplyPacket = new SPacket01Login(data);
 			
-			EntityPlayer mainClientPlayer = networkManager.getClient().getPlayer();
+			EntityPlayerMP mainClientPlayer = networkManager.getClient().getPlayer();
 			
 			// Denied login
 			if(!loginReplyPacket.canLogin() && mainClientPlayer.getName().equals(loginReplyPacket.getUsername())) {
@@ -119,16 +120,16 @@ public class ClientConnectionManager {
 				
 			}
 			
-			EntityPlayer player = mainClientPlayer;
+			EntityPlayerMP player = mainClientPlayer;
 			
 			String receivedUsername = loginReplyPacket.getUsername();
 			
-			// Player that is logging in isn't the client's player, so create a new player.
-			if(!player.getName().equals(receivedUsername)) {
-				player = new EntityPlayer(networkManager.getClient().getWorld());
-				
-				player.setName(loginReplyPacket.getUsername());
-				
+			if(player.getName().equals(receivedUsername)) {
+				networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
+				networkManager.setLoggedIn(true);
+			} else {// Player that is logging in isn't the client's player, so create a new player.
+				player = new EntityPlayerMP(networkManager.getClient().getWorld(), loginReplyPacket.getUsername(), 
+						client.getInetAddress().getHostAddress());
 			}
 			
 			player.setX(loginReplyPacket.getX());
@@ -141,9 +142,7 @@ public class ClientConnectionManager {
 			
 			player.updateHitbox();
 			
-			networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
-			
-			networkManager.setLoggedIn(true);
+			networkManager.getClient().addPlayer(player);
 			
 			break;
 			
@@ -161,6 +160,7 @@ public class ClientConnectionManager {
 			} else {
 				
 				networkManager.getClient().getWorld().removeEntityByName(logoutPacket.getUsername());
+				networkManager.getClient().removePlayer(logoutPacket.getUsername());
 				
 			}
 			
@@ -222,7 +222,7 @@ public class ClientConnectionManager {
 					String input = reader.readLine();
 					
 					if(input != null) {
-						handleServerInput(input);
+						handleServerInput(client, input);
 					}
 					
 				}
