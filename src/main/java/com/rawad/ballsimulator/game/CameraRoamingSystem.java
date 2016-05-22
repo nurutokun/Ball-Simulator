@@ -7,6 +7,7 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.utils.Util;
 
 public class CameraRoamingSystem extends GameSystem {
 	
@@ -48,39 +49,21 @@ public class CameraRoamingSystem extends GameSystem {
 		Rectangle viewport = e.getComponent(UserViewComponent.class).getViewport();
 		
 		double minScaleX = viewport.getWidth() / bounds.getWidth();
-		
-		if(transformComp.getScaleX() < minScaleX) {
-			transformComp.setScaleX(minScaleX);
-		} else if(transformComp.getScaleX() > transformComp.getMaxScaleX()) {
-			transformComp.setScaleX(transformComp.getMaxScaleX());
-		}
+		transformComp.setScaleX(Util.clamp(transformComp.getScaleX(), minScaleX, transformComp.getMaxScaleY()));
 		
 		double minScaleY = viewport.getHeight() / bounds.getHeight();
+		transformComp.setScaleY(Util.clamp(transformComp.getScaleY(), minScaleY, transformComp.getMaxScaleY()));
 		
-		if(transformComp.getScaleY() < minScaleY) {
-			transformComp.setScaleY(minScaleY);
-		} else if(transformComp.getScaleY() > transformComp.getMaxScaleY()) {
-			transformComp.setScaleY(transformComp.getMaxScaleY());
-		}
+		viewport.setY(x);
+		viewport.setY(y);
 		
-		double maxWidth = bounds.getWidth() - (viewport.getWidth() / transformComp.getScaleX());
+		bounds.setWidth(bounds.getWidth() - (viewport.getWidth() / transformComp.getScaleX()));
+		bounds.setHeight(bounds.getHeight() - (viewport.getHeight() / transformComp.getScaleY()));
 		
-		if(x < bounds.getX()) {
-			x = bounds.getX();
-		} else if(x > maxWidth) {
-			x = maxWidth;
-		}
+		CollisionSystem.keepInBounds(viewport, bounds);
 		
-		double maxHeight = bounds.getHeight() - (viewport.getHeight() / transformComp.getScaleY());
-		
-		if(y < bounds.getY()) {
-			y = bounds.getY();
-		} else if(y > maxHeight) {
-			y = maxHeight;
-		}
-		
-		transformComp.setX(x);
-		transformComp.setY(y);
+		transformComp.setX(viewport.getX());
+		transformComp.setY(viewport.getY());
 		
 	}
 	

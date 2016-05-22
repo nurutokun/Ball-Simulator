@@ -25,21 +25,16 @@ public class PauseScreen extends GridPane {
 			ex.printStackTrace();
 		}
 		
-		resume.setOnAction(e -> ((PauseScreen) ((Button) e.getSource()).getParent()).setPaused(false));
+		resume.setOnAction(e -> this.setVisible(false));
 		
-	}
-	
-	public void setPaused(boolean paused) {
-		setVisible(paused);
+		visibleProperty().addListener((e, prevVisible, currentlyVisible) -> {
+			
+			if(!currentlyVisible) {
+				getParent().requestFocus();
+			}
+			
+		});
 		
-		if(!paused) {
-			getParent().requestFocus();
-		}
-		
-	}
-	
-	public boolean isPaused() {
-		return isVisible();
 	}
 	
 	public Button getResume() {

@@ -172,6 +172,8 @@ public class Client extends AClient {
 					
 				}
 				
+				readyToRender = true;
+				
 				message = "Done!";
 				
 				updateMessage(message);
@@ -203,7 +205,6 @@ public class Client extends AClient {
 			stage.show();
 			
 			readyToUpdate = true;
-			readyToRender = true;
 			
 		});
 		

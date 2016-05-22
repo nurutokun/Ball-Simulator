@@ -108,7 +108,7 @@ public class WorldEditorState extends State {
 				break;
 				
 			case ESCAPE:
-				pauseScreen.setPaused(!pauseScreen.isPaused());
+				pauseScreen.setVisible(!pauseScreen.isVisible());
 				break;
 				
 			default:
@@ -294,7 +294,7 @@ public class WorldEditorState extends State {
 		
 //		tcRender = masterRender.getRender(WorldRender.class).getTerrainComponentRender();
 		
-		pauseScreen.setPaused(false);
+		pauseScreen.setVisible(false);
 		
 	}
 	

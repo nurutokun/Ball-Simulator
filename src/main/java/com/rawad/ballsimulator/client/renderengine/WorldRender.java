@@ -37,32 +37,29 @@ public class WorldRender extends LayerRender {
 	@Override
 	public void render(GraphicsContext g) {
 		
-		synchronized(world.getEntitiesAsList()) {// Having this here, with the one in Game prevents camera jitter.
-			
-			Rectangle viewport = userView.getViewport();
-			
-			g.setFill(MasterRender.DEFAULT_BACKGROUND_COLOR);
-			g.fillRect(viewport.getX(), viewport.getY(), viewport.getWidth(), viewport.getHeight());
-			
-			g.scale(cameraTransform.getScaleX(), cameraTransform.getScaleY());
-			
-			g.rotate(cameraTransform.getTheta());
-			
-			g.translate(-cameraTransform.getX(), -cameraTransform.getY());
-			
-			Affine affine = g.getTransform();
-			
-			terrainRender.render(g, world.getWidth(), world.getHeight());
-			
-			for(Entity e: world.getEntitiesAsList()) {
-				if(e.getComponent(RenderingComponent.class) == null) continue;
-				
-				entityRender.render(g, e);
-				g.setTransform(affine);
-				
-			}
-		}
+		Rectangle viewport = userView.getViewport();
 		
+		g.setFill(MasterRender.DEFAULT_BACKGROUND_COLOR);
+		g.fillRect(viewport.getX(), viewport.getY(), viewport.getWidth(), viewport.getHeight());
+		
+		g.scale(cameraTransform.getScaleX(), cameraTransform.getScaleY());
+		
+		g.rotate(cameraTransform.getTheta());
+		
+		g.translate(-cameraTransform.getX(), -cameraTransform.getY());
+		
+		Affine affine = g.getTransform();
+		
+		terrainRender.render(g, world.getWidth(), world.getHeight());
+		
+		for(Entity e: world.getEntitiesAsList()) {
+			if(e.getComponent(RenderingComponent.class) == null) continue;
+			
+			entityRender.render(g, e);
+			g.setTransform(affine);
+			
+		}
+			
 	}
 	
 }

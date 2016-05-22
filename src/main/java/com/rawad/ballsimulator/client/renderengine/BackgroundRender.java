@@ -29,8 +29,6 @@ public class BackgroundRender extends LayerRender {
 		Image texture = ResourceManager.getTexture(background.getTexture());
 		Image flippedTexture = ResourceManager.getTexture(background.getFlippedTexture());
 		
-		if(texture == null || flippedTexture == null) return;
-		
 		Affine affine = g.getTransform();
 		
 		double scaleX = userView.getViewport().getWidth() / background.getMaxWidth();

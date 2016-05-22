@@ -6,6 +6,7 @@ import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.Listener;
 import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.utils.Util;
 
 public class CollisionSystem extends GameSystem {
 	
@@ -98,6 +99,13 @@ public class CollisionSystem extends GameSystem {
 			return true;
 		
 		return false;
+		
+	}
+	
+	public static void keepInBounds(Rectangle inside, Rectangle bounds) {
+		
+		inside.setX(Util.clamp(inside.getX(), bounds.getX(), bounds.getWidth()));
+		inside.setY(Util.clamp(inside.getY(), bounds.getY(), bounds.getHeight()));
 		
 	}
 	

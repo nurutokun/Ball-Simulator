@@ -6,6 +6,7 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.utils.Util;
 
 public class CameraFollowSystem extends GameSystem {
 	
@@ -33,43 +34,28 @@ public class CameraFollowSystem extends GameSystem {
 		
 		Rectangle viewport = userViewComp.getViewport();
 		
-		double minScaleX = viewport.getWidth() / bounds.getWidth();
+		double boundsWidth = bounds.getWidth();
+		double boundsHeight = bounds.getHeight();
 		
-		if(transformComp.getScaleX() < minScaleX) {
-			transformComp.setScaleX(minScaleX);
-		} else if(transformComp.getScaleX() > transformComp.getMaxScaleX()) {
-			transformComp.setScaleX(transformComp.getMaxScaleX());
-		}
+		double minScaleX = viewport.getWidth() / boundsWidth;
+		transformComp.setScaleX(Util.clamp(transformComp.getScaleX(), minScaleX, transformComp.getMaxScaleX()));
 		
-		double minScaleY = viewport.getHeight() / bounds.getHeight();
+		double minScaleY = viewport.getHeight() / boundsHeight;
+		transformComp.setScaleY(Util.clamp(transformComp.getScaleY(), minScaleY, transformComp.getMaxScaleY()));
 		
-		if(transformComp.getScaleY() < minScaleY) {
-			transformComp.setScaleY(minScaleY);
-		} else if(transformComp.getScaleY() > transformComp.getMaxScaleY()) {
-			transformComp.setScaleY(transformComp.getMaxScaleY());
-		}
+		viewport.setX(attachedToTransform.getX() - (viewport.getWidth() / transformComp.getScaleX() / 2d));
+		viewport.setY(attachedToTransform.getY() - (viewport.getHeight() / transformComp.getScaleY() / 2d));
 		
-		double x = attachedToTransform.getX() - (viewport.getWidth() / transformComp.getScaleX() / 2d);
-		double y = attachedToTransform.getY() - (viewport.getHeight() / transformComp.getScaleY() / 2d);
+		bounds.setWidth(bounds.getWidth() - (viewport.getWidth() / transformComp.getScaleX()));
+		bounds.setHeight(bounds.getHeight() - (viewport.getHeight() / transformComp.getScaleY()));
 		
-		double maxWidth = bounds.getWidth() - (viewport.getWidth() / transformComp.getScaleX());
+		CollisionSystem.keepInBounds(viewport, bounds);
 		
-		if(x < bounds.getX()) {
-			x = bounds.getX();
-		} else if(x > maxWidth) {
-			x = maxWidth;
-		}
+		bounds.setWidth(boundsWidth);
+		bounds.setHeight(boundsHeight);
 		
-		double maxHeight = bounds.getHeight() - (viewport.getHeight() / transformComp.getScaleY());
-		
-		if(y < bounds.getY()) {
-			y = bounds.getY();
-		} else if(y > maxHeight) {
-			y = maxHeight;
-		}
-		
-		transformComp.setX(x);
-		transformComp.setY(y);
+		transformComp.setX(viewport.getX());
+		transformComp.setY(viewport.getY());
 		
 	}
 	

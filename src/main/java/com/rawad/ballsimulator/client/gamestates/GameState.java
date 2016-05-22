@@ -108,52 +108,34 @@ public class GameState extends State {
 	public void initGui() {
 		super.initGui();
 		
-		root.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			if(mess.isShowing()) {
+			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
 				switch(keyEvent.getCode()) {
 				
 				case ESCAPE:
 					mess.setShowing(false);
-					return;// So the pause screen doesn't show.
-				
-				default:
-					break;
-				
-				}
-			}
-			
-			if(pauseScreen.isPaused() || inventory.isVisible()) {
-				
-				switch(keyEvent.getCode()) {
-				
-				case ESCAPE:
-					pauseScreen.setPaused(false);
+					pauseScreen.setVisible(false);
 				case E:
 					inventory.setVisible(false);
 					break;
-				
+					
 				default:
 					break;
 				}
 				
-				keyEvent.consume();
+				return;
 				
 			}
-			
-			
-		});
-		
-		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
 			switch(keyEvent.getCode()) {
 			
 			case ESCAPE:
-				pauseScreen.setPaused(true);
+				pauseScreen.setVisible(true);
 				break;
 				
 			case E:
-				inventory.setVisible(true);
+				inventory.setVisible(!inventory.isVisible());
 				break;
 				
 			case R:
@@ -210,7 +192,7 @@ public class GameState extends State {
 			switch(keyEvent.getCode()) {
 			
 			case T:
-				if(!pauseScreen.isPaused() && !inventory.isVisible()) mess.setShowing(true);
+				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 			
 			default:
@@ -225,6 +207,8 @@ public class GameState extends State {
 		viewport.heightProperty().bind(root.heightProperty());
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
+		
+		sm.getGame().pausedProperty().bind(pauseScreen.visibleProperty().or(inventory.visibleProperty()));
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
@@ -252,7 +236,7 @@ public class GameState extends State {
 			
 		});
 		
-		pauseScreen.setPaused(false);
+		pauseScreen.setVisible(false);
 		
 	}
 	

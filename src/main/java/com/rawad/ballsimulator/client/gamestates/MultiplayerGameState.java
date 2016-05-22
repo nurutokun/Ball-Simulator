@@ -96,12 +96,12 @@ public class MultiplayerGameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			if(pauseScreen.isPaused() || inventory.isVisible()) {
+			if(pauseScreen.isVisible() || inventory.isVisible()) {
 				
 				switch(keyEvent.getCode()) {
 				
 				case ESCAPE:
-					pauseScreen.setPaused(false);
+					pauseScreen.setVisible(false);
 					
 				case E:
 					inventory.setVisible(false);
@@ -120,7 +120,7 @@ public class MultiplayerGameState extends State {
 					if(mess.isShowing()) {
 						mess.setShowing(false);
 					} else {
-						pauseScreen.setPaused(true);
+						pauseScreen.setVisible(true);
 					}
 					
 					break;
@@ -177,7 +177,7 @@ public class MultiplayerGameState extends State {
 			switch(keyEvent.getCode()) {
 			
 			case T:
-				if(!pauseScreen.isPaused() && !inventory.isVisible()) mess.setShowing(true);
+				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 				
 			case TAB:
@@ -261,7 +261,7 @@ public class MultiplayerGameState extends State {
 			}
 		});
 		
-		pauseScreen.setPaused(false);
+		pauseScreen.setVisible(false);
 		
 	}
 	
