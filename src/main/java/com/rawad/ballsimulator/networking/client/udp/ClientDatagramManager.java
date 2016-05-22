@@ -4,11 +4,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.networking.Packet;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
+import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -59,12 +59,11 @@ public class ClientDatagramManager {
 			
 			SPacket02Move moveReply = new SPacket02Move(data);
 			
-			EntityPlayer player = (EntityPlayer) networkManager.getClient().getWorld()
+			EntityPlayerMP player = (EntityPlayerMP) networkManager.getClient().getWorld()
 					.getEntityByName(moveReply.getUsername());
 			
-//			EntityMovingBase entityToMove = (EntityMovingBase) world.getEntityByName(moveReply.getUsername());
+			Logger.log(Logger.DEBUG, "Player " + moveReply.getUsername() + " is: " + player);
 			
-			/**/
 			player.setX(moveReply.getX());
 			player.setY(moveReply.getY());
 			
@@ -74,7 +73,9 @@ public class ClientDatagramManager {
 			player.setAx(moveReply.getAx());
 			player.setAy(moveReply.getAy());
 			
-			player.updateHitbox();/**/
+			player.setTheta(moveReply.getTheta());
+			
+			player.updateHitbox();
 			
 			break;
 		
@@ -136,6 +137,7 @@ public class ClientDatagramManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't receive packet from server or "
 						+ "socket was closed.");
+				ex.printStackTrace();
 			}
 			
 		}

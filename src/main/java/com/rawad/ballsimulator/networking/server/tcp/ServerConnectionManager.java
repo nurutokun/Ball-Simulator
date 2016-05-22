@@ -19,6 +19,7 @@ import com.rawad.ballsimulator.server.ServerController;
 import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.server.world.WorldMP;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.utils.ArrayObservableList;
 import com.rawad.gamehelpers.utils.Util;
 
 /**
@@ -38,7 +39,6 @@ public class ServerConnectionManager {
 	
 	private Thread connectionAcceptor;
 	
-	// TODO: Prevent clients from connecting before rest of server is initialized (e.g. world)
 	public ServerConnectionManager(ServerNetworkManager networkManager) {
 		this.networkManager = networkManager;
 		
@@ -69,14 +69,16 @@ public class ServerConnectionManager {
 	
 	public void stop() {
 		
-		for(ClientInputManager cim: clientInputManagers) {
-			
-			SPacket02Logout logoutPlayer = new SPacket02Logout(cim.getName());
-			
-			sendPacketToAllClients(null, logoutPlayer);
-			
+		synchronized(clientInputManagers) {
+			for(ClientInputManager cim: clientInputManagers) {
+				
+				SPacket02Logout logoutPlayer = new SPacket02Logout(cim.getName());
+				
+				sendPacketToAllClients(null, logoutPlayer);
+				
+			}
 		}
-		
+			
 		synchronized(clients) {
 			for(Socket client: clients) {
 				
@@ -143,14 +145,9 @@ public class ServerConnectionManager {
 				
 				player.setName(username);
 				
-				networkManager.getServer().updatePlayerNamesList();
-				
 				String loginMessage = username + " has joined the game...";
 				
 				Logger.log(Logger.DEBUG, loginMessage);
-				
-				clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
-				// clients that haven't logged in yet
 				
 				sendPacketToAllClients(null, new SPacket03Message(Server.SIMPLE_NAME, loginMessage));
 				
@@ -169,7 +166,7 @@ public class ServerConnectionManager {
 				// Inform all current players of this new player's login.
 				sendPacketToAllClients(null, serverLoginResponsePacket);
 				
-				ArrayList<EntityPlayerMP> players = world.getPlayers();
+				ArrayObservableList<EntityPlayerMP> players = world.getPlayers();
 				
 				// Informs player that just logged in of previously logged-in players.
 				for(EntityPlayerMP playerInWorld: players) {
@@ -180,13 +177,17 @@ public class ServerConnectionManager {
 						
 						serverLoginResponsePacket = new SPacket01Login(name, playerInWorld.getX(), 
 								playerInWorld.getY(), playerInWorld.getWidth(), playerInWorld.getHeight(), 
-								playerInWorld.getTheta(), Server.TERRAIN_NAME, canLogin);
+								playerInWorld.getTheta(), Server.TERRAIN_NAME, true);
 						
 						sendPacketToClient(client, serverLoginResponsePacket);
 						
 					}
 					
 				}
+				
+				clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
+				// clients that haven't logged in yet and so that all other players are registered on the client so the client
+				// isn't trying to update non-logged in players
 				
 			} else {
 				sendPacketToClient(client, serverLoginResponsePacket);
@@ -243,8 +244,6 @@ public class ServerConnectionManager {
 	private void disconnectClient(Socket client, String username, WorldMP world) {
 		
 			world.disconnectPlayer(username);
-			
-			networkManager.getServer().updatePlayerNamesList();
 			
 			clients.remove(client);
 			
@@ -317,15 +316,8 @@ public class ServerConnectionManager {
 		
 	}
 	
-	public Socket[] getClients() {
-		
-		Socket[] re = new Socket[clients.size()];
-		
-		for(int i = 0; i < re.length; i++) {
-			re[i] = clients.get(i);
-		}
-		
-		return re;
+	public ArrayList<Socket> getClients() {
+		return clients;
 	}
 	
 	private class ConnectionAcceptor implements Runnable {

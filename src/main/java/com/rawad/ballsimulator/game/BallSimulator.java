@@ -1,9 +1,12 @@
 package com.rawad.ballsimulator.game;
 
+import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.entity.Blueprint;
+import com.rawad.gamehelpers.game.entity.BlueprintManager;
 
 public class BallSimulator extends Game {
 	
@@ -14,21 +17,14 @@ public class BallSimulator extends Game {
 	
 	private static int ICON;
 	
-	private CustomLoader loader;
-	
 	public BallSimulator() {
 		super();
-		
-		loader = new CustomLoader();
-		
-		loaders.put(CustomLoader.class, loader);
-		
 	}
 	
 	@Override
 	public void registerTextures() {
 		
-		ICON = loader.registerTexture("", "game_icon");
+		ICON = loaders.get(CustomLoader.class).registerTexture("", "game_icon");
 		
 	}
 	
@@ -36,8 +32,16 @@ public class BallSimulator extends Game {
 	protected void init() {
 		super.init();
 		
+		loaders.put(CustomLoader.class, new CustomLoader());
+		
 		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
 		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
+		
+		EEntity[] entities = EEntity.values();
+		
+		for(EEntity entity: entities) {
+			BlueprintManager.addBlueprint(entity, new Blueprint(entity.getComponents()));
+		}
 		
 	}
 	
@@ -49,11 +53,6 @@ public class BallSimulator extends Game {
 	@Override
 	public String toString() {
 		return NAME;
-	}
-	
-	@Override
-	public String getSettingsFileName() {
-		return "settings";
 	}
 	
 }

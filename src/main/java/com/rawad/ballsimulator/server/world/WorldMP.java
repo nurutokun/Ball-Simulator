@@ -1,17 +1,16 @@
 package com.rawad.ballsimulator.server.world;
 
-import java.util.ArrayList;
-
 import com.rawad.ballsimulator.entity.Entity;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.ballsimulator.world.World;
+import com.rawad.gamehelpers.utils.ArrayObservableList;
 
 public class WorldMP extends World {
 	
 	private Server server;
 	
-	private ArrayList<EntityPlayerMP> players;
+	private ArrayObservableList<EntityPlayerMP> players;
 	
 	private int ticksPerUpdate;
 	private int tickCount;
@@ -21,7 +20,7 @@ public class WorldMP extends World {
 		
 		this.server = server;
 		
-		players = new ArrayList<EntityPlayerMP>();
+		players = new ArrayObservableList<EntityPlayerMP>();
 		
 		ticksPerUpdate = 20;// Update client view every 20 ticks
 		tickCount = 0;
@@ -79,7 +78,7 @@ public class WorldMP extends World {
 		
 	}
 	
-	public ArrayList<EntityPlayerMP> getPlayers() {
+	public ArrayObservableList<EntityPlayerMP> getPlayers() {
 		return players;
 	}
 	

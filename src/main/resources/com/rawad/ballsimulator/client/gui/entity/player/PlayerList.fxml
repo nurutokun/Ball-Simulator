@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.rawad.ballsimulator.client.gui.entity.player.PlayerList?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<fx:root type="PlayerList" xmlns:fx="http://javafx.com/javafx" >
+	
+	<visible>false</visible>
+	
+	<focusTraversable>false</focusTraversable>
+	
+	<placeholder>
+		<Label text="No players online." />
+	</placeholder>
+	
+	<columns>
+		<TableColumn fx:id="usernameColumn" text="Username" />
+		<TableColumn fx:id="infoColumn" text="Info" />
+		<TableColumn fx:id="pingColumn" text="Ping" />
+	</columns>
+	
+	<columnResizePolicy>
+		<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+	</columnResizePolicy>
+	
+</fx:root>
