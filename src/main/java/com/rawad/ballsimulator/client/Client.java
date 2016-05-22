@@ -224,6 +224,9 @@ public class Client extends AClient {
 	@Override
 	public void stop() {
 		
+		readyToUpdate = false;
+		readyToRender = false;
+		
 		sm.stop();
 		
 		ResourceManager.releaseResources();

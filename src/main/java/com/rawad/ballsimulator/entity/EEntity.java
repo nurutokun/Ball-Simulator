@@ -7,10 +7,11 @@ public enum EEntity {
 	
 	CAMERA(TransformComponent.class, AttachmentComponent.class, UserViewComponent.class),// Transform for scaling, collision for keeping in bounds
 	USER_CONTROLLABLE_CAMERA(TransformComponent.class, MovementComponent.class, UserControlComponent.class, UserViewComponent.class),
-	STATIC(TransformComponent.class, CollisionComponent.class, SelectionComponent.class, RenderingComponent.class),
+	STATIC(TransformComponent.class, CollisionComponent.class, RenderingComponent.class),
 	PLAYER(TransformComponent.class, CollisionComponent.class, HealthComponent.class, MovementComponent.class, RollingComponent.class, RenderingComponent.class),
 	USER_CONTROLLABLE_PLAYER(PLAYER.getComponents(), GuiComponent.class, UserControlComponent.class, RandomPositionComponent.class),
-	NETWORKING_PLAYER(PLAYER.getComponents(), GuiComponent.class);// NetworkControlComponent? (or that + UserControlComponent)
+	NETWORKING_PLAYER(PLAYER.getComponents(), GuiComponent.class),// NetworkControlComponent? (or that + UserControlComponent)
+	PLACEABLE(TransformComponent.class, SelectionComponent.class, PlaceableComponent.class, RenderingComponent.class);
 	
 	private final Class<? extends Component>[] components;
 	

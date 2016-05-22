@@ -27,6 +27,7 @@ import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.resources.Loader;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
@@ -88,10 +89,10 @@ public class GameState extends State {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
+		movementControlSystem = new MovementControlSystem();
+		
 		MovementSystem movementSystem = new MovementSystem();
 		playerCollision.getListeners().add(movementSystem);
-		
-		movementControlSystem = new MovementControlSystem();
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(movementControlSystem);
@@ -208,7 +209,8 @@ public class GameState extends State {
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
-		sm.getGame().pausedProperty().bind(pauseScreen.visibleProperty().or(inventory.visibleProperty()));
+		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
+		inventory.visibleProperty().addListener(e -> sm.getGame().setPaused(inventory.isVisible()));
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
@@ -236,7 +238,17 @@ public class GameState extends State {
 			
 		});
 		
-		pauseScreen.setVisible(false);
+	}
+	
+	@Override
+	protected void onDeactivate() {
+		super.onDeactivate();
+		
+		Platform.runLater(() -> {
+			pauseScreen.setVisible(false);
+			inventory.setVisible(false);
+			mess.setShowing(false);
+		});
 		
 	}
 	

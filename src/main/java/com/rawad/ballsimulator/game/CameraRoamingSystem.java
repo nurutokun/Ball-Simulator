@@ -20,8 +20,8 @@ public class CameraRoamingSystem extends GameSystem {
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(MovementComponent.class);
-		compatibleComponentTypes.add(UserViewComponent.class);
 		compatibleComponentTypes.add(UserControlComponent.class);
+		compatibleComponentTypes.add(UserViewComponent.class);
 		
 	}
 	
@@ -47,20 +47,26 @@ public class CameraRoamingSystem extends GameSystem {
 		}
 		
 		Rectangle viewport = e.getComponent(UserViewComponent.class).getViewport();
+
+		double boundsWidth = bounds.getWidth();
+		double boundsHeight = bounds.getHeight();
 		
-		double minScaleX = viewport.getWidth() / bounds.getWidth();
-		transformComp.setScaleX(Util.clamp(transformComp.getScaleX(), minScaleX, transformComp.getMaxScaleY()));
+		double minScaleX = viewport.getWidth() / boundsWidth;
+		transformComp.setScaleX(Util.clamp(transformComp.getScaleX(), minScaleX, transformComp.getMaxScaleX()));
 		
-		double minScaleY = viewport.getHeight() / bounds.getHeight();
+		double minScaleY = viewport.getHeight() / boundsHeight;
 		transformComp.setScaleY(Util.clamp(transformComp.getScaleY(), minScaleY, transformComp.getMaxScaleY()));
 		
-		viewport.setY(x);
+		viewport.setX(x);
 		viewport.setY(y);
 		
 		bounds.setWidth(bounds.getWidth() - (viewport.getWidth() / transformComp.getScaleX()));
 		bounds.setHeight(bounds.getHeight() - (viewport.getHeight() / transformComp.getScaleY()));
 		
 		CollisionSystem.keepInBounds(viewport, bounds);
+		
+		bounds.setWidth(boundsWidth);
+		bounds.setHeight(boundsHeight);
 		
 		transformComp.setX(viewport.getX());
 		transformComp.setY(viewport.getY());

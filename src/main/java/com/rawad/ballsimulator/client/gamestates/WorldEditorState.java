@@ -1,13 +1,18 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.PlaceableComponent;
+import com.rawad.ballsimulator.entity.RenderingComponent;
+import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
+import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
@@ -17,6 +22,7 @@ import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,8 +41,8 @@ public class WorldEditorState extends State {
 	private UserViewComponent userView;
 	private TransformComponent cameraTransform;
 	
-//	private TerrainComponent comp;
-//	private TerrainComponent intersectedComp;
+	private TransformComponent toBePlacedTransform;
+	private PlaceableComponent placeableComp;
 	
 	private CustomLoader loader;
 	private TerrainFileParser terrainFileParser;
@@ -45,10 +51,6 @@ public class WorldEditorState extends State {
 	
 	@FXML private ComboBox<Double> widthSelector;
 	@FXML private ComboBox<Double> heightSelector;
-	
-	private boolean requestPlace;
-	private boolean requestRemove;
-	private boolean requestSelect;
 	
 	public WorldEditorState() {
 		super();
@@ -73,9 +75,17 @@ public class WorldEditorState extends State {
 		
 		gameSystems.add(movementControlSystem);
 		gameSystems.add(new CameraRoamingSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new EntityPlacementSystem(cameraTransform));
 		
-//		comp = new TerrainComponent(0, 0, DIMS[3], DIMS[3]);// Make the default a size you can actually see...
-//		comp.setHighlightColor(Color.CYAN);
+		Entity toBePlaced = Entity.createEntity(EEntity.PLACEABLE);
+		toBePlacedTransform = toBePlaced.getComponent(TransformComponent.class);
+		
+		placeableComp = toBePlaced.getComponent(PlaceableComponent.class);
+		placeableComp.setToPlace(EEntity.STATIC);// Can be any other entity too. < and V
+		toBePlaced.getComponent(SelectionComponent.class).setSelected(true);
+		toBePlaced.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
+		
+		world.addEntity(toBePlaced);
 		
 	}
 	
@@ -88,6 +98,12 @@ public class WorldEditorState extends State {
 		
 		widthSelector.getItems().addAll(TerrainFileParser.DIMS);
 		heightSelector.getItems().addAll(TerrainFileParser.DIMS);
+		
+		toBePlacedTransform.scaleXProperty().bind(widthSelector.getSelectionModel().selectedItemProperty());
+		toBePlacedTransform.scaleYProperty().bind(heightSelector.getSelectionModel().selectedItemProperty());
+		
+		widthSelector.getSelectionModel().select(TerrainFileParser.DIMS.length / 2);
+		heightSelector.getSelectionModel().select(TerrainFileParser.DIMS.length / 2);
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
@@ -122,15 +138,15 @@ public class WorldEditorState extends State {
 			switch(mouseEvent.getButton()) {
 			
 			case PRIMARY:
-				requestPlace = true;
+				placeableComp.setPlaceRequested(true);
 				break;
 				
 			case SECONDARY:
-				requestRemove = true;
+//				requestRemove = true;// Get intersected entity and remove it?
 				break;
 			
 			case MIDDLE:
-				requestSelect = true;
+				// Take data from interssected entity, put it into current selected one and delete original.
 				break;
 				
 			default:
@@ -177,6 +193,8 @@ public class WorldEditorState extends State {
 		Rectangle viewport = userView.getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
+		
+		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
 		
 	}
 	
@@ -292,15 +310,13 @@ public class WorldEditorState extends State {
 			}
 		});
 		
-//		tcRender = masterRender.getRender(WorldRender.class).getTerrainComponentRender();
-		
-		pauseScreen.setVisible(false);
-		
 	}
 	
 	@Override
 	protected void onDeactivate() {
 		super.onDeactivate();
+		
+		Platform.runLater(() -> pauseScreen.setVisible(false));
 		
 //		saveTerrain("terrain");
 		

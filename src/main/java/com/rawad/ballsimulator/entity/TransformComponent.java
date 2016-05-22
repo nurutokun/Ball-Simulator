@@ -2,6 +2,8 @@ package com.rawad.ballsimulator.entity;
 
 import com.rawad.gamehelpers.game.entity.Component;
 
+import javafx.beans.property.SimpleDoubleProperty;
+
 /**
  * Gives {@code Entiti} a position, scale, and a rotation in 2D space. of the {@code World}.
  * 
@@ -13,8 +15,8 @@ public class TransformComponent extends Component {
 	private double x = 0;
 	private double y = 0;
 	
-	private double scaleX = 1;
-	private double scaleY = 1;
+	private SimpleDoubleProperty scaleX;
+	private SimpleDoubleProperty scaleY;
 	
 	/** Maximum an {@code Entity} can be scaled (i.e. made smaller) in the x-direction. */
 	private double maxScaleX = Double.MAX_VALUE;
@@ -52,33 +54,43 @@ public class TransformComponent extends Component {
 		this.y = y;
 	}	
 	
+	public SimpleDoubleProperty scaleXProperty() {
+		if(scaleX == null) scaleX = new SimpleDoubleProperty(1);
+		return scaleX;
+	}
+	
 	/**
 	 * @return the scaleX
 	 */
 	public double getScaleX() {
-		return scaleX;
+		return scaleXProperty().get();
 	}
 	
 	/**
 	 * @param scaleX the scaleX to set
 	 */
 	public void setScaleX(double scaleX) {
-		this.scaleX = scaleX;
+		scaleXProperty().set(scaleX);
+	}
+	
+	public SimpleDoubleProperty scaleYProperty() {
+		if(scaleY == null) scaleY = new SimpleDoubleProperty(1);
+		return scaleY;
 	}
 	
 	/**
 	 * @return the scaleY
 	 */
 	public double getScaleY() {
-		return scaleY;
+		return scaleYProperty().get();
 	}
 	
 	/**
 	 * @param scaleY the scaleY to set
 	 */
 	public void setScaleY(double scaleY) {
-		this.scaleY = scaleY;
-	}	
+		scaleYProperty().set(scaleY);
+	}
 	
 	/**
 	 * @return the maxScaleX

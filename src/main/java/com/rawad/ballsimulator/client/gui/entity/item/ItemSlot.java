@@ -2,7 +2,7 @@ package com.rawad.ballsimulator.client.gui.entity.item;
 
 import java.io.IOException;
 
-import com.rawad.ballsimulator.entity.item.Item;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.fxml.FXML;
@@ -16,11 +16,11 @@ public class ItemSlot extends StackPane {
 	@FXML private Button button;
 	@FXML private ImageView imageView;
 	
-	private Item item;
+	private Entity item;
 	
 	private int count;
 	
-	public ItemSlot(Item item, int count) {
+	public ItemSlot(Entity item, int count) {
 		
 		this.item = item;
 		
@@ -38,7 +38,7 @@ public class ItemSlot extends StackPane {
 		
 	}
 	
-	public Item getItem() {
+	public Entity getItem() {
 		return item;
 	}
 	

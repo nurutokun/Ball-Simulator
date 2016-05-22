@@ -40,7 +40,7 @@ public class WorldRender extends LayerRender {
 		Rectangle viewport = userView.getViewport();
 		
 		g.setFill(MasterRender.DEFAULT_BACKGROUND_COLOR);
-		g.fillRect(viewport.getX(), viewport.getY(), viewport.getWidth(), viewport.getHeight());
+		g.fillRect(0, 0, viewport.getWidth(), viewport.getHeight());
 		
 		g.scale(cameraTransform.getScaleX(), cameraTransform.getScaleY());
 		
