@@ -66,4 +66,32 @@ public class CollisionComponent extends Component {
 		this.collideY = collideY;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof CollisionComponent) {
+			
+			CollisionComponent collisionComp = (CollisionComponent) comp;
+			
+			collisionComp.setCollideX(isCollideX());
+			collisionComp.setCollideY(isCollideY());
+			
+			Rectangle hitbox = collisionComp.getHitbox();
+			
+			hitbox.setX(this.hitbox.getX());
+			hitbox.setY(this.hitbox.getY());
+			hitbox.setWidth(this.hitbox.getWidth());
+			hitbox.setHeight(this.hitbox.getHeight());
+			
+			collisionComp.getListeners().addAll(getListeners());
+			
+			collisionComp.getCollidingWithEntity().set(getCollidingWithEntity().get());
+			
+			return collisionComp;
+			
+		}
+		
+		return comp;
+	}
+	
 }

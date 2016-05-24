@@ -20,4 +20,20 @@ public class SelectionComponent extends Component {
 		this.selected = selected;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof SelectionComponent) {
+			
+			SelectionComponent selectionComp = (SelectionComponent) comp;
+			
+			selectionComp.setSelected(isSelected());
+			
+			return selectionComp;
+			
+		}
+		
+		return comp;
+	}
+	
 }

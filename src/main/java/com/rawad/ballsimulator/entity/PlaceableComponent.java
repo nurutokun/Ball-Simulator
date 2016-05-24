@@ -37,4 +37,21 @@ public class PlaceableComponent extends Component {
 		this.placeRequested = placeRequested;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof PlaceableComponent) {
+			
+			PlaceableComponent placeableComp = (PlaceableComponent) comp;
+			
+			placeableComp.setPlaceRequested(isPlaceRequested());
+			placeableComp.setToPlace(getToPlace());
+			
+			return placeableComp;
+			
+		}
+		
+		return comp;
+	}
+	
 }

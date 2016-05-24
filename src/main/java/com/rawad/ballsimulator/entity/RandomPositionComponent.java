@@ -21,4 +21,20 @@ public class RandomPositionComponent extends Component {
 		this.generateNewPosition = generateNewPosition;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof RandomPositionComponent) {
+			
+			RandomPositionComponent randomPositionComp = (RandomPositionComponent) comp;
+			
+			randomPositionComp.setGenerateNewPosition(isGenerateNewPosition());
+			
+			return randomPositionComp;
+			
+		}
+		
+		return comp;
+	}
+	
 }

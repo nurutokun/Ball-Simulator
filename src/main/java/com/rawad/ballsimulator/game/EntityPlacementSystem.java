@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.game;
 
+import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
@@ -8,6 +9,7 @@ import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.geometry.Point;
 
 public class EntityPlacementSystem extends GameSystem {
 	
@@ -28,44 +30,44 @@ public class EntityPlacementSystem extends GameSystem {
 	public void tick(Entity e) {
 		
 		SelectionComponent selectionComp = e.getComponent(SelectionComponent.class);
-		
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		
 		if(selectionComp.isSelected()) {
-			transformComp.setX(Mouse.getX() / cameraTransform.getScaleX() + (cameraTransform.getX()));
-			transformComp.setY(Mouse.getY() / cameraTransform.getScaleY() + (cameraTransform.getY()));
+			
+			Point mouseInWorld = cameraTransform.transformFromScreen(Mouse.getX(), Mouse.getY());
+			
+			double x = mouseInWorld.getX();
+			double y = mouseInWorld.getY();
+			
+			RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
+			
+			if(renderingComp != null) {
+				x -= renderingComp.getTexture().getWidth() * transformComp.getScaleX() / 2d;
+				y -= renderingComp.getTexture().getHeight() * transformComp.getScaleY() / 2d;
+			}
+			
+			transformComp.setX(x);
+			transformComp.setY(y);
+			
 		}
 		
 		PlaceableComponent placeableComp = e.getComponent(PlaceableComponent.class);
 		
 		if(placeableComp.isPlaceRequested()) {
-			Entity newEntity = Entity.createEntity(placeableComp.getToPlace());
-			
+			Entity newEntity = Entity.createEntity(e, EEntity.STATIC);
+			/*/
 			TransformComponent newEntityTransform = newEntity.getComponent(TransformComponent.class);
 			
 			if(newEntityTransform != null) {
-				
-				newEntityTransform.setX(transformComp.getX());
-				newEntityTransform.setY(transformComp.getY());
-				
-				newEntityTransform.setScaleX(transformComp.getScaleX());
-				newEntityTransform.setScaleY(transformComp.getScaleY());
-				
-				newEntityTransform.setMaxScaleX(transformComp.getMaxScaleX());
-				newEntityTransform.setMaxScaleY(transformComp.getMaxScaleY());
-				
-				newEntityTransform.setTheta(transformComp.getTheta());
-				
+				transformComp.copyData(newEntityTransform);
 			}
 			
 			RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
 			RenderingComponent newEntityRendering = newEntity.getComponent(RenderingComponent.class);
 			
 			if(renderingComp != null && newEntityRendering != null) {
-				
-				newEntityRendering.setTexture(renderingComp.getTextureLocation());
-				
-			}
+				renderingComp.copyData(newEntityRendering);
+			}/**/
 			
 			GameManager.instance().getCurrentGame().getWorld().addEntity(newEntity);
 			

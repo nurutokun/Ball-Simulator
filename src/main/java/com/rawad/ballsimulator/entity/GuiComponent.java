@@ -28,4 +28,20 @@ public class GuiComponent extends Component {
 		return gui;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof GuiComponent) {
+			
+			GuiComponent guiComp = (GuiComponent) comp;
+			
+			guiComp.setGui(getGui());
+			
+			return guiComp;
+			
+		}
+		
+		return comp;
+	}
+	
 }

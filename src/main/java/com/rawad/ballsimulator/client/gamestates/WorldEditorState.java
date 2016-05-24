@@ -19,7 +19,6 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.application.Platform;
@@ -320,11 +319,6 @@ public class WorldEditorState extends State {
 		
 //		saveTerrain("terrain");
 		
-	}
-	
-	@Override
-	public World getWorld() {
-		return world;
 	}
 	
 }

@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.entity;
 
 import com.rawad.gamehelpers.game.entity.Component;
+import com.rawad.gamehelpers.geometry.Point;
 
 import javafx.beans.property.SimpleDoubleProperty;
 
@@ -132,6 +133,57 @@ public class TransformComponent extends Component {
 	 */
 	public void setTheta(double theta) {
 		this.theta = theta;
+	}
+	
+	/**
+	 * 
+	 * Converts the given {@code x} and {@code y} coordinates for a point on the screen and converts it to a point in this
+	 * {@code Transform}'s space.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Point transformFromScreen(double x, double y) {
+		
+		Point pointInWorld = new Point(x, y);
+		
+		try {
+			pointInWorld.setX(x / getScaleX() + getX());
+			pointInWorld.setY(y /  getScaleY() + getY());
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return pointInWorld;
+		
+	}
+	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof TransformComponent) {
+			
+			TransformComponent transformComp = (TransformComponent) comp;
+			
+			
+			transformComp.setX(getX());
+			transformComp.setY(getY());
+			
+			transformComp.setScaleX(getScaleX());
+			transformComp.setScaleY(getScaleY());
+			
+			transformComp.setMaxScaleX(getMaxScaleX());
+			transformComp.setMaxScaleY(getMaxScaleY());
+			
+			transformComp.setTheta(getTheta());
+			
+			return transformComp;
+			
+		}
+		
+		return comp;
+		
 	}
 	
 }

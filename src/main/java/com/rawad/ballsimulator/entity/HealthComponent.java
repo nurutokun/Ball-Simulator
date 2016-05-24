@@ -67,9 +67,23 @@ public class HealthComponent extends Component {
 		this.regen = regen;
 	}
 	
-	/*/bad -->public boolean isAlive() {
-		if(health <= 0) return false;
-		return true;
-	}/**/
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof HealthComponent) {
+			
+			HealthComponent healthComp = (HealthComponent) comp;
+			
+			healthComp.setHealth(getHealth());
+			healthComp.setMaxHealth(getMaxHealth());
+			healthComp.setRegenRate(getRegenRate());
+			healthComp.setRegen(isRegen());
+			
+			return healthComp;
+			
+		}
+		
+		return comp;
+	}
 	
 }

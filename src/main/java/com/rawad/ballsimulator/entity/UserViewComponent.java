@@ -21,4 +21,27 @@ public class UserViewComponent extends Component {
 		return viewport;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof UserViewComponent) {
+			
+			UserViewComponent userViewComp = (UserViewComponent) comp;
+			
+			Rectangle viewport = userViewComp.getViewport();
+			
+			viewport.setX(this.viewport.getX());
+			viewport.setY(this.viewport.getY());
+			
+			viewport.setWidth(this.viewport.getWidth());
+			viewport.setHeight(this.viewport.getHeight());
+			
+			return userViewComp;
+			
+		}
+		
+		return comp;
+		
+	}
+	
 }
