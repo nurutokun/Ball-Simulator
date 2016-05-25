@@ -19,7 +19,9 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.geometry.Point;
 import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -159,8 +161,22 @@ public class WorldEditorState extends State {
 			
 			double scaleFactor = e.getDeltaY() / 100d;
 			
+			if(scaleFactor > 0 && (cameraTransform.getScaleX() < cameraTransform.getMaxScaleX() && 
+					cameraTransform.getScaleY() < cameraTransform.getMaxScaleY())) {// Zooming in.
+				
+				Point mouseInWorld = cameraTransform.transformFromScreen(e.getX(), e.getY());
+				
+				Rectangle viewport = userView.getViewport();
+				
+				cameraTransform.setX(mouseInWorld.getX() - (viewport.getWidth() * cameraTransform.getScaleX()));
+				cameraTransform.setY(mouseInWorld.getY() - (viewport.getHeight() * cameraTransform.getScaleY()));
+				// TODO: Sort this out ^ ; trying to center view after zooming in.
+			}
+			
 			cameraTransform.setScaleX(cameraTransform.getScaleX() + scaleFactor);
 			cameraTransform.setScaleY(cameraTransform.getScaleY() + scaleFactor);
+			
+			clampCameraScale();
 			
 		});
 		
@@ -189,11 +205,33 @@ public class WorldEditorState extends State {
 			
 		});
 		
-		Rectangle viewport = userView.getViewport();
-		viewport.widthProperty().bind(root.widthProperty());
-		viewport.heightProperty().bind(root.heightProperty());
+		root.widthProperty().addListener(e -> resizeViewport());
+		root.heightProperty().addListener(e -> resizeViewport());
 		
 		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
+		
+	}
+	
+	private void resizeViewport() {
+		
+		Rectangle viewport = userView.getViewport();
+		
+		viewport.setWidth(root.getWidth());
+		viewport.setHeight(root.getHeight());
+		
+		clampCameraScale();
+		
+	}
+	
+	private void clampCameraScale() {
+		
+		Rectangle viewport = userView.getViewport();
+		
+		double minScaleX = viewport.getWidth() / world.getWidth();
+		cameraTransform.setScaleX(Util.clamp(cameraTransform.getScaleX(), minScaleX, cameraTransform.getMaxScaleX()));
+		
+		double minScaleY = viewport.getHeight() / world.getHeight();
+		cameraTransform.setScaleY(Util.clamp(cameraTransform.getScaleY(), minScaleY, cameraTransform.getMaxScaleY()));
 		
 	}
 	
@@ -282,8 +320,7 @@ public class WorldEditorState extends State {
 		sm.getClient().addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.saveTerrain(terrainFileParser, terrainName);// TODO: add/remove sttic entities to/from world AND 
-				// terrainFileParser.
+				loader.saveTerrain(terrainFileParser, terrainName);
 				
 				return 0;
 			}

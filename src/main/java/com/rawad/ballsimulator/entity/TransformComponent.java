@@ -6,7 +6,7 @@ import com.rawad.gamehelpers.geometry.Point;
 import javafx.beans.property.SimpleDoubleProperty;
 
 /**
- * Gives {@code Entiti} a position, scale, and a rotation in 2D space. of the {@code World}.
+ * Gives {@code Entiti} a position, scale, and a rotation in 2D space.
  * 
  * @author Rawad
  *
@@ -148,12 +148,8 @@ public class TransformComponent extends Component {
 		
 		Point pointInWorld = new Point(x, y);
 		
-		try {
-			pointInWorld.setX(x / getScaleX() + getX());
-			pointInWorld.setY(y /  getScaleY() + getY());
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
+		pointInWorld.setX(x / getScaleX() + getX());
+		pointInWorld.setY(y /  getScaleY() + getY());
 		
 		return pointInWorld;
 		

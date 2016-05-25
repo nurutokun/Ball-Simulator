@@ -53,6 +53,8 @@ public class TerrainFileParser extends FileParser {
 		Rectangle hitbox = staticEntity.getComponent(CollisionComponent.class).getHitbox();
 		hitbox.setX(x);
 		hitbox.setY(y);
+		hitbox.setWidth(renderingComp.getTexture().getWidth() * scaleX);
+		hitbox.setHeight(renderingComp.getTexture().getHeight() * scaleY);
 		
 		staticEntities.add(staticEntity);
 		
@@ -61,18 +63,6 @@ public class TerrainFileParser extends FileParser {
 	@Override
 	protected void stop() {
 		super.stop();
-		
-		for(Entity staticEntity: staticEntities) {
-			
-			TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
-			RenderingComponent renderingComp = staticEntity.getComponent(RenderingComponent.class);
-			
-			Rectangle hitbox = staticEntity.getComponent(CollisionComponent.class).getHitbox();
-			
-			hitbox.setWidth(transformComp.getScaleX() * renderingComp.getTexture().getWidth());
-			hitbox.setHeight(transformComp.getScaleY() * renderingComp.getTexture().getHeight());
-			
-		}
 		
 		world.getEntitiesAsList().addAll(staticEntities);
 		

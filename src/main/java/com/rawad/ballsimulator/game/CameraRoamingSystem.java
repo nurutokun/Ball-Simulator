@@ -7,7 +7,6 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
-import com.rawad.gamehelpers.utils.Util;
 
 public class CameraRoamingSystem extends GameSystem {
 	
@@ -50,12 +49,6 @@ public class CameraRoamingSystem extends GameSystem {
 
 		double boundsWidth = bounds.getWidth();
 		double boundsHeight = bounds.getHeight();
-		
-		double minScaleX = viewport.getWidth() / boundsWidth;
-		transformComp.setScaleX(Util.clamp(transformComp.getScaleX(), minScaleX, transformComp.getMaxScaleX()));
-		
-		double minScaleY = viewport.getHeight() / boundsHeight;
-		transformComp.setScaleY(Util.clamp(transformComp.getScaleY(), minScaleY, transformComp.getMaxScaleY()));
 		
 		viewport.setX(x);
 		viewport.setY(y);

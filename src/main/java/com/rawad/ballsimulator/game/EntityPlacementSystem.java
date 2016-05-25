@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.game;
 
-import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
@@ -9,7 +9,9 @@ import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Point;
+import com.rawad.gamehelpers.geometry.Rectangle;
 
 public class EntityPlacementSystem extends GameSystem {
 	
@@ -54,26 +56,42 @@ public class EntityPlacementSystem extends GameSystem {
 		PlaceableComponent placeableComp = e.getComponent(PlaceableComponent.class);
 		
 		if(placeableComp.isPlaceRequested()) {
-			Entity newEntity = Entity.createEntity(e, EEntity.STATIC);
-			/*/
-			TransformComponent newEntityTransform = newEntity.getComponent(TransformComponent.class);
 			
-			if(newEntityTransform != null) {
-				transformComp.copyData(newEntityTransform);
-			}
-			
-			RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
-			RenderingComponent newEntityRendering = newEntity.getComponent(RenderingComponent.class);
-			
-			if(renderingComp != null && newEntityRendering != null) {
-				renderingComp.copyData(newEntityRendering);
-			}/**/
-			
-			GameManager.instance().getCurrentGame().getWorld().addEntity(newEntity);
+			placeEntity(GameManager.instance().getCurrentGame().getWorld(), e, placeableComp.getToPlace());
 			
 			placeableComp.setPlaceRequested(false);
 			
 		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param world {@code World} to add the newly created {@code Entity} to.
+	 * @param e {@code Entity} from which the data is to be taken from.
+	 * @param blueprintId Used to get the blueprint for the new {@code Entity}.
+	 */
+	public static void placeEntity(World world, Entity e, Object blueprintId) {
+		
+		Entity newEntity = Entity.createEntity(e, blueprintId);
+		
+		TransformComponent transformComp = e.getComponent(TransformComponent.class);
+		RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
+		
+		CollisionComponent collisionComp = newEntity.getComponent(CollisionComponent.class);
+		
+		if(collisionComp != null) {
+			
+			Rectangle hitbox = collisionComp.getHitbox();
+			
+			hitbox.setX(transformComp.getX());
+			hitbox.setY(transformComp.getY());
+			hitbox.setWidth(renderingComp.getTexture().getWidth() * transformComp.getScaleX());
+			hitbox.setHeight(renderingComp.getTexture().getHeight() * transformComp.getScaleY());
+			
+		}
+		
+		world.addEntity(newEntity);
 		
 	}
 	

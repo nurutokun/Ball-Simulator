@@ -26,6 +26,7 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -34,6 +35,8 @@ import javafx.scene.input.KeyEvent;
 
 public class GameState extends State {
 	
+	private static final double PREFERRED_SCALE = 1d / 2d;
+	
 	private MovementControlSystem movementControlSystem;
 	
 	private WorldRender worldRender;
@@ -41,6 +44,7 @@ public class GameState extends State {
 	
 	private Entity camera;
 	private TransformComponent cameraTransform;
+	private UserViewComponent userView;
 	
 	private Entity player;
 	private RandomPositionComponent playerRandomPositioner;
@@ -75,11 +79,13 @@ public class GameState extends State {
 		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);		
-		cameraTransform.setScaleX(0.5D);
-		cameraTransform.setScaleY(0.5D);
+		cameraTransform.setScaleX(PREFERRED_SCALE);
+		cameraTransform.setScaleY(PREFERRED_SCALE);
 		
-		cameraTransform.setMaxScaleX(5D);
-		cameraTransform.setMaxScaleY(5D);
+		cameraTransform.setMaxScaleX(5d);
+		cameraTransform.setMaxScaleY(5d);
+		
+		userView = camera.getComponent(UserViewComponent.class);
 		
 		world.addEntity(camera);
 		
@@ -147,11 +153,11 @@ public class GameState extends State {
 				showEntireWorld = !showEntireWorld;
 				
 				if(showEntireWorld) {
-					cameraTransform.setScaleX(Double.MIN_VALUE);
-					cameraTransform.setScaleY(Double.MIN_VALUE);
+					cameraTransform.setScaleX(userView.getViewport().getWidth() / world.getWidth());
+					cameraTransform.setScaleY(userView.getViewport().getHeight() / world.getHeight());
 				} else {
-					cameraTransform.setScaleX(1d / 2d);
-					cameraTransform.setScaleY(1d / 2d);
+					cameraTransform.setScaleX(PREFERRED_SCALE);
+					cameraTransform.setScaleY(PREFERRED_SCALE);
 				}
 				
 				break;
@@ -203,9 +209,8 @@ public class GameState extends State {
 			
 		});
 		
-		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
-		viewport.widthProperty().bind(root.widthProperty());
-		viewport.heightProperty().bind(root.heightProperty());
+		root.widthProperty().addListener(e -> resizeViewport());
+		root.heightProperty().addListener(e -> resizeViewport());
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
@@ -217,12 +222,28 @@ public class GameState extends State {
 		
 	}
 	
+	private void resizeViewport() {
+		
+		Rectangle viewport = userView.getViewport();
+		
+		viewport.setWidth(root.getWidth());
+		viewport.setHeight(root.getHeight());
+		
+		double minScaleX = viewport.getWidth() / world.getWidth();
+		cameraTransform.setScaleX(Util.clamp(PREFERRED_SCALE, minScaleX, cameraTransform.getMaxScaleX()));
+		
+		double minScaleY = viewport.getHeight() / world.getHeight();
+		cameraTransform.setScaleY(Util.clamp(PREFERRED_SCALE, minScaleY, cameraTransform.getMaxScaleY()));
+		
+	}
+	
 	@Override
 	protected void onActivate() {
 		super.onActivate();
 		
 		sm.getClient().addTask(new Task<Integer>() {
 			
+			@Override
 			protected Integer call() {
 				
 				CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);
