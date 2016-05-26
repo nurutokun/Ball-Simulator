@@ -34,6 +34,16 @@ public class EntityPlacementSystem extends GameSystem {
 		SelectionComponent selectionComp = e.getComponent(SelectionComponent.class);
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		
+		RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
+		
+		double width = 0;
+		double height = 0;
+		
+		if(renderingComp != null) {
+			width = renderingComp.getTexture().getWidth() * transformComp.getScaleX();
+			height = renderingComp.getTexture().getHeight() * transformComp.getScaleY();
+		}
+		
 		if(selectionComp.isSelected()) {
 			
 			Point mouseInWorld = cameraTransform.transformFromScreen(Mouse.getX(), Mouse.getY());
@@ -41,12 +51,8 @@ public class EntityPlacementSystem extends GameSystem {
 			double x = mouseInWorld.getX();
 			double y = mouseInWorld.getY();
 			
-			RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
-			
-			if(renderingComp != null) {
-				x -= renderingComp.getTexture().getWidth() * transformComp.getScaleX() / 2d;
-				y -= renderingComp.getTexture().getHeight() * transformComp.getScaleY() / 2d;
-			}
+				x -= width / 2d;
+				y -= height / 2d;
 			
 			transformComp.setX(x);
 			transformComp.setY(y);
@@ -55,9 +61,10 @@ public class EntityPlacementSystem extends GameSystem {
 		
 		PlaceableComponent placeableComp = e.getComponent(PlaceableComponent.class);
 		
-		if(placeableComp.isPlaceRequested()) {
+		if(placeableComp.isPlaceRequested() && gameEngine.getGameSystem(CollisionSystem.class).checkEntityCollision(e, new Rectangle(transformComp.getX(), transformComp.getY(), width, height)) == null) {
 			
-			placeEntity(GameManager.instance().getCurrentGame().getWorld(), e, placeableComp.getToPlace());
+			EntityPlacementSystem.placeEntity(GameManager.instance().getCurrentGame().getWorld(), e, 
+					placeableComp.getToPlace());
 			
 			placeableComp.setPlaceRequested(false);
 			

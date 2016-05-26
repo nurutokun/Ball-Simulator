@@ -13,7 +13,6 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
@@ -26,7 +25,6 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.resources.Loader;
-import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -38,13 +36,13 @@ public class GameState extends State {
 	private static final double PREFERRED_SCALE = 1d / 2d;
 	
 	private MovementControlSystem movementControlSystem;
+	private CameraFollowSystem cameraFollowSystem;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
 	private Entity camera;
 	private TransformComponent cameraTransform;
-	private UserViewComponent userView;
 	
 	private Entity player;
 	private RandomPositionComponent playerRandomPositioner;
@@ -85,8 +83,6 @@ public class GameState extends State {
 		cameraTransform.setMaxScaleX(5d);
 		cameraTransform.setMaxScaleY(5d);
 		
-		userView = camera.getComponent(UserViewComponent.class);
-		
 		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
@@ -96,6 +92,7 @@ public class GameState extends State {
 		masterRender.registerRender(debugRender);
 		
 		movementControlSystem = new MovementControlSystem();
+		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, PREFERRED_SCALE);
 		
 		MovementSystem movementSystem = new MovementSystem();
 		playerCollision.getListeners().add(movementSystem);
@@ -105,7 +102,7 @@ public class GameState extends State {
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
-		gameSystems.add(new CameraFollowSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(cameraFollowSystem);
 		
 		showEntireWorld = false;
 		
@@ -153,11 +150,11 @@ public class GameState extends State {
 				showEntireWorld = !showEntireWorld;
 				
 				if(showEntireWorld) {
-					cameraTransform.setScaleX(userView.getViewport().getWidth() / world.getWidth());
-					cameraTransform.setScaleY(userView.getViewport().getHeight() / world.getHeight());
+					cameraFollowSystem.setPreferredScaleX(Double.MIN_VALUE);
+					cameraFollowSystem.setPreferredScaleY(Double.MIN_VALUE);
 				} else {
-					cameraTransform.setScaleX(PREFERRED_SCALE);
-					cameraTransform.setScaleY(PREFERRED_SCALE);
+					cameraFollowSystem.setPreferredScaleX(PREFERRED_SCALE);
+					cameraFollowSystem.setPreferredScaleY(PREFERRED_SCALE);
 				}
 				
 				break;
@@ -209,8 +206,8 @@ public class GameState extends State {
 			
 		});
 		
-		root.widthProperty().addListener(e -> resizeViewport());
-		root.heightProperty().addListener(e -> resizeViewport());
+		root.widthProperty().addListener(e -> cameraFollowSystem.requestNewViewportWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraFollowSystem.requestNewViewportHeight(root.getHeight()));
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
@@ -219,21 +216,6 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
-		
-	}
-	
-	private void resizeViewport() {
-		
-		Rectangle viewport = userView.getViewport();
-		
-		viewport.setWidth(root.getWidth());
-		viewport.setHeight(root.getHeight());
-		
-		double minScaleX = viewport.getWidth() / world.getWidth();
-		cameraTransform.setScaleX(Util.clamp(PREFERRED_SCALE, minScaleX, cameraTransform.getMaxScaleX()));
-		
-		double minScaleY = viewport.getHeight() / world.getHeight();
-		cameraTransform.setScaleY(Util.clamp(PREFERRED_SCALE, minScaleY, cameraTransform.getMaxScaleY()));
 		
 	}
 	

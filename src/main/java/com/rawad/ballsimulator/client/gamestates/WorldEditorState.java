@@ -9,9 +9,9 @@ import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
+import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
@@ -19,9 +19,6 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Point;
-import com.rawad.gamehelpers.geometry.Rectangle;
-import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -35,11 +32,11 @@ import javafx.scene.input.ScrollEvent;
 public class WorldEditorState extends State {
 	
 	private MovementControlSystem movementControlSystem;
+	private CameraRoamingSystem cameraRoamingSystem;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
-	private UserViewComponent userView;
 	private TransformComponent cameraTransform;
 	
 	private TransformComponent toBePlacedTransform;
@@ -58,8 +55,10 @@ public class WorldEditorState extends State {
 		
 		Entity camera = Entity.createEntity(EEntity.USER_CONTROLLABLE_CAMERA);
 		
-		userView = camera.getComponent(UserViewComponent.class);
 		cameraTransform = camera.getComponent(TransformComponent.class);
+		
+		cameraTransform.setScaleX(1d);
+		cameraTransform.setScaleY(1d);
 		
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
@@ -73,9 +72,11 @@ public class WorldEditorState extends State {
 		masterRender.registerRender(debugRender);
 		
 		movementControlSystem = new MovementControlSystem();
+		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
 		gameSystems.add(movementControlSystem);
-		gameSystems.add(new CameraRoamingSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(cameraRoamingSystem);
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new EntityPlacementSystem(cameraTransform));
 		
 		Entity toBePlaced = Entity.createEntity(EEntity.PLACEABLE);
@@ -157,27 +158,41 @@ public class WorldEditorState extends State {
 			
 		});
 		
+		root.addEventFilter(MouseEvent.MOUSE_RELEASED, mouseEvent -> {
+			
+			switch(mouseEvent.getButton()) {
+			
+			case PRIMARY:
+				placeableComp.setPlaceRequested(false);
+				break;
+				
+			default:
+				break;
+			
+			}
+			
+		});
+		
 		root.addEventHandler(ScrollEvent.SCROLL, e -> {
 			
 			double scaleFactor = e.getDeltaY() / 100d;
 			
+			cameraRoamingSystem.requestScaleX(cameraTransform.getScaleX() + scaleFactor);
+			cameraRoamingSystem.requestScaleY(cameraTransform.getScaleY() + scaleFactor);
+			/*/
 			if(scaleFactor > 0 && (cameraTransform.getScaleX() < cameraTransform.getMaxScaleX() && 
 					cameraTransform.getScaleY() < cameraTransform.getMaxScaleY())) {// Zooming in.
 				
 				Point mouseInWorld = cameraTransform.transformFromScreen(e.getX(), e.getY());
 				
-				Rectangle viewport = userView.getViewport();
+				cameraTransform.setX(e.getX() - (userView.getViewport().getWidth() * cameraTransform.getScaleY() / 2d));
+				cameraTransform.setY(e.getY() - (userView.getViewport().getHeight() * cameraTransform.getScaleY() / 2d));
 				
-				cameraTransform.setX(mouseInWorld.getX() - (viewport.getWidth() * cameraTransform.getScaleX()));
-				cameraTransform.setY(mouseInWorld.getY() - (viewport.getHeight() * cameraTransform.getScaleY()));
-				// TODO: Sort this out ^ ; trying to center view after zooming in.
 			}
 			
 			cameraTransform.setScaleX(cameraTransform.getScaleX() + scaleFactor);
 			cameraTransform.setScaleY(cameraTransform.getScaleY() + scaleFactor);
-			
-			clampCameraScale();
-			
+			/**/
 		});
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
@@ -205,36 +220,13 @@ public class WorldEditorState extends State {
 			
 		});
 		
-		root.widthProperty().addListener(e -> resizeViewport());
-		root.heightProperty().addListener(e -> resizeViewport());
+		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraRoamingSystem.requestNewViewportHeight(root.getHeight()));
 		
 		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
 		
 	}
-	
-	private void resizeViewport() {
 		
-		Rectangle viewport = userView.getViewport();
-		
-		viewport.setWidth(root.getWidth());
-		viewport.setHeight(root.getHeight());
-		
-		clampCameraScale();
-		
-	}
-	
-	private void clampCameraScale() {
-		
-		Rectangle viewport = userView.getViewport();
-		
-		double minScaleX = viewport.getWidth() / world.getWidth();
-		cameraTransform.setScaleX(Util.clamp(cameraTransform.getScaleX(), minScaleX, cameraTransform.getMaxScaleX()));
-		
-		double minScaleY = viewport.getHeight() / world.getHeight();
-		cameraTransform.setScaleY(Util.clamp(cameraTransform.getScaleY(), minScaleY, cameraTransform.getMaxScaleY()));
-		
-	}
-	
 	/*/
 	@Override
 	public void tick() {

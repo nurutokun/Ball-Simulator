@@ -48,6 +48,8 @@ public class WorldRender extends LayerRender {
 		
 		g.translate(-cameraTransform.getX(), -cameraTransform.getY());
 		
+//		g.scale(viewport.getWidth() / world.getWidth(), viewport.getHeight() / world.getHeight());
+		
 		Affine affine = g.getTransform();
 		
 		terrainRender.render(g, world.getWidth(), world.getHeight());
@@ -60,6 +62,10 @@ public class WorldRender extends LayerRender {
 			
 		}
 			
+//		g.setStroke(Color.BLACK);// Optional rendering, with the g.scale() earlier to show viewport in world.
+//		g.strokeRect(cameraTransform.getX(), cameraTransform.getY(), viewport.getWidth() / cameraTransform.getScaleX(), 
+//				viewport.getHeight() / cameraTransform.getScaleY());
+		
 	}
 	
 }
