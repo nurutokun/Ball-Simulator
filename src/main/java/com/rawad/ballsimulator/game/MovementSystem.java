@@ -5,9 +5,9 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.IListener;
 
-public class MovementSystem extends GameSystem implements Listener<CollisionComponent> {
+public class MovementSystem extends GameSystem implements IListener<CollisionComponent> {
 	
 	private static final double JERK = 0.7d;// 0.1d
 	

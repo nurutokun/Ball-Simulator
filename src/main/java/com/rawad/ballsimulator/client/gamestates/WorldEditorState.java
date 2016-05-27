@@ -20,7 +20,6 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -31,7 +30,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
-public class WorldEditorState extends State implements Listener<TransformComponent> {
+public class WorldEditorState extends State {
 	
 	private MovementControlSystem movementControlSystem;
 	private CameraRoamingSystem cameraRoamingSystem;
@@ -86,7 +85,19 @@ public class WorldEditorState extends State implements Listener<TransformCompone
 		toBePlacedTransform = toBePlaced.getComponent(TransformComponent.class);
 		
 		placeableComp = toBePlaced.getComponent(PlaceableComponent.class);
-		placeableComp.getExtractionListeners().add(this);
+		placeableComp.getExtractionListeners().add((e, component) -> {
+			
+			final double scaleX = component.getScaleX();
+			final double scaleY = component.getScaleY();
+			
+			Platform.runLater(() -> {
+				
+				widthSelector.getSelectionModel().select(scaleX);
+				heightSelector.getSelectionModel().select(scaleY);
+				
+			});
+			
+		});
 		placeableComp.setToPlace(EEntity.STATIC);// Can be any other entity too. < and V
 		toBePlaced.getComponent(SelectionComponent.class).setSelected(true);
 		toBePlaced.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
@@ -200,21 +211,6 @@ public class WorldEditorState extends State implements Listener<TransformCompone
 		root.heightProperty().addListener(e -> cameraRoamingSystem.requestNewViewportHeight(root.getHeight()));
 		
 		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
-		
-	}
-	
-	@Override
-	public void onEvent(Entity e, TransformComponent component) {
-		
-		final double scaleX = component.getScaleX();
-		final double scaleY = component.getScaleY();
-		
-		Platform.runLater(() -> {
-			
-			widthSelector.getSelectionModel().select(scaleX);
-			heightSelector.getSelectionModel().select(scaleY);
-			
-		});
 		
 	}
 	

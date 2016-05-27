@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -21,7 +21,7 @@ public class CollisionComponent extends Component {
 	
 	private SimpleObjectProperty<Entity> collidingWith = new SimpleObjectProperty<Entity>();
 	
-	private ArrayList<Listener<CollisionComponent>> listeners = new ArrayList<Listener<CollisionComponent>>();
+	private ArrayList<IListener<CollisionComponent>> listeners = new ArrayList<IListener<CollisionComponent>>();
 	
 	private boolean collideX = false;
 	private boolean collideY = false;
@@ -34,7 +34,7 @@ public class CollisionComponent extends Component {
 		return collidingWith;
 	}
 	
-	public ArrayList<Listener<CollisionComponent>> getListeners() {
+	public ArrayList<IListener<CollisionComponent>> getListeners() {
 		return listeners;
 	}
 	

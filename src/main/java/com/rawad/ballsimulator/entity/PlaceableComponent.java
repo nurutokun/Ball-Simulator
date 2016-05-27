@@ -3,11 +3,11 @@ package com.rawad.ballsimulator.entity;
 import java.util.ArrayList;
 
 import com.rawad.gamehelpers.game.entity.Component;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.IListener;
 
 public class PlaceableComponent extends Component {
 	
-	private ArrayList<Listener<TransformComponent>> extractionListeners = new ArrayList<Listener<TransformComponent>>();
+	private ArrayList<IListener<TransformComponent>> extractionListeners = new ArrayList<IListener<TransformComponent>>();
 	
 	/** Used for passing to the {@link com.rawad.gamehelpers.game.entity.Entity#createEntity(Object)} method. */
 	private Object toPlace = null;
@@ -16,7 +16,7 @@ public class PlaceableComponent extends Component {
 	private boolean removeRequested = false;
 	private boolean extractRequested = false;
 	
-	public ArrayList<Listener<TransformComponent>> getExtractionListeners() {
+	public ArrayList<IListener<TransformComponent>> getExtractionListeners() {
 		return extractionListeners;
 	}
 	

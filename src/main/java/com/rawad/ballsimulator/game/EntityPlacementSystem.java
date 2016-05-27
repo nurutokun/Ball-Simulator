@@ -8,7 +8,7 @@ import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Point;
 import com.rawad.gamehelpers.geometry.Rectangle;
@@ -54,7 +54,7 @@ public class EntityPlacementSystem extends GameSystem {
 				scaleY = transformToExtract.getScaleY();
 				
 				if(transformToExtract != null) {
-					for(Listener<TransformComponent> listener: placeableComp.getExtractionListeners()) {
+					for(IListener<TransformComponent> listener: placeableComp.getExtractionListeners()) {
 						listener.onEvent(e, transformToExtract);
 					}
 				}
@@ -93,7 +93,10 @@ public class EntityPlacementSystem extends GameSystem {
 			
 		}
 		
-		Point mouseInWorld = cameraTransform.transformFromScreen(Mouse.getX(), Mouse.getY());
+		double mouseX = Mouse.isClamped()? Mouse.getClampX():Mouse.getX();
+		double mouseY = Mouse.isClamped()? Mouse.getClampY():Mouse.getY();
+		
+		Point mouseInWorld = cameraTransform.transformFromScreen(mouseX, mouseY);
 		
 		transformComp.setX(mouseInWorld.getX() - (width / 2d));
 		transformComp.setY(mouseInWorld.getY() - (height / 2d));
