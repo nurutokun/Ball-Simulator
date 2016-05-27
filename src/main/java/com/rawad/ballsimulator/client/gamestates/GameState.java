@@ -224,8 +224,6 @@ public class GameState extends State {
 		super.onActivate();
 		
 		sm.getClient().addTask(new Task<Integer>() {
-			
-			@Override
 			protected Integer call() {
 				
 				CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);

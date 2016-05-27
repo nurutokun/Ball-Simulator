@@ -6,6 +6,8 @@ public class SelectionComponent extends Component {
 	
 	private boolean selected;
 	
+	private boolean highlighted;
+	
 	/**
 	 * @return the selected
 	 */
@@ -18,6 +20,20 @@ public class SelectionComponent extends Component {
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+	}	
+	
+	/**
+	 * @return the highlighted
+	 */
+	public boolean isHighlighted() {
+		return highlighted;
+	}
+	
+	/**
+	 * @param highlighted the highlighted to set
+	 */
+	public void setHighlighted(boolean highlighted) {
+		this.highlighted = highlighted;
 	}
 	
 	@Override
@@ -28,6 +44,7 @@ public class SelectionComponent extends Component {
 			SelectionComponent selectionComp = (SelectionComponent) comp;
 			
 			selectionComp.setSelected(isSelected());
+			selectionComp.setHighlighted(isHighlighted());
 			
 			return selectionComp;
 			

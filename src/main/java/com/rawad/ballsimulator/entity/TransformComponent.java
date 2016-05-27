@@ -162,12 +162,11 @@ public class TransformComponent extends Component {
 			
 			TransformComponent transformComp = (TransformComponent) comp;
 			
-			
 			transformComp.setX(getX());
 			transformComp.setY(getY());
 			
-			transformComp.setScaleX(getScaleX());
-			transformComp.setScaleY(getScaleY());
+			if(!transformComp.scaleXProperty().isBound()) transformComp.setScaleX(getScaleX());
+			if(!transformComp.scaleYProperty().isBound()) transformComp.setScaleY(getScaleY());
 			
 			transformComp.setMaxScaleX(getMaxScaleX());
 			transformComp.setMaxScaleY(getMaxScaleY());

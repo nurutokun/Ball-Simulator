@@ -68,4 +68,15 @@ public class WorldRender extends LayerRender {
 		
 	}
 	
+	/**
+	 * For customizing component rendering.
+	 * 
+	 * @see EntityRender#getComponentRenders()
+	 * 
+	 * @return
+	 */
+	public EntityRender getEntityRender() {
+		return entityRender;
+	}
+	
 }

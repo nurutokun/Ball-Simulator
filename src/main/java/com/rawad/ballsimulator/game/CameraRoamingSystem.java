@@ -87,23 +87,26 @@ public class CameraRoamingSystem extends GameSystem {
 			
 		}
 		
-		// TODO: Fix centering when zooming in.
+		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative to
+		// mouse position on screen.
 		double oldScaleX = transformComp.getScaleX();
 		double oldScaleY = transformComp.getScaleY();
 		
 		double minScaleX = viewport.getWidth() / boundsWidth;
 		double minScaleY = viewport.getHeight() / boundsHeight;
-				
-		transformComp.setScaleX(Util.clamp(requestedScaleX, minScaleX, transformComp.getMaxScaleX()));
-		transformComp.setScaleY(Util.clamp(requestedScaleY, minScaleY, transformComp.getMaxScaleY()));
+		
+		if(requestedScaleX != 0)
+			transformComp.setScaleX(Util.clamp(requestedScaleX, minScaleX, transformComp.getMaxScaleX()));
+		if(requestedScaleY != 0)
+			transformComp.setScaleY(Util.clamp(requestedScaleY, minScaleY, transformComp.getMaxScaleY()));
 		
 		requestedScaleX = transformComp.getScaleX();
 		requestedScaleY = transformComp.getScaleY();
 		
 		if(requestedScaleX != oldScaleX)
-			x += (Mouse.getX() / oldScaleX - (viewport.getWidth() / transformComp.getScaleX() / 2d));
+			x += Mouse.getX() / oldScaleX - (viewport.getWidth() / transformComp.getScaleX() / 2d);
 		if(requestedScaleY != oldScaleY)
-			y += (Mouse.getY() / oldScaleY - (viewport.getHeight() / transformComp.getScaleY() / 2d));
+			y += Mouse.getY() / oldScaleY - (viewport.getHeight() / transformComp.getScaleY() / 2d);
 		
 		viewport.setX(x);
 		viewport.setY(y);
