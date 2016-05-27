@@ -12,10 +12,19 @@ public class CameraFollowSystem extends GameSystem {
 	
 	private Rectangle bounds;
 	
-	public CameraFollowSystem(double width, double height) {
+	private double preferredScaleX;
+	private double preferredScaleY;
+	
+	private double requestedViewportWidth;
+	private double requestedViewportHeight;
+	
+	public CameraFollowSystem(double width, double height, double preferredScaleX, double preferredScaleY) {
 		super();
 		
 		bounds = new Rectangle(0, 0, width, height);
+		
+		this.preferredScaleX = preferredScaleX;
+		this.preferredScaleY = preferredScaleY;
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(AttachmentComponent.class);
@@ -37,11 +46,23 @@ public class CameraFollowSystem extends GameSystem {
 		double boundsWidth = bounds.getWidth();
 		double boundsHeight = bounds.getHeight();
 		
-		double minScaleX = viewport.getWidth() / boundsWidth;
-		transformComp.setScaleX(Util.clamp(transformComp.getScaleX(), minScaleX, transformComp.getMaxScaleX()));
+		if(requestedViewportWidth > 0 && requestedViewportWidth != viewport.getWidth()) {
+			
+			viewport.setWidth(requestedViewportWidth);
+			
+		}
 		
+		if(requestedViewportWidth > 0 && requestedViewportHeight != viewport.getHeight()) {
+			
+			viewport.setHeight(requestedViewportHeight);
+			
+		}
+		
+		double minScaleX = viewport.getWidth() / boundsWidth;
 		double minScaleY = viewport.getHeight() / boundsHeight;
-		transformComp.setScaleY(Util.clamp(transformComp.getScaleY(), minScaleY, transformComp.getMaxScaleY()));
+		
+		transformComp.setScaleX(Util.clamp(preferredScaleX, minScaleX, transformComp.getMaxScaleX()));
+		transformComp.setScaleY(Util.clamp(preferredScaleY, minScaleY, transformComp.getMaxScaleY()));
 		
 		viewport.setX(attachedToTransform.getX() - (viewport.getWidth() / transformComp.getScaleX() / 2d));
 		viewport.setY(attachedToTransform.getY() - (viewport.getHeight() / transformComp.getScaleY() / 2d));
@@ -57,6 +78,28 @@ public class CameraFollowSystem extends GameSystem {
 		transformComp.setX(viewport.getX());
 		transformComp.setY(viewport.getY());
 		
+	}
+		
+	/**
+	 * @param preferredScaleX the preferredScaleX to set
+	 */
+	public void setPreferredScaleX(double preferredScaleX) {
+		this.preferredScaleX = preferredScaleX;
+	}
+	
+	/**
+	 * @param preferredScaleY the preferredScaleY to set
+	 */
+	public void setPreferredScaleY(double preferredScaleY) {
+		this.preferredScaleY = preferredScaleY;
+	}
+	
+	public void requestNewViewportWidth(double newWidth) {
+		requestedViewportWidth = newWidth;
+	}
+	
+	public void requestNewViewportHeight(double newHeight) {
+		requestedViewportHeight = newHeight;
 	}
 	
 }

@@ -26,4 +26,20 @@ public class RenderingComponent extends Component {
 		return texture;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof RenderingComponent) {
+			
+			RenderingComponent renderingComp = (RenderingComponent) comp;
+			
+			renderingComp.setTexture(getTextureLocation());
+			
+			return renderingComp;
+			
+		}
+		
+		return comp;
+	}
+	
 }

@@ -27,4 +27,21 @@ public class AttachmentComponent extends Component {
 		this.attachedTo = attachedTo;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof AttachmentComponent) {
+			
+			AttachmentComponent attachmentComp = (AttachmentComponent) comp;
+			
+			attachmentComp.setAttachedTo(getAttachedTo());
+			
+			return attachmentComp;
+			
+		}
+		
+		return comp;
+		
+	}
+	
 }

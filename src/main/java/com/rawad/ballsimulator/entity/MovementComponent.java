@@ -127,4 +127,29 @@ public class MovementComponent extends Component {
 		this.left = left;
 	}
 	
+	@Override
+	public Component copyData(Component comp) {
+		
+		if(comp instanceof MovementComponent) {
+			
+			MovementComponent movementComp = (MovementComponent) comp;
+			
+			movementComp.setAx(getAx());
+			movementComp.setAy(getAy());
+			
+			movementComp.setVx(getVx());
+			movementComp.setVy(getVy());
+			
+			movementComp.setUp(isUp());
+			movementComp.setDown(isDown());
+			movementComp.setRight(isRight());
+			movementComp.setLeft(isLeft());
+			
+			return movementComp;
+			
+		}
+		
+		return comp;
+	}
+	
 }

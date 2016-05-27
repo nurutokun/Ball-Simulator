@@ -9,18 +9,18 @@ import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
+import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.EntityPlacementSystem;
+import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
-import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.game.entity.Listener;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -31,14 +31,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
-public class WorldEditorState extends State {
+public class WorldEditorState extends State implements Listener<TransformComponent> {
 	
 	private MovementControlSystem movementControlSystem;
+	private CameraRoamingSystem cameraRoamingSystem;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
-	private UserViewComponent userView;
 	private TransformComponent cameraTransform;
 	
 	private TransformComponent toBePlacedTransform;
@@ -57,8 +57,10 @@ public class WorldEditorState extends State {
 		
 		Entity camera = Entity.createEntity(EEntity.USER_CONTROLLABLE_CAMERA);
 		
-		userView = camera.getComponent(UserViewComponent.class);
 		cameraTransform = camera.getComponent(TransformComponent.class);
+		
+		cameraTransform.setScaleX(1d);
+		cameraTransform.setScaleY(1d);
 		
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
@@ -72,15 +74,19 @@ public class WorldEditorState extends State {
 		masterRender.registerRender(debugRender);
 		
 		movementControlSystem = new MovementControlSystem();
+		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
 		gameSystems.add(movementControlSystem);
-		gameSystems.add(new CameraRoamingSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(cameraRoamingSystem);
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new EntitySelectionSystem(cameraTransform));
 		gameSystems.add(new EntityPlacementSystem(cameraTransform));
 		
 		Entity toBePlaced = Entity.createEntity(EEntity.PLACEABLE);
 		toBePlacedTransform = toBePlaced.getComponent(TransformComponent.class);
 		
 		placeableComp = toBePlaced.getComponent(PlaceableComponent.class);
+		placeableComp.getExtractionListeners().add(this);
 		placeableComp.setToPlace(EEntity.STATIC);// Can be any other entity too. < and V
 		toBePlaced.getComponent(SelectionComponent.class).setSelected(true);
 		toBePlaced.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
@@ -142,11 +148,11 @@ public class WorldEditorState extends State {
 				break;
 				
 			case SECONDARY:
-//				requestRemove = true;// Get intersected entity and remove it?
+				placeableComp.setRemoveRequested(true);
 				break;
 			
 			case MIDDLE:
-				// Take data from interssected entity, put it into current selected one and delete original.
+				placeableComp.setExtractRequested(true);
 				break;
 				
 			default:
@@ -160,8 +166,8 @@ public class WorldEditorState extends State {
 			
 			double scaleFactor = e.getDeltaY() / 100d;
 			
-			cameraTransform.setScaleX(cameraTransform.getScaleX() + scaleFactor);
-			cameraTransform.setScaleY(cameraTransform.getScaleY() + scaleFactor);
+			cameraRoamingSystem.requestScaleX(cameraTransform.getScaleX() + scaleFactor);
+			cameraRoamingSystem.requestScaleY(cameraTransform.getScaleY() + scaleFactor);
 			
 		});
 		
@@ -190,101 +196,33 @@ public class WorldEditorState extends State {
 			
 		});
 		
-		Rectangle viewport = userView.getViewport();
-		viewport.widthProperty().bind(root.widthProperty());
-		viewport.heightProperty().bind(root.heightProperty());
+		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraRoamingSystem.requestNewViewportHeight(root.getHeight()));
 		
 		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
 		
 	}
 	
-	/*/
 	@Override
-	public void tick() {
+	public void onEvent(Entity e, TransformComponent component) {
 		
-		if(!pauseScreen.isPaused()) {
-			checkPlacement();
-			moveView();
+		final double scaleX = component.getScaleX();
+		final double scaleY = component.getScaleY();
+		
+		Platform.runLater(() -> {
 			
-		}
-		
-		tcRender.addComponent(new TerrainComponent(comp.getX() + camera.getX(), 
-				comp.getY() + camera.getY(), comp.getWidth(), comp.getHeight()));
+			widthSelector.getSelectionModel().select(scaleX);
+			heightSelector.getSelectionModel().select(scaleY);
+			
+		});
 		
 	}
-	
-	private void checkPlacement() {
-		
-		double camX = camera.getX();
-		double camY = camera.getY();
-		
-		TerrainComponent prevIntersected = intersectedComp;
-		
-		intersectedComp = world.getTerrain().calculateCollision((int) (comp.getX() + (comp.getWidth()/2d) + camX), 
-				(int) (comp.getY() + (comp.getHeight()/2d) + camY));
-				// Use center of component for collision detection with other components (instead of mouse).
-		
-		if(intersectedComp != prevIntersected) {// If they're different components (from one frame to the next).
-			
-			if(intersectedComp != null) {// If there is a component being intersected.
-				intersectedComp.setSelected(true);
-			} else {
-				prevIntersected.setSelected(false);
-			}
-			
-		}
-		
-		if(requestPlace) {
-			
-			double compX = comp.getX() + camX;
-			double compY = comp.getY() + camY;
-			
-			if(intersectedComp == null)// For now at least...
-			if(compX >= 0 && compY >= 0 && compX + comp.getWidth() <= world.getWidth() &&
-					compY + comp.getHeight() <= world.getHeight()) {
-				
-				world.getTerrain().addTerrainComponent(new TerrainComponent(compX, compY, 
-						comp.getWidth(), comp.getHeight()));
-				
-			}
-			
-			requestPlace = false;
-			
-		}
-		
-		if(requestRemove) {
-			
-			if(intersectedComp != null) {
-				
-				world.getTerrain().removeTerrainComponent(intersectedComp);
-				
-			}
-			
-			requestRemove = false;
-			
-		}
-		
-		if(requestSelect) {
-			
-			if(intersectedComp != null) {
-				
-				widthSelector.getSelectionModel().select(intersectedComp.getWidth());
-				heightSelector.getSelectionModel().select(intersectedComp.getHeight());
-				
-			}
-			
-			requestSelect = false;
-			
-		}
-		
-	}/**/
 	
 	private void saveTerrain(String terrainName) {
 		sm.getClient().addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.saveTerrain(terrainFileParser, terrainName);// TODO: add/remove sttic entities to/from world AND 
-				// terrainFileParser.
+				loader.saveTerrain(terrainFileParser, terrainName);
 				
 				return 0;
 			}
@@ -318,13 +256,8 @@ public class WorldEditorState extends State {
 		
 		Platform.runLater(() -> pauseScreen.setVisible(false));
 		
-//		saveTerrain("terrain");
+		saveTerrain("terrain");
 		
-	}
-	
-	@Override
-	public World getWorld() {
-		return world;
 	}
 	
 }
