@@ -32,7 +32,10 @@ public class EntitySelectionSystem extends GameSystem {
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		SelectionComponent selectionComp = e.getComponent(SelectionComponent.class);
 		
-		Point mouseInWorld = cameraTransform.transformFromScreen(Mouse.getX(), Mouse.getY());
+		double mouseX = Mouse.isClamped()? Mouse.getClampX():Mouse.getX();
+		double mouseY = Mouse.isClamped()? Mouse.getClampY():Mouse.getY();
+		
+		Point mouseInWorld = cameraTransform.transformFromScreen(mouseX, mouseY);
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
