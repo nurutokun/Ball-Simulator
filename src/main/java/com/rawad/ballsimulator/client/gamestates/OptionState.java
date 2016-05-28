@@ -16,7 +16,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 
 public class OptionState extends State {
 	
@@ -48,10 +47,6 @@ public class OptionState extends State {
 	public void initGui() {
 		super.initGui();
 		
-		// Traversal keys
-		
-		// TextLabel on text change -> save ip
-		
 		btnMainMenu.setOnAction(e -> sm.requestStateChange(MenuState.class));
 		btnWorldEditor.setOnAction(e -> sm.requestStateChange(WorldEditorState.class));
 		
@@ -62,7 +57,7 @@ public class OptionState extends State {
 		viewport.heightProperty().bind(root.heightProperty());
 		
 		resolutions.setDisable(true);
-		resolutions.setTooltip(new Tooltip("Coming Soon!"));
+		resolutions.setPromptText("Coming Soon!");
 		
 	}
 	

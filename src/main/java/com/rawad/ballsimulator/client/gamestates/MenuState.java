@@ -10,7 +10,6 @@ import com.rawad.gamehelpers.geometry.Rectangle;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 
 public class MenuState extends State {
 	
@@ -48,8 +47,8 @@ public class MenuState extends State {
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
 		
-		btnSingleplayer.setDisable(true);
-		btnSingleplayer.setTooltip(new Tooltip("Coming Soon!"));
+		btnMultiplayer.setDisable(true);
+		btnMultiplayer.setText("Coming Soon!");
 		
 	}
 	
