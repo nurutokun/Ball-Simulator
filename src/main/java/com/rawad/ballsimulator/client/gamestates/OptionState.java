@@ -16,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 
 public class OptionState extends State {
 	
@@ -59,6 +60,9 @@ public class OptionState extends State {
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
+		
+		resolutions.setDisable(true);
+		resolutions.setTooltip(new Tooltip("Coming Soon!"));
 		
 	}
 	
