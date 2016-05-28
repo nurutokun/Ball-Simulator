@@ -8,11 +8,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.networking.Packet;
+import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket02Logout;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.ServerController;
@@ -95,7 +95,7 @@ public class ServerConnectionManager {
 		
 		byte[] data = input.getBytes();
 		
-		TCPPacketType type = Packet.getTCPPacketTypeFromData(data);
+		TCPPacketType type = APacket.getTCPPacketTypeFromData(data);
 		
 		WorldMP world = networkManager.getServer().<ServerController>getController().getWorld();
 		
@@ -149,7 +149,7 @@ public class ServerConnectionManager {
 				
 				Logger.log(Logger.DEBUG, loginMessage);
 				
-				sendPacketToAllClients(null, new SPacket03Message(Server.SIMPLE_NAME, loginMessage));
+				sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
 				
 			}
 			
@@ -213,13 +213,13 @@ public class ServerConnectionManager {
 			
 			Logger.log(Logger.DEBUG, logoutMessage);
 			
-			sendPacketToAllClients(client, new SPacket03Message(username, logoutMessage));
+			sendPacketToAllClients(client, new SPacket04Message(username, logoutMessage));
 			
 			break;
 			
 		case MESSAGE:
 			
-			CPacket03Message messagePacket = new CPacket03Message(data);
+			CPacket04Message messagePacket = new CPacket04Message(data);
 			
 			username = messagePacket.getUsername();
 			
@@ -227,7 +227,7 @@ public class ServerConnectionManager {
 			
 			Logger.log(Logger.DEBUG, username + " sent a message: " + message);
 			
-			SPacket03Message replyPacket = new SPacket03Message(username, message);
+			SPacket04Message replyPacket = new SPacket04Message(username, message);
 			
 			sendPacketToAllClients(client, replyPacket);// Don't need to send it back to the client that sent it.
 			
@@ -283,7 +283,7 @@ public class ServerConnectionManager {
 		
 	}
 	
-	public void sendPacketToAllClients(Socket clientToExclude, Packet packet) {
+	public void sendPacketToAllClients(Socket clientToExclude, APacket packet) {
 		
 		for(Socket client: clients) {
 			
@@ -297,7 +297,7 @@ public class ServerConnectionManager {
 		
 	}
 	
-	public void sendPacketToClient(Socket client, Packet packet) {
+	public void sendPacketToClient(Socket client, APacket packet) {
 		sendMessageToClient(client, packet.getDataAsString());
 	}
 	

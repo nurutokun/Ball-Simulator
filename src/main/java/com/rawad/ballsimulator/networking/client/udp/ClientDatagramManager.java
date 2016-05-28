@@ -4,7 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import com.rawad.ballsimulator.networking.Packet;
+import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
@@ -48,7 +48,7 @@ public class ClientDatagramManager {
 	
 	private void handlePacketData(byte[] data) {
 		
-		UDPPacketType type = Packet.getUDPPacketTypeFromData(data);
+		UDPPacketType type = APacket.getUDPPacketTypeFromData(data);
 		
 		switch(type) {
 		
@@ -88,7 +88,7 @@ public class ClientDatagramManager {
 		
 	}
 	
-	public void sendPacket(Packet packet, String address, int port) {
+	public void sendPacket(APacket packet, String address, int port) {
 		
 		if(networkManager.isConnectedToServer() && !socket.isClosed()) {
 			
@@ -124,7 +124,7 @@ public class ClientDatagramManager {
 				
 				while(networkManager.isConnectedToServer()) {
 					
-					byte[] dataBuffer = new byte[Packet.BUFFER_SIZE];
+					byte[] dataBuffer = new byte[APacket.BUFFER_SIZE];
 					
 					DatagramPacket packetReceived = new DatagramPacket(dataBuffer, dataBuffer.length);
 					

@@ -6,7 +6,7 @@ import com.rawad.gamehelpers.geometry.Point;
 import javafx.beans.property.SimpleDoubleProperty;
 
 /**
- * Gives {@code Entiti} a position, scale, and a rotation in 2D space.
+ * Gives {@code Entity} a position, scale, and a rotation in 2D space.
  * 
  * @author Rawad
  *

@@ -18,7 +18,7 @@ import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
@@ -215,7 +215,7 @@ public class MultiplayerGameState extends State {
 		
 		mess.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
-			CPacket03Message message = new CPacket03Message(player.toString(), mess.getInputArea().getText());
+			CPacket04Message message = new CPacket04Message(player.toString(), mess.getInputArea().getText());
 			// TODO: (MPGameState) Figure out player username.
 			
 			networkManager.getConnectionManager().sendPacketToServer(message);

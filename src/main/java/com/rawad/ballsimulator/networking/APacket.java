@@ -11,7 +11,7 @@ import com.rawad.gamehelpers.utils.Util;
  * @author Rawad
  *
  */
-public abstract class Packet {
+public abstract class APacket {
 	
 	public static final int BUFFER_SIZE = 512;
 	
@@ -33,7 +33,7 @@ public abstract class Packet {
 	
 	protected String rawData;
 	
-	private Packet(String typeId, String rawData) {
+	private APacket(String typeId, String rawData) {
 		this.typeId = typeId;
 		
 		this.rawData = rawData;
@@ -42,11 +42,11 @@ public abstract class Packet {
 		
 	}
 	
-	protected Packet(String typeId, byte[] data) {
+	protected APacket(String typeId, byte[] data) {
 		this(typeId, parsePacketData(data));
 	}
 	
-	protected Packet(String typeId, String username, String... data) {
+	protected APacket(String typeId, String username, String... data) {
 		this(typeId, getFormattedDataString(REGEX, appendStringToBeginning(username, data)));
 	}
 	
@@ -72,8 +72,8 @@ public abstract class Packet {
 	}
 	
 	/**
-	 * Just because every {@code Packet} seemed to be declaring one of these, we'll abstract it out. <b>Note:</b> index <i>0</i> is reserved
-	 * for the username.
+	 * Just because every {@code APacket} implementation seemed to be declaring one of these, we'll abstract it out.
+	 * <b>Note:</b> index <b>0</b> is therefore reserved for the username.
 	 * 
 	 * @return
 	 */
@@ -97,18 +97,6 @@ public abstract class Packet {
 		
 		buffer = Util.getStringFromLines(datas, regex, false);
 		
-		/*/
-		for(int i = 0; i < datas.length; i++) {
-			buffer += datas[i].toString();
-			
-			if(i >= datas.length - 1) {
-				// Don't add regex for last thing
-			} else {
-				buffer += regex;
-			}
-			
-		}/**/
-		
 		return buffer;
 		
 	}
@@ -117,7 +105,8 @@ public abstract class Packet {
 		
 		String packetInfo = getStringFromData(data);
 		
-		String id = packetInfo.substring(0, IDENTIFIER_LENGTH);// could change this into a method on its own, much like of "parsePacketData"
+		String id = packetInfo.substring(0, IDENTIFIER_LENGTH);// Could change this into a method on its own, much like 
+		// of "parsePacketData".
 		
 		return TCPPacketType.getPacketTypeById(id);
 		
@@ -140,8 +129,8 @@ public abstract class Packet {
 	 * @return
 	 */
 	private static String parsePacketData(byte[] data) {
-		return getStringFromData(data).substring(IDENTIFIER_LENGTH);// Skips the first 2 cahracters 
-		// because those are our identifiers
+		return getStringFromData(data).substring(IDENTIFIER_LENGTH);// Skips the first 2 cahracters because those are our 
+		// identifiers.
 	}
 	
 	private static String[] appendStringToBeginning(String stringToAppend, String[] arrayToAppendTo) {

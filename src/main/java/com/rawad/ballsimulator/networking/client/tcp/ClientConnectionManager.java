@@ -8,12 +8,12 @@ import java.net.Socket;
 
 import com.rawad.ballsimulator.entity.EntityPlayer;
 import com.rawad.ballsimulator.networking.ConnectionState;
-import com.rawad.ballsimulator.networking.Packet;
+import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
 import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -101,7 +101,7 @@ public class ClientConnectionManager {
 		
 		byte[] data = input.getBytes();
 		
-		TCPPacketType type = Packet.getTCPPacketTypeFromData(data);
+		TCPPacketType type = APacket.getTCPPacketTypeFromData(data);
 		
 		switch(type) {
 		
@@ -169,7 +169,7 @@ public class ClientConnectionManager {
 		case MESSAGE:
 			
 			// With current setup, sender doesn't receive their sent message (could be change to indicate if it made it)
-			SPacket03Message messagePacket = new SPacket03Message(data);
+			SPacket04Message messagePacket = new SPacket04Message(data);
 			
 			networkManager.getClient().addUserMessage(messagePacket.getUsername(), messagePacket.getMessage());
 			
@@ -184,7 +184,7 @@ public class ClientConnectionManager {
 		
 	}
 	
-	public void sendPacketToServer(Packet packet) {
+	public void sendPacketToServer(APacket packet) {
 		sendMessageToServer(packet.getDataAsString());
 	}
 	

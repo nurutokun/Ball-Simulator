@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.networking;
 
-public abstract class TCPPacket extends Packet {
+public abstract class TCPPacket extends APacket {
 	
 	public TCPPacket(TCPPacketType type, String username, String... data) {
 		super(type.getId(), username, data);

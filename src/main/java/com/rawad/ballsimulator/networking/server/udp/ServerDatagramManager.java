@@ -8,7 +8,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.EntityRotatingBase;
-import com.rawad.ballsimulator.networking.Packet;
+import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
@@ -59,7 +59,7 @@ public class ServerDatagramManager {
 	
 	private void handlePacket(byte[] data, String address, int port) {
 		
-		UDPPacketType type = Packet.getUDPPacketTypeFromData(data);
+		UDPPacketType type = APacket.getUDPPacketTypeFromData(data);
 		
 		switch(type) {
 		
@@ -101,7 +101,7 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendPacketToAllClients(Packet packet) {
+	public void sendPacketToAllClients(APacket packet) {
 		
 		ArrayList<Socket> clients = networkManager.getConnectionManager().getClients();
 		
@@ -113,7 +113,7 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendPacket(Packet packet, String address, int port) {
+	public void sendPacket(APacket packet, String address, int port) {
 		
 		try {
 			
@@ -137,7 +137,7 @@ public class ServerDatagramManager {
 				
 				while(networkManager.getServer().getGame().isRunning()) {
 					
-					byte[] dataBuffer = new byte[Packet.BUFFER_SIZE];
+					byte[] dataBuffer = new byte[APacket.BUFFER_SIZE];
 					
 					DatagramPacket packet = new DatagramPacket(dataBuffer, dataBuffer.length);
 					

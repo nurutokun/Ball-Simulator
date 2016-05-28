@@ -5,7 +5,8 @@ public enum TCPPacketType {
 	INVALID("00"),
 	LOGIN("01"),
 	LOGOUT("02"),
-	MESSAGE("03");
+	PING("03"),
+	MESSAGE("04");
 	
 	private final String id;
 	
