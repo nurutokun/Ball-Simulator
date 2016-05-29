@@ -7,21 +7,12 @@ public class CPacket02Logout extends TCPPacket {
 	
 	private static final int ADDRESS_INDEX = 1;
 	
-	/**
-	 * 
-	 * @param username
-	 * @param address IP Address of the player that is disconnecting.
-	 */
-	public CPacket02Logout(String username, String address) {
-		super(TCPPacketType.LOGOUT, username, address);
-	}
-	
-	public CPacket02Logout(byte[] data) {
-		super(TCPPacketType.LOGOUT, data);
+	public CPacket02Logout(String address) {
+		super(TCPPacketType.LOGOUT, address);
 	}
 	
 	public String getAddress() {
-		return dataString[ADDRESS_INDEX];
+		return indexedData[ADDRESS_INDEX];
 	}
 	
 }

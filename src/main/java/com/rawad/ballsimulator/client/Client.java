@@ -46,9 +46,8 @@ public class Client extends AClient {
 		
 	}
 	
+	@Override
 	public void initGui(Stage stage) {
-		
-		this.stage = stage;
 		
 		stage.titleProperty().bind(gameTitle);
 		

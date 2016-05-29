@@ -5,20 +5,18 @@ import com.rawad.ballsimulator.networking.UDPPacket;
 
 public class SPacket01Damage extends UDPPacket {
 	
-	private static final int HEALTH_INDEX = 1;
+	private static final int HEALTH_INDEX = 2;
 	
-	public SPacket01Damage(String username, double health) {
-		super(UDPPacketType.DAMAGE, username, Double.toString(HEALTH_INDEX));
-		
+	public SPacket01Damage(int entityId, double health) {
+		super(UDPPacketType.DAMAGE, entityId, Double.toString(HEALTH_INDEX));
 	}
 	
-	public SPacket01Damage(byte[] data) {
-		super(UDPPacketType.DAMAGE, data);
-		
+	public SPacket01Damage(String dataAsString) {
+		super(dataAsString);
 	}
 	
 	public double getHealth() {
-		return Double.parseDouble(dataString[HEALTH_INDEX]);
+		return Double.parseDouble(indexedData[HEALTH_INDEX]);
 	}
 	
 }

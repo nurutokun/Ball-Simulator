@@ -20,10 +20,7 @@
 			<focusTraversable>false</focusTraversable>
 			
 			<tabs>
-				<Tab fx:id="canvasTab" text="World">
-					<content>
-						<CanvasPane fx:id="canvasPane" />
-					</content>
+				<Tab fx:id="worldViewTab" text="World" />
 				</Tab>
 					<Tab text="Players">
 						<content>

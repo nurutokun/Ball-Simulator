@@ -11,12 +11,13 @@ import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Application;
+import javafx.stage.Stage;
 
-public class ServerStart {
+public class ServerStart extends Application {
 	
-	public static final Server server = new Server();
+	private static final Server server = new Server();
 	
-	private static BallSimulator game = new BallSimulator();
+	private static final BallSimulator game = new BallSimulator();
 	
 	public static void main(String[] args) {
 		
@@ -33,10 +34,21 @@ public class ServerStart {
 		GameManager.instance().launchGame(game, server);
 		
 		if(useGui) {
+			
 			ResourceManager.init(commands);
 			
-			Application.launch(ServerGui.class);
+			Application.launch(args);
+			
 		}
+		
+	}
+	
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		
+		ServerGui serverGui = new ServerGui(server);
+		
+		serverGui.initGui(primaryStage);
 		
 	}
 	

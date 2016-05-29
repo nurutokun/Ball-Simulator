@@ -10,8 +10,4 @@ public class CPacket01Login extends TCPPacket {
 		
 	}
 	
-	public CPacket01Login(byte[] data) {
-		super(TCPPacketType.LOGIN, data);
-	}
-	
 }

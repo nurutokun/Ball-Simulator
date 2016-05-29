@@ -6,15 +6,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.APacket;
+import com.rawad.ballsimulator.networking.ConnectionState;
+import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
@@ -97,17 +96,15 @@ public class ClientConnectionManager {
 		
 	}
 	
-	private void handleServerInput(Socket client, String input) {
+	private void handleServerInput(Socket client, String dataAsString) {
 		
-		byte[] data = input.getBytes();
-		
-		TCPPacketType type = APacket.getTCPPacketTypeFromData(data);
+		TCPPacketType type = TCPPacket.getPacketTypeFromData(dataAsString);
 		
 		switch(type) {
 		
 		case LOGIN:
 			
-			SPacket01Login loginReplyPacket = new SPacket01Login(data);
+			SPacket01Login loginReplyPacket = new SPacket01Login(dataAsString);
 			
 			EntityPlayerMP mainClientPlayer = networkManager.getClient().getPlayer();
 			
@@ -148,7 +145,7 @@ public class ClientConnectionManager {
 			
 		case LOGOUT:
 			
-			SPacket02Logout logoutPacket = new SPacket02Logout(data);
+			SPacket02Logout logoutPacket = new SPacket02Logout(dataAsString);
 			
 			EntityPlayer mainPlayer = networkManager.getClient().getPlayer();
 			
@@ -169,15 +166,15 @@ public class ClientConnectionManager {
 		case MESSAGE:
 			
 			// With current setup, sender doesn't receive their sent message (could be change to indicate if it made it)
-			SPacket04Message messagePacket = new SPacket04Message(data);
+			SPacket04Message messagePacket = new SPacket04Message(dataAsString);
 			
-			networkManager.getClient().addUserMessage(messagePacket.getUsername(), messagePacket.getMessage());
+			networkManager.getClient().addUserMessage(messagePacket.getSender(), messagePacket.getMessage());
 			
 			break;
 			
 		case INVALID:
 		default:
-			Logger.log(Logger.WARNING, "Invalid packet: \"" + input + "\".");
+			Logger.log(Logger.WARNING, "Invalid packet: \"" + dataAsString + "\".");
 			break;
 		
 		}

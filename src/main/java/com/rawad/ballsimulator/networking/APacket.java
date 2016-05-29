@@ -13,41 +13,34 @@ import com.rawad.gamehelpers.utils.Util;
  */
 public abstract class APacket {
 	
+	/**
+	 * Maximum size of a packet.
+	 */
 	public static final int BUFFER_SIZE = 512;
 	
 	/**
-	 * Used to split between different sets of data in String form.
+	 * Used to split between different sets of data in {@code String} form.
 	 */
 	protected static final String REGEX = "::";
 	
 	protected static final int IDENTIFIER_LENGTH = 2;// 2 hex bits (one binary byte) reserved for the packet's id.
 	
-	/**
-	 * Index of the player's username in the {@code dataString} array
-	 */
-	private static final int USERNAME_INDEX = 0;
+	private static final int PACKET_ID_INDEX = 0;
 	
-	private final String typeId;
+	protected String[] indexedData;
 	
-	protected String[] dataString;
+	protected String dataAsString;
 	
-	protected String rawData;
-	
-	private APacket(String typeId, String rawData) {
-		this.typeId = typeId;
+	public APacket(String dataAsString) {
 		
-		this.rawData = rawData;
+		this.dataAsString = dataAsString;
 		
-		dataString = rawData.split(REGEX);
+		indexedData = dataAsString.split(REGEX);
 		
 	}
 	
-	protected APacket(String typeId, byte[] data) {
-		this(typeId, parsePacketData(data));
-	}
-	
-	protected APacket(String typeId, String username, String... data) {
-		this(typeId, getFormattedDataString(REGEX, appendStringToBeginning(username, data)));
+	public String getPacketId() {
+		return indexedData[PACKET_ID_INDEX];
 	}
 	
 	/**
@@ -56,10 +49,7 @@ public abstract class APacket {
 	 * @return
 	 */
 	public final byte[] getData() {
-		
-		String formattedData = getFormattedDataString(REGEX, dataString);
-		
-		return (typeId + formattedData).getBytes();
+		return dataAsString.getBytes();
 	}
 	
 	/**
@@ -68,17 +58,7 @@ public abstract class APacket {
 	 * @return
 	 */
 	public final String getDataAsString() {
-		return getStringFromData(getData());
-	}
-	
-	/**
-	 * Just because every {@code APacket} implementation seemed to be declaring one of these, we'll abstract it out.
-	 * <b>Note:</b> index <b>0</b> is therefore reserved for the username.
-	 * 
-	 * @return
-	 */
-	public final String getUsername() {
-		return dataString[USERNAME_INDEX];
+		return dataAsString;
 	}
 	
 	/**
@@ -101,59 +81,14 @@ public abstract class APacket {
 		
 	}
 	
-	public static TCPPacketType getTCPPacketTypeFromData(byte[] data) {
-		
-		String packetInfo = getStringFromData(data);
-		
-		String id = packetInfo.substring(0, IDENTIFIER_LENGTH);// Could change this into a method on its own, much like 
-		// of "parsePacketData".
-		
-		return TCPPacketType.getPacketTypeById(id);
-		
-	}
-	
-	public static UDPPacketType getUDPPacketTypeFromData(byte[] data) {
-		
-		String packetInfo = getStringFromData(data);
-		
-		String id = packetInfo.substring(0, IDENTIFIER_LENGTH);
-		
-		return UDPPacketType.getPacketTypeById(id);
-		
-	}
-	
 	/**
-	 * Get string of data from its byte array.
+	 * Get {@code String} of data from its {@code byte[]} array.
 	 * 
 	 * @param data
 	 * @return
 	 */
-	private static String parsePacketData(byte[] data) {
-		return getStringFromData(data).substring(IDENTIFIER_LENGTH);// Skips the first 2 cahracters because those are our 
-		// identifiers.
-	}
-	
-	private static String[] appendStringToBeginning(String stringToAppend, String[] arrayToAppendTo) {
+	public static String getStringFromData(byte[] data) {
 		
-		String[] re = new String[arrayToAppendTo.length + 1];
-		
-		re[0] = stringToAppend;
-		
-		for(int i = 1; i < re.length; i++) {
-			re[i] = arrayToAppendTo[i-1];
-		}
-		
-		return re;
-		
-	}
-	
-	/**
-	 * Directly converts byte array data to String; convenience method for error checking.
-	 * 
-	 * @param data
-	 * @return
-	 */
-	private static String getStringFromData(byte[] data) {
 		String re;
 		
 		try {
@@ -164,6 +99,15 @@ public abstract class APacket {
 		}
 		
 		return re;
+		
+	}
+	
+	public static String getPacketIdFromString(String dataAsString) {
+		
+		String[] splitData = dataAsString.split(REGEX);
+		
+		return splitData[PACKET_ID_INDEX];
+				
 	}
 	
 }

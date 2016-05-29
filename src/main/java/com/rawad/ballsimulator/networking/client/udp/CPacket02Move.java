@@ -5,34 +5,34 @@ import com.rawad.ballsimulator.networking.UDPPacketType;
 
 public class CPacket02Move extends UDPPacket {
 	
-	private static final int UP_INDEX = 1;
-	private static final int DOWN_INDEX = 2;
-	private static final int RIGHT_INDEX = 3;
-	private static final int LEFT_INDEX = 4;
+	private static final int UP_INDEX = 2;
+	private static final int DOWN_INDEX = 3;
+	private static final int RIGHT_INDEX = 4;
+	private static final int LEFT_INDEX = 5;
 	
-	public CPacket02Move(String username, boolean up, boolean down, boolean right, boolean left) {
-		super(UDPPacketType.MOVE, username, Boolean.toString(up), Boolean.toString(down), Boolean.toString(right), 
+	public CPacket02Move(int entityId, boolean up, boolean down, boolean right, boolean left) {
+		super(UDPPacketType.MOVE, entityId, Boolean.toString(up), Boolean.toString(down), Boolean.toString(right), 
 				Boolean.toString(left));
 	}
 	
-	public CPacket02Move(byte[] data) {
-		super(UDPPacketType.MOVE, data);
+	public CPacket02Move(String dataAsString) {
+		super(dataAsString);
 	}
 	
 	public boolean isUp() {
-		return Boolean.parseBoolean(dataString[UP_INDEX]);
+		return Boolean.parseBoolean(indexedData[UP_INDEX]);
 	}
 	
 	public boolean isDown() {
-		return Boolean.parseBoolean(dataString[DOWN_INDEX]);
+		return Boolean.parseBoolean(indexedData[DOWN_INDEX]);
 	}
 	
 	public boolean isRight() {
-		return Boolean.parseBoolean(dataString[RIGHT_INDEX]);
+		return Boolean.parseBoolean(indexedData[RIGHT_INDEX]);
 	}
 	
 	public boolean isLeft() {
-		return Boolean.parseBoolean(dataString[LEFT_INDEX]);
+		return Boolean.parseBoolean(indexedData[LEFT_INDEX]);
 	}
 	
 }

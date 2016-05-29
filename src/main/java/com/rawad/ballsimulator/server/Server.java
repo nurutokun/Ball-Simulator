@@ -1,7 +1,12 @@
 package com.rawad.ballsimulator.server;
 
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
 
@@ -22,13 +27,18 @@ public class Server extends AServer {
 	public void init(Game game) {
 		super.init(game);
 		
-		controller = new ServerController(this);
-		
-		this.<ServerController>getController().init(game);
+		// TODO: Add game systems.
 		
 		networkManager = new ServerNetworkManager(this);
 		
+		CustomLoader loader = game.getLoader(CustomLoader.class);
+		
+		TerrainFileParser parser = game.getFileParser(TerrainFileParser.class);
+		
+		World world = game.getWorld();
+		
 		addTask(new Task<Integer>() {
+			
 			@Override
 			protected Integer call() throws Exception {
 				
@@ -36,7 +46,29 @@ public class Server extends AServer {
 				networkManager.init();// Allows for world to be initialized before clients can connect.
 				Logger.log(Logger.DEBUG, "Network manager initialized.");
 				
+				Logger.log(Logger.DEBUG, "Loading terrain...");				
+				loader.loadTerrain(parser, world, Server.TERRAIN_NAME);
+				
+				Logger.log(Logger.DEBUG, "Indexing terrain objects...");
+				
+				for(Entity e: world.getEntitiesAsList()) {
+					
+					
+					NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+					
+					if(networkComp == null) {
+						networkComp = new NetworkComponent();
+						e.addComponent(networkComp);
+					}
+					
+					networkComp.setId(world.getEntitiesAsList().indexOf(e));
+					
+				}
+				
+				Logger.log(Logger.DEBUG, "Terrain loaded successfully.");
+				
 				return 0;
+				
 			}
 		});
 		
@@ -44,6 +76,11 @@ public class Server extends AServer {
 	
 	public ServerNetworkManager getNetworkManager() {
 		return networkManager;
+	}
+	
+	@Override
+	public void tick() {
+		
 	}
 	
 	@Override

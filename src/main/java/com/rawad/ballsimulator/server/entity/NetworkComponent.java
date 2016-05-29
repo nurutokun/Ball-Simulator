@@ -6,6 +6,8 @@ public class NetworkComponent extends Component {
 	
 	private String ip = "localhost";
 	
+	private int id = -1;
+	
 	private int ping = 0;
 	
 	/**
@@ -20,6 +22,20 @@ public class NetworkComponent extends Component {
 	 */
 	public void setIp(String ip) {
 		this.ip = ip;
+	}
+	
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+	
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	/**

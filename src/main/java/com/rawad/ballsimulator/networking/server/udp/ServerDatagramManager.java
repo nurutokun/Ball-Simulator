@@ -7,14 +7,14 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.entity.EntityRotatingBase;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.networking.APacket;
+import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.ballsimulator.server.ServerController;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -59,7 +59,12 @@ public class ServerDatagramManager {
 	
 	private void handlePacket(byte[] data, String address, int port) {
 		
-		UDPPacketType type = APacket.getUDPPacketTypeFromData(data);
+		String dataAsString = APacket.getStringFromData(data);
+		
+		UDPPacketType type = UDPPacket.getPacketTypeFromData(dataAsString);
+		
+		Entity e = networkManager.getServer().getGame().getWorld().getEntitiesAsList().get(
+				UDPPacket.getEntityIdFromString(dataAsString));
 		
 		switch(type) {
 		
@@ -68,12 +73,9 @@ public class ServerDatagramManager {
 			
 		case MOVE:
 			
-			CPacket02Move moveRequest = new CPacket02Move(data);
+			CPacket02Move moveRequest = new CPacket02Move(dataAsString);
 			
-			EntityPlayerMP player = (EntityPlayerMP) networkManager.getServer().<ServerController>getController().getWorld()
-					.getEntityByName(moveRequest.getUsername());
-			
-			handleMoveRequest(moveRequest, player);
+			handleMoveRequest(moveRequest, e);
 			
 			break;
 			
@@ -85,12 +87,12 @@ public class ServerDatagramManager {
 		
 	}
 	
-	private void handleMoveRequest(CPacket02Move moveRequest, EntityPlayerMP playerToMove) {
+	private void handleMoveRequest(CPacket02Move moveRequest, MovementComponent movementComp) {
 		
-		playerToMove.setUp(moveRequest.isUp());
-		playerToMove.setDown(moveRequest.isDown());
-		playerToMove.setRight(moveRequest.isRight());
-		playerToMove.setLeft(moveRequest.isLeft());
+		movementComp.setUp(moveRequest.isUp());
+		movementComp.setDown(moveRequest.isDown());
+		movementComp.setRight(moveRequest.isRight());
+		movementComp.setLeft(moveRequest.isLeft());
 		
 	}
 	

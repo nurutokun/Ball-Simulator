@@ -8,18 +8,16 @@ public class SPacket03Ping extends TCPPacket {
 	
 	private static final int INDEX_PING = 1;
 	
-	public SPacket03Ping(String username, int ping) {
-		super(TCPPacketType.PING, username, Integer.toString(ping));
-		
+	public SPacket03Ping(long timeStamp) {
+		super(TCPPacketType.PING, Long.toString(timeStamp));
 	}
 	
-	public SPacket03Ping(byte[] data) {
-		super(TCPPacketType.PING, data);
-		
+	public SPacket03Ping(String dataAsString) {
+		super(dataAsString);
 	}
 	
-	public int getPing() {
-		return Integer.parseInt(dataString[INDEX_PING]);
+	public long getTimeStamp() {
+		return Long.parseLong(indexedData[INDEX_PING]);
 	}
 	
 }

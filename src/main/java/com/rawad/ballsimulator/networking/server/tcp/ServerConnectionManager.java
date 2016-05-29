@@ -95,7 +95,7 @@ public class ServerConnectionManager {
 		
 		byte[] data = input.getBytes();
 		
-		TCPPacketType type = APacket.getTCPPacketTypeFromData(data);
+		TCPPacketType type = TCPPacket.getPacketTypeFromData(data);
 		
 		WorldMP world = networkManager.getServer().<ServerController>getController().getWorld();
 		
