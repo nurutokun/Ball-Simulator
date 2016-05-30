@@ -19,10 +19,10 @@ public class SPacket01Login extends TCPPacket {
 	
 	private static final int LOGIN_INDEX = 8;
 	
-	public SPacket01Login(int entityId, double x, double y, int width, int height, double theta, String terrainName, 
+	public SPacket01Login(int entityId, double x, double y, double width, double height, double theta, String terrainName, 
 			boolean login) {
 		super(TCPPacketType.LOGIN, Integer.toString(entityId), Double.toString(x), Double.toString(y), 
-				Integer.toString(width), Integer.toString(height), Double.toString(theta), terrainName, 
+				Double.toString(width), Double.toString(height), Double.toString(theta), terrainName, 
 				Boolean.toString(login));
 	}
 	
@@ -42,11 +42,11 @@ public class SPacket01Login extends TCPPacket {
 		return Double.parseDouble(indexedData[Y_INDEX]);
 	}
 	
-	public int getWidth() {
+	public double getWidth() {
 		return Integer.parseInt(indexedData[WIDTH_INDEX]);
 	}
 	
-	public int getHeight() {
+	public double getHeight() {
 		return Integer.parseInt(indexedData[HEIGHT_INDEX]);
 	}
 	

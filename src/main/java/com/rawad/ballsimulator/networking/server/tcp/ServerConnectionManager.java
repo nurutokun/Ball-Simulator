@@ -8,16 +8,21 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import com.rawad.ballsimulator.entity.CollisionComponent;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.networking.APacket;
+import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket02Logout;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.ballsimulator.server.ServerController;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
-import com.rawad.ballsimulator.server.world.WorldMP;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
+import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.ArrayObservableList;
 import com.rawad.gamehelpers.utils.Util;
@@ -91,33 +96,29 @@ public class ServerConnectionManager {
 		
 	}
 	
-	private synchronized void handleClientInput(Socket client, String input) {
+	private synchronized void handleClientInput(Socket client, String dataAsString) {
 		
-		byte[] data = input.getBytes();
+		TCPPacketType type = TCPPacket.getPacketTypeFromData(dataAsString);
 		
-		TCPPacketType type = TCPPacket.getPacketTypeFromData(data);
-		
-		WorldMP world = networkManager.getServer().<ServerController>getController().getWorld();
-		
-		String username;
+		World world = networkManager.getServer().getGame().getWorld();
 		
 		switch(type) {
 		
 		case LOGIN:
 			
-			CPacket01Login clientLoginPacket = new CPacket01Login(data);
-			
-			username = clientLoginPacket.getUsername();
+			CPacket01Login clientLoginPacket = new CPacket01Login(dataAsString);
 			
 			boolean canLogin = true;
 			
-			if(world.getEntityByName(username) != null) {// Entity already exists
+			if(networkManager.getServer().getEntityById(clientLoginPacket.getEntityId()) != null) {// Entity already exists
 				canLogin = false;
-				Logger.log(Logger.DEBUG, "Player with name \"" + username + "\" is already logged in, "
+				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in, "
 						+ "disconnecting new player.");
 			}
 			
-			EntityPlayerMP player = null;
+			Entity player = null;
+			
+			int id = -1;
 			
 			int playerWidth = 0;
 			int playerHeight = 0;
@@ -129,23 +130,27 @@ public class ServerConnectionManager {
 			
 			if(canLogin) {
 				
-				player = new EntityPlayerMP(world, clientLoginPacket.getUsername(), client.getInetAddress()
-						.getHostAddress());
-				// Player automatically added to server's world.
+				player = Entity.createEntity(EEntity.NETWORKING_PLAYER);
 				
-				world.generateCoordinates(player);
+				world.addEntity(player);
 				
-				x = player.getX();
-				y = player.getY();
+				NetworkComponent networkComp = player.getComponent(NetworkComponent.class);
+				id = networkComp.getId();
 				
-				playerWidth = player.getWidth();
-				playerHeight = player.getHeight();
+				RandomPositionComponent randomPosComp = player.getComponent(RandomPositionComponent.class);
+				randomPosComp.setGenerateNewPosition(true);
 				
-				theta = player.getTheta();
+				CollisionComponent collisionComp = player.getComponent(CollisionComponent.class);
 				
-				player.setName(username);
+				Rectangle hitbox = collisionComp.getHitbox();
 				
-				String loginMessage = username + " has joined the game...";
+				hitbox.setWidth(40d);
+				hitbox.setHeight(40d);// TODO: Figure out hitbox size setting.
+				
+				playerWidth = 40;
+				playerHeight = 40;
+				
+				String loginMessage = "(INSERT USERNAME HERE)" + " has joined the game...";
 				
 				Logger.log(Logger.DEBUG, loginMessage);
 				
@@ -153,7 +158,7 @@ public class ServerConnectionManager {
 				
 			}
 			
-			SPacket01Login serverLoginResponsePacket = new SPacket01Login(username, x, y, playerWidth, playerHeight, 
+			SPacket01Login serverLoginResponsePacket = new SPacket01Login(id, x, y, playerWidth, playerHeight, 
 					theta, Server.TERRAIN_NAME, canLogin);
 			
 			if(canLogin) {
@@ -197,7 +202,7 @@ public class ServerConnectionManager {
 			
 		case LOGOUT:
 			
-			CPacket02Logout logoutPacket = new CPacket02Logout(data);
+			CPacket02Logout logoutPacket = new CPacket02Logout(dataAsString);
 			
 			getClientInputManager(client).setLoggedIn(false);
 			
@@ -219,7 +224,7 @@ public class ServerConnectionManager {
 			
 		case MESSAGE:
 			
-			CPacket04Message messagePacket = new CPacket04Message(data);
+			CPacket04Message messagePacket = new CPacket04Message(dataAsString);
 			
 			username = messagePacket.getUsername();
 			
@@ -235,13 +240,13 @@ public class ServerConnectionManager {
 			
 		case INVALID:
 		default:
-			Logger.log(Logger.WARNING, "Invalid packet: \"" + input + "\".");
+			Logger.log(Logger.WARNING, "Invalid packet: \"" + dataAsString + "\".");
 			break;
 		}
 		
 	}
 	
-	private void disconnectClient(Socket client, String username, WorldMP world) {
+	private void disconnectClient(Socket client, String username, World world) {
 		
 			world.disconnectPlayer(username);
 			
@@ -350,12 +355,13 @@ public class ServerConnectionManager {
 		
 		private Socket client;
 		
-		private String clientName;
+		private int clientPlayerId;
 		
 		private boolean loggedIn;
 		
-		public ClientInputManager(Socket client) {
+		public ClientInputManager(Socket clientm, int clientPlayerId) {
 			this.client = client;
+			this.clientPlayerId = clientPlayerId;
 		}
 		
 		@Override
@@ -383,7 +389,7 @@ public class ServerConnectionManager {
 			if(loggedIn) {// Mainly for when client closes game while still connecting (TCP is connected but not logged 
 				// in yet)
 				
-				CPacket02Logout ensureLogout = new CPacket02Logout(clientName, client.getInetAddress().getHostAddress());
+				CPacket02Logout ensureLogout = new CPacket02Logout(clientPlayerId, client.getInetAddress().getHostAddress());
 				
 				handleClientInput(client, ensureLogout.getDataAsString());
 				
@@ -395,12 +401,8 @@ public class ServerConnectionManager {
 			return client;
 		}
 		
-		public void setName(String clientName) {
-			this.clientName = clientName;
-		}
-		
-		public String getName() {
-			return clientName;
+		public int getName() {// TODO: Rename.
+			return clientPlayerId;
 		}
 		
 		public void setLoggedIn(boolean loggedIn) {
