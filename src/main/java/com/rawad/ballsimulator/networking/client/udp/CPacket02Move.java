@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.networking.client.udp;
 
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 
@@ -10,9 +11,9 @@ public class CPacket02Move extends UDPPacket {
 	private static final int RIGHT_INDEX = 4;
 	private static final int LEFT_INDEX = 5;
 	
-	public CPacket02Move(int entityId, boolean up, boolean down, boolean right, boolean left) {
-		super(UDPPacketType.MOVE, entityId, Boolean.toString(up), Boolean.toString(down), Boolean.toString(right), 
-				Boolean.toString(left));
+	public CPacket02Move(int entityId, MovementComponent movementComp) {
+		super(UDPPacketType.MOVE, entityId, Boolean.toString(movementComp.isUp()), Boolean.toString(movementComp.isDown()),
+				Boolean.toString(movementComp.isRight()), Boolean.toString(movementComp.isLeft()));
 	}
 	
 	public CPacket02Move(String dataAsString) {

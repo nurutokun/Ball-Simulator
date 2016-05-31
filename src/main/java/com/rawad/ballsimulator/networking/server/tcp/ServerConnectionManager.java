@@ -77,7 +77,7 @@ public class ServerConnectionManager {
 		synchronized(clientInputManagers) {
 			for(ClientInputManager cim: clientInputManagers) {
 				
-				SPacket02Logout logoutPlayer = new SPacket02Logout(cim.getName());
+				SPacket02Logout logoutPlayer = new SPacket02Logout(cim.getClientPlayerId());
 				
 				sendPacketToAllClients(null, logoutPlayer);
 				
@@ -113,8 +113,8 @@ public class ServerConnectionManager {
 			if(networkManager.getServer().getEntityById(clientLoginPacket.getEntityId()) != null) {// Entity 
 				// already exists
 				canLogin = false;
-				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in, "
-						+ "disconnecting new player.");
+				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in"
+						+ ", disconnecting new player.");
 			}
 			
 			Entity player = null;
@@ -192,8 +192,8 @@ public class ServerConnectionManager {
 				}
 				
 				clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
-				// clients that haven't logged in yet and so that all other players are registered on the client so the client
-				// isn't trying to update non-logged in players
+				// clients that haven't logged in yet and so that all other players are registered on the client so 
+				// the client isn't trying to update non-logged in players
 				
 			} else {
 				sendPacketToClient(client, serverLoginResponsePacket);
@@ -360,7 +360,7 @@ public class ServerConnectionManager {
 		
 		private boolean loggedIn;
 		
-		public ClientInputManager(Socket clientm, int clientPlayerId) {
+		public ClientInputManager(Socket client, int clientPlayerId) {
 			this.client = client;
 			this.clientPlayerId = clientPlayerId;
 		}
@@ -390,7 +390,8 @@ public class ServerConnectionManager {
 			if(loggedIn) {// Mainly for when client closes game while still connecting (TCP is connected but not logged 
 				// in yet)
 				
-				CPacket02Logout ensureLogout = new CPacket02Logout(clientPlayerId, client.getInetAddress().getHostAddress());
+				CPacket02Logout ensureLogout = new CPacket02Logout(clientPlayerId, client.getInetAddress()
+						.getHostAddress());
 				
 				handleClientInput(client, ensureLogout.getDataAsString());
 				
@@ -402,7 +403,7 @@ public class ServerConnectionManager {
 			return client;
 		}
 		
-		public int getName() {// TODO: Rename.
+		public int getClientPlayerId() {
 			return clientPlayerId;
 		}
 		

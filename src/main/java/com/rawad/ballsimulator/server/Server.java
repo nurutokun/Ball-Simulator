@@ -3,6 +3,9 @@ package com.rawad.ballsimulator.server;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.CollisionSystem;
+import com.rawad.ballsimulator.game.MovementSystem;
+import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.entity.NetworkComponent;
@@ -30,12 +33,17 @@ public class Server extends AServer {
 	public void init(Game game) {
 		super.init(game);
 		
-		game.setWorld(new WorldMP());
+		WorldMP world = new WorldMP();
+		
+		game.setWorld(world);
 		
 		ArrayList<GameSystem> gameSystems = new ArrayList<GameSystem>();
 		
 		// TODO: Add game systems.
 		// RandomGenerationSystem
+		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new MovementSystem());
 		
 		game.getGameEngine().setGameSystems(gameSystems);
 		
@@ -44,8 +52,6 @@ public class Server extends AServer {
 		CustomLoader loader = game.getLoader(CustomLoader.class);
 		
 		TerrainFileParser parser = game.getFileParser(TerrainFileParser.class);
-		
-		World world = game.getWorld();
 		
 		addTask(new Task<Integer>() {
 			

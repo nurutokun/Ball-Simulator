@@ -90,7 +90,7 @@ public class ServerGui extends AClient {
 			ex.printStackTrace();
 		}
 		
-		stage.getScene().setRoot(loader.getRoot());// TODO: Might to be wrapped in Platform.runLater();
+		stage.getScene().setRoot(loader.getRoot());
 		
 		debugChanger.selectedProperty().bindBidirectional(server.getGame().debugProperty());
 		
