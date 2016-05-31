@@ -110,7 +110,8 @@ public class ServerConnectionManager {
 			
 			boolean canLogin = true;
 			
-			if(networkManager.getServer().getEntityById(clientLoginPacket.getEntityId()) != null) {// Entity already exists
+			if(networkManager.getServer().getEntityById(clientLoginPacket.getEntityId()) != null) {// Entity 
+				// already exists
 				canLogin = false;
 				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in, "
 						+ "disconnecting new player.");
@@ -171,10 +172,10 @@ public class ServerConnectionManager {
 				// Inform all current players of this new player's login.
 				sendPacketToAllClients(null, serverLoginResponsePacket);
 				
-				ArrayObservableList<EntityPlayerMP> players = world.getPlayers();
+				ArrayList<Entity> players = world.getEntitiesAsList();
 				
 				// Informs player that just logged in of previously logged-in players.
-				for(EntityPlayerMP playerInWorld: players) {
+				for(Entity playerInWorld: players) {
 					
 					String name = playerInWorld.getName();
 					
