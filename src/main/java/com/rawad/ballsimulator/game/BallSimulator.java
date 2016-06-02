@@ -8,6 +8,8 @@ import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Blueprint;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 
+import javafx.concurrent.Task;
+
 public class BallSimulator extends Game {
 	
 	/**
@@ -36,6 +38,14 @@ public class BallSimulator extends Game {
 		
 		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
 		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
+		
+		getProxy().addTask(new Task<Integer>() {
+			@Override
+			protected Integer call() throws Exception {
+				
+				return 0;
+			}
+		});
 		
 		EEntity[] entities = EEntity.values();
 		

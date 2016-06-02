@@ -78,10 +78,10 @@ public class CollisionComponent extends Component {
 			
 			Rectangle hitbox = collisionComp.getHitbox();
 			
-			hitbox.setX(this.hitbox.getX());
-			hitbox.setY(this.hitbox.getY());
-			hitbox.setWidth(this.hitbox.getWidth());
-			hitbox.setHeight(this.hitbox.getHeight());
+			if(!hitbox.xProperty().isBound()) hitbox.setX(this.hitbox.getX());
+			if(!hitbox.yProperty().isBound()) hitbox.setY(this.hitbox.getY());
+			if(!hitbox.widthProperty().isBound()) hitbox.setWidth(this.hitbox.getWidth());
+			if(!hitbox.heightProperty().isBound()) hitbox.setHeight(this.hitbox.getHeight());
 			
 			collisionComp.getListeners().addAll(getListeners());
 			

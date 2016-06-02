@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Entity>
+<Entity>
+	<TransformComponent/>
+	<CollisionComponent>
+		<hitbox>
+			<x>-20</x>
+			<y>-20</y>
+			<width>-20</width>
+			<height>-20</height>
+		</hitbox>
+	</CollisionComponent>
+	<HealthComponent/>
+	<MovementComponent/>
+	<RollingComponent/>
+	<RenderingComponent/>
+</Entity>
