@@ -1,17 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE Entity>
 <Entity>
-	<TransformComponent/>
-	<CollisionComponent>
-		<hitbox>
-			<x>-20</x>
-			<y>-20</y>
-			<width>-20</width>
-			<height>-20</height>
-		</hitbox>
-	</CollisionComponent>
-	<HealthComponent/>
-	<MovementComponent/>
-	<RollingComponent/>
-	<RenderingComponent/>
+    <components/>
+    <components xsi:type="transformComponent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <x>0.0</x>
+        <y>0.0</y>
+        <maxScaleX>1.7976931348623157E308</maxScaleX>
+        <maxScaleY>1.7976931348623157E308</maxScaleY>
+        <theta>0.0</theta>
+        <scaleX>1.0</scaleX>
+        <scaleY>1.0</scaleY>
+    </components>
 </Entity>

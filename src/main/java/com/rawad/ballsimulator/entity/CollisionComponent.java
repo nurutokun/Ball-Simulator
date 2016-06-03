@@ -2,6 +2,9 @@ package com.rawad.ballsimulator.entity;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
@@ -15,16 +18,22 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author Rawad
  *
  */
+@XmlRootElement
 public class CollisionComponent extends Component {
 	
 	private Rectangle hitbox = new Rectangle(0, 0, 0, 0);
 	
-	private SimpleObjectProperty<Entity> collidingWith = new SimpleObjectProperty<Entity>();
+	@XmlTransient private SimpleObjectProperty<Entity> collidingWith = new SimpleObjectProperty<Entity>();
 	
-	private ArrayList<IListener<CollisionComponent>> listeners = new ArrayList<IListener<CollisionComponent>>();
+	@XmlTransient private ArrayList<IListener<CollisionComponent>> listeners = 
+			new ArrayList<IListener<CollisionComponent>>();
 	
 	private boolean collideX = false;
 	private boolean collideY = false;
+	
+	public void setHitbox(Rectangle hitbox) {
+		this.hitbox = hitbox;
+	}
 	
 	public Rectangle getHitbox() {
 		return hitbox;

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE Entity>
+<Entity>
+    <component xsi:type="transformComponent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <x>0.0</x>
+        <y>0.0</y>
+        <maxScaleX>1.7976931348623157E308</maxScaleX>
+        <maxScaleY>1.7976931348623157E308</maxScaleY>
+        <theta>0.0</theta>
+        <scaleX>1.0</scaleX>
+        <scaleY>1.0</scaleY>
+    </component>
+    <component xsi:type="collisionComponent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <hitbox>
+            <height>0.0</height>
+            <width>0.0</width>
+            <x>0.0</x>
+            <y>0.0</y>
+        </hitbox>
+        <collideX>false</collideX>
+        <collideY>false</collideY>
+    </component>
+</Entity>
