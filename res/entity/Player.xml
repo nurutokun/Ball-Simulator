@@ -1,23 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE Entity>
-<Entity>
-    <component xsi:type="transformComponent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <x>0.0</x>
-        <y>0.0</y>
-        <maxScaleX>1.7976931348623157E308</maxScaleX>
-        <maxScaleY>1.7976931348623157E308</maxScaleY>
-        <theta>0.0</theta>
-        <scaleX>1.0</scaleX>
-        <scaleY>1.0</scaleY>
-    </component>
-    <component xsi:type="collisionComponent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Entity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <component xsi:type="collisionComponent">
+        <collideX>false</collideX>
+        <collideY>false</collideY>
         <hitbox>
             <height>0.0</height>
             <width>0.0</width>
             <x>0.0</x>
             <y>0.0</y>
         </hitbox>
-        <collideX>false</collideX>
-        <collideY>false</collideY>
+    </component>
+    <component xsi:type="healthComponent">
+        <health>1.0</health>
+        <maxHealth>1.0</maxHealth>
+        <regen>false</regen>
+        <regenRate>0.0</regenRate>
+    </component>
+    <component xsi:type="movementComponent">
+        <ax>0.0</ax>
+        <ay>0.0</ay>
+        <down>false</down>
+        <left>false</left>
+        <right>false</right>
+        <up>false</up>
+        <vx>0.0</vx>
+        <vy>0.0</vy>
+    </component>
+    <component/>
+    <component xsi:type="renderingComponent"/>
+    <component xsi:type="transformComponent">
+        <maxScaleX>1.7976931348623157E308</maxScaleX>
+        <maxScaleY>1.7976931348623157E308</maxScaleY>
+        <scaleX>1.0</scaleX>
+        <scaleY>1.0</scaleY>
+        <theta>0.0</theta>
+        <x>0.0</x>
+        <y>0.0</y>
     </component>
 </Entity>

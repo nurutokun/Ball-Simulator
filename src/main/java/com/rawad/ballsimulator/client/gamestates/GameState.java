@@ -10,9 +10,11 @@ import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.GuiComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
@@ -56,8 +58,13 @@ public class GameState extends State {
 	public GameState() {
 		super();
 		
-		player = Entity.createEntity(EEntity.USER_CONTROLLABLE_PLAYER);
-		playerRandomPositioner = player.getComponent(RandomPositionComponent.class);
+		player = Entity.createEntity(EEntity.PLAYER);
+		playerRandomPositioner = new RandomPositionComponent();
+		player.addComponent(playerRandomPositioner);
+		
+		player.addComponent(new GuiComponent());
+		player.addComponent(new UserControlComponent());
+		
 		RenderingComponent playerRender = player.getComponent(RenderingComponent.class);
 		
 		playerRender.setTexture(GameTextures.findTexture(EEntity.PLAYER));

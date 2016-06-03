@@ -4,6 +4,7 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Blueprint;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
@@ -43,15 +44,17 @@ public class BallSimulator extends Game {
 			@Override
 			protected Integer call() throws Exception {
 				
+				EEntity[] entities = EEntity.values();
+				
+				for(EEntity entity: entities) {
+					BlueprintManager.addBlueprint(entity, new Blueprint(EntityFileParser.parseEntityFile(EEntity.class, 
+							entity.getFileName(), EEntity.class.getPackage().getName())));
+				}
+				
 				return 0;
+				
 			}
 		});
-		
-		EEntity[] entities = EEntity.values();
-		
-		for(EEntity entity: entities) {
-			BlueprintManager.addBlueprint(entity, new Blueprint(entity.getComponents()));
-		}
 		
 	}
 	

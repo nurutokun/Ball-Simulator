@@ -1,28 +1,23 @@
 package com.rawad.ballsimulator.entity;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.geometry.Point;
 
 import javafx.beans.property.SimpleDoubleProperty;
 
 /**
- * Gives {@code Entiti} a position, scale, and a rotation in 2D space.
+ * Gives {@code Entity} a position, scale, and a rotation in 2D space.
  * 
  * @author Rawad
  *
  */
-@XmlRootElement
 public class TransformComponent extends Component {
 	
 	private double x = 0;
 	private double y = 0;
 	
-	@XmlTransient private SimpleDoubleProperty scaleX = scaleXProperty();
-	@XmlTransient private SimpleDoubleProperty scaleY = scaleYProperty();
+	private SimpleDoubleProperty scaleX = scaleXProperty();
+	private SimpleDoubleProperty scaleY = scaleYProperty();
 	
 	/** Maximum an {@code Entity} can be scaled (i.e. made smaller) in the x-direction. */
 	private double maxScaleX = Double.MAX_VALUE;
@@ -75,7 +70,6 @@ public class TransformComponent extends Component {
 	/**
 	 * @param scaleX the scaleX to set
 	 */
-	@XmlElement
 	public void setScaleX(double scaleX) {
 		scaleXProperty().set(scaleX);
 	}
@@ -95,7 +89,6 @@ public class TransformComponent extends Component {
 	/**
 	 * @param scaleY the scaleY to set
 	 */
-	@XmlElement
 	public void setScaleY(double scaleY) {
 		scaleYProperty().set(scaleY);
 	}

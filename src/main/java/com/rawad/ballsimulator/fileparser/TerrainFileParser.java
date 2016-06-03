@@ -8,6 +8,7 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.fileparser.FileParser;
+import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Rectangle;
@@ -96,8 +97,9 @@ public class TerrainFileParser extends FileParser {
 		staticEntities.clear();
 		
 		for(Entity e: world.getEntitiesAsList()) {
-			if(Entity.compare(e, EEntity.STATIC.getComponents())) staticEntities.add(e);
+			if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase())) staticEntities.add(e);
 		}
+// TODO: Test if this compare works properly (Entity.compare(Entity, Class<? extends Component>[]) may be deprecated now).
 		
 	}
 	
