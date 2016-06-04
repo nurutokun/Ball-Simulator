@@ -81,7 +81,10 @@ public class GameState extends State {
 		world.addEntity(player);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
-		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
+		
+		AttachmentComponent attachmentComp = new AttachmentComponent();
+		attachmentComp.setAttachedTo(player);
+		camera.addComponent(attachmentComp);
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);		
 		cameraTransform.setScaleX(PREFERRED_SCALE);

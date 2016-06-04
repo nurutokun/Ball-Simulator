@@ -28,7 +28,8 @@ public enum EEntity {
 	
 	CAMERA("Camera"),
 	PLAYER("Player"),
-	STATIC("Static");
+	STATIC("Static"),
+	PLACEABLE("Placeable");
 	
 	private final String fileName;
 	

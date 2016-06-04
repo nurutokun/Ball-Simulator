@@ -1,10 +1,11 @@
 # This file lists all Components that can be marshalled to/unmarshalled from an xml file. Note that any class listed must 
 # be in this package.
-AttachmentComponent
 CollisionComponent
 HealthComponent
 MovementComponent
+PlaceableComponent
 RenderingComponent
+RollingComponent
 SelectionComponent
 TransformComponent
 UserViewComponent
