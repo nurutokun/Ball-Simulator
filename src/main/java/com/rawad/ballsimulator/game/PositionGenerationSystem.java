@@ -40,27 +40,21 @@ public class PositionGenerationSystem extends GameSystem {
 			
 			Rectangle hitbox = collisionComp.getHitbox();
 			
-			double width = hitbox.getWidth();
-			double height = hitbox.getHeight();
-			
 			Random r = new Random();
 			
 			do {
 				
-				double x = r.nextDouble() * (maxWidth - width);
-				double y = r.nextDouble() * (maxHeight - height);
+				double x = r.nextDouble() * (maxWidth - hitbox.getWidth()) - hitbox.getX();
+				double y = r.nextDouble() * (maxHeight - hitbox.getHeight()) - hitbox.getY();
 				
-				hitbox.setX(x);
-				hitbox.setY(y);
+				transformComp.setX(x);
+				transformComp.setY(y);
 				
 				if(gameEngine.getGameSystem(CollisionSystem.class).checkEntityCollision(e, hitbox) == null) {
 					entityBlocked = false;
 				}
 				
 			} while(entityBlocked);
-			
-			transformComp.setX(hitbox.getX());
-			transformComp.setY(hitbox.getY());
 			
 			randomPositionComp.setGenerateNewPosition(false);
 			

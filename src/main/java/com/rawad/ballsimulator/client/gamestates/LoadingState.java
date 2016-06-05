@@ -13,7 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
 /**
- * This class could be replaced with some sort of <code>PreLoader</code>
+ * This class could be replaced with some sort of {@code PreLoader}.
  * 
  * @author Rawad
  *
@@ -30,12 +30,6 @@ public class LoadingState extends State {
 	public LoadingState(Task<Integer> taskToWatch) {
 		this.taskToWatch = taskToWatch;	
 		
-		camera = Entity.createEntity(EEntity.CAMERA);
-		
-		world.addEntity(camera);
-		
-		masterRender.registerRender(new BackgroundRender(camera));
-		
 	}
 	
 	@Override
@@ -44,10 +38,23 @@ public class LoadingState extends State {
 		
 		progressBar.progressProperty().bind(taskToWatch.progressProperty());
 		loadingProgressLabel.textProperty().bind(taskToWatch.messageProperty());
-		
-		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
-		viewport.widthProperty().bind(root.widthProperty());
-		viewport.heightProperty().bind(root.heightProperty());
+		taskToWatch.runningProperty().addListener((e, prevRunning, currentlyRunning) -> {
+			
+			if(currentlyRunning) {
+				
+				camera = Entity.createEntity(EEntity.CAMERA);// Waits until entities are loaded (this State is special).
+				
+				world.addEntity(camera);
+				
+				masterRender.registerRender(new BackgroundRender(camera));
+				
+				Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
+				viewport.widthProperty().bind(root.widthProperty());
+				viewport.heightProperty().bind(root.heightProperty());
+				
+			}
+			
+		});
 		
 	}
 	

@@ -1,5 +1,7 @@
 package com.rawad.ballsimulator.entity;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.rawad.gamehelpers.game.entity.Component;
 
 public class MovementComponent extends Component {
@@ -81,7 +83,7 @@ public class MovementComponent extends Component {
 	/**
 	 * @param up the up to set
 	 */
-	public void setUp(boolean up) {
+	@XmlTransient public void setUp(boolean up) {
 		this.up = up;
 	}
 	
@@ -95,7 +97,7 @@ public class MovementComponent extends Component {
 	/**
 	 * @param down the down to set
 	 */
-	public void setDown(boolean down) {
+	@XmlTransient public void setDown(boolean down) {
 		this.down = down;
 	}
 	
@@ -109,7 +111,7 @@ public class MovementComponent extends Component {
 	/**
 	 * @param right the right to set
 	 */
-	public void setRight(boolean right) {
+	@XmlTransient public void setRight(boolean right) {
 		this.right = right;
 	}
 	
@@ -123,7 +125,7 @@ public class MovementComponent extends Component {
 	/**
 	 * @param left the left to set
 	 */
-	public void setLeft(boolean left) {
+	@XmlTransient public void setLeft(boolean left) {
 		this.left = left;
 	}
 	

@@ -17,6 +17,10 @@ public class UserViewComponent extends Component {
 	
 	private Rectangle viewport = new Rectangle(0 ,0 ,0, 0);
 	
+	public void setViewport(Rectangle viewport) {
+		this.viewport = viewport;
+	}
+	
 	public Rectangle getViewport() {
 		return viewport;
 	}

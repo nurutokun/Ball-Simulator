@@ -29,15 +29,16 @@ public class EntitySelectionSystem extends GameSystem {
 	@Override
 	public void tick(Entity e) {
 		
+		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		SelectionComponent selectionComp = e.getComponent(SelectionComponent.class);
 		
 		double mouseX = Mouse.isClamped()? Mouse.getClampX():Mouse.getX();
 		double mouseY = Mouse.isClamped()? Mouse.getClampY():Mouse.getY();
 		
-		Point mouseInWorld = cameraTransform.transformFromScreen(mouseX, mouseY);
+		Point mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, mouseX, mouseY);
 		
-		Rectangle hitbox = collisionComp.getHitbox();
+		Rectangle hitbox = CollisionSystem.getHitboxInTransform(transformComp, collisionComp.getHitbox());
 		
 		if(hitbox.contains(mouseInWorld)) {
 			
@@ -53,6 +54,27 @@ public class EntitySelectionSystem extends GameSystem {
 		} else {
 			selectionComp.setHighlighted(false);
 		}
+		
+	}
+	
+	/**
+	 * 
+	 * Converts the given {@code x} and {@code y} coordinates for a point on the screen and converts it to a point in the
+	 * {@code transformComp}'s space.
+	 * 
+	 * @param transformComp
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static Point transformFromScreen(TransformComponent transformComp, double x, double y) {
+		
+		Point pointInWorld = new Point(x, y);
+		
+		pointInWorld.setX(x / transformComp.getScaleX() + transformComp.getX());
+		pointInWorld.setY(y /  transformComp.getScaleY() + transformComp.getY());
+		
+		return pointInWorld;
 		
 	}
 	

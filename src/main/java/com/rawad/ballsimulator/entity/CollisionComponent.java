@@ -2,6 +2,8 @@ package com.rawad.ballsimulator.entity;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
@@ -26,6 +28,10 @@ public class CollisionComponent extends Component {
 	private boolean collideX = false;
 	private boolean collideY = false;
 	
+	public void setHitbox(Rectangle hitbox) {// Mainly needed for xml.
+		this.hitbox = hitbox;
+	}
+	
 	public Rectangle getHitbox() {
 		return hitbox;
 	}
@@ -48,7 +54,7 @@ public class CollisionComponent extends Component {
 	/**
 	 * @param collideX the collideX to set
 	 */
-	public void setCollideX(boolean collideX) {
+	@XmlTransient public void setCollideX(boolean collideX) {
 		this.collideX = collideX;
 	}
 	
@@ -62,7 +68,7 @@ public class CollisionComponent extends Component {
 	/**
 	 * @param collideY the collideY to set
 	 */
-	public void setCollideY(boolean collideY) {
+	@XmlTransient public void setCollideY(boolean collideY) {
 		this.collideY = collideY;
 	}
 	
@@ -78,10 +84,10 @@ public class CollisionComponent extends Component {
 			
 			Rectangle hitbox = collisionComp.getHitbox();
 			
-			hitbox.setX(this.hitbox.getX());
-			hitbox.setY(this.hitbox.getY());
-			hitbox.setWidth(this.hitbox.getWidth());
-			hitbox.setHeight(this.hitbox.getHeight());
+			if(!hitbox.xProperty().isBound()) hitbox.setX(this.hitbox.getX());
+			if(!hitbox.yProperty().isBound()) hitbox.setY(this.hitbox.getY());
+			if(!hitbox.widthProperty().isBound()) hitbox.setWidth(this.hitbox.getWidth());
+			if(!hitbox.heightProperty().isBound()) hitbox.setHeight(this.hitbox.getHeight());
 			
 			collisionComp.getListeners().addAll(getListeners());
 			
