@@ -5,10 +5,12 @@ import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
@@ -54,7 +56,10 @@ public class WorldEditorState extends State {
 	public WorldEditorState() {
 		super();
 		
-		Entity camera = Entity.createEntity(EEntity.USER_CONTROLLABLE_CAMERA);
+		Entity camera = Entity.createEntity(EEntity.CAMERA);
+		
+		camera.addComponent(new MovementComponent());
+		camera.addComponent(new UserControlComponent());
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);
 		
@@ -252,7 +257,7 @@ public class WorldEditorState extends State {
 		
 		Platform.runLater(() -> pauseScreen.setVisible(false));
 		
-		saveTerrain("terrain");
+//		saveTerrain("terrain");
 		
 	}
 	

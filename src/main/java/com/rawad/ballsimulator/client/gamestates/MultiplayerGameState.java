@@ -62,14 +62,16 @@ public class MultiplayerGameState extends State {
 //		this.networkManager = networkManager;
 //		networkManager.setClient(this);
 		
-		player = Entity.createEntity(EEntity.NETWORKING_PLAYER);
+		player = Entity.createEntity(EEntity.PLAYER);
 //		EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address wasn't final.");
 		playerMovement = player.getComponent(MovementComponent.class);
 		world.addEntity(player);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
-		camera.getComponent(AttachmentComponent.class).setAttachedTo(player);
+		AttachmentComponent attachmentComp = new AttachmentComponent();
+		attachmentComp.setAttachedTo(player);
+		camera.addComponent(attachmentComp);
 		
 		TransformComponent cameraTransform = camera.getComponent(TransformComponent.class);
 		cameraTransform.setScaleX(1d / 2d);

@@ -16,11 +16,14 @@ public class HealthComponentRender extends ComponentRender<HealthComponent> {
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
 		
-		final double width = renderingComp.getTexture().getWidth() * transformComp.getScaleX();
+		final double width = renderingComp.getTexture().getWidth();
+		final double height = renderingComp.getTexture().getHeight();
 		
 		final double barHeight = 10d;
 		
-		g.translate(0, -barHeight);
+		g.rotate(-transformComp.getTheta());
+		
+		g.translate(-width / 2d, -barHeight - (height / 2d));
 		
 		g.setFill(Color.BLACK);
 		g.fillRect(0, 0, width, barHeight);
@@ -31,7 +34,9 @@ public class HealthComponentRender extends ComponentRender<HealthComponent> {
 		g.setFill(Color.RED);
 		g.fillRect(insets / 2d, insets / 2d, barWidth - insets, barHeight - insets);
 		
-		g.translate(0, barHeight);
+		g.translate(width / 2d, barHeight + (height / 2d));
+		
+		g.rotate(transformComp.getTheta());
 		
 	}
 	

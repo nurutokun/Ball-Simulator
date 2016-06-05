@@ -4,9 +4,13 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Blueprint;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
+import com.rawad.gamehelpers.log.Logger;
+
+import javafx.concurrent.Task;
 
 public class BallSimulator extends Game {
 	
@@ -37,11 +41,25 @@ public class BallSimulator extends Game {
 		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
 		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
 		
-		EEntity[] entities = EEntity.values();
-		
-		for(EEntity entity: entities) {
-			BlueprintManager.addBlueprint(entity, new Blueprint(entity.getComponents()));
-		}
+		getProxy().addTask(new Task<Integer>() {
+			@Override
+			protected Integer call() throws Exception {
+				
+				Logger.log(Logger.DEBUG, "Loading entity blueprints...");
+				
+				EEntity[] entities = EEntity.values();
+				
+				for(EEntity entity: entities) {
+					BlueprintManager.addBlueprint(entity, new Blueprint(EntityFileParser.parseEntityFile(EEntity.class, 
+							entity.getFileName(), EEntity.class.getPackage().getName())));
+				}
+				
+				Logger.log(Logger.DEBUG, "Loaded all entity blueprints.");
+				
+				return 0;
+				
+			}
+		});
 		
 	}
 	

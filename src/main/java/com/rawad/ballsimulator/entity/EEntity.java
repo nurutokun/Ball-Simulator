@@ -1,10 +1,7 @@
 package com.rawad.ballsimulator.entity;
 
-import com.rawad.gamehelpers.game.entity.Component;
-import com.rawad.gamehelpers.utils.Util;
-
 public enum EEntity {
-	
+	/*/
 	CAMERA(TransformComponent.class, AttachmentComponent.class, UserViewComponent.class),// Transform for scaling, collision for keeping in bounds
 	USER_CONTROLLABLE_CAMERA(TransformComponent.class, MovementComponent.class, UserControlComponent.class, UserViewComponent.class),
 	STATIC(TransformComponent.class, CollisionComponent.class, SelectionComponent.class, RenderingComponent.class),
@@ -27,6 +24,26 @@ public enum EEntity {
 	
 	public Class<? extends Component>[] getComponents() {
 		return components;
+	}/**/
+	
+	CAMERA("Camera"),
+	PLAYER("Player"),
+	STATIC("Static"),
+	PLACEABLE("Placeable");
+	
+	private final String fileName;
+	
+	/**
+	 * The {@code entityBlueprintFilename} specified should be found in the same package as this {@code EEntity} class.
+	 * 
+	 * @param entityBlueprintFilename
+	 */
+	private EEntity(String entityBlueprintFilename) {
+		this.fileName = entityBlueprintFilename;
+	}
+	
+	public String getFileName() {
+		return fileName;
 	}
 	
 }

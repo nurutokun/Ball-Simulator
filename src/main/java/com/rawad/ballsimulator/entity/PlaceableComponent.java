@@ -2,6 +2,8 @@ package com.rawad.ballsimulator.entity;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.IListener;
 
@@ -44,7 +46,7 @@ public class PlaceableComponent extends Component {
 	/**
 	 * @param placeRequested the placeRequested to set
 	 */
-	public void setPlaceRequested(boolean placeRequested) {
+	@XmlTransient public void setPlaceRequested(boolean placeRequested) {
 		this.placeRequested = placeRequested;
 	}
 		
@@ -58,7 +60,7 @@ public class PlaceableComponent extends Component {
 	/**
 	 * @param removeRequested the removeRequested to set
 	 */
-	public void setRemoveRequested(boolean removeRequested) {
+	@XmlTransient public void setRemoveRequested(boolean removeRequested) {
 		this.removeRequested = removeRequested;
 	}
 		
@@ -72,7 +74,7 @@ public class PlaceableComponent extends Component {
 	/**
 	 * @param extractRequested the extractRequested to set
 	 */
-	public void setExtractRequested(boolean extractRequested) {
+	@XmlTransient public void setExtractRequested(boolean extractRequested) {
 		this.extractRequested = extractRequested;
 	}
 	
