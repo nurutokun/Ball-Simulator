@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 
@@ -47,10 +47,10 @@ public class PlayerList extends TableView<Entity> {
 				
 				String ip = "";
 				
-				NetworkComponent networkComp = p.getValue().getComponent(NetworkComponent.class);
+				UserComponent userComp = p.getValue().getComponent(UserComponent.class);
 				
-				if(networkComp != null) {
-					ip = networkComp.getIp();
+				if(userComp != null) {
+					ip = userComp.getIp();
 				}
 				
 				return new ReadOnlyObjectWrapper<String>(ip);
@@ -63,10 +63,10 @@ public class PlayerList extends TableView<Entity> {
 				
 				int ping = -1;
 				
-				NetworkComponent networkComp = p.getValue().getComponent(NetworkComponent.class);
+				UserComponent userComp = p.getValue().getComponent(UserComponent.class);
 				
-				if(networkComp != null) {
-					ping = networkComp.getPing();
+				if(userComp != null) {
+					ping = userComp.getPing();
 				}
 				
 				return new ReadOnlyObjectWrapper<Integer>(ping);

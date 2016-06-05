@@ -1,5 +1,7 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import java.util.Random;
+
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
@@ -8,18 +10,21 @@ import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.GuiComponent;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
+import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -54,6 +59,7 @@ public class MultiplayerGameState extends State {
 	private Entity camera;
 	
 	private Entity player;
+	private UserComponent playerUser;
 	private MovementComponent playerMovement;
 	
 	public MultiplayerGameState(ClientNetworkManager networkManager) {
@@ -63,8 +69,16 @@ public class MultiplayerGameState extends State {
 //		networkManager.setClient(this);
 		
 		player = Entity.createEntity(EEntity.PLAYER);
-//		EntityPlayerMP(world, "Player" + (int) (new Random().nextDouble()*999), "Could be fixed if address wasn't final.");
+		player.addComponent(new UserControlComponent());
+		player.addComponent(new GuiComponent());
+		player.addComponent(new NetworkComponent());
+		
+		playerUser = new UserComponent();
+		playerUser.setUsername("Player" + (int) (new Random().nextDouble() * 999d));
+		player.addComponent(playerUser);
+		
 		playerMovement = player.getComponent(MovementComponent.class);
+		
 		world.addEntity(player);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
@@ -218,7 +232,6 @@ public class MultiplayerGameState extends State {
 		mess.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
 			CPacket04Message message = new CPacket04Message(player.toString(), mess.getInputArea().getText());
-			// TODO: (MPGameState) Figure out player username.
 			
 			networkManager.getConnectionManager().sendPacketToServer(message);
 			
@@ -304,16 +317,19 @@ public class MultiplayerGameState extends State {
 		
 	}
 	
-	public void addPlayer(EntityPlayerMP player) {
+	public void addPlayer(Entity player) {
 		playerList.getItems().add(player);
 	}
 	
-	public void removePlayer(String username) {
+	public void removePlayer(int id) {
 		
-		EntityPlayerMP playerToRemove = null;
+		Entity playerToRemove = null;
 		
-		for(EntityPlayerMP player: playerList.getItems()) {
-			if(player.toString().equals(username)) {// TODO: (MPGameState) Figure out player username.
+		for(Entity player: playerList.getItems()) {
+			
+			NetworkComponent networkComp = player.getComponent(NetworkComponent.class);
+			
+			if(networkComp != null && networkComp.getId() == id) {
 				playerToRemove = player;
 				break;
 			}
