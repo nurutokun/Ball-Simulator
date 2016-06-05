@@ -6,6 +6,7 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
+import com.rawad.gamehelpers.geometry.Point;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -35,20 +36,23 @@ public class CollisionSystem extends GameSystem {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
-		transformComp.setY(transformComp.getY() - movementComp.getVy());// Undo y to get moved x.
+		Point newPos = new Point(transformComp.getX(), transformComp.getY());
+		Point oldPos = new Point(newPos.getX() - movementComp.getVx(), newPos.getY() - movementComp.getVy());
+		
+		transformComp.setY(oldPos.getY());// Undo y to get moved x.
 		
 		Entity collidingWithX = checkEntityCollision(e, hitbox);
 		
 		boolean collideX = isOutOfBounds(transformComp, hitbox, bounds) || collidingWithX != null;
 		
-		transformComp.setY(transformComp.getY() + movementComp.getVy());// Redo y.
-		transformComp.setX(transformComp.getX() - movementComp.getVx());// Undo x to get moved y
+		transformComp.setY(newPos.getY());// Redo y.
+		transformComp.setX(oldPos.getX());// Undo x to get moved y.
 		
 		Entity collidingWithY = checkEntityCollision(e, hitbox);
 		
 		boolean collideY = isOutOfBounds(transformComp, hitbox, bounds) || collidingWithY != null;
 		
-		transformComp.setX(transformComp.getX() + movementComp.getVx());
+		transformComp.setX(newPos.getX());// Redo x.
 		
 		collisionComp.getCollidingWithEntity().set(collidingWithX == collidingWithY? collidingWithX:collidingWithY);
 		// TODO: Which entity gets collided with? Horizontal or vertical? Maybe both?
