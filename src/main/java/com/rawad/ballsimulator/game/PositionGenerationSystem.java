@@ -44,8 +44,8 @@ public class PositionGenerationSystem extends GameSystem {
 			
 			do {
 				
-				double x = r.nextDouble() * (maxWidth + hitbox.getX() - hitbox.getWidth());
-				double y = r.nextDouble() * (maxHeight + hitbox.getY() - hitbox.getHeight());
+				double x = r.nextDouble() * (maxWidth - hitbox.getWidth()) - hitbox.getX();
+				double y = r.nextDouble() * (maxHeight - hitbox.getHeight()) - hitbox.getY();
 				
 				transformComp.setX(x);
 				transformComp.setY(y);

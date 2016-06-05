@@ -3,7 +3,6 @@
 <Entity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <comp xsi:type="renderingComponent"/>
     <comp xsi:type="selectionComponent">
-        <highlighted>false</highlighted>
         <selected>false</selected>
     </comp>
     <comp xsi:type="transformComponent">
@@ -16,8 +15,6 @@
         <y>0.0</y>
     </comp>
     <comp xsi:type="collisionComponent">
-        <collideX>false</collideX>
-        <collideY>false</collideY>
         <hitbox>
             <height>32.0</height>
             <width>32.0</width>

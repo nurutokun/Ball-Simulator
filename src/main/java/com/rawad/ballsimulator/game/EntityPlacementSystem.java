@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.game;
 
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
+import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.GameManager;
@@ -10,6 +11,7 @@ import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Point;
+import com.rawad.gamehelpers.geometry.Rectangle;
 
 public class EntityPlacementSystem extends GameSystem {
 	
@@ -35,7 +37,7 @@ public class EntityPlacementSystem extends GameSystem {
 		
 		if(placeableComp.isExtractRequested()) {
 			
-			Entity entityToExtract = EntityPlacementSystem.getMousedOverEntity(world, cameraTransform);
+			Entity entityToExtract = EntityPlacementSystem.getMousedOverEntity(world, e, cameraTransform);
 			
 			placeableComp.setExtractRequested(false);
 			
@@ -55,7 +57,7 @@ public class EntityPlacementSystem extends GameSystem {
 		
 		if(placeableComp.isRemoveRequested()) {
 			
-			Entity toRemove = EntityPlacementSystem.getMousedOverEntity(world, cameraTransform);
+			Entity toRemove = EntityPlacementSystem.getMousedOverEntity(world, e, cameraTransform);
 			
 			world.getEntitiesAsList().remove(toRemove);
 			
@@ -86,27 +88,33 @@ public class EntityPlacementSystem extends GameSystem {
 		double mouseX = Mouse.isClamped()? Mouse.getClampX():Mouse.getX();
 		double mouseY = Mouse.isClamped()? Mouse.getClampY():Mouse.getY();
 		
-		Point mouseInWorld = cameraTransform.transformFromScreen(mouseX, mouseY);
+		Point mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, mouseX, mouseY);
 		
 		transformComp.setX(mouseInWorld.getX());
 		transformComp.setY(mouseInWorld.getY());
 		
+		SelectionComponent selectionComp = e.getComponent(SelectionComponent.class);
+		
+		if(selectionComp != null) selectionComp.setHighlighted(false);// Don't highlight the placeable Entity.
+		
 	}
 	
-	public static Entity getMousedOverEntity(World world, TransformComponent cameraTransform) {
+	public static Entity getMousedOverEntity(World world, Entity currentPlaceable, TransformComponent cameraTransform) {
 		
-		Point mouseInWorld = cameraTransform.transformFromScreen(Mouse.getX(), Mouse.getY());
+		Point mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, Mouse.getX(), Mouse.getY());
 		
 		for(Entity e: world.getEntitiesAsList()) {
 			
-//			TransformComponent transformComp = e.getComponent(TransformComponent.class);
+			if(e.equals(currentPlaceable)) continue;
+			
+			TransformComponent transformComp = e.getComponent(TransformComponent.class);
 			CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 			
-//			Rectangle hitboxInWorld = new Rectangle(collisionComp.getX() +)
+			if(transformComp == null || collisionComp == null) continue;
 			
-			if(collisionComp != null)
-				if(collisionComp.getHitbox().contains(mouseInWorld))
-					return e;
+			Rectangle hitboxInWorld = CollisionSystem.getHitboxInTransform(transformComp, collisionComp.getHitbox());
+			
+			if(hitboxInWorld.contains(mouseInWorld)) return e;
 			
 		}
 		

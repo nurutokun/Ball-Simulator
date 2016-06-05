@@ -3,9 +3,9 @@
 <Entity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <comp xsi:type="renderingComponent"/>
     <comp xsi:type="selectionComponent">
-        <highlighted>false</highlighted>
         <selected>false</selected>
     </comp>
+    <comp xsi:type="placeableComponent"/>
     <comp xsi:type="transformComponent">
         <maxScaleX>1.7976931348623157E308</maxScaleX>
         <maxScaleY>1.7976931348623157E308</maxScaleY>
@@ -16,18 +16,11 @@
         <y>0.0</y>
     </comp>
     <comp xsi:type="collisionComponent">
-        <collideX>false</collideX>
-        <collideY>false</collideY>
         <hitbox>
             <height>32.0</height>
             <width>32.0</width>
             <x>-16.0</x>
             <y>-16.0</y>
         </hitbox>
-    </comp>
-    <comp xsi:type="placeableComponent">
-        <extractRequested>false</extractRequested>
-        <placeRequested>false</placeRequested>
-        <removeRequested>false</removeRequested>
     </comp>
 </Entity>

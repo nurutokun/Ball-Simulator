@@ -1,5 +1,7 @@
 package com.rawad.ballsimulator.entity;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.rawad.gamehelpers.game.entity.Component;
 
 public class SelectionComponent extends Component {
@@ -32,7 +34,7 @@ public class SelectionComponent extends Component {
 	/**
 	 * @param highlighted the highlighted to set
 	 */
-	public void setHighlighted(boolean highlighted) {
+	@XmlTransient public void setHighlighted(boolean highlighted) {
 		this.highlighted = highlighted;
 	}
 	

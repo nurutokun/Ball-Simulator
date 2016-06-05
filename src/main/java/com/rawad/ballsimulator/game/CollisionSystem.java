@@ -26,17 +26,17 @@ public class CollisionSystem extends GameSystem {
 	@Override
 	public void tick(Entity e) {
 		
-		TransformComponent transformComp = e.getComponent(TransformComponent.class);
-		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
-		
 		MovementComponent movementComp = e.getComponent(MovementComponent.class);
 		
 		if(movementComp == null) return;
 		
+		TransformComponent transformComp = e.getComponent(TransformComponent.class);
+		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
+		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
 		transformComp.setY(transformComp.getY() - movementComp.getVy());// Undo y to get moved x.
-		// TODO: Doesn't look like the movement comp method is working... further testing might be required.
+		
 		Entity collidingWithX = checkEntityCollision(e, hitbox);
 		
 		boolean collideX = isOutOfBounds(transformComp, hitbox, bounds) || collidingWithX != null;
@@ -99,7 +99,7 @@ public class CollisionSystem extends GameSystem {
 	
 	public static Rectangle getHitboxInTransform(TransformComponent transformComp, Rectangle hitbox) {
 		return new Rectangle(hitbox.getX() * transformComp.getScaleX() + transformComp.getX(), hitbox.getY() *
-				transformComp.getScaleY() + transformComp.getScaleY(), hitbox.getWidth() * transformComp.getScaleX(),
+				transformComp.getScaleY() + transformComp.getY(), hitbox.getWidth() * transformComp.getScaleX(),
 				hitbox.getHeight() * transformComp.getScaleY());
 	}
 	

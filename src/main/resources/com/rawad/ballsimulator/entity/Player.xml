@@ -4,10 +4,6 @@
     <comp xsi:type="movementComponent">
         <ax>0.0</ax>
         <ay>0.0</ay>
-        <down>false</down>
-        <left>false</left>
-        <right>false</right>
-        <up>false</up>
         <vx>0.0</vx>
         <vy>0.0</vy>
     </comp>
@@ -29,8 +25,6 @@
         <y>0.0</y>
     </comp>
     <comp xsi:type="collisionComponent">
-        <collideX>false</collideX>
-        <collideY>false</collideY>
         <hitbox>
             <height>40.0</height>
             <width>40.0</width>

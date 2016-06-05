@@ -2,6 +2,8 @@ package com.rawad.ballsimulator.entity;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
@@ -52,7 +54,7 @@ public class CollisionComponent extends Component {
 	/**
 	 * @param collideX the collideX to set
 	 */
-	public void setCollideX(boolean collideX) {
+	@XmlTransient public void setCollideX(boolean collideX) {
 		this.collideX = collideX;
 	}
 	
@@ -66,7 +68,7 @@ public class CollisionComponent extends Component {
 	/**
 	 * @param collideY the collideY to set
 	 */
-	public void setCollideY(boolean collideY) {
+	@XmlTransient public void setCollideY(boolean collideY) {
 		this.collideY = collideY;
 	}
 	
