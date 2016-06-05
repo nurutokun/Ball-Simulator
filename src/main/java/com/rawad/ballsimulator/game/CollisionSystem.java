@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.game;
 
 import com.rawad.ballsimulator.entity.CollisionComponent;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -28,21 +29,26 @@ public class CollisionSystem extends GameSystem {
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
+		MovementComponent movementComp = e.getComponent(MovementComponent.class);
+		
+		if(movementComp == null) return;
+		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
-		if(transformComp.getX() == hitbox.getX() && transformComp.getY() == hitbox.getY()) return;// Entity hasn't moved.
+		transformComp.setY(transformComp.getY() - movementComp.getVy());// Undo y to get moved x.
+		// TODO: Doesn't look like the movement comp method is working... further testing might be required.
+		Entity collidingWithX = checkEntityCollision(e, hitbox);
 		
-		Rectangle hitboxX = new Rectangle(transformComp.getX(), hitbox.getY(), hitbox.getWidth(), hitbox.getHeight());
+		boolean collideX = isOutOfBounds(transformComp, hitbox, bounds) || collidingWithX != null;
 		
-		Entity collidingWithX = checkEntityCollision(e, hitboxX);
+		transformComp.setY(transformComp.getY() + movementComp.getVy());// Redo y.
+		transformComp.setX(transformComp.getX() - movementComp.getVx());// Undo x to get moved y
 		
-		boolean collideX = isOutOfBounds(hitboxX, bounds) || collidingWithX != null;
+		Entity collidingWithY = checkEntityCollision(e, hitbox);
 		
-		Rectangle hitboxY = new Rectangle(hitbox.getX(), transformComp.getY(), hitbox.getWidth(), hitbox.getHeight());
+		boolean collideY = isOutOfBounds(transformComp, hitbox, bounds) || collidingWithY != null;
 		
-		Entity collidingWithY = checkEntityCollision(e, hitboxY);
-		
-		boolean collideY = isOutOfBounds(hitboxY, bounds) || collidingWithY != null;
+		transformComp.setX(transformComp.getX() + movementComp.getVx());
 		
 		collisionComp.getCollidingWithEntity().set(collidingWithX == collidingWithY? collidingWithX:collidingWithY);
 		// TODO: Which entity gets collided with? Horizontal or vertical? Maybe both?
@@ -53,9 +59,6 @@ public class CollisionSystem extends GameSystem {
 		for(IListener<CollisionComponent> listener: collisionComp.getListeners()) {
 			listener.onEvent(e, collisionComp);
 		}
-		
-		hitbox.setX(transformComp.getX());
-		hitbox.setY(transformComp.getY());
 		
 	}
 	
@@ -72,19 +75,21 @@ public class CollisionSystem extends GameSystem {
 			
 			if(currentEntity.equals(e)) continue;
 			
-			Rectangle otherHitbox = e.getComponent(CollisionComponent.class).getHitbox();
+			Rectangle curHitbox = CollisionSystem.getHitboxInTransform(currentEntity
+					.getComponent(TransformComponent.class), hitbox);
+			
+			Rectangle otherHitbox = CollisionSystem.getHitboxInTransform(e.getComponent(TransformComponent.class),
+					e.getComponent(CollisionComponent.class).getHitbox());
 			
 			boolean collision = true;
 			
-			if(		hitbox.getX() + hitbox.getWidth() < otherHitbox.getX() || 
-					otherHitbox.getX() + otherHitbox.getWidth() < hitbox.getX() || 
-					otherHitbox.getY() + otherHitbox.getHeight() < hitbox.getY() || 
-					hitbox.getY() + hitbox.getHeight() < otherHitbox.getY())
+			if(		curHitbox.getX() + curHitbox.getWidth() < otherHitbox.getX() ||
+					curHitbox.getY() + curHitbox.getHeight() < otherHitbox.getY() ||
+					otherHitbox.getX() + otherHitbox.getWidth() < curHitbox.getX() ||
+					otherHitbox.getY() + otherHitbox.getHeight() < curHitbox.getY())
 				collision = false;
 			
-			if(collision) {
-				return e;
-			}
+			if(collision) return e;
 			
 		}
 		
@@ -92,20 +97,28 @@ public class CollisionSystem extends GameSystem {
 		
 	}
 	
-	public static boolean isOutOfBounds(Rectangle hitbox, Rectangle bounds) {
-		
-		if(hitbox.getX() + hitbox.getWidth() > bounds.getX() + bounds.getWidth() || hitbox.getX() < bounds.getX() ||
-				hitbox.getY() < bounds.getY() || hitbox.getY() + hitbox.getHeight() > bounds.getY() + bounds.getHeight()) 
-			return true;
-		
-		return false;
-		
+	public static Rectangle getHitboxInTransform(TransformComponent transformComp, Rectangle hitbox) {
+		return new Rectangle(hitbox.getX() * transformComp.getScaleX() + transformComp.getX(), hitbox.getY() *
+				transformComp.getScaleY() + transformComp.getScaleY(), hitbox.getWidth() * transformComp.getScaleX(),
+				hitbox.getHeight() * transformComp.getScaleY());
 	}
 	
 	public static void keepInBounds(Rectangle inside, Rectangle bounds) {
 		
 		inside.setX(Util.clamp(inside.getX(), bounds.getX(), bounds.getWidth()));
 		inside.setY(Util.clamp(inside.getY(), bounds.getY(), bounds.getHeight()));
+		
+	}
+	
+	private static boolean isOutOfBounds(TransformComponent hitboxTransform, Rectangle hitbox, Rectangle bounds) {
+		
+		hitbox = CollisionSystem.getHitboxInTransform(hitboxTransform, hitbox);
+		
+		if(hitbox.getX() + hitbox.getWidth() > bounds.getX() + bounds.getWidth() || hitbox.getX() < bounds.getX() ||
+				hitbox.getY() < bounds.getY() || hitbox.getY() + hitbox.getHeight() > bounds.getY() + bounds.getHeight()) 
+			return true;
+		
+		return false;
 		
 	}
 	

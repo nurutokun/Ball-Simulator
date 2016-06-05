@@ -257,7 +257,7 @@ public class WorldEditorState extends State {
 		
 		Platform.runLater(() -> pauseScreen.setVisible(false));
 		
-		saveTerrain("terrain");
+//		saveTerrain("terrain");
 		
 	}
 	

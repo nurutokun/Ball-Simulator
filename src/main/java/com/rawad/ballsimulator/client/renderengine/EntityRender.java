@@ -36,20 +36,18 @@ public class EntityRender extends Render {
 		
 		Image texture = renderingComp.getTexture();
 		
-		final double width = texture.getWidth() * transformComp.getScaleX();// Don't scale graphics context b/c it will
-		final double height = texture.getHeight() * transformComp.getScaleY();// distort x,y values.
-		
-		g.translate(transformComp.getX() + (width / 2d), transformComp.getY() + (height / 2d));
+		g.translate(transformComp.getX(), transformComp.getY());
 		g.rotate(transformComp.getTheta());
+		g.scale(transformComp.getScaleX(), transformComp.getScaleY());
 		
-		g.drawImage(texture, -width / 2d, -height / 2d, width, height);
-		
-		g.rotate(-transformComp.getTheta());
-		g.translate(-width / 2d, -height / 2d);
+		g.drawImage(texture, -texture.getWidth() / 2d, -texture.getHeight() / 2d);// Centers texture on origin.
 		
 		for(ComponentRender<? extends Component> compRender: componentRenders) {
 			compRender.render(g, e);
 		}
+		
+		g.rotate(-transformComp.getTheta());
+		g.scale(1d / transformComp.getX(), 1d / transformComp.getY());
 		
 		g.translate(-transformComp.getX(), -transformComp.getY());
 		

@@ -97,17 +97,14 @@ public class MovementSystem extends GameSystem implements IListener<CollisionCom
 			
 		}
 		
-		double newX = transformComp.getX() + vx;
-		double newY = transformComp.getY() + vy;
-		
 		movementComp.setAy(ay);
 		movementComp.setAx(ax);
 		
 		movementComp.setVx(vx);
 		movementComp.setVy(vy);
 		
-		transformComp.setX(newX);
-		transformComp.setY(newY);
+		transformComp.setX(transformComp.getX() + vx);
+		transformComp.setY(transformComp.getY() + vy);
 		
 	}
 	

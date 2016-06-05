@@ -25,7 +25,6 @@ import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.application.Platform;
@@ -59,24 +58,14 @@ public class GameState extends State {
 		super();
 		
 		player = Entity.createEntity(EEntity.PLAYER);
-		playerRandomPositioner = new RandomPositionComponent();
-		player.addComponent(playerRandomPositioner);
-		
 		player.addComponent(new GuiComponent());
 		player.addComponent(new UserControlComponent());
 		
+		playerRandomPositioner = new RandomPositionComponent();
+		player.addComponent(playerRandomPositioner);
+		
 		RenderingComponent playerRender = player.getComponent(RenderingComponent.class);
-		
 		playerRender.setTexture(GameTextures.findTexture(EEntity.PLAYER));
-		playerRender.getTextureObject().setOnloadAction(texture -> {
-			
-			Rectangle hitbox = player.getComponent(CollisionComponent.class).getHitbox();
-			hitbox.setWidth(texture.getTexture().getWidth());
-			hitbox.setHeight(texture.getTexture().getHeight());
-			
-		});
-		
-		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
 		
 		world.addEntity(player);
 		
@@ -102,9 +91,12 @@ public class GameState extends State {
 		masterRender.registerRender(debugRender);
 		
 		movementControlSystem = new MovementControlSystem();
-		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, PREFERRED_SCALE);
+		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
+				PREFERRED_SCALE);
 		
 		MovementSystem movementSystem = new MovementSystem();
+		
+		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
 		playerCollision.getListeners().add(movementSystem);
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
@@ -153,7 +145,7 @@ public class GameState extends State {
 				break;
 				
 			case R:
-				player.getComponent(RandomPositionComponent.class).setGenerateNewPosition(true);
+				playerRandomPositioner.setGenerateNewPosition(true);
 				break;
 				
 			case L:

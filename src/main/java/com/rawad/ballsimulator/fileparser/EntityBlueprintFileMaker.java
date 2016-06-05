@@ -70,6 +70,7 @@ public class EntityBlueprintFileMaker {
 		Entity placeable = Entity.createEntity();
 		
 		placeable.addComponent(new TransformComponent());
+		placeable.addComponent(staticCollision);// For now...
 		placeable.addComponent(new SelectionComponent());
 		placeable.addComponent(new PlaceableComponent());
 		placeable.addComponent(new RenderingComponent());

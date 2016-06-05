@@ -3,7 +3,6 @@ package com.rawad.ballsimulator.fileparser;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.client.GameTextures;
-import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
@@ -11,7 +10,6 @@ import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
-import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.utils.Util;
 
 public class TerrainFileParser extends FileParser {
@@ -50,12 +48,6 @@ public class TerrainFileParser extends FileParser {
 		
 		RenderingComponent renderingComp = staticEntity.getComponent(RenderingComponent.class);
 		renderingComp.setTexture(GameTextures.findTexture(EEntity.STATIC));
-		
-		Rectangle hitbox = staticEntity.getComponent(CollisionComponent.class).getHitbox();
-		hitbox.setX(x);
-		hitbox.setY(y);
-		hitbox.setWidth(renderingComp.getTexture().getWidth() * scaleX);
-		hitbox.setHeight(renderingComp.getTexture().getHeight() * scaleY);
 		
 		staticEntities.add(staticEntity);
 		
