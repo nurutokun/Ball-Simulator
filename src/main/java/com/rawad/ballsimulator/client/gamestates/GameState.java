@@ -85,7 +85,7 @@ public class GameState extends State {
 		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(camera);
+		debugRender = new DebugRender(sm.getClient(), camera);
 		
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);

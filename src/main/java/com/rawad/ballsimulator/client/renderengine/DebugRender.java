@@ -13,10 +13,14 @@ import javafx.scene.paint.Color;
 
 public class DebugRender extends LayerRender {
 	
+	private AClient client;
+	
 	private TransformComponent cameraTransform;
 	private UserViewComponent userView;
 	
-	public DebugRender(Entity camera) {
+	public DebugRender(AClient client, Entity camera) {
+		
+		this.client = client;
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);
 		userView = camera.getComponent(UserViewComponent.class);
@@ -33,8 +37,7 @@ public class DebugRender extends LayerRender {
 		
 		g.setFill(Color.WHITE);
 		g.fillText(
-				"\n" + screenWidth + ", " + screenHeight + " | " + ((AClient) GameManager.instance()
-						.getCurrentGame().getProxy()).getAverageFps() + " |" 
+				"\n" + screenWidth + ", " + screenHeight + " | " + client.getAverageFps() + " |" 
 						+ " " + GameManager.instance().getTimePassed() + "\n" + 
 				Mouse.getX() + ", " + Mouse.getY() + "\n" +
 				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + "\n" +
