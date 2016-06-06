@@ -4,6 +4,7 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.gamehelpers.utils.Util;
 
 public class SPacket02Move extends UDPPacket {
@@ -19,11 +20,11 @@ public class SPacket02Move extends UDPPacket {
 	
 	private static final int THETA_INDEX = 8;
 	
-	public SPacket02Move(int entityId, TransformComponent transformComp, MovementComponent movementComp) {
-		super(UDPPacketType.MOVE, entityId, Double.toString(transformComp.getX()), Double.toString(transformComp.getY()),
-				Double.toString(movementComp.getVx()), Double.toString(movementComp.getVy()), 
-				Double.toString(movementComp.getAx()), Double.toString(movementComp.getAy()), 
-				Double.toString(transformComp.getTheta()));
+	public SPacket02Move(NetworkComponent networkComp, TransformComponent transformComp, MovementComponent movementComp) {
+		super(UDPPacketType.MOVE, networkComp.getId(), Double.toString(transformComp.getX()), 
+				Double.toString(transformComp.getY()), Double.toString(movementComp.getVx()), 
+				Double.toString(movementComp.getVy()), Double.toString(movementComp.getAx()), 
+				Double.toString(movementComp.getAy()), Double.toString(transformComp.getTheta()));
 	}
 	
 	public SPacket02Move(String dataAsString) {

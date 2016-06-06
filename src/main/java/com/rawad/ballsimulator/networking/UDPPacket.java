@@ -5,7 +5,7 @@ import com.rawad.gamehelpers.utils.Util;
 public abstract class UDPPacket extends APacket {
 	
 	/**
-	 * Index of the {@code Entity}'s id in the {@code dataString} array.
+	 * Index of the {@code Entity}'s id in the {@code indexedData} array of {@code APacket}.
 	 */
 	private static final int ENTITY_ID_INDEX = 1;
 	

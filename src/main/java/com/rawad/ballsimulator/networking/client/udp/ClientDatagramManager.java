@@ -4,11 +4,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import com.rawad.ballsimulator.entity.MovementComponent;
+import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.APacket;
+import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -48,7 +51,11 @@ public class ClientDatagramManager {
 	
 	private void handlePacketData(byte[] data) {
 		
-		UDPPacketType type = APacket.getUDPPacketTypeFromData(data);
+		String dataAsString = APacket.getStringFromData(data);
+		
+		UDPPacketType type = UDPPacket.getPacketTypeFromData(dataAsString);
+		
+		Entity e = networkManager.getClient().getEntityById(UDPPacket.getEntityIdFromString(dataAsString));
 		
 		switch(type) {
 		
@@ -57,25 +64,21 @@ public class ClientDatagramManager {
 			
 		case MOVE:
 			
-			SPacket02Move moveReply = new SPacket02Move(data);
+			SPacket02Move moveReply = new SPacket02Move(dataAsString);
 			
-			EntityPlayerMP player = (EntityPlayerMP) networkManager.getClient().getWorld()
-					.getEntityByName(moveReply.getUsername());
+			TransformComponent transformComp = e.getComponent(TransformComponent.class);
+			MovementComponent movementComp = e.getComponent(MovementComponent.class);
 			
-			Logger.log(Logger.DEBUG, "Player " + moveReply.getUsername() + " is: " + player);
+			transformComp.setX(moveReply.getX());
+			transformComp.setY(moveReply.getY());
 			
-			player.setX(moveReply.getX());
-			player.setY(moveReply.getY());
+			transformComp.setTheta(moveReply.getTheta());
 			
-			player.setVx(moveReply.getVx());
-			player.setVy(moveReply.getVy());
+			movementComp.setAx(moveReply.getAx());
+			movementComp.setAy(moveReply.getAy());
 			
-			player.setAx(moveReply.getAx());
-			player.setAy(moveReply.getAy());
-			
-			player.setTheta(moveReply.getTheta());
-			
-			player.updateHitbox();
+			movementComp.setVx(moveReply.getVx());
+			movementComp.setVy(moveReply.getVy());
 			
 			break;
 		

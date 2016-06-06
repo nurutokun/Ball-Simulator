@@ -8,12 +8,14 @@ import java.net.SocketException;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.MovementComponent;
+import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
@@ -63,8 +65,7 @@ public class ServerDatagramManager {
 		
 		UDPPacketType type = UDPPacket.getPacketTypeFromData(dataAsString);
 		
-		Entity e = networkManager.getServer().getGame().getWorld().getEntitiesAsList().get(
-				UDPPacket.getEntityIdFromString(dataAsString));
+		Entity e = networkManager.getServer().getEntityById(UDPPacket.getEntityIdFromString(dataAsString));
 		
 		switch(type) {
 		
@@ -75,7 +76,9 @@ public class ServerDatagramManager {
 			
 			CPacket02Move moveRequest = new CPacket02Move(dataAsString);
 			
-			handleMoveRequest(moveRequest, e);
+			MovementComponent movementComp = e.getComponent(MovementComponent.class);
+			
+			if(movementComp != null) handleMoveRequest(moveRequest, movementComp);
 			
 			break;
 			
@@ -96,10 +99,10 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendMoveUpdate(EntityRotatingBase entity) {
+	public void sendMoveUpdate(Entity entity) {
 		
-		sendPacketToAllClients(new SPacket02Move(entity.getName(), entity.getX(), entity.getY(), entity.getVx(), 
-				entity.getVy(), entity.getAx(), entity.getAy(), entity.getTheta()));
+		sendPacketToAllClients(new SPacket02Move(entity.getComponent(NetworkComponent.class), 
+				entity.getComponent(TransformComponent.class), entity.getComponent(MovementComponent.class)));
 		
 	}
 	

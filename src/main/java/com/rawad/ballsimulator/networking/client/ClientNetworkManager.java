@@ -90,12 +90,12 @@ public class ClientNetworkManager {
 		
 	}
 	
-	public void updatePlayerMovement(boolean up, boolean down, boolean right, boolean left) {
+	private void updateEntityMovement(Entity entity) {
 		
-		NetworkComponent networkComp = client.getPlayer().getComponent(NetworkComponent.class);
+		NetworkComponent networkComp = entity.getComponent(NetworkComponent.class);
+		MovementComponent movementComp = entity.getComponent(MovementComponent.class);
 		
-		CPacket02Move movePacket = new CPacket02Move(networkComp.getId(), client.getPlayer()
-				.getComponent(MovementComponent.class));
+		CPacket02Move movePacket = new CPacket02Move(networkComp, movementComp);
 		
 		datagramManager.sendPacket(movePacket, connectionManager.getServerAddress(), Server.PORT);
 		

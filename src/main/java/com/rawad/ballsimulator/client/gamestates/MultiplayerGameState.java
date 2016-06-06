@@ -28,7 +28,6 @@ import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -317,25 +316,45 @@ public class MultiplayerGameState extends State {
 		
 	}
 	
+	public Entity getEntityById(int id) {
+		
+		for(Entity e: world.getEntitiesAsList()) {
+			
+			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+			
+			if(networkComp != null && networkComp.getId() == id) return e;
+			
+		}
+		
+		return null;
+		
+	}
+	
 	public void addPlayer(Entity player) {
 		playerList.getItems().add(player);
 	}
 	
-	public void removePlayer(int id) {
+	public void removeEntity(int id) {
 		
-		Entity playerToRemove = null;
+		Entity entityToRemove = null;
 		
-		for(Entity player: playerList.getItems()) {
-			
-			NetworkComponent networkComp = player.getComponent(NetworkComponent.class);
-			
-			if(networkComp != null && networkComp.getId() == id) {
-				playerToRemove = player;
-				break;
+		synchronized(world.getEntitiesAsList()) {
+			for(Entity entity: world.getEntitiesAsList()) {
+				
+				NetworkComponent networkComp = entity.getComponent(NetworkComponent.class);
+				
+				if(networkComp != null && networkComp.getId() == id) {
+					entityToRemove = entity;
+					break;
+				}
 			}
+			
+			if(entityToRemove != null) {
+				playerList.getItems().remove(entityToRemove);
+				world.getEntitiesAsList().remove(entityToRemove);
+			}
+			
 		}
-		
-		if(playerToRemove != null) playerList.getItems().remove(playerToRemove);
 		
 	}
 	

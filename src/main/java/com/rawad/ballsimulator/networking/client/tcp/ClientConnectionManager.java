@@ -170,20 +170,16 @@ public class ClientConnectionManager {
 			
 			Entity mainPlayer = networkManager.getClient().getPlayer();
 			
-			int mainPlayerId = mainPlayer.getComponent(NetworkComponent.class).getEntityId();
+			int mainPlayerId = mainPlayer.getComponent(NetworkComponent.class).getId();
 			
 			if(mainPlayerId == logoutPacket.getEntityId()) {
 				
 				networkManager.setLoggedIn(false);
-				
 				networkManager.requestDisconnect();
 				
 			} else {
 				
-				
-				
-				networkManager.getClient().getWorld().removeEntity(logoutPacket.getUsername());
-				networkManager.getClient().removePlayer(logoutPacket.getEntityId());
+				networkManager.getClient().removeEntity(logoutPacket.getEntityId());
 				
 			}
 			
