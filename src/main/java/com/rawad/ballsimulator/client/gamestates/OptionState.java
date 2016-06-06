@@ -5,6 +5,7 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -32,8 +33,8 @@ public class OptionState extends State {
 	
 	private SettingsFileParser settings;
 	
-	public OptionState() {
-		super();
+	public OptionState(AClient client) {
+		super(client);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -72,10 +73,10 @@ public class OptionState extends State {
 		
 		loader = game.getLoader(CustomLoader.class);
 		
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.loadSettings(settings, sm.getClient().getSettingsFileName());
+				loader.loadSettings(settings, client.getSettingsFileName());
 				ipHolder.setText(settings.getIp());
 				
 				return 0;
@@ -89,10 +90,10 @@ public class OptionState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.saveSettings(settings, sm.getClient().getSettingsFileName());
+				loader.saveSettings(settings, client.getSettingsFileName());
 				
 				return 0;
 				

@@ -18,6 +18,7 @@ import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
@@ -53,8 +54,8 @@ public class WorldEditorState extends State {
 	@FXML private ComboBox<Double> widthSelector;
 	@FXML private ComboBox<Double> heightSelector;
 	
-	public WorldEditorState() {
-		super();
+	public WorldEditorState(AClient client) {
+		super(client);
 		
 		Entity camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -72,7 +73,7 @@ public class WorldEditorState extends State {
 		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(sm.getClient(), camera);
+		debugRender = new DebugRender(client, camera);
 		
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
@@ -220,7 +221,7 @@ public class WorldEditorState extends State {
 	}
 	
 	private void saveTerrain(String terrainName) {
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
 				loader.saveTerrain(terrainFileParser, terrainName);
@@ -235,7 +236,7 @@ public class WorldEditorState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
 				Game game = sm.getGame();

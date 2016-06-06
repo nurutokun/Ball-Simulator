@@ -118,11 +118,11 @@ public class Client extends AClient {
 		
 		GameTextures.registerTextures(game);
 		
-		sm.addState(new MenuState());
-		sm.addState(new GameState());
-		sm.addState(new OptionState());
-		sm.addState(new WorldEditorState());
-		sm.addState(new MultiplayerGameState(networkManager));
+		sm.addState(new MenuState(this));
+		sm.addState(new GameState(this));
+		sm.addState(new OptionState(this));
+		sm.addState(new WorldEditorState(this));
+		sm.addState(new MultiplayerGameState(this, networkManager));
 		
 		sm.initGui();
 		
@@ -187,7 +187,7 @@ public class Client extends AClient {
 			
 		};
 		
-		LoadingState loadingState = new LoadingState(task);
+		LoadingState loadingState = new LoadingState(this, task);
 		sm.addState(loadingState);
 		
 		addTask(task);

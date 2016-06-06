@@ -9,6 +9,7 @@ import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
@@ -21,8 +22,8 @@ public class WorldViewState extends State {
 	
 	private Entity camera;
 	
-	public WorldViewState(World worldToView) {
-		super();
+	public WorldViewState(AClient client, World worldToView) {
+		super(client);
 		
 		this.world = worldToView;
 		
@@ -42,7 +43,7 @@ public class WorldViewState extends State {
 		world.addEntity(camera);
 		
 		masterRender.registerRender(new WorldRender(world, camera));
-		masterRender.registerRender(new DebugRender(sm.getClient(), camera));
+		masterRender.registerRender(new DebugRender(client, camera));
 		
 		movementControlSystem = new MovementControlSystem();
 		

@@ -3,21 +3,25 @@ package com.rawad.ballsimulator.server.gui;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
 import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.Loader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.resources.TextureResource;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener.Change;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,6 +56,11 @@ public class ServerGui extends AClient {
 	
 	private PrintStream consolePrinter;
 	
+	/**
+	 * 
+	 * @param server
+	 * @param game Used only for registering textures.
+	 */
 	public ServerGui(Server server) {
 		this.server = server;
 		
@@ -74,12 +83,11 @@ public class ServerGui extends AClient {
 			
 		}, true);
 		
-		Logger.getPrintStreams().add(consolePrinter);
-		
 	}
 	
 	@Override
 	public void initGui(Stage stage) {
+		super.initGui(stage);
 		
 		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
 		loader.setController(this);
@@ -90,7 +98,8 @@ public class ServerGui extends AClient {
 			ex.printStackTrace();
 		}
 		
-		stage.getScene().setRoot(loader.getRoot());
+		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		stage.setScene(scene);
 		
 		debugChanger.selectedProperty().bindBidirectional(server.getGame().debugProperty());
 		
@@ -102,7 +111,29 @@ public class ServerGui extends AClient {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 		});
 		
-		playerList.setItems(server.getGame().getWorld().getObservableEntities());
+		getGame().getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
+			
+			if(change.getAddedSize() > 0) {
+				
+				List<? extends Entity> addedEntities = change.getAddedSubList();
+				
+				for(Entity e: addedEntities) {
+					if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
+				}
+				
+			}
+			
+			if(change.getRemovedSize() > 0) {
+				
+				List<? extends Entity> removedEntities = change.getRemoved();
+				
+				for(Entity e: removedEntities) {
+					if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
+				}
+				
+			}
+			
+		});
 		
 		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
@@ -117,7 +148,9 @@ public class ServerGui extends AClient {
 		console.getOutputArea().setWrapText(false);
 		console.setShowing(true);
 		
-		WorldViewState worldViewState = new WorldViewState(server.getGame().getWorld());
+		Logger.getPrintStreams().add(consolePrinter);
+		
+		WorldViewState worldViewState = new WorldViewState(this, server.getGame().getWorld());
 		worldViewState.initGui();
 		
 		sm.setState(worldViewState);
@@ -130,19 +163,13 @@ public class ServerGui extends AClient {
 			@Override
 			protected Integer call() throws Exception {
 				
-				String message = "Registering textures...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				GameTextures.registerTextures(server.getGame());
+				GameTextures.registerTextures(game);
 				
 				ResourceManager.getTextureObject(server.getGame().getIconLocation()).setOnloadAction((texture) -> {
-					Platform.runLater(() -> stage.getIcons().add(ResourceManager.getTexture(server.getGame()
-							.getIconLocation())));
+					Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
 				});
 				
-				message = "Loading textures...";
+				String message = "Loading textures...";
 				
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
@@ -175,9 +202,6 @@ public class ServerGui extends AClient {
 			
 		});
 		
-		Scene emptyScene = new Scene(new StackPane(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-		
-		stage.setScene(emptyScene);
 		stage.sizeToScene();
 		stage.show();
 		
@@ -205,7 +229,7 @@ public class ServerGui extends AClient {
 		
 		server.getGame().requestStop();
 		
-		Platform.runLater(() -> stage.close());
+		Platform.runLater(() -> getStage().close());
 		
 	}
 

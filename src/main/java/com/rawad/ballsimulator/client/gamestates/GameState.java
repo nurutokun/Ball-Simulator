@@ -23,6 +23,7 @@ import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
@@ -54,8 +55,8 @@ public class GameState extends State {
 	
 	private boolean showEntireWorld;
 	
-	public GameState() {
-		super();
+	public GameState(AClient client) {
+		super(client);
 		
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
@@ -85,7 +86,7 @@ public class GameState extends State {
 		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(sm.getClient(), camera);
+		debugRender = new DebugRender(client, camera);
 		
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
@@ -225,7 +226,7 @@ public class GameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			protected Integer call() {
 				
 				CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);

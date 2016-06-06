@@ -25,6 +25,7 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -61,8 +62,8 @@ public class MultiplayerGameState extends State {
 	private UserComponent playerUser;
 	private MovementComponent playerMovement;
 	
-	public MultiplayerGameState(ClientNetworkManager networkManager) {
-		super();
+	public MultiplayerGameState(AClient client, ClientNetworkManager networkManager) {
+		super(client);
 		
 //		this.networkManager = networkManager;
 //		networkManager.setClient(this);
@@ -93,7 +94,7 @@ public class MultiplayerGameState extends State {
 		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(sm.getClient(), camera);
+		debugRender = new DebugRender(client, camera);
 		
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
@@ -249,7 +250,7 @@ public class MultiplayerGameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			
 			@Override
 			protected Integer call() throws Exception {
@@ -261,7 +262,7 @@ public class MultiplayerGameState extends State {
 				terrainParser = game.getFileParser(TerrainFileParser.class);
 				settingsParser = game.getFileParser(SettingsFileParser.class);
 				
-				loader.loadSettings(settingsParser, sm.getClient().getSettingsFileName());
+				loader.loadSettings(settingsParser, client.getSettingsFileName());
 				
 				String text = "Connecting To " + settingsParser.getIp() + " ...";
 				
@@ -306,7 +307,7 @@ public class MultiplayerGameState extends State {
 	
 	public void loadTerrain(String terrainName) {
 		
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			@Override
 			protected Integer call() throws Exception {
 				loader.loadTerrain(terrainParser, world, terrainName);

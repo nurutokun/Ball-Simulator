@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.gamestates;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
@@ -22,7 +23,8 @@ public class MenuState extends State {
 	@FXML private Button btnOptions;
 	@FXML private Button btnExit;
 	
-	public MenuState() {
+	public MenuState(AClient client) {
+		super(client);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
