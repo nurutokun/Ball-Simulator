@@ -6,6 +6,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.TCPPacket;
@@ -14,6 +16,9 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
@@ -48,7 +53,7 @@ public class ClientConnectionManager {
 			// enough, causing the multiplayer game state to go back to the main menu, thinking that it disconnected or
 			// something.
 			
-			try {// Initializing socket here fixes problem with player being logged in server-side only because of exiting 
+			try {// Initializing socket here fixes problem with player being logged in server-side only because of exiting
 				// multiplayer too quickly
 				
 				socket = new Socket(address, port);
@@ -56,6 +61,8 @@ public class ClientConnectionManager {
 				if(networkManager.isDisconnectedFromServer()) {// If a disconnect was requested in the mean time
 					throw new Exception("Disconnect requested");
 				}
+				
+				socket.getLocalAddress().getHostAddress();
 				
 				networkManager.setConnectionState(ConnectionState.CONNECTED);
 				networkManager.onConnect();
@@ -81,8 +88,8 @@ public class ClientConnectionManager {
 		
 		try {
 			
-			CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(), 
-					socket.getInetAddress().getHostAddress());
+			CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer()
+					.getComponent(NetworkComponent.class));
 			
 			sendPacketToServer(logoutPacket);
 			
@@ -106,10 +113,8 @@ public class ClientConnectionManager {
 			
 			SPacket01Login loginReplyPacket = new SPacket01Login(dataAsString);
 			
-			EntityPlayerMP mainClientPlayer = networkManager.getClient().getPlayer();
-			
 			// Denied login
-			if(!loginReplyPacket.canLogin() && mainClientPlayer.getName().equals(loginReplyPacket.getUsername())) {
+			if(!loginReplyPacket.canLogin()) {// Sent by server to only the client player.
 				Logger.log(Logger.DEBUG, "Login denied by server.");
 				networkManager.requestDisconnect();
 				
@@ -117,27 +122,43 @@ public class ClientConnectionManager {
 				
 			}
 			
-			EntityPlayerMP player = mainClientPlayer;
+			Entity player = networkManager.getClient().getPlayer();
 			
-			String receivedUsername = loginReplyPacket.getUsername();
+			int receivedEntityId = loginReplyPacket.getEntityId();
 			
-			if(player.getName().equals(receivedUsername)) {
+			if(player.getComponent(UserComponent.class).getUsername().equals(loginReplyPacket.getUsername())) {
+				
 				networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
 				networkManager.setLoggedIn(true);
+				
 			} else {// Player that is logging in isn't the client's player, so create a new player.
-				player = new EntityPlayerMP(networkManager.getClient().getWorld(), loginReplyPacket.getUsername(), 
-						client.getInetAddress().getHostAddress());
+				
+				player = Entity.createEntity(EEntity.PLAYER);
+				
+				NetworkComponent newPlayerNetworkComp = new NetworkComponent();
+				UserComponent newPlayerUserComp = new UserComponent();
+				
+				player.addComponent(newPlayerNetworkComp);
+				player.addComponent(newPlayerUserComp);
+				
+				newPlayerNetworkComp.setId(receivedEntityId);
+				newPlayerUserComp.setIp(loginReplyPacket.getIp());
+				newPlayerUserComp.setUsername(loginReplyPacket.getUsername());// Could move this down (username 
+				// confirmation).
+				
+				networkManager.getClient().getWorld().addEntity(player);
+				
 			}
 			
-			player.setX(loginReplyPacket.getX());
-			player.setY(loginReplyPacket.getY());
+			TransformComponent transformComp = player.getComponent(TransformComponent.class);
 			
-			player.setWidth(loginReplyPacket.getWidth());
-			player.setHeight(loginReplyPacket.getHeight());
+			transformComp.setX(loginReplyPacket.getX());
+			transformComp.setY(loginReplyPacket.getY());
 			
-			player.setTheta(loginReplyPacket.getTheta());
+			transformComp.setScaleX(loginReplyPacket.getScaleX());
+			transformComp.setScaleY(loginReplyPacket.getScaleY());
 			
-			player.updateHitbox();
+			transformComp.setTheta(loginReplyPacket.getTheta());
 			
 			networkManager.getClient().addPlayer(player);
 			
@@ -147,17 +168,22 @@ public class ClientConnectionManager {
 			
 			SPacket02Logout logoutPacket = new SPacket02Logout(dataAsString);
 			
-			EntityPlayer mainPlayer = networkManager.getClient().getPlayer();
+			Entity mainPlayer = networkManager.getClient().getPlayer();
 			
-			if(mainPlayer.getName().equals(logoutPacket.getUsername())) {
+			int mainPlayerId = mainPlayer.getComponent(NetworkComponent.class).getEntityId();
+			
+			if(mainPlayerId == logoutPacket.getEntityId()) {
+				
 				networkManager.setLoggedIn(false);
 				
 				networkManager.requestDisconnect();
 				
 			} else {
 				
-				networkManager.getClient().getWorld().removeEntityByName(logoutPacket.getUsername());
-				networkManager.getClient().removePlayer(logoutPacket.getUsername());
+				
+				
+				networkManager.getClient().getWorld().removeEntity(logoutPacket.getUsername());
+				networkManager.getClient().removePlayer(logoutPacket.getEntityId());
 				
 			}
 			
@@ -165,7 +191,6 @@ public class ClientConnectionManager {
 			
 		case MESSAGE:
 			
-			// With current setup, sender doesn't receive their sent message (could be change to indicate if it made it)
 			SPacket04Message messagePacket = new SPacket04Message(dataAsString);
 			
 			networkManager.getClient().addUserMessage(messagePacket.getSender(), messagePacket.getMessage());

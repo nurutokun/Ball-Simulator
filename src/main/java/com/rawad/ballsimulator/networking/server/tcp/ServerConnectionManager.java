@@ -8,9 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
+import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
@@ -20,11 +20,10 @@ import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
-import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.utils.ArrayObservableList;
 import com.rawad.gamehelpers.utils.Util;
 
 /**
@@ -74,16 +73,18 @@ public class ServerConnectionManager {
 	
 	public void stop() {
 		
+		ArrayList<Entity> entities = networkManager.getServer().getGame().getWorld().getEntitiesAsList();
+		
 		synchronized(clientInputManagers) {
-			for(ClientInputManager cim: clientInputManagers) {
+			for(Entity e: entities) {
 				
-				SPacket02Logout logoutPlayer = new SPacket02Logout(cim.getClientPlayerId());
+				SPacket02Logout logoutPlayer = new SPacket02Logout(e.getComponent(NetworkComponent.class).getId());
 				
 				sendPacketToAllClients(null, logoutPlayer);
 				
 			}
 		}
-			
+		
 		synchronized(clients) {
 			for(Socket client: clients) {
 				
@@ -100,7 +101,7 @@ public class ServerConnectionManager {
 		
 		TCPPacketType type = TCPPacket.getPacketTypeFromData(dataAsString);
 		
-		World world = networkManager.getServer().getGame().getWorld();
+		World world =  networkManager.getServer().getGame().getWorld();
 		
 		switch(type) {
 		
@@ -108,96 +109,67 @@ public class ServerConnectionManager {
 			
 			CPacket01Login clientLoginPacket = new CPacket01Login(dataAsString);
 			
-			boolean canLogin = true;
-			
-			if(networkManager.getServer().getEntityById(clientLoginPacket.getEntityId()) != null) {// Entity 
+			if(networkManager.getServer().getEntityById(clientLoginPacket.getEntityId()) != null) {// Entity
 				// already exists
-				canLogin = false;
 				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in"
 						+ ", disconnecting new player.");
-			}
-			
-			Entity player = null;
-			
-			int id = -1;
-			
-			int playerWidth = 0;
-			int playerHeight = 0;
-			
-			double x = 0;
-			double y = 0;
-			
-			double theta = 0;
-			
-			if(canLogin) {
 				
-				player = Entity.createEntity(EEntity.NETWORKING_PLAYER);
+				sendPacketToClient(client, new SPacket01Login(new NetworkComponent(), new UserComponent(),  
+						new TransformComponent(), "", false));
 				
-				world.addEntity(player);
-				
-				NetworkComponent networkComp = player.getComponent(NetworkComponent.class);
-				id = networkComp.getId();
-				
-				RandomPositionComponent randomPosComp = player.getComponent(RandomPositionComponent.class);
-				randomPosComp.setGenerateNewPosition(true);
-				
-				CollisionComponent collisionComp = player.getComponent(CollisionComponent.class);
-				
-				Rectangle hitbox = collisionComp.getHitbox();
-				
-				hitbox.setWidth(40d);
-				hitbox.setHeight(40d);// TODO: Figure out hitbox size setting.
-				
-				playerWidth = 40;
-				playerHeight = 40;
-				
-				String loginMessage = "(INSERT USERNAME HERE)" + " has joined the game...";
-				
-				Logger.log(Logger.DEBUG, loginMessage);
-				
-				sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
+				break;
 				
 			}
 			
-			SPacket01Login serverLoginResponsePacket = new SPacket01Login(id, x, y, playerWidth, playerHeight, 
-					theta, Server.TERRAIN_NAME, canLogin);
+			Entity player = Entity.createEntity(EEntity.PLAYER);
 			
-			if(canLogin) {
+			NetworkComponent networkComp = new NetworkComponent();
+			UserComponent userComp = new UserComponent();
+			
+			userComp.setIp(clientLoginPacket.getIp());
+			userComp.setUsername(clientLoginPacket.getUsername());
+			
+			player.addComponent(networkComp);
+			player.addComponent(userComp);
+			
+			world.addEntity(player);// Assigns id (WorldMP).
+			
+			RandomPositionComponent randomPosComp = player.getComponent(RandomPositionComponent.class);
+			randomPosComp.setGenerateNewPosition(true);
+			
+			TransformComponent transformComp = player.getComponent(TransformComponent.class);
+			
+			String loginMessage = userComp.getUsername() + " has joined the game...";
+			Logger.log(Logger.DEBUG, loginMessage);
+			
+			sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
+			
+			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp, 
+					Server.TERRAIN_NAME, true);
+			
+			// Inform all current players of this new player's login.
+			sendPacketToAllClients(null, serverLoginResponsePacket);
+			
+			ArrayList<Entity> players = world.getEntitiesAsList();
+			
+			// Informs player that just logged in of previously logged-in players.
+			for(Entity playerInWorld: players) {
 				
-				ClientInputManager cim = getClientInputManager(client);
+				int playerInWorldId = playerInWorld.getComponent(NetworkComponent.class).getId();
 				
-				cim.setName(username);
-				cim.setLoggedIn(true);
+				if(networkComp.getId() == playerInWorldId) continue;
 				
-				// Inform all current players of this new player's login.
-				sendPacketToAllClients(null, serverLoginResponsePacket);
+				serverLoginResponsePacket = new SPacket01Login(playerInWorld.getComponent(NetworkComponent.class),
+						playerInWorld.getComponent(UserComponent.class), playerInWorld
+						.getComponent(TransformComponent.class), Server.TERRAIN_NAME, true);
 				
-				ArrayList<Entity> players = world.getEntitiesAsList();
-				
-				// Informs player that just logged in of previously logged-in players.
-				for(Entity playerInWorld: players) {
-					
-					String name = playerInWorld.getName();
-					
-					if(!player.getName().equals(name)) {
-						
-						serverLoginResponsePacket = new SPacket01Login(name, playerInWorld.getX(), 
-								playerInWorld.getY(), playerInWorld.getWidth(), playerInWorld.getHeight(), 
-								playerInWorld.getTheta(), Server.TERRAIN_NAME, true);
-						
-						sendPacketToClient(client, serverLoginResponsePacket);
-						
-					}
-					
-				}
-				
-				clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
-				// clients that haven't logged in yet and so that all other players are registered on the client so 
-				// the client isn't trying to update non-logged in players
-				
-			} else {
 				sendPacketToClient(client, serverLoginResponsePacket);
+				
 			}
+			
+			clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
+			// clients that haven't logged in yet and so that all other players are registered on the client so 
+			// the client isn't trying to update non-logged in players
 			
 			break;
 			
@@ -205,15 +177,15 @@ public class ServerConnectionManager {
 			
 			CPacket02Logout logoutPacket = new CPacket02Logout(dataAsString);
 			
-			getClientInputManager(client).setLoggedIn(false);
+			disconnectClient(client, world, logoutPacket.getEntityId());
 			
-			username = logoutPacket.getUsername();
-			
-			disconnectClient(client, username, world);
-			
-			SPacket02Logout clientInformerPacket = new SPacket02Logout(logoutPacket.getUsername());
+			SPacket02Logout clientInformerPacket = new SPacket02Logout(logoutPacket.getEntityId());
 			
 			sendPacketToAllClients(null, clientInformerPacket);
+			
+			player = networkManager.getServer().getEntityById(logoutPacket.getEntityId());
+			
+			String username = player.getComponent(UserComponent.class).getUsername();
 			
 			String logoutMessage = username + " has left the game...";
 			
@@ -227,7 +199,7 @@ public class ServerConnectionManager {
 			
 			CPacket04Message messagePacket = new CPacket04Message(dataAsString);
 			
-			username = messagePacket.getUsername();
+			username = messagePacket.getSender();
 			
 			String message = messagePacket.getMessage();
 			
@@ -247,45 +219,23 @@ public class ServerConnectionManager {
 		
 	}
 	
-	private void disconnectClient(Socket client, String username, World world) {
+	private void disconnectClient(Socket client, World world, int entityId) {
 		
-			world.disconnectPlayer(username);
+			world.removeEntity(networkManager.getServer().getEntityById(entityId));
 			
 			clients.remove(client);
 			
-			removeClientInputManagerThread(client);
-			
 			Util.silentClose(client);
 			
-	}
-	
-	private void removeClientInputManagerThread(Socket clientToRemove) {
-		
-		clientInputManagers.remove(getClientInputManager(clientToRemove));
-		
 	}
 	
 	private synchronized void startNewClientInputManager(Socket client) {
 		
 		ClientInputManager clientInputManager = new ClientInputManager(client);
 		
-		clientInputManagers.add(clientInputManager);
-		
-		new Thread(clientInputManager, client.getInetAddress().getHostName() + " Client Manager").start();
-		
-	}
-	
-	private synchronized ClientInputManager getClientInputManager(Socket client) {
-		
-		for(ClientInputManager manager: clientInputManagers) {
-			
-			if(manager.getClient().equals(client)) {
-				return manager;
-			}
-			
-		}
-		
-		return null;
+		Thread t = new Thread(clientInputManager, client.getInetAddress().getHostName() + " Client Manager");
+		t.setDaemon(true);
+		t.start();
 		
 	}
 	
@@ -354,15 +304,10 @@ public class ServerConnectionManager {
 	
 	private class ClientInputManager implements Runnable {
 		
-		private Socket client;
+		private final Socket client;
 		
-		private int clientPlayerId;
-		
-		private boolean loggedIn;
-		
-		public ClientInputManager(Socket client, int clientPlayerId) {
+		public ClientInputManager(Socket client) {
 			this.client = client;
-			this.clientPlayerId = clientPlayerId;
 		}
 		
 		@Override
@@ -387,6 +332,7 @@ public class ServerConnectionManager {
 						.getHostName() + " disconnected.");
 			}
 			
+			/*/
 			if(loggedIn) {// Mainly for when client closes game while still connecting (TCP is connected but not logged 
 				// in yet)
 				
@@ -395,20 +341,8 @@ public class ServerConnectionManager {
 				
 				handleClientInput(client, ensureLogout.getDataAsString());
 				
-			}
+			}/**/
 			
-		}
-		
-		public Socket getClient() {
-			return client;
-		}
-		
-		public int getClientPlayerId() {
-			return clientPlayerId;
-		}
-		
-		public void setLoggedIn(boolean loggedIn) {
-			this.loggedIn = loggedIn;
 		}
 		
 	}

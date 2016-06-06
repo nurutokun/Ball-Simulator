@@ -255,4 +255,8 @@ public class GameState extends State {
 		
 	}
 	
+	public Entity getPlayer() {
+		return player;
+	}
+	
 }

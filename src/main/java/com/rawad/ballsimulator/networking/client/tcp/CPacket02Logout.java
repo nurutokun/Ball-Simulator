@@ -2,17 +2,22 @@ package com.rawad.ballsimulator.networking.client.tcp;
 
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
 
 public class CPacket02Logout extends TCPPacket {
 	
-	private static final int ADDRESS_INDEX = 1;
+	private static final int ENTITY_ID_INDEX = 1;
 	
-	public CPacket02Logout(String address) {
-		super(TCPPacketType.LOGOUT, address);
+	public CPacket02Logout(NetworkComponent networkComp) {
+		super(TCPPacketType.LOGOUT, Integer.toString(networkComp.getId()));
 	}
 	
-	public String getAddress() {
-		return indexedData[ADDRESS_INDEX];
+	public CPacket02Logout(String dataAsString) {
+		super(dataAsString);
+	}
+	
+	public int getEntityId() {
+		return Integer.parseInt(indexedData[ENTITY_ID_INDEX]);
 	}
 	
 }

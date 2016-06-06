@@ -1,29 +1,36 @@
 package com.rawad.ballsimulator.networking.server.tcp;
 
+import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
 
 public class SPacket01Login extends TCPPacket {
 	
 	private static final int ENTITY_ID_INDEX = 1;
 	
-	private static final int X_INDEX = 2;
-	private static final int Y_INDEX = 3;
+	private static final int USERNAME_INDEX = 2;
+	private static final int IP_INDEX = 3;
 	
-	private static final int WIDTH_INDEX = 4;
-	private static final int HEIGHT_INDEX = 5;
+	private static final int X_INDEX = 4;
+	private static final int Y_INDEX = 5;
 	
-	private static final int THETA_INDEX = 6;
+	private static final int SCALE_X_INDEX = 6;
+	private static final int SCALE_Y_INDEX = 7;
 	
-	private static final int TERRAIN_NAME_INDEX = 7;
+	private static final int THETA_INDEX = 8;
 	
-	private static final int LOGIN_INDEX = 8;
+	private static final int TERRAIN_NAME_INDEX = 9;
 	
-	public SPacket01Login(int entityId, double x, double y, double width, double height, double theta, String terrainName, 
-			boolean login) {
-		super(TCPPacketType.LOGIN, Integer.toString(entityId), Double.toString(x), Double.toString(y), 
-				Double.toString(width), Double.toString(height), Double.toString(theta), terrainName, 
-				Boolean.toString(login));
+	private static final int LOGIN_INDEX = 10;
+	
+	public SPacket01Login(NetworkComponent networkComp, UserComponent userComp, TransformComponent transformComp, 
+			String terrainName, boolean login) {
+		super(TCPPacketType.LOGIN, Integer.toString(networkComp.getId()), userComp.getUsername(), userComp.getIp(), 
+				Double.toString(transformComp.getX()), Double.toString(transformComp.getY()), 
+				Double.toString(transformComp.getScaleX()), Double.toString(transformComp.getScaleY()), 
+				Double.toString(transformComp.getTheta()), terrainName, Boolean.toString(login));
 	}
 	
 	public SPacket01Login(String dataAsString) {
@@ -34,6 +41,14 @@ public class SPacket01Login extends TCPPacket {
 		return Integer.parseInt(indexedData[ENTITY_ID_INDEX]);
 	}
 	
+	public String getUsername() {
+		return indexedData[USERNAME_INDEX];
+	}
+	
+	public String getIp() {
+		return indexedData[IP_INDEX];
+	}
+	
 	public double getX() {
 		return Double.parseDouble(indexedData[X_INDEX]);
 	}
@@ -42,12 +57,12 @@ public class SPacket01Login extends TCPPacket {
 		return Double.parseDouble(indexedData[Y_INDEX]);
 	}
 	
-	public double getWidth() {
-		return Integer.parseInt(indexedData[WIDTH_INDEX]);
+	public double getScaleX() {
+		return Integer.parseInt(indexedData[SCALE_X_INDEX]);
 	}
 	
-	public double getHeight() {
-		return Integer.parseInt(indexedData[HEIGHT_INDEX]);
+	public double getScaleY() {
+		return Integer.parseInt(indexedData[SCALE_Y_INDEX]);
 	}
 	
 	public double getTheta() {

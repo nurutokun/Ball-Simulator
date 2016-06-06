@@ -1,12 +1,16 @@
 package com.rawad.ballsimulator.networking.client;
 
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
 import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
 import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.gamehelpers.game.entity.Entity;
 
 public class ClientNetworkManager {
 	
@@ -45,7 +49,12 @@ public class ClientNetworkManager {
 	 */
 	public void onConnect() {
 		
-		CPacket01Login loginPacket = new CPacket01Login(client.getPlayer().getName());
+		Entity player = client.getPlayer();
+		
+		UserComponent userComp = player.getComponent(UserComponent.class);
+		userComp.setIp(connectionManager.getSocket().getLocalAddress().getHostAddress());
+		
+		CPacket01Login loginPacket = new CPacket01Login(player.getComponent(NetworkComponent.class), userComp);
 		
 		connectionManager.sendPacketToServer(loginPacket);
 		
@@ -83,7 +92,10 @@ public class ClientNetworkManager {
 	
 	public void updatePlayerMovement(boolean up, boolean down, boolean right, boolean left) {
 		
-		CPacket02Move movePacket = new CPacket02Move(client.getPlayer().getName(), up, down, right, left);
+		NetworkComponent networkComp = client.getPlayer().getComponent(NetworkComponent.class);
+		
+		CPacket02Move movePacket = new CPacket02Move(networkComp.getId(), client.getPlayer()
+				.getComponent(MovementComponent.class));
 		
 		datagramManager.sendPacket(movePacket, connectionManager.getServerAddress(), Server.PORT);
 		

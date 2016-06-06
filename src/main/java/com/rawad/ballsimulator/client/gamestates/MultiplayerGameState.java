@@ -348,9 +348,8 @@ public class MultiplayerGameState extends State {
 		mess.appendNewLine(message);
 	}
 	
-	@Override
-	public World getWorld() {
-		return world;
+	public Entity getPlayer() {
+		return player;
 	}
 	
 }
