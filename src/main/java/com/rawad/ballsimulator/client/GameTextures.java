@@ -4,8 +4,10 @@ import java.util.HashMap;
 
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public final class GameTextures {
@@ -36,6 +38,9 @@ public final class GameTextures {
 		
 		textures.put(EEntity.STATIC, loader.registerTexture(FOLDER_ENTITY, FILE_STATIC_OBJECT));
 		textures.put(EEntity.PLAYER, loader.registerTexture(FOLDER_ENTITY, FILE_PLAYER));
+		
+		BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().getComponent(RenderingComponent.class)
+					.setTexture(findTexture(EEntity.STATIC));
 		
 	}
 	

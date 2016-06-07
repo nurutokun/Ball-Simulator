@@ -14,7 +14,7 @@ import com.rawad.gamehelpers.game.entity.Entity;
 
 public class ClientNetworkManager {
 	
-	private MultiplayerGameState client;
+	private final MultiplayerGameState client;
 	
 	private ClientConnectionManager connectionManager;
 	private ClientDatagramManager datagramManager;
@@ -29,7 +29,9 @@ public class ClientNetworkManager {
 	 */
 	private boolean loggedIn;
 	
-	public ClientNetworkManager() {
+	public ClientNetworkManager(MultiplayerGameState client) {
+		
+		this.client = client;
 		
 		connectionManager = new ClientConnectionManager(this);
 		datagramManager = new ClientDatagramManager(this);
@@ -136,10 +138,6 @@ public class ClientNetworkManager {
 	
 	public boolean isLoggedIn() {
 		return loggedIn;
-	}
-	
-	public void setClient(MultiplayerGameState client) {
-		this.client = client;
 	}
 	
 }

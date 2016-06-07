@@ -2,7 +2,7 @@
 
 <?import com.rawad.ballsimulator.client.gui.Messenger?>
 <?import com.rawad.ballsimulator.client.gui.entity.player.PlayerList?>
-<?import com.rawad.gamehelpers.client.gui.CanvasPane?>
+<?import com.rawad.ballsimulator.client.gui.CanvasPane?>
 
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Label?>
@@ -21,14 +21,13 @@
 			
 			<tabs>
 				<Tab fx:id="worldViewTab" text="World" />
+				<Tab text="Players">
+					<content>
+						<PlayerList fx:id="playerList">
+							<visible>true</visible>
+						</PlayerList>
+					</content>
 				</Tab>
-					<Tab text="Players">
-						<content>
-							<PlayerList fx:id="playerList">
-								<visible>true</visible>
-							</PlayerList>
-						</content>
-					</Tab>
 				<Tab text="Console" >
 					<content>
 						<Messenger fx:id="console" />

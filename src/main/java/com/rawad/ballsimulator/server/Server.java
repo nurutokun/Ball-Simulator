@@ -2,11 +2,9 @@ package com.rawad.ballsimulator.server;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
-import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.Game;
@@ -23,9 +21,9 @@ public class Server extends AServer {
 	/** Mainly used to identify the server for announcements/messages. */
 	public static final String SIMPLE_NAME = "Server";
 	
-	public static final int PORT = 8008;
-	
 	public static final String TERRAIN_NAME = "terrain";
+	
+	public static final int PORT = 8008;
 	
 	private ServerNetworkManager networkManager;
 	
@@ -49,12 +47,7 @@ public class Server extends AServer {
 		
 		networkManager = new ServerNetworkManager(this);
 		
-		CustomLoader loader = game.getLoader(CustomLoader.class);
-		
-		TerrainFileParser parser = game.getFileParser(TerrainFileParser.class);
-		
 		addTask(new Task<Integer>() {
-			
 			@Override
 			protected Integer call() throws Exception {
 				
@@ -62,13 +55,7 @@ public class Server extends AServer {
 				networkManager.init();// Allows for world to be initialized before clients can connect.
 				Logger.log(Logger.DEBUG, "Network manager initialized.");
 				
-				Logger.log(Logger.DEBUG, "Loading terrain...");				
-				loader.loadTerrain(parser, world, Server.TERRAIN_NAME);
-				
-				Logger.log(Logger.DEBUG, "Terrain loaded successfully.");
-				
 				return 0;
-				
 			}
 		});
 		
@@ -112,15 +99,17 @@ public class Server extends AServer {
 			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 			
 			if(networkComp == null) {
-				networkComp = new NetworkComponent();
-				e.addComponent(networkComp);
+				return false;
+//				networkComp = new NetworkComponent();
+//				e.addComponent(networkComp);
 			}
 			
 			networkComp.setId(entityIdCounter++);
 			
 			if(entityIdCounter >= Integer.MAX_VALUE) entityIdCounter = Integer.MIN_VALUE;
 			
-			if(entityIdCounter == -1) Logger.log(Logger.SEVERE, "The absolute entity cap for this world has been reached.");
+			if(entityIdCounter == -1) Logger.log(Logger.SEVERE, "The absolute entity cap for this world has "
+					+ "been reached.");
 			
 			return super.addEntity(e);
 		}

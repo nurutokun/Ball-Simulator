@@ -14,7 +14,6 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
-import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
@@ -35,8 +34,6 @@ public class Client extends AClient {
 	// episode 427
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
-	
-	private ClientNetworkManager networkManager;
 	
 	private SimpleStringProperty gameTitle;
 	
@@ -122,7 +119,7 @@ public class Client extends AClient {
 		sm.addState(new GameState(this));
 		sm.addState(new OptionState(this));
 		sm.addState(new WorldEditorState(this));
-		sm.addState(new MultiplayerGameState(this, networkManager));
+		sm.addState(new MultiplayerGameState(this));
 		
 		sm.initGui();
 		
@@ -139,8 +136,6 @@ public class Client extends AClient {
 	@Override
 	public void init(Game game) {
 		super.init(game);
-		
-//		networkManager = new ClientNetworkManager();
 		
 		Task<Integer> task = new Task<Integer>() {
 			
@@ -233,14 +228,6 @@ public class Client extends AClient {
 		
 		Platform.runLater(() -> stage.close());
 		
-	}
-	
-	public void connectToServer(String serverAddress) {
-		networkManager.init(serverAddress);
-	}
-	
-	public ClientNetworkManager getNetworkManager() {
-		return networkManager;
 	}
 	
 }

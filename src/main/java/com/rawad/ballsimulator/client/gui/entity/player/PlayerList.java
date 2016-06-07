@@ -36,8 +36,17 @@ public class PlayerList extends TableView<Entity> {
 		usernameColumn.setCellValueFactory(new Callback<CellDataFeatures<Entity, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(CellDataFeatures<Entity, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().toString());
-				// TODO: (PlayerList) Make a name component.
+				
+				String username = "";
+				
+				UserComponent userComp = p.getValue().getComponent(UserComponent.class);
+				
+				if(userComp != null) {
+					username = userComp.getUsername();
+				}
+				
+				return new ReadOnlyObjectWrapper<String>(username);
+				
 			}
 		});
 		

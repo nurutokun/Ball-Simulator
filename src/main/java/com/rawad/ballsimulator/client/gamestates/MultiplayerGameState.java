@@ -9,14 +9,15 @@ import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
+import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.GuiComponent;
-import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
@@ -56,17 +57,17 @@ public class MultiplayerGameState extends State {
 	
 	private ClientNetworkManager networkManager;
 	
+	private MovementControlSystem movementControlSystem;
+	
 	private Entity camera;
 	
 	private Entity player;
 	private UserComponent playerUser;
-	private MovementComponent playerMovement;
 	
-	public MultiplayerGameState(AClient client, ClientNetworkManager networkManager) {
+	public MultiplayerGameState(AClient client) {
 		super(client);
 		
-//		this.networkManager = networkManager;
-//		networkManager.setClient(this);
+		networkManager = new ClientNetworkManager(this);
 		
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new UserControlComponent());
@@ -76,8 +77,6 @@ public class MultiplayerGameState extends State {
 		playerUser = new UserComponent();
 		playerUser.setUsername("Player" + (int) (new Random().nextDouble() * 999d));
 		player.addComponent(playerUser);
-		
-		playerMovement = player.getComponent(MovementComponent.class);
 		
 		world.addEntity(player);
 		
@@ -99,9 +98,15 @@ public class MultiplayerGameState extends State {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
-		gameSystems.add(new MovementControlSystem());
+		movementControlSystem = new MovementControlSystem();
+		
+		MovementSystem movementSystem = new MovementSystem();
+		player.getComponent(CollisionComponent.class).getListeners().add(movementSystem);
+		
+		gameSystems.add(movementControlSystem);
 		//gameSystems.add(new NetworkPlayerControlSystem(networkManager));
-		gameSystems.add(new MovementSystem());
+		gameSystems.add(movementSystem);
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
 		
 	}
@@ -112,11 +117,12 @@ public class MultiplayerGameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			if(pauseScreen.isVisible() || inventory.isVisible()) {
+			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
 				
 				switch(keyEvent.getCode()) {
 				
 				case ESCAPE:
+					mess.setShowing(false);
 					pauseScreen.setVisible(false);
 					
 				case E:
@@ -132,22 +138,15 @@ public class MultiplayerGameState extends State {
 				switch(keyEvent.getCode()) {
 					
 				case ESCAPE:
-					
-					if(mess.isShowing()) {
-						mess.setShowing(false);
-					} else {
-						pauseScreen.setVisible(true);
-					}
-					
+					pauseScreen.setVisible(true);
 					break;
 					
 				case E:
-					if(mess.isShowing()) break;
-					inventory.setVisible(true);
+					inventory.setVisible(!inventory.isVisible());
 					break;
 					
 				case ENTER:
-					if(!mess.isShowing()) mess.setShowing(true);
+					mess.setShowing(true);
 					break;
 					
 				case TAB:
@@ -155,30 +154,6 @@ public class MultiplayerGameState extends State {
 					
 					keyEvent.consume();
 					
-					break;
-					
-				case UP:
-				case W:
-					playerMovement.setUp(true);
-					playerMovement.setDown(false);
-					break;
-					
-				case LEFT:
-				case A:
-					playerMovement.setLeft(true);
-					playerMovement.setRight(false);
-					break;
-					
-				case DOWN:
-				case S:
-					playerMovement.setDown(true);
-					playerMovement.setUp(false);
-					break;
-					
-				case RIGHT:
-				case D:
-					playerMovement.setRight(true);
-					playerMovement.setLeft(false);
 					break;
 					
 				default:
@@ -198,26 +173,6 @@ public class MultiplayerGameState extends State {
 				
 			case TAB:
 				playerList.setVisible(false);
-				break;
-			
-			case UP:
-			case W:
-				playerMovement.setUp(false);
-				break;
-			
-			case LEFT:
-			case A:
-				playerMovement.setLeft(false);
-				break;
-			
-			case DOWN:
-			case S:
-				playerMovement.setDown(false);
-				break;
-			
-			case RIGHT:
-			case D:
-				playerMovement.setRight(false);
 				break;
 			
 			default:
@@ -243,6 +198,9 @@ public class MultiplayerGameState extends State {
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
+		
+		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
+		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
 		
 	}
 	

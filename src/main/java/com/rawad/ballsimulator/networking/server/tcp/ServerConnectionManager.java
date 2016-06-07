@@ -78,6 +78,8 @@ public class ServerConnectionManager {
 		synchronized(clientInputManagers) {
 			for(Entity e: entities) {
 				
+				if(e.getComponent(UserComponent.class) == null) continue;
+				
 				SPacket02Logout logoutPlayer = new SPacket02Logout(e.getComponent(NetworkComponent.class).getId());
 				
 				sendPacketToAllClients(null, logoutPlayer);
@@ -114,8 +116,12 @@ public class ServerConnectionManager {
 				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in"
 						+ ", disconnecting new player.");
 				
-				sendPacketToClient(client, new SPacket01Login(new NetworkComponent(), new UserComponent(),  
-						new TransformComponent(), "", false));
+//				sendPacketToClient(client, new SPacket01Login(new NetworkComponent(), new UserComponent(),  
+//						new TransformComponent(), "", false));// Just remove it... no need to reply; send entities isntead
+				// of sending terrain file name. Problem: terrain might not be loaded in time on server side; hjave to
+				// initialize network manager later.
+				
+				disconnectClient(client);
 				
 				break;
 				
@@ -123,19 +129,22 @@ public class ServerConnectionManager {
 			
 			Entity player = Entity.createEntity(EEntity.PLAYER);
 			
+			RandomPositionComponent randomPosComp = new RandomPositionComponent();
 			NetworkComponent networkComp = new NetworkComponent();
 			UserComponent userComp = new UserComponent();
+			
+			randomPosComp.setGenerateNewPosition(true);
 			
 			userComp.setIp(clientLoginPacket.getIp());
 			userComp.setUsername(clientLoginPacket.getUsername());
 			
+			player.addComponent(randomPosComp);
 			player.addComponent(networkComp);
 			player.addComponent(userComp);
 			
-			world.addEntity(player);// Assigns id (WorldMP).
-			
-			RandomPositionComponent randomPosComp = player.getComponent(RandomPositionComponent.class);
-			randomPosComp.setGenerateNewPosition(true);
+			synchronized(world.getEntitiesAsList()) {
+				world.addEntity(player);// Assigns id (WorldMP).
+			}
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
 			
@@ -150,17 +159,18 @@ public class ServerConnectionManager {
 			// Inform all current players of this new player's login.
 			sendPacketToAllClients(null, serverLoginResponsePacket);
 			
-			ArrayList<Entity> players = world.getEntitiesAsList();
+			ArrayList<Entity> entities = world.getEntitiesAsList();
 			
 			// Informs player that just logged in of previously logged-in players.
-			for(Entity playerInWorld: players) {
+			for(Entity entityInWorld: entities) {
 				
-				int playerInWorldId = playerInWorld.getComponent(NetworkComponent.class).getId();
+				NetworkComponent entityNetworkComp = entityInWorld.getComponent(NetworkComponent.class);
 				
-				if(networkComp.getId() == playerInWorldId) continue;
+				if(entityNetworkComp == null || entityInWorld.getComponent(UserComponent.class) == null) continue;
+				if(networkComp.getId() == entityNetworkComp.getId()) continue;
 				
-				serverLoginResponsePacket = new SPacket01Login(playerInWorld.getComponent(NetworkComponent.class),
-						playerInWorld.getComponent(UserComponent.class), playerInWorld
+				serverLoginResponsePacket = new SPacket01Login(entityNetworkComp,
+						entityInWorld.getComponent(UserComponent.class), entityInWorld
 						.getComponent(TransformComponent.class), Server.TERRAIN_NAME, true);
 				
 				sendPacketToClient(client, serverLoginResponsePacket);
@@ -175,9 +185,9 @@ public class ServerConnectionManager {
 			
 		case LOGOUT:
 			
-			CPacket02Logout logoutPacket = new CPacket02Logout(dataAsString);
+			disconnectClient(client);
 			
-			disconnectClient(client, world, logoutPacket.getEntityId());
+			CPacket02Logout logoutPacket = new CPacket02Logout(dataAsString);
 			
 			SPacket02Logout clientInformerPacket = new SPacket02Logout(logoutPacket.getEntityId());
 			
@@ -192,6 +202,8 @@ public class ServerConnectionManager {
 			Logger.log(Logger.DEBUG, logoutMessage);
 			
 			sendPacketToAllClients(client, new SPacket04Message(username, logoutMessage));
+			
+			world.removeEntity(player);
 			
 			break;
 			
@@ -219,9 +231,7 @@ public class ServerConnectionManager {
 		
 	}
 	
-	private void disconnectClient(Socket client, World world, int entityId) {
-		
-			world.removeEntity(networkManager.getServer().getEntityById(entityId));
+	private void disconnectClient(Socket client) {
 			
 			clients.remove(client);
 			
@@ -330,6 +340,7 @@ public class ServerConnectionManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client " + client.getInetAddress()
 						.getHostName() + " disconnected.");
+				ex.printStackTrace();
 			}
 			
 			/*/

@@ -86,88 +86,14 @@ public class ServerGui extends AClient {
 	}
 	
 	@Override
-	public void initGui(Stage stage) {
-		super.initGui(stage);
-		
-		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
-		loader.setController(this);
-		
-		try {
-			loader.load();
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-		
-		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-		stage.setScene(scene);
-		
-		debugChanger.selectedProperty().bindBidirectional(server.getGame().debugProperty());
-		
-		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
-			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
-		});
-		
-		tabPane.getSelectionModel().selectedItemProperty().addListener((e, oldValue, newValue) -> {
-			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
-		});
-		
-		getGame().getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
-			
-			if(change.getAddedSize() > 0) {
-				
-				List<? extends Entity> addedEntities = change.getAddedSubList();
-				
-				for(Entity e: addedEntities) {
-					if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
-				}
-				
-			}
-			
-			if(change.getRemovedSize() > 0) {
-				
-				List<? extends Entity> removedEntities = change.getRemoved();
-				
-				for(Entity e: removedEntities) {
-					if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
-				}
-				
-			}
-			
-		});
-		
-		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
-			
-			String input = console.getInputArea().getText();
-			
-			Logger.log(Logger.DEBUG, input);
-			
-			parseConsoleInput(input);
-			
-		});
-		console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
-		console.getOutputArea().setWrapText(false);
-		console.setShowing(true);
-		
-		Logger.getPrintStreams().add(consolePrinter);
-		
-		WorldViewState worldViewState = new WorldViewState(this, server.getGame().getWorld());
-		worldViewState.initGui();
-		
-		sm.setState(worldViewState);
-		
-		worldViewRoot = worldViewState.getRoot();
-		
-		worldViewTab.setContent(worldViewRoot);
+	public void init(Game game) {
+		super.init(game);
 		
 		server.addTask(new Task<Integer>() {
 			@Override
 			protected Integer call() throws Exception {
 				
 				GameTextures.registerTextures(game);
-				
-				ResourceManager.getTextureObject(server.getGame().getIconLocation()).setOnloadAction((texture) -> {
-					Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
-				});
 				
 				String message = "Loading textures...";
 				
@@ -190,10 +116,86 @@ public class ServerGui extends AClient {
 			}
 		});
 		
+	}
+	
+	@Override
+	public void initGui(Stage stage) {
+		super.initGui(stage);
+		
+		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		loader.setController(this);
+		
+		try {
+			loader.load();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		stage.setScene(scene);
+		
+		debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
+		
+//		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
+//			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
+//		});
+		tabPane.setFocusTraversable(false);
+		tabPane.getSelectionModel().selectedItemProperty().addListener((e, oldValue, newValue) -> {
+			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
+		});
+		
+		game.getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
+			while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
+				if(change.getAddedSize() > 0) {
+					
+					List<? extends Entity> addedEntities = change.getAddedSubList();
+					
+					for(Entity e: addedEntities) {
+						if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
+					}
+					
+				}
+				
+				if(change.getRemovedSize() > 0) {
+					
+					List<? extends Entity> removedEntities = change.getRemoved();
+					
+					for(Entity e: removedEntities) {
+						if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
+					}
+					
+				}
+			}
+			
+		});
+		
+		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
+			
+			String input = console.getInputArea().getText();
+			
+			Logger.log(Logger.DEBUG, input);
+			
+			parseConsoleInput(input);
+			
+		});
+		console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
+		console.getOutputArea().setWrapText(false);
+		console.setShowing(true);
+		
+		Logger.getPrintStreams().add(consolePrinter);
+		
+		WorldViewState worldViewState = new WorldViewState(this, game.getWorld());
+		worldViewState.initGui();
+		
+		sm.setState(worldViewState);
+		
+		worldViewRoot = worldViewState.getRoot();
+		
+		worldViewTab.setContent(worldViewRoot);
+		
 		stage.setTitle(server.getGame().toString() + " Server");
-		
+		stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation()));
 		stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-		
 		stage.setOnCloseRequest(e -> {
 			
 			requestClose();
@@ -201,7 +203,6 @@ public class ServerGui extends AClient {
 			e.consume();
 			
 		});
-		
 		stage.sizeToScene();
 		stage.show();
 		
