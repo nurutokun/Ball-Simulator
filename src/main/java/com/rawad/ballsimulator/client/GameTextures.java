@@ -42,6 +42,9 @@ public final class GameTextures {
 		BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().getComponent(RenderingComponent.class)
 					.setTexture(findTexture(EEntity.STATIC));
 		
+		BlueprintManager.getBlueprint(EEntity.PLAYER).getEntityBase().getComponent(RenderingComponent.class)
+					.setTexture(findTexture(EEntity.PLAYER));
+		
 	}
 	
 	/**
