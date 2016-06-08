@@ -7,19 +7,31 @@ public enum EEntity {
 	STATIC("Static"),
 	PLACEABLE("Placeable");
 	
-	private final String fileName;
+	private final String name;
 	
 	/**
-	 * The {@code entityBlueprintFilename} specified should be found in the same package as this {@code EEntity} class.
+	 * The {@code entityBlueprintName} specified should be found in the same package as this {@code EEntity} class.
 	 * 
-	 * @param entityBlueprintFilename
+	 * @param entityBlueprintName
 	 */
-	private EEntity(String entityBlueprintFilename) {
-		this.fileName = entityBlueprintFilename;
+	private EEntity(String entityBlueprintName) {
+		this.name = entityBlueprintName;
 	}
 	
-	public String getFileName() {
-		return fileName;
+	public String getName() {
+		return name;
+	}
+	
+	public static EEntity getByName(String name) {
+		
+		EEntity[] entityBlueprints = EEntity.values();
+		
+		for(EEntity entityBlueprint: entityBlueprints) {
+			if(entityBlueprint.getName().equals(name)) return entityBlueprint;
+		}
+		
+		return null;
+		
 	}
 	
 }
