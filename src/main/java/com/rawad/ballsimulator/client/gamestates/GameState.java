@@ -1,7 +1,6 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
@@ -12,7 +11,6 @@ import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.GuiComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
-import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -64,9 +62,6 @@ public class GameState extends State {
 		
 		playerRandomPositioner = new RandomPositionComponent();
 		player.addComponent(playerRandomPositioner);
-		
-		RenderingComponent playerRender = player.getComponent(RenderingComponent.class);
-		playerRender.setTexture(GameTextures.findTexture(EEntity.PLAYER));
 		
 		world.addEntity(player);
 		
