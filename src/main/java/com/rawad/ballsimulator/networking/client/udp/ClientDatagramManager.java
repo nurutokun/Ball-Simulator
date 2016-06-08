@@ -140,7 +140,6 @@ public class ClientDatagramManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't receive packet from server or "
 						+ "socket was closed.");
-				ex.printStackTrace();
 			}
 			
 		}

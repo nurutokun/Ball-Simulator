@@ -18,6 +18,8 @@ import javafx.stage.Stage;
 
 public class ServerStart extends Application {
 	
+	private static final String TERRAIN_NAME = "terrain";
+	
 	private static final Server server = new Server();
 	
 	private static final BallSimulator game = new BallSimulator();
@@ -66,8 +68,12 @@ public class ServerStart extends Application {
 			protected Integer call() throws Exception {
 				
 				Logger.log(Logger.DEBUG, "Loading terrain...");
-				loader.loadTerrain(parser, game.getWorld(), Server.TERRAIN_NAME);
+				loader.loadTerrain(parser, game.getWorld(), TERRAIN_NAME);
 				Logger.log(Logger.DEBUG, "Terrain loaded successfully.");
+				
+				Logger.log(Logger.DEBUG, "Initializing network manager...");
+				server.getNetworkManager().init();// Allows for world to be initialized before clients can connect.
+				Logger.log(Logger.DEBUG, "Network manager initialized.");
 				
 				return 0;
 				

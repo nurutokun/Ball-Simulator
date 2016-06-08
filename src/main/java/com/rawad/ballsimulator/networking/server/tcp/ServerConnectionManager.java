@@ -15,7 +15,6 @@ import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket02Logout;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
@@ -36,7 +35,6 @@ public class ServerConnectionManager {
 	
 	private ServerNetworkManager networkManager;
 	
-	private ArrayList<Socket> clients;
 	private ArrayList<ClientInputManager> clientInputManagers;
 	
 	private ServerSocket serverSocket;
@@ -46,7 +44,6 @@ public class ServerConnectionManager {
 	public ServerConnectionManager(ServerNetworkManager networkManager) {
 		this.networkManager = networkManager;
 		
-		clients = new ArrayList<Socket>();
 		clientInputManagers = new ArrayList<ClientInputManager>();
 		
 		connectionAcceptor = new Thread(new ConnectionAcceptor(), "Connection Acceptor");
@@ -73,37 +70,37 @@ public class ServerConnectionManager {
 	
 	public void stop() {
 		
-		ArrayList<Entity> entities = networkManager.getServer().getGame().getWorld().getEntitiesAsList();
+		Util.silentClose(serverSocket);// Prevent any new connections from being made immediately.
 		
 		synchronized(clientInputManagers) {
-			for(Entity e: entities) {
+			for(ClientInputManager cim: clientInputManagers) {
 				
-				if(e.getComponent(UserComponent.class) == null) continue;
+				SPacket02Logout logoutPlayer = new SPacket02Logout(cim.getClientId());
 				
-				SPacket02Logout logoutPlayer = new SPacket02Logout(e.getComponent(NetworkComponent.class).getId());
+				Socket client = cim.getClient();
 				
-				sendPacketToAllClients(null, logoutPlayer);
+				sendPacketToAllClients(client, logoutPlayer);
 				
-			}
-		}
-		
-		synchronized(clients) {
-			for(Socket client: clients) {
-				
-				Util.silentClose(client);
+				Util.silentClose(client);// Don't use helpers methods here because we don't want to remove from array
+				// while looping through it.
 				
 			}
+			
+			clientInputManagers.clear();
+			
 		}
-		
-		Util.silentClose(serverSocket);
 		
 	}
 	
-	private synchronized void handleClientInput(Socket client, String dataAsString) {
+	private synchronized void handleClientInput(ClientInputManager cim, String dataAsString) {
 		
 		TCPPacketType type = TCPPacket.getPacketTypeFromData(dataAsString);
 		
+		Socket client = cim.getClient();
+		
 		World world =  networkManager.getServer().getGame().getWorld();
+		
+		String username;
 		
 		switch(type) {
 		
@@ -121,7 +118,7 @@ public class ServerConnectionManager {
 				// of sending terrain file name. Problem: terrain might not be loaded in time on server side; hjave to
 				// initialize network manager later.
 				
-				disconnectClient(client);
+				disconnectClient(cim);
 				
 				break;
 				
@@ -138,7 +135,7 @@ public class ServerConnectionManager {
 			userComp.setIp(clientLoginPacket.getIp());
 			userComp.setUsername(clientLoginPacket.getUsername());
 			
-			player.addComponent(randomPosComp);
+//			player.addComponent(randomPosComp);
 			player.addComponent(networkComp);
 			player.addComponent(userComp);
 			
@@ -146,15 +143,16 @@ public class ServerConnectionManager {
 				world.addEntity(player);// Assigns id (WorldMP).
 			}
 			
-			TransformComponent transformComp = player.getComponent(TransformComponent.class);
-			
 			String loginMessage = userComp.getUsername() + " has joined the game...";
 			Logger.log(Logger.DEBUG, loginMessage);
 			
 			sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
 			
-			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp, 
-					Server.TERRAIN_NAME, true);
+			TransformComponent transformComp = player.getComponent(TransformComponent.class);
+			transformComp.setX(20);
+			transformComp.setY(20);
+			
+			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp);
 			
 			// Inform all current players of this new player's login.
 			sendPacketToAllClients(null, serverLoginResponsePacket);
@@ -166,44 +164,32 @@ public class ServerConnectionManager {
 				
 				NetworkComponent entityNetworkComp = entityInWorld.getComponent(NetworkComponent.class);
 				
-				if(entityNetworkComp == null || entityInWorld.getComponent(UserComponent.class) == null) continue;
-				if(networkComp.getId() == entityNetworkComp.getId()) continue;
+				if(entityNetworkComp == null) continue;
 				
-				serverLoginResponsePacket = new SPacket01Login(entityNetworkComp,
-						entityInWorld.getComponent(UserComponent.class), entityInWorld
-						.getComponent(TransformComponent.class), Server.TERRAIN_NAME, true);
+				UserComponent entityUserComp = entityInWorld.getComponent(UserComponent.class);
 				
-				sendPacketToClient(client, serverLoginResponsePacket);
-				
+				if(entityUserComp == null) {
+					
+				} else {
+					
+					if(networkComp.getId() == entityNetworkComp.getId()) continue;
+					
+					serverLoginResponsePacket = new SPacket01Login(entityNetworkComp, entityUserComp,
+							entityInWorld.getComponent(TransformComponent.class));
+					
+					sendPacketToClient(client, serverLoginResponsePacket);
+					
+				}
+			
 			}
 			
-			clients.add(client);// Client is now officially added, mainly so datagram isn't sending data to
-			// clients that haven't logged in yet and so that all other players are registered on the client so 
-			// the client isn't trying to update non-logged in players
+			cim.setClientId(clientLoginPacket.getEntityId());
 			
 			break;
 			
 		case LOGOUT:
 			
-			disconnectClient(client);
-			
-			CPacket02Logout logoutPacket = new CPacket02Logout(dataAsString);
-			
-			SPacket02Logout clientInformerPacket = new SPacket02Logout(logoutPacket.getEntityId());
-			
-			sendPacketToAllClients(null, clientInformerPacket);
-			
-			player = networkManager.getServer().getEntityById(logoutPacket.getEntityId());
-			
-			String username = player.getComponent(UserComponent.class).getUsername();
-			
-			String logoutMessage = username + " has left the game...";
-			
-			Logger.log(Logger.DEBUG, logoutMessage);
-			
-			sendPacketToAllClients(client, new SPacket04Message(username, logoutMessage));
-			
-			world.removeEntity(player);
+			handleClientDisconnect(cim);
 			
 			break;
 			
@@ -231,19 +217,52 @@ public class ServerConnectionManager {
 		
 	}
 	
-	private void disconnectClient(Socket client) {
-			
-			clients.remove(client);
-			
-			Util.silentClose(client);
-			
+	/**
+	 * Used when a {@code ClientInputManager} has to be disconnected <b>after</b> they have logged in.
+	 * 
+	 * @param cim
+	 */
+	private void handleClientDisconnect(ClientInputManager cim) {
+
+		Entity player = networkManager.getServer().getEntityById(cim.getClientId());
+		
+		SPacket02Logout logoutPacket = new SPacket02Logout(cim.getClientId());
+		sendPacketToAllClients(cim.getClient(), logoutPacket);
+		
+		String username = player.getComponent(UserComponent.class).getUsername();
+		
+		String logoutMessage = username + " has left the game...";
+		
+		Logger.log(Logger.DEBUG, logoutMessage);
+		
+		sendPacketToAllClients(cim.getClient(), new SPacket04Message(username, logoutMessage));
+		
+		networkManager.getServer().getGame().getWorld().removeEntity(player);
+		
+		disconnectClient(cim);
+		
+	}
+	
+	/**
+	 * Used when a {@code ClientInputManager} has to be disconnected <b>before</b> they have logged in.
+	 * 
+	 * @param cim
+	 */
+	private void disconnectClient(ClientInputManager cim) {
+		
+		Util.silentClose(cim.getClient());
+		
+		clientInputManagers.remove(cim);
+		
 	}
 	
 	private synchronized void startNewClientInputManager(Socket client) {
 		
-		ClientInputManager clientInputManager = new ClientInputManager(client);
+		ClientInputManager cim = new ClientInputManager(client);
 		
-		Thread t = new Thread(clientInputManager, client.getInetAddress().getHostName() + " Client Manager");
+		clientInputManagers.add(cim);
+		
+		Thread t = new Thread(cim, client.getInetAddress().getHostName() + " Client Manager");
 		t.setDaemon(true);
 		t.start();
 		
@@ -251,11 +270,11 @@ public class ServerConnectionManager {
 	
 	public void sendPacketToAllClients(Socket clientToExclude, APacket packet) {
 		
-		for(Socket client: clients) {
+		for(ClientInputManager cim: clientInputManagers) {
 			
-			if(client.equals(clientToExclude)) {
-				continue;
-			}
+			Socket client = cim.getClient();
+			
+			if(client.equals(clientToExclude)) continue;
 			
 			sendPacketToClient(client, packet);
 			
@@ -282,8 +301,8 @@ public class ServerConnectionManager {
 		
 	}
 	
-	public ArrayList<Socket> getClients() {
-		return clients;
+	public ArrayList<ClientInputManager> getClientInputManagers() {
+		return clientInputManagers;
 	}
 	
 	private class ConnectionAcceptor implements Runnable {
@@ -312,9 +331,11 @@ public class ServerConnectionManager {
 		
 	}
 	
-	private class ClientInputManager implements Runnable {
+	public class ClientInputManager implements Runnable {
 		
 		private final Socket client;
+		
+		private int clientId;
 		
 		public ClientInputManager(Socket client) {
 			this.client = client;
@@ -332,28 +353,34 @@ public class ServerConnectionManager {
 					String input = reader.readLine();
 					
 					if(input != null) {
-						handleClientInput(client, input);
+						handleClientInput(this, input);
 					}
 					
 				}
+				
+				handleClientDisconnect(this);
 				
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client " + client.getInetAddress()
 						.getHostName() + " disconnected.");
 				ex.printStackTrace();
+				
+				disconnectClient(this);
+				
 			}
 			
-			/*/
-			if(loggedIn) {// Mainly for when client closes game while still connecting (TCP is connected but not logged 
-				// in yet)
-				
-				CPacket02Logout ensureLogout = new CPacket02Logout(clientPlayerId, client.getInetAddress()
-						.getHostAddress());
-				
-				handleClientInput(client, ensureLogout.getDataAsString());
-				
-			}/**/
-			
+		}
+		
+		public Socket getClient() {
+			return client;
+		}
+		
+		public void setClientId(int clientId) {
+			this.clientId = clientId;
+		}
+		
+		public int getClientId() {
+			return clientId;
 		}
 		
 	}

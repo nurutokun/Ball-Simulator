@@ -20,8 +20,8 @@ public class SPacket04Message extends TCPPacket {
 	}
 	
 	public String getMessage() {
-		String dataWithoutTypeId = dataAsString.substring(dataAsString.indexOf(REGEX));
-		String dataWithoutSender = dataWithoutTypeId.substring(dataWithoutTypeId.indexOf(REGEX));
+		String dataWithoutTypeId = dataAsString.substring(dataAsString.indexOf(REGEX) + REGEX.length());
+		String dataWithoutSender = dataWithoutTypeId.substring(dataWithoutTypeId.indexOf(REGEX) + REGEX.length());
 		
 		return dataWithoutSender;
 	}

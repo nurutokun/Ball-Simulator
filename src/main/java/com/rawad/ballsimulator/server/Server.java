@@ -14,14 +14,10 @@ import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
 
-import javafx.concurrent.Task;
-
 public class Server extends AServer {
 	
 	/** Mainly used to identify the server for announcements/messages. */
 	public static final String SIMPLE_NAME = "Server";
-	
-	public static final String TERRAIN_NAME = "terrain";
 	
 	public static final int PORT = 8008;
 	
@@ -46,18 +42,6 @@ public class Server extends AServer {
 		game.getGameEngine().setGameSystems(gameSystems);
 		
 		networkManager = new ServerNetworkManager(this);
-		
-		addTask(new Task<Integer>() {
-			@Override
-			protected Integer call() throws Exception {
-				
-				Logger.log(Logger.DEBUG, "Initializing network manager...");
-				networkManager.init();// Allows for world to be initialized before clients can connect.
-				Logger.log(Logger.DEBUG, "Network manager initialized.");
-				
-				return 0;
-			}
-		});
 		
 	}
 	

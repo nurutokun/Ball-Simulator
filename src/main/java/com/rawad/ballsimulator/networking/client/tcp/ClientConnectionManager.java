@@ -59,16 +59,16 @@ public class ClientConnectionManager {
 				socket = new Socket(address, port);
 				
 				if(networkManager.isDisconnectedFromServer()) {// If a disconnect was requested in the mean time
-					throw new Exception("Disconnect requested");
+					throw new Exception("Disconnect requested.");
 				}
-				
-				socket.getLocalAddress().getHostAddress();
 				
 				networkManager.setConnectionState(ConnectionState.CONNECTED);
 				networkManager.onConnect();
 				
-				connectionHandler = new Thread(new ConnectionHandler(socket), "Connection Handler");
+				Logger.log(Logger.DEBUG, "Successfully connected to server.");
 				
+				connectionHandler = new Thread(new ConnectionHandler(socket), "Connection Handler");
+				connectionHandler.setDaemon(true);
 				connectionHandler.start();
 				
 			} catch(Exception ex) {
@@ -113,42 +113,35 @@ public class ClientConnectionManager {
 			
 			SPacket01Login loginReplyPacket = new SPacket01Login(dataAsString);
 			
-			// Denied login
-			if(!loginReplyPacket.canLogin()) {// Sent by server to only the client player.
-				Logger.log(Logger.DEBUG, "Login denied by server.");
-				networkManager.requestDisconnect();
-				
-				break;
-				
-			}
-			
 			Entity player = networkManager.getClient().getPlayer();
 			
 			int receivedEntityId = loginReplyPacket.getEntityId();
 			
+			NetworkComponent networkComp = player.getComponent(NetworkComponent.class);
+			UserComponent userComp = player.getComponent(UserComponent.class);
+			
 			if(player.getComponent(UserComponent.class).getUsername().equals(loginReplyPacket.getUsername())) {
 				
-				networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
 				networkManager.setLoggedIn(true);
 				
 			} else {// Player that is logging in isn't the client's player, so create a new player.
 				
 				player = Entity.createEntity(EEntity.PLAYER);
 				
-				NetworkComponent newPlayerNetworkComp = new NetworkComponent();
-				UserComponent newPlayerUserComp = new UserComponent();
+				networkComp = new NetworkComponent();
+				userComp = new UserComponent();
 				
-				player.addComponent(newPlayerNetworkComp);
-				player.addComponent(newPlayerUserComp);
-				
-				newPlayerNetworkComp.setId(receivedEntityId);
-				newPlayerUserComp.setIp(loginReplyPacket.getIp());
-				newPlayerUserComp.setUsername(loginReplyPacket.getUsername());// Could move this down (username 
-				// confirmation).
+				player.addComponent(networkComp);
+				player.addComponent(userComp);
 				
 				networkManager.getClient().getWorld().addEntity(player);
 				
 			}
+			
+			networkComp.setId(receivedEntityId);
+			userComp.setIp(loginReplyPacket.getIp());
+			userComp.setUsername(loginReplyPacket.getUsername());// Could move this down (username 
+			// confirmation).
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
 			
@@ -168,20 +161,7 @@ public class ClientConnectionManager {
 			
 			SPacket02Logout logoutPacket = new SPacket02Logout(dataAsString);
 			
-			Entity mainPlayer = networkManager.getClient().getPlayer();
-			
-			int mainPlayerId = mainPlayer.getComponent(NetworkComponent.class).getId();
-			
-			if(mainPlayerId == logoutPacket.getEntityId()) {
-				
-				networkManager.setLoggedIn(false);
-				networkManager.requestDisconnect();
-				
-			} else {
-				
-				networkManager.getClient().removeEntity(logoutPacket.getEntityId());
-				
-			}
+			networkManager.getClient().removeEntity(logoutPacket.getEntityId());
 			
 			break;
 			
@@ -248,11 +228,8 @@ public class ClientConnectionManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client lost connection to server or"
 						+ " socket was closed by other means.");
-				
 			} finally {
-				
 				networkManager.requestDisconnect();
-				
 			}
 			
 		}

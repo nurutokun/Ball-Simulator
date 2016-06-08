@@ -14,6 +14,7 @@ import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
+import com.rawad.ballsimulator.networking.server.tcp.ServerConnectionManager.ClientInputManager;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -108,9 +109,11 @@ public class ServerDatagramManager {
 	
 	public void sendPacketToAllClients(APacket packet) {
 		
-		ArrayList<Socket> clients = networkManager.getConnectionManager().getClients();
+		ArrayList<ClientInputManager> clients = networkManager.getConnectionManager().getClientInputManagers();
 		
-		for(Socket client: clients) {
+		for(ClientInputManager cim: clients) {
+			
+			Socket client = cim.getClient();
 			
 			sendPacket(packet, client.getInetAddress().getHostAddress(), client.getPort());
 			

@@ -17,6 +17,7 @@ import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
@@ -42,6 +43,8 @@ import javafx.scene.input.KeyEvent;
 
 public class MultiplayerGameState extends State {
 	
+	private static final double PREFERRED_SCALE = 1d / 2d;
+	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
@@ -58,6 +61,7 @@ public class MultiplayerGameState extends State {
 	private ClientNetworkManager networkManager;
 	
 	private MovementControlSystem movementControlSystem;
+	private CameraFollowSystem cameraFollowSystem;
 	
 	private Entity camera;
 	
@@ -87,8 +91,8 @@ public class MultiplayerGameState extends State {
 		camera.addComponent(attachmentComp);
 		
 		TransformComponent cameraTransform = camera.getComponent(TransformComponent.class);
-		cameraTransform.setScaleX(1d / 2d);
-		cameraTransform.setScaleY(1d / 2d);
+		cameraTransform.setScaleX(PREFERRED_SCALE);
+		cameraTransform.setScaleY(PREFERRED_SCALE);
 		
 		world.addEntity(camera);
 		
@@ -103,11 +107,15 @@ public class MultiplayerGameState extends State {
 		MovementSystem movementSystem = new MovementSystem();
 		player.getComponent(CollisionComponent.class).getListeners().add(movementSystem);
 		
+		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
+				PREFERRED_SCALE);
+		
 		gameSystems.add(movementControlSystem);
 		//gameSystems.add(new NetworkPlayerControlSystem(networkManager));
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
+		gameSystems.add(cameraFollowSystem);
 		
 	}
 	
@@ -181,6 +189,9 @@ public class MultiplayerGameState extends State {
 			}
 			
 		});
+		
+		root.widthProperty().addListener(e -> cameraFollowSystem.requestNewViewportWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraFollowSystem.requestNewViewportHeight(root.getHeight()));
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
@@ -324,6 +335,8 @@ public class MultiplayerGameState extends State {
 		}
 		
 		mess.appendNewLine(message);
+		Logger.log(Logger.DEBUG, message);
+		
 	}
 	
 	public Entity getPlayer() {

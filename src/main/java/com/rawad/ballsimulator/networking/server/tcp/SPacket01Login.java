@@ -21,16 +21,11 @@ public class SPacket01Login extends TCPPacket {
 	
 	private static final int THETA_INDEX = 8;
 	
-	private static final int TERRAIN_NAME_INDEX = 9;
-	
-	private static final int LOGIN_INDEX = 10;
-	
-	public SPacket01Login(NetworkComponent networkComp, UserComponent userComp, TransformComponent transformComp, 
-			String terrainName, boolean login) {
+	public SPacket01Login(NetworkComponent networkComp, UserComponent userComp, TransformComponent transformComp) {
 		super(TCPPacketType.LOGIN, Integer.toString(networkComp.getId()), userComp.getUsername(), userComp.getIp(), 
 				Double.toString(transformComp.getX()), Double.toString(transformComp.getY()), 
-				Double.toString(transformComp.getScaleX()), Double.toString(transformComp.getScaleY()), 
-				Double.toString(transformComp.getTheta()), terrainName, Boolean.toString(login));
+				Double.toString(transformComp.getScaleX()), Double.toString(transformComp.getScaleY()),
+				Double.toString(transformComp.getTheta()));
 	}
 	
 	public SPacket01Login(String dataAsString) {
@@ -58,23 +53,15 @@ public class SPacket01Login extends TCPPacket {
 	}
 	
 	public double getScaleX() {
-		return Integer.parseInt(indexedData[SCALE_X_INDEX]);
+		return Double.parseDouble(indexedData[SCALE_X_INDEX]);
 	}
 	
 	public double getScaleY() {
-		return Integer.parseInt(indexedData[SCALE_Y_INDEX]);
+		return Double.parseDouble(indexedData[SCALE_Y_INDEX]);
 	}
 	
 	public double getTheta() {
 		return Double.parseDouble(indexedData[THETA_INDEX]);
-	}
-	
-	public String getTerrainName() {
-		return indexedData[TERRAIN_NAME_INDEX];
-	}
-	
-	public boolean canLogin() {
-		return Boolean.parseBoolean(indexedData[LOGIN_INDEX]);
 	}
 	
 }
