@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.TransformComponent;
@@ -16,9 +17,11 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket05Terrain;
 import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
@@ -62,10 +65,10 @@ public class ClientConnectionManager {
 					throw new Exception("Disconnect requested.");
 				}
 				
+				Logger.log(Logger.DEBUG, "Successfully connected to server.");
+				
 				networkManager.setConnectionState(ConnectionState.CONNECTED);
 				networkManager.onConnect();
-				
-				Logger.log(Logger.DEBUG, "Successfully connected to server.");
 				
 				connectionHandler = new Thread(new ConnectionHandler(socket), "Connection Handler");
 				connectionHandler.setDaemon(true);
@@ -88,8 +91,7 @@ public class ClientConnectionManager {
 		
 		try {
 			
-			CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer()
-					.getComponent(NetworkComponent.class));
+			CPacket02Logout logoutPacket = new CPacket02Logout();
 			
 			sendPacketToServer(logoutPacket);
 			
@@ -106,6 +108,8 @@ public class ClientConnectionManager {
 	private void handleServerInput(Socket client, String dataAsString) {
 		
 		TCPPacketType type = TCPPacket.getPacketTypeFromData(dataAsString);
+		
+		World world = networkManager.getClient().getWorld();
 		
 		switch(type) {
 		
@@ -134,7 +138,7 @@ public class ClientConnectionManager {
 				player.addComponent(networkComp);
 				player.addComponent(userComp);
 				
-				networkManager.getClient().getWorld().addEntity(player);
+				world.addEntity(player);
 				
 			}
 			
@@ -161,7 +165,11 @@ public class ClientConnectionManager {
 			
 			SPacket02Logout logoutPacket = new SPacket02Logout(dataAsString);
 			
-			networkManager.getClient().removeEntity(logoutPacket.getEntityId());
+			if(logoutPacket.getEntityId() == networkManager.getClient().getPlayer().getComponent(NetworkComponent.class).getId()) {
+				// TODO: Basically redo this whole class along with ClientNetworkManager.
+			} else {
+				networkManager.getClient().removeEntity(logoutPacket.getEntityId());
+			}
 			
 			break;
 			
@@ -170,6 +178,30 @@ public class ClientConnectionManager {
 			SPacket04Message messagePacket = new SPacket04Message(dataAsString);
 			
 			networkManager.getClient().addUserMessage(messagePacket.getSender(), messagePacket.getMessage());
+			
+			break;
+			
+		case TERRAIN:
+			
+			SPacket05Terrain terrainPacket = new SPacket05Terrain(dataAsString);
+			
+			if(terrainPacket.isLast()) {
+				networkManager.onTerrainLoadFinish();
+			} else {
+				ArrayList<Entity> entities = world.getEntitiesAsList();
+				
+				Entity staticEntity = Entity.createEntity(EEntity.getByName(terrainPacket.getEntityName()));
+				
+				TransformComponent staticEntityTransform = staticEntity.getComponent(TransformComponent.class);
+				staticEntityTransform.setX(terrainPacket.getX());
+				staticEntityTransform.setY(terrainPacket.getY());
+				staticEntityTransform.setScaleX(terrainPacket.getScaleX());
+				staticEntityTransform.setScaleY(terrainPacket.getScaleY());
+				
+				synchronized(entities) {
+					world.addEntity(staticEntity);
+				}
+			}
 			
 			break;
 			

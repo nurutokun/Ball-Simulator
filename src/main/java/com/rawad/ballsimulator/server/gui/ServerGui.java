@@ -38,8 +38,6 @@ public class ServerGui extends AClient {
 	
 	private Server server;
 	
-	private Stage stage;
-	
 	private StackPane worldViewRoot;
 	
 	private FXMLLoader loader;
@@ -110,11 +108,57 @@ public class ServerGui extends AClient {
 				
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
+					
+				Platform.runLater(() -> {
+					
+					stage.setTitle(game.toString() + " Server");
+					stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation()));
+					
+					debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
+					
+					game.getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
+						while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
+							if(change.getAddedSize() > 0) {
+								
+								List<? extends Entity> addedEntities = change.getAddedSubList();
+								
+								for(Entity e: addedEntities) {
+									if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
+								}
+								
+							}
+							
+							if(change.getRemovedSize() > 0) {
+								
+								List<? extends Entity> removedEntities = change.getRemoved();
+								
+								for(Entity e: removedEntities) {
+									if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
+								}
+								
+							}
+						}
+						
+					});
+					
+					WorldViewState worldViewState = new WorldViewState(ServerGui.this, game.getWorld());
+					worldViewState.initGui();
+					
+					sm.setState(worldViewState);
+					
+					worldViewRoot = worldViewState.getRoot();
+					
+					worldViewTab.setContent(worldViewRoot);
+					
+					readyToRender = true;
+					
+				});
 				
 				return 0;
 				
 			}
 		});
+
 		
 	}
 	
@@ -134,39 +178,12 @@ public class ServerGui extends AClient {
 		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		stage.setScene(scene);
 		
-		debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
-		
 //		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
 //			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 //		});
 		tabPane.setFocusTraversable(false);
 		tabPane.getSelectionModel().selectedItemProperty().addListener((e, oldValue, newValue) -> {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
-		});
-		
-		game.getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
-			while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
-				if(change.getAddedSize() > 0) {
-					
-					List<? extends Entity> addedEntities = change.getAddedSubList();
-					
-					for(Entity e: addedEntities) {
-						if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
-					}
-					
-				}
-				
-				if(change.getRemovedSize() > 0) {
-					
-					List<? extends Entity> removedEntities = change.getRemoved();
-					
-					for(Entity e: removedEntities) {
-						if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
-					}
-					
-				}
-			}
-			
 		});
 		
 		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
@@ -184,17 +201,7 @@ public class ServerGui extends AClient {
 		
 		Logger.getPrintStreams().add(consolePrinter);
 		
-		WorldViewState worldViewState = new WorldViewState(this, game.getWorld());
-		worldViewState.initGui();
-		
-		sm.setState(worldViewState);
-		
-		worldViewRoot = worldViewState.getRoot();
-		
-		worldViewTab.setContent(worldViewRoot);
-		
-		stage.setTitle(server.getGame().toString() + " Server");
-		stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation()));
+		stage.setTitle("Server");
 		stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		stage.setOnCloseRequest(e -> {
 			
@@ -207,7 +214,6 @@ public class ServerGui extends AClient {
 		stage.show();
 		
 		readyToUpdate = true;
-		readyToRender = true;
 		
 	}
 	

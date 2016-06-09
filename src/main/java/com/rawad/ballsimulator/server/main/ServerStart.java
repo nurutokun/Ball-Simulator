@@ -38,6 +38,26 @@ public class ServerStart extends Application {
 			Logger.log(Logger.WARNING, "Didn't specify whether or not gui should be used so it won't be.");
 		}
 		
+		if(useGui) {
+			
+			ResourceManager.init(commands);
+			
+			serverGui = new ServerGui(server);
+			
+			Thread guiThread = new Thread(() -> Application.launch(args), "Gui Thread");
+			guiThread.setDaemon(true);
+			guiThread.start();
+			
+			synchronized(serverGui) {
+				try {
+					serverGui.wait();
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
+			}
+			
+		}
+		
 		GameManager.instance().launchGame(game, server);
 		
 		synchronized(game) {
@@ -48,15 +68,7 @@ public class ServerStart extends Application {
 			}
 		}
 		
-		if(useGui) {
-			
-			ResourceManager.init(commands);
-			
-			serverGui = new ServerGui(server);
-			
-			serverGui.init(game);
-			
-		}
+		if(useGui) serverGui.init(game);// Wouldn't be needed if game supported multiple proxies...
 		
 		CustomLoader loader = game.getLoader(CustomLoader.class);
 		
@@ -80,14 +92,16 @@ public class ServerStart extends Application {
 			}
 		});
 		
-		if(useGui) Application.launch(args);
-		
 	}
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
 		serverGui.initGui(primaryStage);
+		
+		synchronized(serverGui) {
+			serverGui.notify();
+		}
 		
 	}
 	

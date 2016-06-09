@@ -16,7 +16,6 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
-import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
@@ -49,7 +48,6 @@ public class MultiplayerGameState extends State {
 	private DebugRender debugRender;
 	
 	private CustomLoader loader;
-	private TerrainFileParser terrainParser;
 	private SettingsFileParser settingsParser;
 	
 	@FXML private Messenger mess;
@@ -197,11 +195,15 @@ public class MultiplayerGameState extends State {
 		
 		mess.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
-			CPacket04Message message = new CPacket04Message(player.toString(), mess.getInputArea().getText());
+			String text = mess.getInputArea().getText();
+			
+			if(text.isEmpty()) return;
+			
+			CPacket04Message message = new CPacket04Message(player.getComponent(UserComponent.class).getUsername(), text);
 			
 			networkManager.getConnectionManager().sendPacketToServer(message);
 			
-			addUserMessage("You", message.getMessage());
+			addUserMessage("You", text);
 			mess.getInputArea().setText("");// So that it doesn't get duplicated.
 			
 		});
@@ -228,15 +230,11 @@ public class MultiplayerGameState extends State {
 				
 				loader = game.getLoader(CustomLoader.class);
 				
-				terrainParser = game.getFileParser(TerrainFileParser.class);
 				settingsParser = game.getFileParser(SettingsFileParser.class);
 				
 				loader.loadSettings(settingsParser, client.getSettingsFileName());
 				
-				String text = "Connecting To " + settingsParser.getIp() + " ...";
-				
-				Logger.log(Logger.DEBUG, text);
-				Platform.runLater(() -> lblConnectingMessage.setText(text));
+				setMessage("Connecting To " + settingsParser.getIp() + " ...");
 				
 				networkManager.init(settingsParser.getIp());
 				
@@ -271,18 +269,6 @@ public class MultiplayerGameState extends State {
 		playerList.getItems().clear();
 		
 		sm.requestStateChange(MenuState.class);
-		
-	}
-	
-	public void loadTerrain(String terrainName) {
-		
-		client.addTask(new Task<Integer>() {
-			@Override
-			protected Integer call() throws Exception {
-				loader.loadTerrain(terrainParser, world, terrainName);
-				return 0;
-			}
-		});
 		
 	}
 	
@@ -337,6 +323,11 @@ public class MultiplayerGameState extends State {
 		mess.appendNewLine(message);
 		Logger.log(Logger.DEBUG, message);
 		
+	}
+	
+	public void setMessage(String message) {
+		Platform.runLater(() -> lblConnectingMessage.setText(message));
+		Logger.log(Logger.DEBUG, message);
 	}
 	
 	public Entity getPlayer() {
