@@ -6,6 +6,7 @@ import com.rawad.ballsimulator.client.renderengine.components.CollisionComponent
 import com.rawad.ballsimulator.client.renderengine.components.ComponentRender;
 import com.rawad.ballsimulator.client.renderengine.components.HealthComponentRender;
 import com.rawad.ballsimulator.client.renderengine.components.SelectionComponentRender;
+import com.rawad.ballsimulator.client.renderengine.components.UserComponentRender;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.client.renderengine.Render;
@@ -25,6 +26,7 @@ public class EntityRender extends Render {
 		
 		componentRenders.add(new SelectionComponentRender());
 		componentRenders.add(new HealthComponentRender());
+		componentRenders.add(new UserComponentRender());
 		componentRenders.add(new CollisionComponentRender());
 		
 	}

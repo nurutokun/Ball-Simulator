@@ -21,11 +21,14 @@ public class SPacket01Login extends TCPPacket {
 	
 	private static final int THETA_INDEX = 8;
 	
-	public SPacket01Login(NetworkComponent networkComp, UserComponent userComp, TransformComponent transformComp) {
+	private static final int LOGIN_INDEX = 9;
+	
+	public SPacket01Login(NetworkComponent networkComp, UserComponent userComp, TransformComponent transformComp, 
+			boolean login) {
 		super(TCPPacketType.LOGIN, Integer.toString(networkComp.getId()), userComp.getUsername(), userComp.getIp(), 
 				Double.toString(transformComp.getX()), Double.toString(transformComp.getY()), 
 				Double.toString(transformComp.getScaleX()), Double.toString(transformComp.getScaleY()),
-				Double.toString(transformComp.getTheta()));
+				Double.toString(transformComp.getTheta()), Boolean.toString(login));
 	}
 	
 	public SPacket01Login(String dataAsString) {
@@ -62,6 +65,10 @@ public class SPacket01Login extends TCPPacket {
 	
 	public double getTheta() {
 		return Double.parseDouble(indexedData[THETA_INDEX]);
+	}
+	
+	public boolean canLogin() {
+		return Boolean.parseBoolean(indexedData[LOGIN_INDEX]);
 	}
 	
 }

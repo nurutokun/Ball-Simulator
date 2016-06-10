@@ -51,7 +51,7 @@ public class BallSimulator extends Game {
 				
 				for(EEntity entity: entities) {
 					BlueprintManager.addBlueprint(entity, new Blueprint(EntityFileParser.parseEntityFile(EEntity.class, 
-							entity.getFileName(), EEntity.class.getPackage().getName())));
+							entity.getName(), EEntity.class.getPackage().getName())));
 				}
 				
 				Logger.log(Logger.DEBUG, "Loaded all entity blueprints.");

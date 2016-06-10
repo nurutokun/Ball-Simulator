@@ -38,6 +38,18 @@ public class ServerStart extends Application {
 			Logger.log(Logger.WARNING, "Didn't specify whether or not gui should be used so it won't be.");
 		}
 		
+		if(useGui) {
+			
+			ResourceManager.init(commands);
+			
+			serverGui = new ServerGui(server);
+			
+			Thread guiThread = new Thread(() -> Application.launch(args), "Gui Thread");
+			guiThread.setDaemon(true);
+			guiThread.start();
+			
+		}
+		
 		GameManager.instance().launchGame(game, server);
 		
 		synchronized(game) {
@@ -48,15 +60,7 @@ public class ServerStart extends Application {
 			}
 		}
 		
-		if(useGui) {
-			
-			ResourceManager.init(commands);
-			
-			serverGui = new ServerGui(server);
-			
-			serverGui.init(game);
-			
-		}
+		if(useGui) serverGui.init(game);
 		
 		CustomLoader loader = game.getLoader(CustomLoader.class);
 		
@@ -79,8 +83,6 @@ public class ServerStart extends Application {
 				
 			}
 		});
-		
-		if(useGui) Application.launch(args);
 		
 	}
 	

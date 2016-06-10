@@ -16,7 +16,6 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
-import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
@@ -38,6 +37,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 
@@ -49,13 +49,13 @@ public class MultiplayerGameState extends State {
 	private DebugRender debugRender;
 	
 	private CustomLoader loader;
-	private TerrainFileParser terrainParser;
 	private SettingsFileParser settingsParser;
 	
 	@FXML private Messenger mess;
 	@FXML private PlayerList playerList;
 	@FXML private PlayerInventory inventory;
 	@FXML private PauseScreen pauseScreen;
+	@FXML private Button cancelConnect;
 	@FXML private Label lblConnectingMessage;
 	
 	private ClientNetworkManager networkManager;
@@ -125,6 +125,8 @@ public class MultiplayerGameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
+			if(!networkManager.isLoggedIn()) return;
+			
 			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
 				
 				switch(keyEvent.getCode()) {
@@ -173,6 +175,8 @@ public class MultiplayerGameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
+			if(!networkManager.isLoggedIn()) return;
+			
 			switch(keyEvent.getCode()) {
 			
 			case T:
@@ -195,13 +199,19 @@ public class MultiplayerGameState extends State {
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
+		cancelConnect.setOnAction(e -> networkManager.requestDisconnect());
+		
 		mess.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
-			CPacket04Message message = new CPacket04Message(player.toString(), mess.getInputArea().getText());
+			String text = mess.getInputArea().getText();
+			
+			if(text.isEmpty()) return;
+			
+			CPacket04Message message = new CPacket04Message(player.getComponent(UserComponent.class).getUsername(), text);
 			
 			networkManager.getConnectionManager().sendPacketToServer(message);
 			
-			addUserMessage("You", message.getMessage());
+			addUserMessage("You", text);
 			mess.getInputArea().setText("");// So that it doesn't get duplicated.
 			
 		});
@@ -228,17 +238,13 @@ public class MultiplayerGameState extends State {
 				
 				loader = game.getLoader(CustomLoader.class);
 				
-				terrainParser = game.getFileParser(TerrainFileParser.class);
 				settingsParser = game.getFileParser(SettingsFileParser.class);
 				
 				loader.loadSettings(settingsParser, client.getSettingsFileName());
 				
-				String text = "Connecting To " + settingsParser.getIp() + " ...";
+				setMessage("Connecting To " + settingsParser.getIp() + " ...");
 				
-				Logger.log(Logger.DEBUG, text);
-				Platform.runLater(() -> lblConnectingMessage.setText(text));
-				
-				networkManager.init(settingsParser.getIp());
+				networkManager.connectToServer(settingsParser.getIp());
 				
 				return 0;
 				
@@ -257,12 +263,14 @@ public class MultiplayerGameState extends State {
 		
 		mess.setVisible(false);
 		lblConnectingMessage.setVisible(true);
+		cancelConnect.setVisible(true);
 		
 	}
 	
 	public void onConnect() {
 		mess.setVisible(true);
 		lblConnectingMessage.setVisible(false);
+		cancelConnect.setVisible(false);
 	}
 	
 	public void onDisconnect() {
@@ -271,18 +279,6 @@ public class MultiplayerGameState extends State {
 		playerList.getItems().clear();
 		
 		sm.requestStateChange(MenuState.class);
-		
-	}
-	
-	public void loadTerrain(String terrainName) {
-		
-		client.addTask(new Task<Integer>() {
-			@Override
-			protected Integer call() throws Exception {
-				loader.loadTerrain(terrainParser, world, terrainName);
-				return 0;
-			}
-		});
 		
 	}
 	
@@ -337,6 +333,11 @@ public class MultiplayerGameState extends State {
 		mess.appendNewLine(message);
 		Logger.log(Logger.DEBUG, message);
 		
+	}
+	
+	public void setMessage(String message) {
+		Platform.runLater(() -> lblConnectingMessage.setText(message));
+		Logger.log(Logger.DEBUG, message);
 	}
 	
 	public Entity getPlayer() {

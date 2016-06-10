@@ -79,9 +79,9 @@ public class ServerConnectionManager {
 				
 				Socket client = cim.getClient();
 				
-				sendPacketToAllClients(client, logoutPlayer);
+				sendPacketToAllClients(null, logoutPlayer);
 				
-				Util.silentClose(client);// Don't use helpers methods here because we don't want to remove from array
+				Util.silentClose(client);// Don't use helper methods here because we don't want to remove from array
 				// while looping through it.
 				
 			}
@@ -118,6 +118,11 @@ public class ServerConnectionManager {
 				// of sending terrain file name. Problem: terrain might not be loaded in time on server side; hjave to
 				// initialize network manager later.
 				
+				SPacket01Login denyLoginPacket = new SPacket01Login(new NetworkComponent(), new UserComponent(), 
+						new TransformComponent(), false);
+				
+				sendPacketToClient(client, denyLoginPacket);
+				
 				disconnectClient(cim);
 				
 				break;
@@ -135,11 +140,13 @@ public class ServerConnectionManager {
 			userComp.setIp(clientLoginPacket.getIp());
 			userComp.setUsername(clientLoginPacket.getUsername());
 			
-//			player.addComponent(randomPosComp);
+			player.addComponent(randomPosComp);
 			player.addComponent(networkComp);
 			player.addComponent(userComp);
 			
-			synchronized(world.getEntitiesAsList()) {
+			ArrayList<Entity> entities = world.getEntitiesAsList();
+			
+			synchronized(entities) {
 				world.addEntity(player);// Assigns id (WorldMP).
 			}
 			
@@ -149,41 +156,35 @@ public class ServerConnectionManager {
 			sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
-			transformComp.setX(20);
-			transformComp.setY(20);
+			transformComp.setX(30);
+			transformComp.setY(30);
 			
-			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp);
+			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp, true);
 			
 			// Inform all current players of this new player's login.
 			sendPacketToAllClients(null, serverLoginResponsePacket);
 			
-			ArrayList<Entity> entities = world.getEntitiesAsList();
-			
-			// Informs player that just logged in of previously logged-in players.
-			for(Entity entityInWorld: entities) {
-				
-				NetworkComponent entityNetworkComp = entityInWorld.getComponent(NetworkComponent.class);
-				
-				if(entityNetworkComp == null) continue;
-				
-				UserComponent entityUserComp = entityInWorld.getComponent(UserComponent.class);
-				
-				if(entityUserComp == null) {
+			synchronized(entities) {
+				// Informs player that just logged in of previously logged-in players.
+				for(Entity entityInWorld: entities) {
 					
-				} else {
+					NetworkComponent entityNetworkComp = entityInWorld.getComponent(NetworkComponent.class);
 					
-					if(networkComp.getId() == entityNetworkComp.getId()) continue;
+					if(entityNetworkComp == null) continue;
+					
+					UserComponent entityUserComp = entityInWorld.getComponent(UserComponent.class);
+					
+					if(entityUserComp == null || networkComp.getId() == entityNetworkComp.getId()) continue;
 					
 					serverLoginResponsePacket = new SPacket01Login(entityNetworkComp, entityUserComp,
-							entityInWorld.getComponent(TransformComponent.class));
+							entityInWorld.getComponent(TransformComponent.class), true);
 					
 					sendPacketToClient(client, serverLoginResponsePacket);
 					
 				}
-			
 			}
 			
-			cim.setClientId(clientLoginPacket.getEntityId());
+			cim.setClientId(networkComp.getId());
 			
 			break;
 			
@@ -206,6 +207,26 @@ public class ServerConnectionManager {
 			SPacket04Message replyPacket = new SPacket04Message(username, message);
 			
 			sendPacketToAllClients(client, replyPacket);// Don't need to send it back to the client that sent it.
+			
+			break;
+			
+		case TERRAIN:
+			
+			entities = world.getEntitiesAsList();
+			
+			synchronized(entities) {
+				for(Entity e: entities) {
+					if(e.getComponent(UserComponent.class) == null) {
+						
+						sendPacketToClient(client, new SPacket05Terrain(EEntity.STATIC.getName(), 
+								e.getComponent(TransformComponent.class), false));
+						
+					}
+				}
+				
+				sendPacketToClient(client, new SPacket05Terrain("NULL", new TransformComponent(), true));
+				// EntityName can NOT be empty or else it won't be indexed causing an ArrayIndexOutOfBoundsException.
+			}
 			
 			break;
 			
@@ -237,7 +258,9 @@ public class ServerConnectionManager {
 		
 		sendPacketToAllClients(cim.getClient(), new SPacket04Message(username, logoutMessage));
 		
-		networkManager.getServer().getGame().getWorld().removeEntity(player);
+		synchronized(networkManager.getServer().getGame().getWorld().getEntitiesAsList()) {
+			networkManager.getServer().getGame().getWorld().removeEntity(player);
+		}
 		
 		disconnectClient(cim);
 		
@@ -336,9 +359,13 @@ public class ServerConnectionManager {
 		private final Socket client;
 		
 		private int clientId;
+		private boolean loggedIn;
 		
 		public ClientInputManager(Socket client) {
 			this.client = client;
+			
+			loggedIn = false;
+			
 		}
 		
 		@Override
@@ -358,14 +385,16 @@ public class ServerConnectionManager {
 					
 				}
 				
-				handleClientDisconnect(this);
-				
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client " + client.getInetAddress()
 						.getHostName() + " disconnected.");
 				ex.printStackTrace();
 				
-				disconnectClient(this);
+				if(loggedIn) {
+					handleClientDisconnect(this);
+				} else {
+					disconnectClient(this);
+				}
 				
 			}
 			
@@ -377,6 +406,7 @@ public class ServerConnectionManager {
 		
 		public void setClientId(int clientId) {
 			this.clientId = clientId;
+			loggedIn = true;
 		}
 		
 		public int getClientId() {

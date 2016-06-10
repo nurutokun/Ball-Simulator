@@ -46,7 +46,7 @@ public class EntityBlueprintFileMaker {
 		player.addComponent(new RollingComponent());
 		player.addComponent(new RenderingComponent());
 		
-		EntityFileParser.saveEntityBlueprint(player, loader.getEntityBlueprintSaveFileLocation(EEntity.PLAYER.getFileName()), ENTITY_PACKAGE);
+		EntityFileParser.saveEntityBlueprint(player, loader.getEntityBlueprintSaveFileLocation(EEntity.PLAYER.getName()), ENTITY_PACKAGE);
 		
 		Entity eStatic = Entity.createEntity();
 		
@@ -58,14 +58,14 @@ public class EntityBlueprintFileMaker {
 		eStatic.addComponent(new SelectionComponent());
 		eStatic.addComponent(new RenderingComponent());
 		
-		EntityFileParser.saveEntityBlueprint(eStatic, loader.getEntityBlueprintSaveFileLocation(EEntity.STATIC.getFileName()), ENTITY_PACKAGE);
+		EntityFileParser.saveEntityBlueprint(eStatic, loader.getEntityBlueprintSaveFileLocation(EEntity.STATIC.getName()), ENTITY_PACKAGE);
 		
 		Entity camera = Entity.createEntity();
 		
 		camera.addComponent(new TransformComponent());
 		camera.addComponent(new UserViewComponent());
 		
-		EntityFileParser.saveEntityBlueprint(camera, loader.getEntityBlueprintSaveFileLocation(EEntity.CAMERA.getFileName()), ENTITY_PACKAGE);
+		EntityFileParser.saveEntityBlueprint(camera, loader.getEntityBlueprintSaveFileLocation(EEntity.CAMERA.getName()), ENTITY_PACKAGE);
 		
 		Entity placeable = Entity.createEntity();
 		
@@ -75,7 +75,7 @@ public class EntityBlueprintFileMaker {
 		placeable.addComponent(new PlaceableComponent());
 		placeable.addComponent(new RenderingComponent());
 		
-		EntityFileParser.saveEntityBlueprint(placeable, loader.getEntityBlueprintSaveFileLocation(EEntity.PLACEABLE.getFileName()), ENTITY_PACKAGE);
+		EntityFileParser.saveEntityBlueprint(placeable, loader.getEntityBlueprintSaveFileLocation(EEntity.PLACEABLE.getName()), ENTITY_PACKAGE);
 		
 	}
 	
