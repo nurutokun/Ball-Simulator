@@ -17,7 +17,7 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket05Terrain;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket05Entity;
 import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -188,25 +188,26 @@ public class ClientConnectionManager {
 			
 			break;
 			
-		case TERRAIN:
+		case ENTITY:
 			
-			SPacket05Terrain terrainPacket = new SPacket05Terrain(dataAsString);
+			SPacket05Entity entityPacket = new SPacket05Entity(dataAsString);
 			
-			if(terrainPacket.isLast()) {
-				networkManager.onTerrainLoadFinish();
+			if(entityPacket.isLast()) {
+				networkManager.onEntityLoadFinish();
 			} else {
 				ArrayList<Entity> entities = world.getEntitiesAsList();
 				
-				Entity staticEntity = Entity.createEntity(EEntity.getByName(terrainPacket.getEntityName()));
+				Entity entity = Entity.createEntity(EEntity.getByName(entityPacket.getEntityName()));
 				
-				TransformComponent staticEntityTransform = staticEntity.getComponent(TransformComponent.class);
-				staticEntityTransform.setX(terrainPacket.getX());
-				staticEntityTransform.setY(terrainPacket.getY());
-				staticEntityTransform.setScaleX(terrainPacket.getScaleX());
-				staticEntityTransform.setScaleY(terrainPacket.getScaleY());
+				TransformComponent entityTransform = entity.getComponent(TransformComponent.class);
+				entityTransform.setX(entityPacket.getX());
+				entityTransform.setY(entityPacket.getY());
+				entityTransform.setScaleX(entityPacket.getScaleX());
+				entityTransform.setScaleY(entityPacket.getScaleY());
+				entityTransform.setTheta(entityPacket.getTheta());
 				
 				synchronized(entities) {
-					world.addEntity(staticEntity);
+					world.addEntity(entity);
 				}
 			}
 			

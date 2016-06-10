@@ -7,7 +7,7 @@ public enum TCPPacketType {
 	LOGOUT("02"),
 	PING("03"),
 	MESSAGE("04"),
-	TERRAIN("05");
+	ENTITY("05");
 	
 	private final String id;
 	

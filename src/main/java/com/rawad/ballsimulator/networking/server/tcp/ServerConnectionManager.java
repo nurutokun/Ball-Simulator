@@ -164,26 +164,6 @@ public class ServerConnectionManager {
 			// Inform all current players of this new player's login.
 			sendPacketToAllClients(null, serverLoginResponsePacket);
 			
-			synchronized(entities) {
-				// Informs player that just logged in of previously logged-in players.
-				for(Entity entityInWorld: entities) {
-					
-					NetworkComponent entityNetworkComp = entityInWorld.getComponent(NetworkComponent.class);
-					
-					if(entityNetworkComp == null) continue;
-					
-					UserComponent entityUserComp = entityInWorld.getComponent(UserComponent.class);
-					
-					if(entityUserComp == null || networkComp.getId() == entityNetworkComp.getId()) continue;
-					
-					serverLoginResponsePacket = new SPacket01Login(entityNetworkComp, entityUserComp,
-							entityInWorld.getComponent(TransformComponent.class), true);
-					
-					sendPacketToClient(client, serverLoginResponsePacket);
-					
-				}
-			}
-			
 			cim.setClientId(networkComp.getId());
 			
 			break;
@@ -210,21 +190,25 @@ public class ServerConnectionManager {
 			
 			break;
 			
-		case TERRAIN:
+		case ENTITY:
 			
 			entities = world.getEntitiesAsList();
 			
 			synchronized(entities) {
 				for(Entity e: entities) {
-					if(e.getComponent(UserComponent.class) == null) {
+					if(e.getComponent(NetworkComponent.class) != null) {
 						
-						sendPacketToClient(client, new SPacket05Terrain(EEntity.STATIC.getName(), 
+						String entityName = EEntity.STATIC.getName();
+						
+						if(e.getComponent(UserComponent.class) != null) entityName = EEntity.PLAYER.getName();
+						
+						sendPacketToClient(client, new SPacket05Entity(entityName, 
 								e.getComponent(TransformComponent.class), false));
 						
 					}
 				}
 				
-				sendPacketToClient(client, new SPacket05Terrain("NULL", new TransformComponent(), true));
+				sendPacketToClient(client, new SPacket05Entity("NULL", new TransformComponent(), true));
 				// EntityName can NOT be empty or else it won't be indexed causing an ArrayIndexOutOfBoundsException.
 			}
 			

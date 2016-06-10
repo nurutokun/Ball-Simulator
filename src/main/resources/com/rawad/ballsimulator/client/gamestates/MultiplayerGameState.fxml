@@ -17,7 +17,7 @@
 	
 	<children>
 		
-		<VBox centerShape="true" maxWidth="Infinity" maxHeight="Infinity">
+		<VBox alignment="CENTER">
 			<children>
 			
 			<Label fx:id="lblConnectingMessage" text="Connecting..." />

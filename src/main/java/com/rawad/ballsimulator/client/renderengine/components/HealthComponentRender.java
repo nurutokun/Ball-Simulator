@@ -14,6 +14,8 @@ public class HealthComponentRender extends ComponentRender<HealthComponent> {
 	
 	private static final double BAR_HEIGHT = 10d;
 	
+	private static final double INSETS = 6d;
+	
 	@Override
 	protected void render(GraphicsContext g, Entity e, HealthComponent comp) {
 		
@@ -30,10 +32,9 @@ public class HealthComponentRender extends ComponentRender<HealthComponent> {
 		g.fillRect(0, 0, width, BAR_HEIGHT);
 		
 		final double barWidth = width * (comp.getHealth() / comp.getMaxHealth());
-		final double insets = 6d;
 		
 		g.setFill(Color.RED);
-		g.fillRect(insets / 2d, insets / 2d, barWidth - insets, BAR_HEIGHT - insets);
+		g.fillRect(INSETS / 2d, INSETS / 2d, barWidth - INSETS, BAR_HEIGHT - INSETS);
 		
 		g.translate(width / 2d, BAR_HEIGHT + (height / 2d));
 		g.rotate(transformComp.getTheta());

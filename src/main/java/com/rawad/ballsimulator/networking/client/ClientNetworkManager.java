@@ -4,7 +4,7 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket05Terrain;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket05Entity;
 import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
@@ -52,9 +52,9 @@ public class ClientNetworkManager {
 	 */
 	public void onConnect() {
 		
-		client.setMessage("Requesting terrain...");
+		client.setMessage("Requesting entities...");
 		
-		connectionManager.sendPacketToServer(new CPacket05Terrain());
+		connectionManager.sendPacketToServer(new CPacket05Entity());
 		
 		Entity player = client.getPlayer();
 		
@@ -80,8 +80,8 @@ public class ClientNetworkManager {
 		
 	}
 	
-	public void onTerrainLoadFinish() {
-		client.setMessage("Done loading terrain.");
+	public void onEntityLoadFinish() {
+		client.setMessage("Done loading entities.");
 		client.onConnect();
 	}
 	
