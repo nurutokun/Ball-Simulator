@@ -79,7 +79,7 @@ public class ServerConnectionManager {
 				
 				Socket client = cim.getClient();
 				
-				sendPacketToAllClients(client, logoutPlayer);
+				sendPacketToAllClients(null, logoutPlayer);
 				
 				Util.silentClose(client);// Don't use helper methods here because we don't want to remove from array
 				// while looping through it.
@@ -118,6 +118,11 @@ public class ServerConnectionManager {
 				// of sending terrain file name. Problem: terrain might not be loaded in time on server side; hjave to
 				// initialize network manager later.
 				
+				SPacket01Login denyLoginPacket = new SPacket01Login(new NetworkComponent(), new UserComponent(), 
+						new TransformComponent(), false);
+				
+				sendPacketToClient(client, denyLoginPacket);
+				
 				disconnectClient(cim);
 				
 				break;
@@ -151,8 +156,10 @@ public class ServerConnectionManager {
 			sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
+			transformComp.setX(30);
+			transformComp.setY(30);
 			
-			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp);
+			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp, true);
 			
 			// Inform all current players of this new player's login.
 			sendPacketToAllClients(null, serverLoginResponsePacket);
@@ -170,7 +177,7 @@ public class ServerConnectionManager {
 					if(entityUserComp == null || networkComp.getId() == entityNetworkComp.getId()) continue;
 					
 					serverLoginResponsePacket = new SPacket01Login(entityNetworkComp, entityUserComp,
-							entityInWorld.getComponent(TransformComponent.class));
+							entityInWorld.getComponent(TransformComponent.class), true);
 					
 					sendPacketToClient(client, serverLoginResponsePacket);
 					

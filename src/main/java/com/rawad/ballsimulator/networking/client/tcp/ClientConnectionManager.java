@@ -117,9 +117,12 @@ public class ClientConnectionManager {
 			
 			SPacket01Login loginReplyPacket = new SPacket01Login(dataAsString);
 			
-			Entity player = networkManager.getClient().getPlayer();
+			if(!loginReplyPacket.canLogin()) {
+				networkManager.requestDisconnect();
+				break;
+			}
 			
-			int receivedEntityId = loginReplyPacket.getEntityId();
+			Entity player = networkManager.getClient().getPlayer();
 			
 			NetworkComponent networkComp = player.getComponent(NetworkComponent.class);
 			UserComponent userComp = player.getComponent(UserComponent.class);
@@ -141,6 +144,8 @@ public class ClientConnectionManager {
 				world.addEntity(player);
 				
 			}
+			
+			int receivedEntityId = loginReplyPacket.getEntityId();
 			
 			networkComp.setId(receivedEntityId);
 			userComp.setIp(loginReplyPacket.getIp());
@@ -165,8 +170,10 @@ public class ClientConnectionManager {
 			
 			SPacket02Logout logoutPacket = new SPacket02Logout(dataAsString);
 			
-			if(logoutPacket.getEntityId() == networkManager.getClient().getPlayer().getComponent(NetworkComponent.class).getId()) {
-				// TODO: Basically redo this whole class along with ClientNetworkManager.
+			if(logoutPacket.getEntityId() == networkManager.getClient().getPlayer().getComponent(NetworkComponent.class)
+					.getId()) {
+				networkManager.setLoggedIn(false);
+				networkManager.requestDisconnect();
 			} else {
 				networkManager.getClient().removeEntity(logoutPacket.getEntityId());
 			}

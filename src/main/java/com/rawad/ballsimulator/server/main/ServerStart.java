@@ -48,14 +48,6 @@ public class ServerStart extends Application {
 			guiThread.setDaemon(true);
 			guiThread.start();
 			
-			synchronized(serverGui) {
-				try {
-					serverGui.wait();
-				} catch (InterruptedException ex) {
-					ex.printStackTrace();
-				}
-			}
-			
 		}
 		
 		GameManager.instance().launchGame(game, server);
@@ -68,7 +60,7 @@ public class ServerStart extends Application {
 			}
 		}
 		
-		if(useGui) serverGui.init(game);// Wouldn't be needed if game supported multiple proxies...
+		if(useGui) serverGui.init(game);
 		
 		CustomLoader loader = game.getLoader(CustomLoader.class);
 		
@@ -98,10 +90,6 @@ public class ServerStart extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		
 		serverGui.initGui(primaryStage);
-		
-		synchronized(serverGui) {
-			serverGui.notify();
-		}
 		
 	}
 	

@@ -156,7 +156,7 @@ public class ServerDatagramManager {
 				}
 				
 			} catch(Exception ex) {
-				Logger.log(Logger.WARNING, ex.getMessage() + "; bad packet or client disconnected.");
+				Logger.log(Logger.WARNING, ex.getMessage() + ".");
 //				ex.printStackTrace();
 			}
 			

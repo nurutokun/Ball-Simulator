@@ -37,6 +37,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 
@@ -54,6 +55,7 @@ public class MultiplayerGameState extends State {
 	@FXML private PlayerList playerList;
 	@FXML private PlayerInventory inventory;
 	@FXML private PauseScreen pauseScreen;
+	@FXML private Button cancelConnect;
 	@FXML private Label lblConnectingMessage;
 	
 	private ClientNetworkManager networkManager;
@@ -123,6 +125,8 @@ public class MultiplayerGameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
+			if(!networkManager.isLoggedIn()) return;
+			
 			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
 				
 				switch(keyEvent.getCode()) {
@@ -171,6 +175,8 @@ public class MultiplayerGameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
+			if(!networkManager.isLoggedIn()) return;
+			
 			switch(keyEvent.getCode()) {
 			
 			case T:
@@ -192,6 +198,8 @@ public class MultiplayerGameState extends State {
 		root.heightProperty().addListener(e -> cameraFollowSystem.requestNewViewportHeight(root.getHeight()));
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
+		
+		cancelConnect.setOnAction(e -> networkManager.requestDisconnect());
 		
 		mess.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
@@ -236,7 +244,7 @@ public class MultiplayerGameState extends State {
 				
 				setMessage("Connecting To " + settingsParser.getIp() + " ...");
 				
-				networkManager.init(settingsParser.getIp());
+				networkManager.connectToServer(settingsParser.getIp());
 				
 				return 0;
 				
@@ -255,12 +263,14 @@ public class MultiplayerGameState extends State {
 		
 		mess.setVisible(false);
 		lblConnectingMessage.setVisible(true);
+		cancelConnect.setVisible(true);
 		
 	}
 	
 	public void onConnect() {
 		mess.setVisible(true);
 		lblConnectingMessage.setVisible(false);
+		cancelConnect.setVisible(false);
 	}
 	
 	public void onDisconnect() {

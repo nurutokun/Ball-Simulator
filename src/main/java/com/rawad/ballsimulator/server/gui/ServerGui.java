@@ -108,7 +108,7 @@ public class ServerGui extends AClient {
 				
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
-					
+				
 				Platform.runLater(() -> {
 					
 					stage.setTitle(game.toString() + " Server");

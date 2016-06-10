@@ -41,7 +41,7 @@ public class ClientNetworkManager {
 		
 	}
 	
-	public void init(String address) {
+	public void connectToServer(String address) {
 		
 		connectionManager.connectToServer(address, Server.PORT);
 		
