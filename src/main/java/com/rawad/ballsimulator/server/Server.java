@@ -1,11 +1,18 @@
 package com.rawad.ballsimulator.server;
 
+import java.util.ArrayList;
+
+import com.rawad.ballsimulator.game.CollisionSystem;
+import com.rawad.ballsimulator.game.MovementSystem;
+import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.GameSystem;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
-
-import javafx.concurrent.Task;
 
 public class Server extends AServer {
 	
@@ -14,41 +21,83 @@ public class Server extends AServer {
 	
 	public static final int PORT = 8008;
 	
-	public static final String TERRAIN_NAME = "terrain";
-	
 	private ServerNetworkManager networkManager;
 	
 	@Override
 	public void init(Game game) {
 		super.init(game);
 		
-		controller = new ServerController(this);
+		WorldMP world = new WorldMP();
 		
-		this.<ServerController>getController().init(game);
+		game.setWorld(world);
+		
+		ArrayList<GameSystem> gameSystems = new ArrayList<GameSystem>();
+		
+		// TODO: Add game systems.
+		// RandomGenerationSystem
+		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new MovementSystem());
+		
+		game.getGameEngine().setGameSystems(gameSystems);
 		
 		networkManager = new ServerNetworkManager(this);
 		
-		addTask(new Task<Integer>() {
-			@Override
-			protected Integer call() throws Exception {
-				
-				Logger.log(Logger.DEBUG, "Initializing network manager...");
-				networkManager.init();// Allows for world to be initialized before clients can connect.
-				Logger.log(Logger.DEBUG, "Network manager initialized.");
-				
-				return 0;
-			}
-		});
+	}
+	
+	@Override
+	public void tick() {
 		
+	}
+	
+	@Override
+	public void stop() {
+		networkManager.stop();
 	}
 	
 	public ServerNetworkManager getNetworkManager() {
 		return networkManager;
 	}
 	
-	@Override
-	public void stop() {
-		networkManager.stop();
+	public Entity getEntityById(int id) {
+		
+		for(Entity e: game.getWorld().getEntitiesAsList()) {
+			
+			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+			
+			if(networkComp != null && networkComp.getId() == id) return e;
+			
+		}
+		
+		return null;
+		
+	}
+	
+	private static class WorldMP extends World {
+		
+		private int entityIdCounter = 0;
+		
+		@Override
+		public boolean addEntity(Entity e) {
+			
+			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+			
+			if(networkComp == null) {
+				return false;
+//				networkComp = new NetworkComponent();
+//				e.addComponent(networkComp);
+			}
+			
+			networkComp.setId(entityIdCounter++);
+			
+			if(entityIdCounter >= Integer.MAX_VALUE) entityIdCounter = Integer.MIN_VALUE;
+			
+			if(entityIdCounter == -1) Logger.log(Logger.SEVERE, "The absolute entity cap for this world has "
+					+ "been reached.");
+			
+			return super.addEntity(e);
+		}
+		
 	}
 	
 }

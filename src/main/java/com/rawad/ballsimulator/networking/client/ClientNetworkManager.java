@@ -1,16 +1,21 @@
 package com.rawad.ballsimulator.networking.client;
 
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket05Entity;
 import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
 import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.gamehelpers.game.entity.Entity;
 
 public class ClientNetworkManager {
 	
-	private MultiplayerGameState client;
+	private final MultiplayerGameState client;
 	
 	private ClientConnectionManager connectionManager;
 	private ClientDatagramManager datagramManager;
@@ -25,7 +30,9 @@ public class ClientNetworkManager {
 	 */
 	private boolean loggedIn;
 	
-	public ClientNetworkManager() {
+	public ClientNetworkManager(MultiplayerGameState client) {
+		
+		this.client = client;
 		
 		connectionManager = new ClientConnectionManager(this);
 		datagramManager = new ClientDatagramManager(this);
@@ -34,7 +41,7 @@ public class ClientNetworkManager {
 		
 	}
 	
-	public void init(String address) {
+	public void connectToServer(String address) {
 		
 		connectionManager.connectToServer(address, Server.PORT);
 		
@@ -45,13 +52,20 @@ public class ClientNetworkManager {
 	 */
 	public void onConnect() {
 		
-		CPacket01Login loginPacket = new CPacket01Login(client.getPlayer().getName());
+		client.setMessage("Requesting entities...");
+		
+		connectionManager.sendPacketToServer(new CPacket05Entity());
+		
+		Entity player = client.getPlayer();
+		
+		UserComponent userComp = player.getComponent(UserComponent.class);
+		userComp.setIp(connectionManager.getSocket().getLocalAddress().getHostAddress());
+		
+		CPacket01Login loginPacket = new CPacket01Login(player.getComponent(NetworkComponent.class), userComp);
 		
 		connectionManager.sendPacketToServer(loginPacket);
 		
 		datagramManager.start();
-		
-		client.onConnect();
 		
 	}
 	
@@ -64,6 +78,11 @@ public class ClientNetworkManager {
 		
 		setLoggedIn(false);
 		
+	}
+	
+	public void onEntityLoadFinish() {
+		client.setMessage("Done loading entities.");
+		client.onConnect();
 	}
 	
 	public void requestDisconnect() {
@@ -81,9 +100,12 @@ public class ClientNetworkManager {
 		
 	}
 	
-	public void updatePlayerMovement(boolean up, boolean down, boolean right, boolean left) {
+	private void updateEntityMovement(Entity entity) {
 		
-		CPacket02Move movePacket = new CPacket02Move(client.getPlayer().getName(), up, down, right, left);
+		NetworkComponent networkComp = entity.getComponent(NetworkComponent.class);
+		MovementComponent movementComp = entity.getComponent(MovementComponent.class);
+		
+		CPacket02Move movePacket = new CPacket02Move(networkComp, movementComp);
 		
 		datagramManager.sendPacket(movePacket, connectionManager.getServerAddress(), Server.PORT);
 		
@@ -124,10 +146,6 @@ public class ClientNetworkManager {
 	
 	public boolean isLoggedIn() {
 		return loggedIn;
-	}
-	
-	public void setClient(MultiplayerGameState client) {
-		this.client = client;
 	}
 	
 }

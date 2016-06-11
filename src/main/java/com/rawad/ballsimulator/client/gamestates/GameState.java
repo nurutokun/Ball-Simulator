@@ -1,7 +1,6 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
@@ -12,7 +11,6 @@ import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.GuiComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
-import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -23,6 +21,7 @@ import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
@@ -54,8 +53,8 @@ public class GameState extends State {
 	
 	private boolean showEntireWorld;
 	
-	public GameState() {
-		super();
+	public GameState(AClient client) {
+		super(client);
 		
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
@@ -63,9 +62,6 @@ public class GameState extends State {
 		
 		playerRandomPositioner = new RandomPositionComponent();
 		player.addComponent(playerRandomPositioner);
-		
-		RenderingComponent playerRender = player.getComponent(RenderingComponent.class);
-		playerRender.setTexture(GameTextures.findTexture(EEntity.PLAYER));
 		
 		world.addEntity(player);
 		
@@ -85,7 +81,7 @@ public class GameState extends State {
 		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(camera);
+		debugRender = new DebugRender(client, camera);
 		
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
@@ -225,7 +221,7 @@ public class GameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		sm.getClient().addTask(new Task<Integer>() {
+		client.addTask(new Task<Integer>() {
 			protected Integer call() {
 				
 				CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);
@@ -253,6 +249,10 @@ public class GameState extends State {
 			mess.setShowing(false);
 		});
 		
+	}
+	
+	public Entity getPlayer() {
+		return player;
 	}
 	
 }

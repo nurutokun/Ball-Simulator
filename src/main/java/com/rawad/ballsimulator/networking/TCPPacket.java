@@ -1,15 +1,19 @@
 package com.rawad.ballsimulator.networking;
 
-public abstract class TCPPacket extends Packet {
+import com.rawad.gamehelpers.utils.Util;
+
+public abstract class TCPPacket extends APacket {
 	
-	public TCPPacket(TCPPacketType type, String username, String... data) {
-		super(type.getId(), username, data);
-		
+	public TCPPacket(TCPPacketType type, String... data) {
+		super(APacket.getFormattedDataString(REGEX, Util.prepend(data, type.getId())));
 	}
 	
-	public TCPPacket(TCPPacketType type, byte[] data) {
-		super(type.getId(), data);
-		
+	public TCPPacket(String dataAsString) {
+		super(dataAsString);
+	}
+	
+	public static TCPPacketType getPacketTypeFromData(String dataAsString) {
+		return TCPPacketType.getPacketTypeById(APacket.getPacketIdFromString(dataAsString));
 	}
 	
 }

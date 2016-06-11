@@ -10,12 +10,21 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
 
 <fx:root type="StackPane" xmlns:fx="http://javafx.com/fxml" >
 	
 	<children>
 		
-		<Label fx:id="lblConnectingMessage" text="Connecting..." />
+		<VBox alignment="CENTER">
+			<children>
+			
+			<Label fx:id="lblConnectingMessage" text="Connecting..." />
+			<Button fx:id="cancelConnect" text="Cancel" />
+				
+			</children>
+		</VBox>
 			
 		<GridPane>
 			

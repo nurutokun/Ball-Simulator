@@ -14,7 +14,6 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
-import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
@@ -36,8 +35,6 @@ public class Client extends AClient {
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
-	private ClientNetworkManager networkManager;
-	
 	private SimpleStringProperty gameTitle;
 	
 	public Client() {
@@ -46,9 +43,9 @@ public class Client extends AClient {
 		
 	}
 	
+	@Override
 	public void initGui(Stage stage) {
-		
-		this.stage = stage;
+		super.initGui(stage);
 		
 		stage.titleProperty().bind(gameTitle);
 		
@@ -118,11 +115,11 @@ public class Client extends AClient {
 		
 		GameTextures.registerTextures(game);
 		
-		sm.addState(new MenuState());
-		sm.addState(new GameState());
-		sm.addState(new OptionState());
-		sm.addState(new WorldEditorState());
-		sm.addState(new MultiplayerGameState(networkManager));
+		sm.addState(new MenuState(this));
+		sm.addState(new GameState(this));
+		sm.addState(new OptionState(this));
+		sm.addState(new WorldEditorState(this));
+		sm.addState(new MultiplayerGameState(this));
 		
 		sm.initGui();
 		
@@ -139,8 +136,6 @@ public class Client extends AClient {
 	@Override
 	public void init(Game game) {
 		super.init(game);
-		
-//		networkManager = new ClientNetworkManager();
 		
 		Task<Integer> task = new Task<Integer>() {
 			
@@ -187,7 +182,7 @@ public class Client extends AClient {
 			
 		};
 		
-		LoadingState loadingState = new LoadingState(task);
+		LoadingState loadingState = new LoadingState(this, task);
 		sm.addState(loadingState);
 		
 		addTask(task);
@@ -233,14 +228,6 @@ public class Client extends AClient {
 		
 		Platform.runLater(() -> stage.close());
 		
-	}
-	
-	public void connectToServer(String serverAddress) {
-		networkManager.init(serverAddress);
-	}
-	
-	public ClientNetworkManager getNetworkManager() {
-		return networkManager;
 	}
 	
 }

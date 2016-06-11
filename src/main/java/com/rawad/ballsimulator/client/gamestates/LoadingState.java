@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.gamestates;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
+import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
@@ -27,7 +28,9 @@ public class LoadingState extends State {
 	@FXML private ProgressBar progressBar;
 	@FXML private Label loadingProgressLabel;
 	
-	public LoadingState(Task<Integer> taskToWatch) {
+	public LoadingState(AClient client, Task<Integer> taskToWatch) {
+		super(client);
+		
 		this.taskToWatch = taskToWatch;	
 		
 	}

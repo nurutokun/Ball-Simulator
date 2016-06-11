@@ -2,9 +2,7 @@ package com.rawad.ballsimulator.fileparser;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.entity.EEntity;
-import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
@@ -45,9 +43,6 @@ public class TerrainFileParser extends FileParser {
 		transformComp.setY(y);
 		transformComp.setScaleX(scaleX);
 		transformComp.setScaleY(scaleY);
-		
-		RenderingComponent renderingComp = staticEntity.getComponent(RenderingComponent.class);
-		renderingComp.setTexture(GameTextures.findTexture(EEntity.STATIC));
 		
 		staticEntities.add(staticEntity);
 		

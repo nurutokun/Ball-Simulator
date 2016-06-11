@@ -3,53 +3,48 @@ package com.rawad.ballsimulator.server.gui;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
-import com.rawad.ballsimulator.client.Viewport;
-import com.rawad.ballsimulator.client.gui.CanvasPane;
+import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
-import com.rawad.ballsimulator.entity.EntityPlayer;
-import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.ballsimulator.server.ServerController;
-import com.rawad.ballsimulator.server.main.ServerStart;
-import com.rawad.ballsimulator.server.world.WorldMP;
-import com.rawad.gamehelpers.client.renderengine.Camera;
+import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.gamehelpers.client.AClient;
+import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameManager;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.Loader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.resources.TextureResource;
 
-import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener.Change;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-public class ServerGui extends Application {
+public class ServerGui extends AClient {
 	
 	private Server server;
 	
-	private Stage stage;
+	private StackPane worldViewRoot;
 	
 	private FXMLLoader loader;
 	
 	@FXML private TabPane tabPane;
 	
-	@FXML private CanvasPane canvasPane;
+	@FXML private Tab worldViewTab;
 	
 	@FXML private Messenger console;
 	
@@ -57,27 +52,15 @@ public class ServerGui extends Application {
 	
 	@FXML private PlayerList playerList;
 	
-	private Canvas canvas;
-	
 	private PrintStream consolePrinter;
 	
-	private Viewport viewport;
-	private Camera camera;
-	
-	private boolean up;
-	private boolean down;
-	private boolean right;
-	private boolean left;
-	
-	private boolean freeRoam;
-	
+	/**
+	 * 
+	 * @param server
+	 * @param game Used only for registering textures.
+	 */
 	public ServerGui(Server server) {
 		this.server = server;
-		
-		viewport = new Viewport();
-		camera = new Camera();
-		
-		viewport.update(server.<ServerController>getController().getWorld(), camera);
 		
 		consolePrinter = new PrintStream(new OutputStream() {
 			
@@ -98,19 +81,90 @@ public class ServerGui extends Application {
 			
 		}, true);
 		
-		Logger.getPrintStreams().add(consolePrinter);
-		
 	}
 	
-	public ServerGui() {
-		this(ServerStart.server);
+	@Override
+	public void init(Game game) {
+		super.init(game);
+		
+		server.addTask(new Task<Integer>() {
+			@Override
+			protected Integer call() throws Exception {
+				
+				GameTextures.registerTextures(game);
+				
+				String message = "Loading textures...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				for(TextureResource texture: ResourceManager.getRegisteredTextures().values()) {
+					
+					ResourceManager.loadTexture(texture);
+					
+				}
+				
+				message = "Done!";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				Platform.runLater(() -> {
+					
+					stage.setTitle(game.toString() + " Server");
+					stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation()));
+					
+					debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
+					
+					game.getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
+						while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
+							if(change.getAddedSize() > 0) {
+								
+								List<? extends Entity> addedEntities = change.getAddedSubList();
+								
+								for(Entity e: addedEntities) {
+									if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
+								}
+								
+							}
+							
+							if(change.getRemovedSize() > 0) {
+								
+								List<? extends Entity> removedEntities = change.getRemoved();
+								
+								for(Entity e: removedEntities) {
+									if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
+								}
+								
+							}
+						}
+						
+					});
+					
+					WorldViewState worldViewState = new WorldViewState(ServerGui.this, game.getWorld());
+					worldViewState.initGui();
+					
+					sm.setState(worldViewState);
+					
+					worldViewRoot = worldViewState.getRoot();
+					
+					worldViewTab.setContent(worldViewRoot);
+					
+					readyToRender = true;
+					
+				});
+				
+				return 0;
+				
+			}
+		});
+
 		
 	}
 	
 	@Override
-	public void start(Stage stage) throws Exception {
-		
-		this.stage = stage;
+	public void initGui(Stage stage) {
+		super.initGui(stage);
 		
 		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
 		loader.setController(this);
@@ -121,24 +175,16 @@ public class ServerGui extends Application {
 			ex.printStackTrace();
 		}
 		
-		Platform.runLater(() -> stage.getScene().setRoot(loader.getRoot()));
+		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		stage.setScene(scene);
 		
-		debugChanger.selectedProperty().bindBidirectional(server.getGame().debugProperty());
-		
-		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
-			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
-		});
-		
+//		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
+//			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
+//		});
+		tabPane.setFocusTraversable(false);
 		tabPane.getSelectionModel().selectedItemProperty().addListener((e, oldValue, newValue) -> {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 		});
-		
-		canvas = canvasPane.getCanvas();
-		
-		camera.getCameraBounds().widthProperty().bind(canvas.widthProperty());
-		camera.getCameraBounds().heightProperty().bind(canvas.heightProperty());
-		
-		playerList.setItems(server.<ServerController>getController().getWorld().getPlayers());
 		
 		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
@@ -153,134 +199,10 @@ public class ServerGui extends Application {
 		console.getOutputArea().setWrapText(false);
 		console.setShowing(true);
 		
-		canvasPane.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-			
-			switch(keyEvent.getCode()) {
-			
-			case F3:
-				server.getGame().setDebug(!server.getGame().isDebug());
-				break;
-			
-			case L:
-				freeRoam = !freeRoam;
-				break;
-			
-			case UP:
-			case W:
-				up = true;
-				break;
-				
-			case DOWN:
-			case S:
-				down = true;
-				break;
-				
-			case RIGHT:
-			case D:
-				right = true;
-				break;
-				
-			case LEFT:
-			case A:
-				left = true;
-				break;
-				
-			default:
-				break;
-			
-			}
-			
-		});
+		Logger.getPrintStreams().add(consolePrinter);
 		
-		canvasPane.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
-			
-			switch(keyEvent.getCode()) {
-
-			case UP:
-			case W:
-				up = false;
-				break;
-				
-			case DOWN:
-			case S:
-				down = false;
-				break;
-				
-			case RIGHT:
-			case D:
-				right = false;
-				break;
-				
-			case LEFT:
-			case A:
-				left = false;
-				break;
-				
-			default:
-				break;
-			}
-			
-		});
-		
-		server.addTask(new Task<Integer>() {
-			@Override
-			protected Integer call() throws Exception {
-				
-				Logger.log(Logger.DEBUG, "Registering textures...");
-				
-				ResourceManager.registerUnkownTexture();
-				
-				server.getGame().registerTextures();
-				
-				ResourceManager.getTextureObject(server.getGame().getIconLocation()).setOnloadAction(() -> {
-					Platform.runLater(() -> stage.getIcons().add(ResourceManager.getTexture(server.getGame()
-							.getIconLocation())));
-				});
-				
-				EntityPlayer.registerTextures(server.getGame().getLoader(CustomLoader.class));
-				
-				Logger.log(Logger.DEBUG, "Loading textures...");
-				
-				for(TextureResource texture: ResourceManager.getRegisteredTextures().values()) {
-					
-					ResourceManager.loadTexture(texture);
-					
-				}
-				
-				Thread guiUpdater = new Thread(() -> {
-					
-					while(server.getGame().isRunning()) {
-						
-						update();
-						
-						try {
-							Thread.sleep(GameManager.instance().getSleepTime());
-						} catch(Exception ex) {
-							ex.printStackTrace();
-							break;
-						}
-						
-					}
-					
-				}, "Gui Updater");
-				guiUpdater.setDaemon(true);
-				guiUpdater.start();
-				
-				WorldMP world = server.<ServerController>getController().getWorld();
-				
-				camera.setOuterBounds(new Rectangle(0, 0, world.getWidth(), world.getHeight()));
-				
-				Logger.log(Logger.DEBUG, "Done!");
-				
-				return 0;
-				
-			}
-		});
-		
-		stage.setTitle(server.getGame().toString() + " Server");
-		
+		stage.setTitle("Server");
 		stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-		
 		stage.setOnCloseRequest(e -> {
 			
 			requestClose();
@@ -288,26 +210,10 @@ public class ServerGui extends Application {
 			e.consume();
 			
 		});
-		
-		Scene scene = new Scene(new StackPane(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-		
-		stage.setScene(scene);
 		stage.sizeToScene();
 		stage.show();
 		
-	}
-	
-	private void update() {
-		
-		if(freeRoam) {
-			camera.setScale(1d/2d, 1d/2d);
-		} else {
-			camera.setScale(Double.MIN_VALUE, Double.MIN_VALUE);
-		}
-		
-		camera.update(up, down, right, left);
-		
-		Platform.runLater(() -> viewport.render(canvas));
+		readyToUpdate = true;
 		
 	}
 	
@@ -317,7 +223,7 @@ public class ServerGui extends Application {
 		
 		if(input.length() > command.length()) {
 			if (input.substring(0, command.length()).equalsIgnoreCase(command)) {
-				SPacket03Message packet = new SPacket03Message(Server.SIMPLE_NAME, input.substring(command.length()));
+				SPacket04Message packet = new SPacket04Message(Server.SIMPLE_NAME, input.substring(command.length()));
 				
 				server.getNetworkManager().getConnectionManager().sendPacketToAllClients(null, packet);
 				
@@ -327,7 +233,27 @@ public class ServerGui extends Application {
 	}
 	
 	@FXML private void requestClose() {
+		
 		server.getGame().requestStop();
+		
+		Platform.runLater(() -> getStage().close());
+		
+	}
+
+	@Override
+	public void tick() {
+		
+		Mouse.update(worldViewRoot);
+		
+	}
+	
+	@Override
+	public void stop() {
+		
+		readyToUpdate = false;
+		readyToRender = false;
+		
+		ResourceManager.releaseResources();
 		
 		Platform.runLater(() -> stage.close());
 		

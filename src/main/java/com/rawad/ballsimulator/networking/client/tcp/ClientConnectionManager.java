@@ -5,16 +5,23 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
-import com.rawad.ballsimulator.entity.EntityPlayer;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.ConnectionState;
-import com.rawad.ballsimulator.networking.Packet;
+import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket05Entity;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 
 /**
@@ -49,20 +56,22 @@ public class ClientConnectionManager {
 			// enough, causing the multiplayer game state to go back to the main menu, thinking that it disconnected or
 			// something.
 			
-			try {// Initializing socket here fixes problem with player being logged in server-side only because of exiting 
+			try {// Initializing socket here fixes problem with player being logged in server-side only because of exiting
 				// multiplayer too quickly
 				
 				socket = new Socket(address, port);
 				
 				if(networkManager.isDisconnectedFromServer()) {// If a disconnect was requested in the mean time
-					throw new Exception("Disconnect requested");
+					throw new Exception("Disconnect requested.");
 				}
+				
+				Logger.log(Logger.DEBUG, "Successfully connected to server.");
 				
 				networkManager.setConnectionState(ConnectionState.CONNECTED);
 				networkManager.onConnect();
 				
 				connectionHandler = new Thread(new ConnectionHandler(socket), "Connection Handler");
-				
+				connectionHandler.setDaemon(true);
 				connectionHandler.start();
 				
 			} catch(Exception ex) {
@@ -82,8 +91,7 @@ public class ClientConnectionManager {
 		
 		try {
 			
-			CPacket02Logout logoutPacket = new CPacket02Logout(networkManager.getClient().getPlayer().getName(), 
-					socket.getInetAddress().getHostAddress());
+			CPacket02Logout logoutPacket = new CPacket02Logout();
 			
 			sendPacketToServer(logoutPacket);
 			
@@ -97,50 +105,62 @@ public class ClientConnectionManager {
 		
 	}
 	
-	private void handleServerInput(Socket client, String input) {
+	private void handleServerInput(Socket client, String dataAsString) {
 		
-		byte[] data = input.getBytes();
+		TCPPacketType type = TCPPacket.getPacketTypeFromData(dataAsString);
 		
-		TCPPacketType type = Packet.getTCPPacketTypeFromData(data);
+		World world = networkManager.getClient().getWorld();
 		
 		switch(type) {
 		
 		case LOGIN:
 			
-			SPacket01Login loginReplyPacket = new SPacket01Login(data);
+			SPacket01Login loginReplyPacket = new SPacket01Login(dataAsString);
 			
-			EntityPlayerMP mainClientPlayer = networkManager.getClient().getPlayer();
-			
-			// Denied login
-			if(!loginReplyPacket.canLogin() && mainClientPlayer.getName().equals(loginReplyPacket.getUsername())) {
-				Logger.log(Logger.DEBUG, "Login denied by server.");
+			if(!loginReplyPacket.canLogin()) {
 				networkManager.requestDisconnect();
-				
 				break;
+			}
+			
+			Entity player = networkManager.getClient().getPlayer();
+			
+			NetworkComponent networkComp = player.getComponent(NetworkComponent.class);
+			UserComponent userComp = player.getComponent(UserComponent.class);
+			
+			if(player.getComponent(UserComponent.class).getUsername().equals(loginReplyPacket.getUsername())) {
+				
+				networkManager.setLoggedIn(true);
+				
+			} else {// Player that is logging in isn't the client's player, so create a new player.
+				
+				player = Entity.createEntity(EEntity.PLAYER);
+				
+				networkComp = new NetworkComponent();
+				userComp = new UserComponent();
+				
+				player.addComponent(networkComp);
+				player.addComponent(userComp);
+				
+				world.addEntity(player);
 				
 			}
 			
-			EntityPlayerMP player = mainClientPlayer;
+			int receivedEntityId = loginReplyPacket.getEntityId();
 			
-			String receivedUsername = loginReplyPacket.getUsername();
+			networkComp.setId(receivedEntityId);
+			userComp.setIp(loginReplyPacket.getIp());
+			userComp.setUsername(loginReplyPacket.getUsername());// Could move this down (username 
+			// confirmation).
 			
-			if(player.getName().equals(receivedUsername)) {
-				networkManager.getClient().loadTerrain(loginReplyPacket.getTerrainName());
-				networkManager.setLoggedIn(true);
-			} else {// Player that is logging in isn't the client's player, so create a new player.
-				player = new EntityPlayerMP(networkManager.getClient().getWorld(), loginReplyPacket.getUsername(), 
-						client.getInetAddress().getHostAddress());
-			}
+			TransformComponent transformComp = player.getComponent(TransformComponent.class);
 			
-			player.setX(loginReplyPacket.getX());
-			player.setY(loginReplyPacket.getY());
+			transformComp.setX(loginReplyPacket.getX());
+			transformComp.setY(loginReplyPacket.getY());
 			
-			player.setWidth(loginReplyPacket.getWidth());
-			player.setHeight(loginReplyPacket.getHeight());
+			transformComp.setScaleX(loginReplyPacket.getScaleX());
+			transformComp.setScaleY(loginReplyPacket.getScaleY());
 			
-			player.setTheta(loginReplyPacket.getTheta());
-			
-			player.updateHitbox();
+			transformComp.setTheta(loginReplyPacket.getTheta());
 			
 			networkManager.getClient().addPlayer(player);
 			
@@ -148,43 +168,61 @@ public class ClientConnectionManager {
 			
 		case LOGOUT:
 			
-			SPacket02Logout logoutPacket = new SPacket02Logout(data);
+			SPacket02Logout logoutPacket = new SPacket02Logout(dataAsString);
 			
-			EntityPlayer mainPlayer = networkManager.getClient().getPlayer();
-			
-			if(mainPlayer.getName().equals(logoutPacket.getUsername())) {
+			if(logoutPacket.getEntityId() == networkManager.getClient().getPlayer().getComponent(NetworkComponent.class)
+					.getId()) {
 				networkManager.setLoggedIn(false);
-				
 				networkManager.requestDisconnect();
-				
 			} else {
-				
-				networkManager.getClient().getWorld().removeEntityByName(logoutPacket.getUsername());
-				networkManager.getClient().removePlayer(logoutPacket.getUsername());
-				
+				networkManager.getClient().removeEntity(logoutPacket.getEntityId());
 			}
 			
 			break;
 			
 		case MESSAGE:
 			
-			// With current setup, sender doesn't receive their sent message (could be change to indicate if it made it)
-			SPacket03Message messagePacket = new SPacket03Message(data);
+			SPacket04Message messagePacket = new SPacket04Message(dataAsString);
 			
-			networkManager.getClient().addUserMessage(messagePacket.getUsername(), messagePacket.getMessage());
+			networkManager.getClient().addUserMessage(messagePacket.getSender(), messagePacket.getMessage());
+			
+			break;
+			
+		case ENTITY:
+			
+			SPacket05Entity entityPacket = new SPacket05Entity(dataAsString);
+			
+			if(entityPacket.isLast()) {
+				networkManager.onEntityLoadFinish();
+			} else {
+				ArrayList<Entity> entities = world.getEntitiesAsList();
+				
+				Entity entity = Entity.createEntity(EEntity.getByName(entityPacket.getEntityName()));
+				
+				TransformComponent entityTransform = entity.getComponent(TransformComponent.class);
+				entityTransform.setX(entityPacket.getX());
+				entityTransform.setY(entityPacket.getY());
+				entityTransform.setScaleX(entityPacket.getScaleX());
+				entityTransform.setScaleY(entityPacket.getScaleY());
+				entityTransform.setTheta(entityPacket.getTheta());
+				
+				synchronized(entities) {
+					world.addEntity(entity);
+				}
+			}
 			
 			break;
 			
 		case INVALID:
 		default:
-			Logger.log(Logger.WARNING, "Invalid packet: \"" + input + "\".");
+			Logger.log(Logger.WARNING, "Invalid packet: \"" + dataAsString + "\".");
 			break;
 		
 		}
 		
 	}
 	
-	public void sendPacketToServer(Packet packet) {
+	public void sendPacketToServer(APacket packet) {
 		sendMessageToServer(packet.getDataAsString());
 	}
 	
@@ -230,11 +268,8 @@ public class ClientConnectionManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; client lost connection to server or"
 						+ " socket was closed by other means.");
-				
 			} finally {
-				
 				networkManager.requestDisconnect();
-				
 			}
 			
 		}

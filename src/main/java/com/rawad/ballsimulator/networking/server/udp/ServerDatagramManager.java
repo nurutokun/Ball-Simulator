@@ -7,14 +7,17 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.entity.EntityRotatingBase;
-import com.rawad.ballsimulator.networking.Packet;
+import com.rawad.ballsimulator.entity.MovementComponent;
+import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.networking.APacket;
+import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
+import com.rawad.ballsimulator.networking.server.tcp.ServerConnectionManager.ClientInputManager;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.ballsimulator.server.ServerController;
-import com.rawad.ballsimulator.server.entity.EntityPlayerMP;
+import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -59,7 +62,11 @@ public class ServerDatagramManager {
 	
 	private void handlePacket(byte[] data, String address, int port) {
 		
-		UDPPacketType type = Packet.getUDPPacketTypeFromData(data);
+		String dataAsString = APacket.getStringFromData(data);
+		
+		UDPPacketType type = UDPPacket.getPacketTypeFromData(dataAsString);
+		
+		Entity e = networkManager.getServer().getEntityById(UDPPacket.getEntityIdFromString(dataAsString));
 		
 		switch(type) {
 		
@@ -68,12 +75,11 @@ public class ServerDatagramManager {
 			
 		case MOVE:
 			
-			CPacket02Move moveRequest = new CPacket02Move(data);
+			CPacket02Move moveRequest = new CPacket02Move(dataAsString);
 			
-			EntityPlayerMP player = (EntityPlayerMP) networkManager.getServer().<ServerController>getController().getWorld()
-					.getEntityByName(moveRequest.getUsername());
+			MovementComponent movementComp = e.getComponent(MovementComponent.class);
 			
-			handleMoveRequest(moveRequest, player);
+			if(movementComp != null) handleMoveRequest(moveRequest, movementComp);
 			
 			break;
 			
@@ -85,27 +91,29 @@ public class ServerDatagramManager {
 		
 	}
 	
-	private void handleMoveRequest(CPacket02Move moveRequest, EntityPlayerMP playerToMove) {
+	private void handleMoveRequest(CPacket02Move moveRequest, MovementComponent movementComp) {
 		
-		playerToMove.setUp(moveRequest.isUp());
-		playerToMove.setDown(moveRequest.isDown());
-		playerToMove.setRight(moveRequest.isRight());
-		playerToMove.setLeft(moveRequest.isLeft());
-		
-	}
-	
-	public void sendMoveUpdate(EntityRotatingBase entity) {
-		
-		sendPacketToAllClients(new SPacket02Move(entity.getName(), entity.getX(), entity.getY(), entity.getVx(), 
-				entity.getVy(), entity.getAx(), entity.getAy(), entity.getTheta()));
+		movementComp.setUp(moveRequest.isUp());
+		movementComp.setDown(moveRequest.isDown());
+		movementComp.setRight(moveRequest.isRight());
+		movementComp.setLeft(moveRequest.isLeft());
 		
 	}
 	
-	public void sendPacketToAllClients(Packet packet) {
+	public void sendMoveUpdate(Entity entity) {
 		
-		ArrayList<Socket> clients = networkManager.getConnectionManager().getClients();
+		sendPacketToAllClients(new SPacket02Move(entity.getComponent(NetworkComponent.class), 
+				entity.getComponent(TransformComponent.class), entity.getComponent(MovementComponent.class)));
 		
-		for(Socket client: clients) {
+	}
+	
+	public void sendPacketToAllClients(APacket packet) {
+		
+		ArrayList<ClientInputManager> clients = networkManager.getConnectionManager().getClientInputManagers();
+		
+		for(ClientInputManager cim: clients) {
+			
+			Socket client = cim.getClient();
 			
 			sendPacket(packet, client.getInetAddress().getHostAddress(), client.getPort());
 			
@@ -113,7 +121,7 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendPacket(Packet packet, String address, int port) {
+	public void sendPacket(APacket packet, String address, int port) {
 		
 		try {
 			
@@ -137,7 +145,7 @@ public class ServerDatagramManager {
 				
 				while(networkManager.getServer().getGame().isRunning()) {
 					
-					byte[] dataBuffer = new byte[Packet.BUFFER_SIZE];
+					byte[] dataBuffer = new byte[APacket.BUFFER_SIZE];
 					
 					DatagramPacket packet = new DatagramPacket(dataBuffer, dataBuffer.length);
 					
@@ -148,7 +156,7 @@ public class ServerDatagramManager {
 				}
 				
 			} catch(Exception ex) {
-				Logger.log(Logger.WARNING, ex.getMessage() + "; bad packet or client disconnected.");
+				Logger.log(Logger.WARNING, ex.getMessage() + ".");
 //				ex.printStackTrace();
 			}
 			
