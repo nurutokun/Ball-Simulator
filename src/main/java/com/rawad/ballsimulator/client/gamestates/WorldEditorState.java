@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
@@ -78,7 +79,7 @@ public class WorldEditorState extends State {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
-		movementControlSystem = new MovementControlSystem();
+		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
 		gameSystems.add(movementControlSystem);
@@ -130,9 +131,11 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			switch(keyEvent.getCode()) {
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
 			
-			case C:
+			switch(action) {
+			
+			case CLAMP:
 				
 				if(Mouse.isClamped()) {
 					Mouse.unclamp();

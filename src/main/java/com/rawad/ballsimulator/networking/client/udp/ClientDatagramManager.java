@@ -91,7 +91,7 @@ public class ClientDatagramManager {
 		
 	}
 	
-	public void sendPacket(APacket packet, String address, int port) {
+	public void sendPacket(UDPPacket packet, String address, int port) {
 		
 		if(networkManager.isConnectedToServer() && !socket.isClosed()) {
 			

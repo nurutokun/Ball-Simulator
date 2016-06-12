@@ -4,6 +4,7 @@ import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
@@ -112,13 +113,15 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			
 			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
-				switch(keyEvent.getCode()) {
+				switch(action) {
 				
-				case ESCAPE:
+				case PAUSE:
 					mess.setShowing(false);
 					pauseScreen.setVisible(false);
-				case E:
+				case INVENTORY:
 					inventory.setVisible(false);
 					break;
 					
@@ -130,21 +133,21 @@ public class GameState extends State {
 				
 			}
 			
-			switch(keyEvent.getCode()) {
+			switch(action) {
 			
-			case ESCAPE:
+			case PAUSE:
 				pauseScreen.setVisible(true);
 				break;
 				
-			case E:
+			case INVENTORY:
 				inventory.setVisible(!inventory.isVisible());
 				break;
 				
-			case R:
+			case GEN_POS:
 				playerRandomPositioner.setGenerateNewPosition(true);
 				break;
 				
-			case L:
+			case SHOW_WORLD:
 				showEntireWorld = !showEntireWorld;
 				
 				if(showEntireWorld) {
@@ -157,23 +160,23 @@ public class GameState extends State {
 				
 				break;
 				
-			case C:
+			case TILT_RIGHT:
 				cameraTransform.setTheta(cameraTransform.getTheta() + 5);
 				break;
 				
-			case Z:
+			case TILT_LEFT:
 				cameraTransform.setTheta(cameraTransform.getTheta() - 5);
 				break;
 				
-			case X:
+			case TILT_RESET:
 				cameraTransform.setTheta(0);
 				break;
 				
-			case ENTER:
+			case MESS:
 				mess.setShowing(true);
 				break;
 				
-			case F5:
+			case REFRESH:
 				
 				String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
 				
@@ -191,9 +194,11 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
-			switch(keyEvent.getCode()) {
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
 			
-			case T:
+			switch(action) {
+			
+			case MESS:
 				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 			

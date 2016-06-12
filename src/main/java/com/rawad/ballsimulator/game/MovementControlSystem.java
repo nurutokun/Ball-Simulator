@@ -1,7 +1,9 @@
 package com.rawad.ballsimulator.game;
 
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
+import com.rawad.gamehelpers.client.input.InputBindings;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 
@@ -12,13 +14,17 @@ import javafx.scene.input.KeyEvent;
 
 public class MovementControlSystem extends GameSystem implements EventHandler<KeyEvent> {
 	
+	private InputBindings inputBindings;
+	
 	private boolean up;
 	private boolean down;
 	private boolean right;
 	private boolean left;
 	
-	public MovementControlSystem() {
+	public MovementControlSystem(InputBindings inputBindings) {
 		super();
+		
+		this.inputBindings = inputBindings;
 		
 		compatibleComponentTypes.add(UserControlComponent.class);
 		compatibleComponentTypes.add(MovementComponent.class);
@@ -42,37 +48,35 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 		
 		EventType<KeyEvent> eventType = event.getEventType();
 		
+		InputAction action = (InputAction) inputBindings.get(event.getCode());
+		
 		if(eventType == KeyEvent.KEY_PRESSED) {
-			keyPressed(event.getCode());
+			keyPressed(action);
 		} else if(eventType == KeyEvent.KEY_RELEASED) {
-			keyReleased(event.getCode());
+			keyReleased(action);
 		}
 		
 	}
 	
-	private void keyPressed(KeyCode keyCode) {
-		switch(keyCode) {
+	private void keyPressed(InputAction action) {
+		switch(action) {
 		
-		case UP:
-		case W:
+		case MOVE_UP:
 			up = true;
 			down = false;
 			break;
 			
-		case DOWN:
-		case S:
+		case MOVE_DOWN:
 			down = true;
 			up = false;
 			break;
 			
-		case RIGHT:
-		case D:
+		case MOVE_RIGHT:
 			right = true;
 			left = false;
 			break;
 			
-		case LEFT:
-		case A:
+		case MOVE_LEFT:
 			left = true;
 			right = false;
 			break;
@@ -83,26 +87,22 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 		}
 	}
 	
-	private void keyReleased(KeyCode keyCode) {
-		switch(keyCode) {
+	private void keyReleased(InputAction action) {
+		switch(action) {
 		
-		case UP:
-		case W:
+		case MOVE_UP:
 			up = false;
 			break;
 			
-		case DOWN:
-		case S:
+		case MOVE_DOWN:
 			down = false;
 			break;
 			
-		case RIGHT:
-		case D:
+		case MOVE_RIGHT:
 			right = false;
 			break;
 			
-		case LEFT:
-		case A:
+		case MOVE_LEFT:
 			left = false;
 			break;
 			

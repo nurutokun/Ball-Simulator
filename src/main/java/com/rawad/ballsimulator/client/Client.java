@@ -14,6 +14,7 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
@@ -25,8 +26,10 @@ import com.rawad.gamehelpers.resources.TextureResource;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 
 public class Client extends AClient {
@@ -60,17 +63,19 @@ public class Client extends AClient {
 			
 		});
 		
-		stage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-		
-			switch(e.getCode()) {
+		stage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			case F3:
+			InputAction action = (InputAction) getInputBindings().get(keyEvent.getCode());
+			
+			switch(action) {
+			
+			case DEBUG:
 				
 				game.setDebug(!game.isDebug());
 				
 				break;
 			
-			case F11:
+			case FULLSCREEN:
 				
 				if(!stage.isFullScreen()) {
 					stage.setFullScreen(true);
@@ -87,7 +92,7 @@ public class Client extends AClient {
 				
 			}
 			
-			e.consume();
+			keyEvent.consume();
 			
 		});
 		
@@ -202,6 +207,45 @@ public class Client extends AClient {
 			readyToUpdate = true;
 			
 		});
+		
+	}
+	
+	@Override
+	protected void initInputBindings() {
+		
+		inputBindings.setDefaultBinding(InputAction.DEFAULT);
+		
+		inputBindings.put(KeyCode.UP, InputAction.MOVE_UP);
+		inputBindings.put(KeyCode.DOWN, InputAction.MOVE_DOWN);
+		inputBindings.put(KeyCode.RIGHT, InputAction.MOVE_RIGHT);
+		inputBindings.put(KeyCode.LEFT, InputAction.MOVE_LEFT);
+		inputBindings.put(KeyCode.W, InputAction.MOVE_UP);
+		inputBindings.put(KeyCode.S, InputAction.MOVE_DOWN);
+		inputBindings.put(KeyCode.D, InputAction.MOVE_RIGHT);
+		inputBindings.put(KeyCode.A, InputAction.MOVE_LEFT);
+		
+		inputBindings.put(KeyCode.C, InputAction.TILT_RIGHT);
+		inputBindings.put(KeyCode.Z, InputAction.TILT_LEFT);
+		inputBindings.put(KeyCode.X, InputAction.TILT_RESET);
+		
+		inputBindings.put(KeyCode.R, InputAction.GEN_POS);
+		inputBindings.put(KeyCode.L, InputAction.SHOW_WORLD);
+		
+		inputBindings.put(KeyCode.V, InputAction.CLAMP);
+		
+		inputBindings.put(KeyCode.S, InputAction.SAVE);
+		
+		inputBindings.put(KeyCode.ESCAPE, InputAction.PAUSE);
+		inputBindings.put(KeyCode.E, InputAction.INVENTORY);
+		
+		inputBindings.put(KeyCode.ENTER, InputAction.MESS);
+		inputBindings.put(KeyCode.T, InputAction.MESS);
+		
+		inputBindings.put(KeyCode.F5, InputAction.REFRESH);
+		
+		inputBindings.put(MouseButton.PRIMARY, InputAction.PLACE);
+		inputBindings.put(MouseButton.SECONDARY, InputAction.REMOVE);
+		inputBindings.put(MouseButton.MIDDLE, InputAction.SELECT);
 		
 	}
 	

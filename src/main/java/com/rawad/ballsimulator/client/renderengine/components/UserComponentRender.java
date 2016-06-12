@@ -2,7 +2,7 @@ package com.rawad.ballsimulator.client.renderengine.components;
 
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.scene.canvas.GraphicsContext;

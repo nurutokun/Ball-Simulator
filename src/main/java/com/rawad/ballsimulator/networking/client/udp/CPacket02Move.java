@@ -3,7 +3,7 @@ package com.rawad.ballsimulator.networking.client.udp;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 
 public class CPacket02Move extends UDPPacket {
 	
