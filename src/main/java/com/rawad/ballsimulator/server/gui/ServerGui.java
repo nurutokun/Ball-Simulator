@@ -8,6 +8,7 @@ import java.util.List;
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
 import com.rawad.ballsimulator.server.Server;
@@ -30,6 +31,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -256,6 +258,22 @@ public class ServerGui extends AClient {
 		ResourceManager.releaseResources();
 		
 		Platform.runLater(() -> stage.close());
+		
+	}
+
+	@Override
+	protected void initInputBindings() {
+		
+		inputBindings.setDefaultBinding(InputAction.DEFAULT);
+		
+		inputBindings.put(KeyCode.UP, InputAction.MOVE_UP);
+		inputBindings.put(KeyCode.DOWN, InputAction.MOVE_DOWN);
+		inputBindings.put(KeyCode.RIGHT, InputAction.MOVE_RIGHT);
+		inputBindings.put(KeyCode.LEFT, InputAction.MOVE_LEFT);
+		inputBindings.put(KeyCode.W, InputAction.MOVE_UP);
+		inputBindings.put(KeyCode.S, InputAction.MOVE_DOWN);
+		inputBindings.put(KeyCode.D, InputAction.MOVE_RIGHT);
+		inputBindings.put(KeyCode.A, InputAction.MOVE_LEFT);
 		
 	}
 	

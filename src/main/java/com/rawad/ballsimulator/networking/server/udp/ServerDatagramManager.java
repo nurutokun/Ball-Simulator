@@ -157,7 +157,7 @@ public class ServerDatagramManager {
 				
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getMessage() + ".");
-//				ex.printStackTrace();
+				ex.printStackTrace();
 			}
 			
 		}

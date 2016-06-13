@@ -233,7 +233,7 @@ public class Client extends AClient {
 		
 		inputBindings.put(KeyCode.V, InputAction.CLAMP);
 		
-		inputBindings.put(KeyCode.S, InputAction.SAVE);
+		inputBindings.put(KeyCode.F, InputAction.SAVE);
 		
 		inputBindings.put(KeyCode.ESCAPE, InputAction.PAUSE);
 		inputBindings.put(KeyCode.E, InputAction.INVENTORY);
@@ -245,7 +245,7 @@ public class Client extends AClient {
 		
 		inputBindings.put(MouseButton.PRIMARY, InputAction.PLACE);
 		inputBindings.put(MouseButton.SECONDARY, InputAction.REMOVE);
-		inputBindings.put(MouseButton.MIDDLE, InputAction.SELECT);
+		inputBindings.put(MouseButton.MIDDLE, InputAction.EXTRACT);
 		
 	}
 	

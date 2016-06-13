@@ -7,11 +7,11 @@ import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 
-public class CNetworkMovementSystem extends GameSystem {
+public class NetworkMovementSystem extends GameSystem {
 	
 	private ClientNetworkManager networkManager;
 	
-	public CNetworkMovementSystem(ClientNetworkManager networkManager) {
+	public NetworkMovementSystem(ClientNetworkManager networkManager) {
 		super();
 		
 		this.networkManager = networkManager;

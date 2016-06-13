@@ -93,7 +93,7 @@ public class ClientDatagramManager {
 	
 	public void sendPacket(UDPPacket packet, String address, int port) {
 		
-		if(networkManager.isConnectedToServer() && !socket.isClosed()) {
+		if(networkManager.isLoggedIn() && !socket.isClosed()) {
 			
 			try {
 				

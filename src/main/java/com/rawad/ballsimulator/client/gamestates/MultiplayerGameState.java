@@ -22,6 +22,7 @@ import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.networking.client.NetworkMovementSystem;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
@@ -102,7 +103,7 @@ public class MultiplayerGameState extends State {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
-		movementControlSystem = new MovementControlSystem();
+		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		
 		MovementSystem movementSystem = new MovementSystem();
 		player.getComponent(CollisionComponent.class).getListeners().add(movementSystem);
@@ -116,6 +117,7 @@ public class MultiplayerGameState extends State {
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
 		gameSystems.add(cameraFollowSystem);
+		gameSystems.add(new NetworkMovementSystem(networkManager));
 		
 	}
 	

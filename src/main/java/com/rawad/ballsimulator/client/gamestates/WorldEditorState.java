@@ -145,11 +145,11 @@ public class WorldEditorState extends State {
 				
 				break;
 			
-			case S:
+			case SAVE:
 				if(keyEvent.isControlDown()) saveTerrain("terrain");
 				break;
 				
-			case ESCAPE:
+			case PAUSE:
 				pauseScreen.setVisible(!pauseScreen.isVisible());
 				break;
 				
@@ -161,17 +161,19 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 			
-			switch(mouseEvent.getButton()) {
+			InputAction action = (InputAction) client.getInputBindings().get(mouseEvent.getButton());
 			
-			case PRIMARY:
+			switch(action) {
+			
+			case PLACE:
 				placeableComp.setPlaceRequested(true);
 				break;
 				
-			case SECONDARY:
+			case REMOVE:
 				placeableComp.setRemoveRequested(true);
 				break;
 			
-			case MIDDLE:
+			case EXTRACT:
 				placeableComp.setExtractRequested(true);
 				break;
 				
@@ -209,11 +211,7 @@ public class WorldEditorState extends State {
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
 		pauseScreen.visibleProperty().addListener((e, prevVisible, currentlyVisible) -> {
-			
-			if(currentlyVisible) {
-				Mouse.unclamp();
-			}
-			
+			if(currentlyVisible) Mouse.unclamp();
 		});
 		
 		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));

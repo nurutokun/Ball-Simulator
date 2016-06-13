@@ -30,7 +30,7 @@ public enum InputAction {
 	
 	// Mouse.
 	PLACE,
-	SELECT,
+	EXTRACT,
 	REMOVE,
 	
 	// To avoid null.
