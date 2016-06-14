@@ -80,7 +80,6 @@ public class ClientNetworkManager {
 	}
 	
 	public void onEntityLoadFinish() {
-		client.setMessage("Done loading entities.");
 		client.onConnect();
 	}
 	

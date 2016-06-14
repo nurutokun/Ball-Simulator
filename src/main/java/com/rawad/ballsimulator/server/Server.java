@@ -16,6 +16,8 @@ import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
 
+import javafx.concurrent.Task;
+
 public class Server extends AServer {
 	
 	/** Mainly used to identify the server for announcements/messages. */
@@ -35,13 +37,19 @@ public class Server extends AServer {
 		
 		tickCount = 0;
 		
-		WorldMP world = new WorldMP();
+		addTask(new Task<Integer>() {
+			@Override
+			protected Integer call() throws Exception {
+				BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().addComponent(new NetworkComponent());
+				return 0;
+			}
+		});
 		
+		WorldMP world = new WorldMP();
 		game.setWorld(world);
 		
 		ArrayList<GameSystem> gameSystems = new ArrayList<GameSystem>();
 		
-		// TODO: Add game systems.
 		// RandomGenerationSystem
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));

@@ -68,6 +68,8 @@ public class ServerDatagramManager {
 		
 		Entity e = networkManager.getServer().getEntityById(UDPPacket.getEntityIdFromString(dataAsString));
 		
+		if(e == null) return;
+		
 		switch(type) {
 		
 		case DAMAGE:
@@ -151,7 +153,8 @@ public class ServerDatagramManager {
 					
 					socket.receive(packet);
 					
-					handlePacket(packet.getData(), packet.getAddress().getHostAddress(), packet.getPort());
+					if(packet.getData() != null)
+						handlePacket(packet.getData(), packet.getAddress().getHostAddress(), packet.getPort());
 					
 				}
 				

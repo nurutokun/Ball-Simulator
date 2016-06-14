@@ -25,6 +25,11 @@ public abstract class APacket {
 	
 	protected static final int IDENTIFIER_LENGTH = 2;// 2 hex bits (one binary byte) reserved for the packet's id.
 	
+	/**
+	 * Used to fill empty data slots to avoid index out of bounds exceptions.
+	 */
+	private static final String NULL = "NULL";
+	
 	private static final int PACKET_ID_INDEX = 0;
 	
 	protected String[] indexedData;
@@ -73,6 +78,10 @@ public abstract class APacket {
 		
 		if(datas.length <= 0) {
 			return buffer;
+		}
+		
+		for(int i = 0; i < datas.length; i++) {
+			if(datas[i].isEmpty()) datas[i] = NULL;
 		}
 		
 		buffer = Util.getStringFromLines(datas, regex, false);

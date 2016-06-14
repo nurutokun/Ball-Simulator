@@ -112,12 +112,11 @@ public class MultiplayerGameState extends State {
 				PREFERRED_SCALE);
 		
 		gameSystems.add(movementControlSystem);
-		//gameSystems.add(new NetworkPlayerControlSystem(networkManager));
+		gameSystems.add(new NetworkMovementSystem(networkManager));
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
 		gameSystems.add(cameraFollowSystem);
-		gameSystems.add(new NetworkMovementSystem(networkManager));
 		
 	}
 	

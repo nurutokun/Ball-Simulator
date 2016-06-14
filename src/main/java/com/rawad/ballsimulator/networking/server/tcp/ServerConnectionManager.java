@@ -113,11 +113,6 @@ public class ServerConnectionManager {
 				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in"
 						+ ", disconnecting new player.");
 				
-//				sendPacketToClient(client, new SPacket01Login(new NetworkComponent(), new UserComponent(),  
-//						new TransformComponent(), "", false));// Just remove it... no need to reply; send entities isntead
-				// of sending terrain file name. Problem: terrain might not be loaded in time on server side; hjave to
-				// initialize network manager later.
-				
 				SPacket01Login denyLoginPacket = new SPacket01Login(new NetworkComponent(), new UserComponent(), 
 						new TransformComponent(), false);
 				
@@ -156,8 +151,8 @@ public class ServerConnectionManager {
 			sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
-			transformComp.setX(30);
-			transformComp.setY(30);
+			transformComp.setX(50);
+			transformComp.setY(50);
 			
 			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp, true);
 			
@@ -200,7 +195,7 @@ public class ServerConnectionManager {
 						
 						String entityName = EEntity.STATIC.getName();
 						
-						if(e.getComponent(UserComponent.class) != null) entityName = EEntity.PLAYER.getName();
+						if(e.getComponent(UserComponent.class) != null) continue;// Sent by login packet.
 						
 						sendPacketToClient(client, new SPacket05Entity(entityName, 
 								e.getComponent(TransformComponent.class), false));
@@ -208,8 +203,8 @@ public class ServerConnectionManager {
 					}
 				}
 				
-				sendPacketToClient(client, new SPacket05Entity("NULL", new TransformComponent(), true));
-				// EntityName can NOT be empty or else it won't be indexed causing an ArrayIndexOutOfBoundsException.
+				sendPacketToClient(client, new SPacket05Entity("", new TransformComponent(), true));
+				
 			}
 			
 			break;

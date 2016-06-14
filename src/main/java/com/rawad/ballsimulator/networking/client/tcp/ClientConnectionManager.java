@@ -195,7 +195,6 @@ public class ClientConnectionManager {
 			if(entityPacket.isLast()) {
 				networkManager.onEntityLoadFinish();
 			} else {
-				ArrayList<Entity> entities = world.getEntitiesAsList();
 				
 				Entity entity = Entity.createEntity(EEntity.getByName(entityPacket.getEntityName()));
 				
@@ -205,6 +204,8 @@ public class ClientConnectionManager {
 				entityTransform.setScaleX(entityPacket.getScaleX());
 				entityTransform.setScaleY(entityPacket.getScaleY());
 				entityTransform.setTheta(entityPacket.getTheta());
+				
+				ArrayList<Entity> entities = world.getEntitiesAsList();
 				
 				synchronized(entities) {
 					world.addEntity(entity);

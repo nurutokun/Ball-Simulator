@@ -52,7 +52,9 @@ public class TerrainFileParser extends FileParser {
 	protected void stop() {
 		super.stop();
 		
-		world.getEntitiesAsList().addAll(staticEntities);
+		for(Entity staticEntity: staticEntities) {
+			world.addEntity(staticEntity);
+		}
 		
 	}
 	
