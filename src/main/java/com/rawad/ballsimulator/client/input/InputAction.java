@@ -19,7 +19,8 @@ public enum InputAction {
 	
 	SHOW_WORLD,
 	
-	MESS,
+	SEND,
+	CHAT,
 	
 	DEBUG,
 	REFRESH,
@@ -27,6 +28,8 @@ public enum InputAction {
 	
 	CLAMP,
 	SAVE,
+	
+	PLAYER_LIST,
 	
 	// Mouse.
 	PLACE,

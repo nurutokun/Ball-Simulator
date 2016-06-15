@@ -2,16 +2,20 @@ package com.rawad.ballsimulator.server;
 
 import java.util.ArrayList;
 
+import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
+import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
@@ -25,7 +29,7 @@ public class Server extends AServer {
 	
 	public static final int PORT = 8008;
 	
-	private static final int TICKS_PER_UPDATE = 100;
+	private static final int TICKS_PER_UPDATE = 50;
 	
 	private ServerNetworkManager networkManager;
 	
@@ -50,12 +54,20 @@ public class Server extends AServer {
 		
 		ArrayList<GameSystem> gameSystems = new ArrayList<GameSystem>();
 		
+		MovementSystem movementSystem = new MovementSystem();
+		
+		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
+		collisionListeners.add(movementSystem);
+		
 		// RandomGenerationSystem
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(new MovementSystem());
+		gameSystems.add(movementSystem);
+		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		gameSystems.add(new RollingSystem());
 		
 		game.getGameEngine().setGameSystems(gameSystems);
+		
+		readyToUpdate = true;
 		
 		networkManager = new ServerNetworkManager(this);
 		
@@ -68,8 +80,9 @@ public class Server extends AServer {
 		
 		if(tickCount >= TICKS_PER_UPDATE) {
 			// sync players with server.
-			for(Entity e: getGame().getWorld().getEntitiesAsList()) {
-				if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.PLAYER).getEntityBase())) {
+			for(Entity e: getGame().getWorld().getEntities()) {
+//				if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.PLAYER).getEntityBase())) {
+				if(e.getComponent(MovementComponent.class) != null) {
 					// Send movement, health, etc. to all players.
 					networkManager.getDatagramManager().sendMoveUpdate(e);
 				}
@@ -92,7 +105,7 @@ public class Server extends AServer {
 	
 	public Entity getEntityById(int id) {
 		
-		for(Entity e: game.getWorld().getEntitiesAsList()) {
+		for(Entity e: game.getWorld().getEntities()) {
 			
 			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 			

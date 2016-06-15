@@ -84,7 +84,7 @@ public class WorldEditorState extends State {
 		
 		gameSystems.add(movementControlSystem);
 		gameSystems.add(cameraRoamingSystem);
-		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(null, world.getWidth(), world.getHeight()));
 		gameSystems.add(new EntitySelectionSystem(cameraTransform));
 		gameSystems.add(new EntityPlacementSystem(cameraTransform));
 		

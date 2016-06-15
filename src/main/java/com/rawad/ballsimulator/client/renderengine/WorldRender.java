@@ -54,7 +54,7 @@ public class WorldRender extends LayerRender {
 		
 		terrainRender.render(g, world.getWidth(), world.getHeight());
 		
-		for(Entity e: world.getEntitiesAsList()) {
+		for(Entity e: world.getEntities()) {
 			if(e.getComponent(RenderingComponent.class) == null) continue;
 			
 			entityRender.render(g, e);

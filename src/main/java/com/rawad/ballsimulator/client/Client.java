@@ -238,10 +238,14 @@ public class Client extends AClient {
 		inputBindings.put(KeyCode.ESCAPE, InputAction.PAUSE);
 		inputBindings.put(KeyCode.E, InputAction.INVENTORY);
 		
-		inputBindings.put(KeyCode.ENTER, InputAction.MESS);
-		inputBindings.put(KeyCode.T, InputAction.MESS);
+		inputBindings.put(KeyCode.ENTER, InputAction.SEND);
+		inputBindings.put(KeyCode.T, InputAction.CHAT);
 		
+		inputBindings.put(KeyCode.F3, InputAction.DEBUG);
 		inputBindings.put(KeyCode.F5, InputAction.REFRESH);
+		inputBindings.put(KeyCode.F11, InputAction.FULLSCREEN);
+		
+		inputBindings.put(KeyCode.TAB, InputAction.PLAYER_LIST);
 		
 		inputBindings.put(MouseButton.PRIMARY, InputAction.PLACE);
 		inputBindings.put(MouseButton.SECONDARY, InputAction.REMOVE);

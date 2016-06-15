@@ -23,9 +23,7 @@
 				<Tab fx:id="worldViewTab" text="World" />
 				<Tab text="Players">
 					<content>
-						<PlayerList fx:id="playerList">
-							<visible>true</visible>
-						</PlayerList>
+						<PlayerList fx:id="playerList" />
 					</content>
 				</Tab>
 				<Tab text="Console" >

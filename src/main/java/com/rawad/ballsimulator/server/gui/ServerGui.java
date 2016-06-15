@@ -118,7 +118,7 @@ public class ServerGui extends AClient {
 					
 					debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
 					
-					game.getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
+					game.getWorld().getEntities().addListener((Change<? extends Entity> change) -> {
 						while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
 							if(change.getAddedSize() > 0) {
 								

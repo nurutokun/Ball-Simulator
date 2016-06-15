@@ -1,11 +1,13 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
@@ -22,8 +24,8 @@ import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.ballsimulator.networking.client.NetworkMovementSystem;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
+import com.rawad.ballsimulator.networking.client.NetworkMovementSystem;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
@@ -31,6 +33,7 @@ import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -41,6 +44,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 public class MultiplayerGameState extends State {
 	
@@ -53,9 +58,11 @@ public class MultiplayerGameState extends State {
 	private SettingsFileParser settingsParser;
 	
 	@FXML private Messenger mess;
+	@FXML private GridPane playerListContainer;
 	@FXML private PlayerList playerList;
 	@FXML private PlayerInventory inventory;
 	@FXML private PauseScreen pauseScreen;
+	@FXML private VBox connectContainer;
 	@FXML private Button cancelConnect;
 	@FXML private Label lblConnectingMessage;
 	
@@ -83,8 +90,6 @@ public class MultiplayerGameState extends State {
 		playerUser.setUsername("Player" + (int) (new Random().nextDouble() * 999d));
 		player.addComponent(playerUser);
 		
-		world.addEntity(player);
-		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
 		AttachmentComponent attachmentComp = new AttachmentComponent();
@@ -95,8 +100,6 @@ public class MultiplayerGameState extends State {
 		cameraTransform.setScaleX(PREFERRED_SCALE);
 		cameraTransform.setScaleY(PREFERRED_SCALE);
 		
-		world.addEntity(camera);
-		
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
 		
@@ -106,7 +109,9 @@ public class MultiplayerGameState extends State {
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		
 		MovementSystem movementSystem = new MovementSystem();
-		player.getComponent(CollisionComponent.class).getListeners().add(movementSystem);
+		
+		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
+		collisionListeners.add(movementSystem);
 		
 		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
 				PREFERRED_SCALE);
@@ -114,7 +119,7 @@ public class MultiplayerGameState extends State {
 		gameSystems.add(movementControlSystem);
 		gameSystems.add(new NetworkMovementSystem(networkManager));
 		gameSystems.add(movementSystem);
-		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
 		gameSystems.add(cameraFollowSystem);
 		
@@ -128,15 +133,17 @@ public class MultiplayerGameState extends State {
 			
 			if(!networkManager.isLoggedIn()) return;
 			
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			
 			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
 				
-				switch(keyEvent.getCode()) {
+				switch(action) {
 				
-				case ESCAPE:
+				case PAUSE:
 					mess.setShowing(false);
 					pauseScreen.setVisible(false);
 					
-				case E:
+				case INVENTORY:
 					inventory.setVisible(false);
 					break;
 					
@@ -146,22 +153,22 @@ public class MultiplayerGameState extends State {
 				
 			} else if(!playerList.isVisible()) {
 				
-				switch(keyEvent.getCode()) {
+				switch(action) {
 					
-				case ESCAPE:
+				case PAUSE:
 					pauseScreen.setVisible(true);
 					break;
 					
-				case E:
+				case INVENTORY:
 					inventory.setVisible(!inventory.isVisible());
 					break;
 					
-				case ENTER:
+				case SEND:
 					mess.setShowing(true);
 					break;
 					
-				case TAB:
-					playerList.setVisible(true);
+				case PLAYER_LIST:
+					playerListContainer.setVisible(true);
 					
 					keyEvent.consume();
 					
@@ -178,14 +185,16 @@ public class MultiplayerGameState extends State {
 			
 			if(!networkManager.isLoggedIn()) return;
 			
-			switch(keyEvent.getCode()) {
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
 			
-			case T:
+			switch(action) {
+			
+			case CHAT:
 				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 				
-			case TAB:
-				playerList.setVisible(false);
+			case PLAYER_LIST:
+				playerListContainer.setVisible(false);
 				break;
 			
 			default:
@@ -253,6 +262,9 @@ public class MultiplayerGameState extends State {
 		});
 		
 		pauseScreen.setVisible(false);
+		mess.setVisible(false);
+		connectContainer.setVisible(true);
+		playerListContainer.setVisible(false);
 		
 	}
 	
@@ -262,21 +274,21 @@ public class MultiplayerGameState extends State {
 		
 		networkManager.requestDisconnect();
 		
-		mess.setVisible(false);
-		lblConnectingMessage.setVisible(true);
-		cancelConnect.setVisible(true);
-		
 	}
 	
 	public void onConnect() {
+		
+		world.addEntity(player);
+		world.addEntity(camera);
+		
 		mess.setVisible(true);
-		lblConnectingMessage.setVisible(false);
-		cancelConnect.setVisible(false);
+		connectContainer.setVisible(false);
+		
 	}
 	
 	public void onDisconnect() {
 		
-		world.getEntitiesAsList().clear();// We're reloading terrain each time anyways
+		world.clearEntities();
 		playerList.getItems().clear();
 		
 		sm.requestStateChange(MenuState.class);
@@ -285,7 +297,7 @@ public class MultiplayerGameState extends State {
 	
 	public Entity getEntityById(int id) {
 		
-		for(Entity e: world.getEntitiesAsList()) {
+		for(Entity e: world.getEntities()) {
 			
 			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 			
@@ -305,8 +317,8 @@ public class MultiplayerGameState extends State {
 		
 		Entity entityToRemove = null;
 		
-		synchronized(world.getEntitiesAsList()) {
-			for(Entity entity: world.getEntitiesAsList()) {
+		synchronized(world.getEntities()) {
+			for(Entity entity: world.getEntities()) {
 				
 				NetworkComponent networkComp = entity.getComponent(NetworkComponent.class);
 				
@@ -318,7 +330,7 @@ public class MultiplayerGameState extends State {
 			
 			if(entityToRemove != null) {
 				playerList.getItems().remove(entityToRemove);
-				world.getEntitiesAsList().remove(entityToRemove);
+				world.removeEntity(entityToRemove);
 			}
 			
 		}

@@ -1,5 +1,7 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import java.util.ArrayList;
+
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
@@ -25,6 +27,7 @@ import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.application.Platform;
@@ -93,13 +96,13 @@ public class GameState extends State {
 		
 		MovementSystem movementSystem = new MovementSystem();
 		
-		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
-		playerCollision.getListeners().add(movementSystem);
+		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
+		collisionListeners.add(movementSystem);
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(movementControlSystem);
 		gameSystems.add(movementSystem);
-		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
 		gameSystems.add(cameraFollowSystem);
 		
@@ -172,7 +175,7 @@ public class GameState extends State {
 				cameraTransform.setTheta(0);
 				break;
 				
-			case MESS:
+			case SEND:
 				mess.setShowing(true);
 				break;
 				
@@ -198,7 +201,7 @@ public class GameState extends State {
 			
 			switch(action) {
 			
-			case MESS:
+			case CHAT:
 				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 			

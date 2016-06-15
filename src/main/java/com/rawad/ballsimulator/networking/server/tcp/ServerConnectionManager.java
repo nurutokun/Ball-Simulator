@@ -25,6 +25,8 @@ import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
 
+import javafx.collections.ObservableList;
+
 /**
  * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in general.
  * 
@@ -139,7 +141,7 @@ public class ServerConnectionManager {
 			player.addComponent(networkComp);
 			player.addComponent(userComp);
 			
-			ArrayList<Entity> entities = world.getEntitiesAsList();
+			ObservableList<Entity> entities = world.getEntities();
 			
 			synchronized(entities) {
 				world.addEntity(player);// Assigns id (WorldMP).
@@ -187,7 +189,7 @@ public class ServerConnectionManager {
 			
 		case ENTITY:
 			
-			entities = world.getEntitiesAsList();
+			entities = world.getEntities();
 			
 			synchronized(entities) {
 				for(Entity e: entities) {
@@ -237,7 +239,7 @@ public class ServerConnectionManager {
 		
 		sendPacketToAllClients(cim.getClient(), new SPacket04Message(username, logoutMessage));
 		
-		synchronized(networkManager.getServer().getGame().getWorld().getEntitiesAsList()) {
+		synchronized(networkManager.getServer().getGame().getWorld().getEntities()) {
 			networkManager.getServer().getGame().getWorld().removeEntity(player);
 		}
 		
@@ -272,14 +274,16 @@ public class ServerConnectionManager {
 	
 	public void sendPacketToAllClients(Socket clientToExclude, APacket packet) {
 		
-		for(ClientInputManager cim: clientInputManagers) {
-			
-			Socket client = cim.getClient();
-			
-			if(client.equals(clientToExclude)) continue;
-			
-			sendPacketToClient(client, packet);
-			
+		synchronized(clientInputManagers) {
+			for(ClientInputManager cim: clientInputManagers) {
+				
+				Socket client = cim.getClient();
+				
+				if(client.equals(clientToExclude)) continue;
+				
+				sendPacketToClient(client, packet);
+				
+			}
 		}
 		
 	}

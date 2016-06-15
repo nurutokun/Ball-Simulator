@@ -30,7 +30,8 @@ public class Messenger extends BorderPane {
 			ex.printStackTrace();
 		}
 		
-		inputArea.setOnAction(e -> {// setOnAction() gets called after any event handlers; allows for external text modding.
+		inputArea.setOnAction(e -> {
+			// setOnAction() gets called after any event handlers; allows for external text modification.
 			
 			appendNewLine(inputArea.getText());
 			

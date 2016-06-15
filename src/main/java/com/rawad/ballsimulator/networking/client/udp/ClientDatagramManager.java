@@ -84,7 +84,7 @@ public class ClientDatagramManager {
 		
 		case INVALID:
 		default:
-			Logger.log(Logger.WARNING, "Invalid packet: \"" + data + "\".");
+			Logger.log(Logger.WARNING, "Invalid packet: \"" + dataAsString + "\".");
 			break;
 		
 		}
@@ -138,7 +138,7 @@ public class ClientDatagramManager {
 				}
 				
 			} catch(Exception ex) {
-				Logger.log(Logger.WARNING, ex.getLocalizedMessage() + "; Couldn't receive packet from server or "
+				Logger.log(Logger.WARNING, ex.getMessage() + "; Couldn't receive packet from server or "
 						+ "socket was closed.");
 			}
 			

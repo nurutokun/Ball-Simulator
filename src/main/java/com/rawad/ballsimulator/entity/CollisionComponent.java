@@ -1,12 +1,9 @@
 package com.rawad.ballsimulator.entity;
 
-import java.util.ArrayList;
-
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -23,8 +20,6 @@ public class CollisionComponent extends Component {
 	
 	private SimpleObjectProperty<Entity> collidingWith = new SimpleObjectProperty<Entity>();
 	
-	private ArrayList<IListener<CollisionComponent>> listeners = new ArrayList<IListener<CollisionComponent>>();
-	
 	private boolean collideX = false;
 	private boolean collideY = false;
 	
@@ -38,10 +33,6 @@ public class CollisionComponent extends Component {
 	
 	public SimpleObjectProperty<Entity> getCollidingWithEntity() {
 		return collidingWith;
-	}
-	
-	public ArrayList<IListener<CollisionComponent>> getListeners() {
-		return listeners;
 	}
 	
 	/**
@@ -88,8 +79,6 @@ public class CollisionComponent extends Component {
 			if(!hitbox.yProperty().isBound()) hitbox.setY(this.hitbox.getY());
 			if(!hitbox.widthProperty().isBound()) hitbox.setWidth(this.hitbox.getWidth());
 			if(!hitbox.heightProperty().isBound()) hitbox.setHeight(this.hitbox.getHeight());
-			
-			collisionComp.getListeners().addAll(getListeners());
 			
 			collisionComp.getCollidingWithEntity().set(getCollidingWithEntity().get());
 			

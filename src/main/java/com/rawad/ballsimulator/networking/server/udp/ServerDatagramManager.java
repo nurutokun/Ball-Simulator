@@ -68,8 +68,6 @@ public class ServerDatagramManager {
 		
 		Entity e = networkManager.getServer().getEntityById(UDPPacket.getEntityIdFromString(dataAsString));
 		
-		if(e == null) return;
-		
 		switch(type) {
 		
 		case DAMAGE:
@@ -160,7 +158,6 @@ public class ServerDatagramManager {
 				
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getMessage() + ".");
-				ex.printStackTrace();
 			}
 			
 		}
