@@ -2,9 +2,10 @@ package com.rawad.ballsimulator.networking.client;
 
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.networking.ConnectionState;
+import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket05Entity;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket04Entity;
 import com.rawad.ballsimulator.networking.client.tcp.ClientConnectionManager;
 import com.rawad.ballsimulator.networking.client.udp.ClientDatagramManager;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
@@ -53,7 +54,7 @@ public class ClientNetworkManager {
 		
 		client.setMessage("Requesting entities...");
 		
-		connectionManager.sendPacketToServer(new CPacket05Entity());
+		connectionManager.sendPacketToServer(new CPacket04Entity());
 		
 		Entity player = client.getPlayer();
 		
@@ -105,6 +106,10 @@ public class ClientNetworkManager {
 	 */
 	public void sendPacket(UDPPacket packet) {
 		datagramManager.sendPacket(packet, connectionManager.getServerAddress(), Server.PORT);		
+	}
+	
+	public void sendPacket(TCPPacket packet) {
+		connectionManager.sendPacketToServer(packet);
 	}
 	
 	public ClientConnectionManager getConnectionManager() {

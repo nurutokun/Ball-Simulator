@@ -25,8 +25,11 @@ import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
-import com.rawad.ballsimulator.networking.client.NetworkMovementSystem;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
+import com.rawad.ballsimulator.networking.client.udp.entity.AComponentUpdater;
+import com.rawad.ballsimulator.networking.client.udp.entity.EntityNetworkSystem;
+import com.rawad.ballsimulator.networking.client.udp.entity.MovementComponentUpdater;
+import com.rawad.ballsimulator.networking.client.udp.entity.UserComponentUpdater;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.gamehelpers.client.AClient;
@@ -116,8 +119,14 @@ public class MultiplayerGameState extends State {
 		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
 				PREFERRED_SCALE);
 		
+		EntityNetworkSystem entityNetworkSystem = new EntityNetworkSystem(networkManager);
+		
+		ArrayList<AComponentUpdater> updaters = entityNetworkSystem.getUpdaters();
+		updaters.add(new UserComponentUpdater());
+		updaters.add(new MovementComponentUpdater());
+		
 		gameSystems.add(movementControlSystem);
-		gameSystems.add(new NetworkMovementSystem(networkManager));
+		gameSystems.add(entityNetworkSystem);
 		gameSystems.add(movementSystem);
 		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
@@ -217,7 +226,7 @@ public class MultiplayerGameState extends State {
 			
 			if(text.isEmpty()) return;
 			
-			CPacket04Message message = new CPacket04Message(player.getComponent(UserComponent.class).getUsername(), text);
+			CPacket03Message message = new CPacket03Message(player.getComponent(UserComponent.class).getUsername(), text);
 			
 			networkManager.getConnectionManager().sendPacketToServer(message);
 			

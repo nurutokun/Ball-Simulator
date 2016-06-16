@@ -10,7 +10,7 @@ import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
@@ -225,7 +225,7 @@ public class ServerGui extends AClient {
 		
 		if(input.length() > command.length()) {
 			if (input.substring(0, command.length()).equalsIgnoreCase(command)) {
-				SPacket04Message packet = new SPacket04Message(Server.SIMPLE_NAME, input.substring(command.length()));
+				SPacket03Message packet = new SPacket03Message(Server.SIMPLE_NAME, input.substring(command.length()));
 				
 				server.getNetworkManager().getConnectionManager().sendPacketToAllClients(null, packet);
 				

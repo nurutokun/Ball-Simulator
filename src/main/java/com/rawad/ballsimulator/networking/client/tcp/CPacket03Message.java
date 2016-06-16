@@ -3,15 +3,15 @@ package com.rawad.ballsimulator.networking.client.tcp;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 
-public class CPacket04Message extends TCPPacket {
+public class CPacket03Message extends TCPPacket {
 	
 	private static final int SENDER_INDEX = 1;
 	
-	public CPacket04Message(String sender, String message) {
+	public CPacket03Message(String sender, String message) {
 		super(TCPPacketType.MESSAGE, sender, message);
 	}
 	
-	public CPacket04Message(String dataAsString) {
+	public CPacket03Message(String dataAsString) {
 		super(dataAsString);
 	}
 	

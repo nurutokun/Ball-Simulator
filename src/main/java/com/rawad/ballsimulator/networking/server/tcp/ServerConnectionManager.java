@@ -11,11 +11,10 @@ import java.util.ArrayList;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
@@ -150,7 +149,7 @@ public class ServerConnectionManager {
 			String loginMessage = userComp.getUsername() + " has joined the game...";
 			Logger.log(Logger.DEBUG, loginMessage);
 			
-			sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
+			sendPacketToAllClients(null, new SPacket03Message(Server.SIMPLE_NAME, loginMessage));
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
 			transformComp.setX(50);
@@ -173,7 +172,7 @@ public class ServerConnectionManager {
 			
 		case MESSAGE:
 			
-			CPacket04Message messagePacket = new CPacket04Message(dataAsString);
+			CPacket03Message messagePacket = new CPacket03Message(dataAsString);
 			
 			username = messagePacket.getSender();
 			
@@ -181,7 +180,7 @@ public class ServerConnectionManager {
 			
 			Logger.log(Logger.DEBUG, username + " sent a message: " + message);
 			
-			SPacket04Message replyPacket = new SPacket04Message(username, message);
+			SPacket03Message replyPacket = new SPacket03Message(username, message);
 			
 			sendPacketToAllClients(client, replyPacket);// Don't need to send it back to the client that sent it.
 			
@@ -199,13 +198,13 @@ public class ServerConnectionManager {
 						
 						if(e.getComponent(UserComponent.class) != null) continue;// Sent by login packet.
 						
-						sendPacketToClient(client, new SPacket05Entity(entityName, 
+						sendPacketToClient(client, new SPacket04Entity(entityName, 
 								e.getComponent(TransformComponent.class), false));
 						
 					}
 				}
 				
-				sendPacketToClient(client, new SPacket05Entity("", new TransformComponent(), true));
+				sendPacketToClient(client, new SPacket04Entity("", new TransformComponent(), true));
 				
 			}
 			
@@ -237,7 +236,7 @@ public class ServerConnectionManager {
 		
 		Logger.log(Logger.DEBUG, logoutMessage);
 		
-		sendPacketToAllClients(cim.getClient(), new SPacket04Message(username, logoutMessage));
+		sendPacketToAllClients(cim.getClient(), new SPacket03Message(username, logoutMessage));
 		
 		synchronized(networkManager.getServer().getGame().getWorld().getEntities()) {
 			networkManager.getServer().getGame().getWorld().removeEntity(player);
@@ -272,7 +271,7 @@ public class ServerConnectionManager {
 		
 	}
 	
-	public void sendPacketToAllClients(Socket clientToExclude, APacket packet) {
+	public void sendPacketToAllClients(Socket clientToExclude, TCPPacket packet) {
 		
 		synchronized(clientInputManagers) {
 			for(ClientInputManager cim: clientInputManagers) {
@@ -288,7 +287,7 @@ public class ServerConnectionManager {
 		
 	}
 	
-	public void sendPacketToClient(Socket client, APacket packet) {
+	public void sendPacketToClient(Socket client, TCPPacket packet) {
 		sendMessageToClient(client, packet.getDataAsString());
 	}
 	

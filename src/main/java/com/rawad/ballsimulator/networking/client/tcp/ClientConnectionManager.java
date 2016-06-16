@@ -8,7 +8,6 @@ import java.net.Socket;
 
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
@@ -17,8 +16,8 @@ import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket05Entity;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket04Entity;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
@@ -183,7 +182,7 @@ public class ClientConnectionManager {
 			
 		case MESSAGE:
 			
-			SPacket04Message messagePacket = new SPacket04Message(dataAsString);
+			SPacket03Message messagePacket = new SPacket03Message(dataAsString);
 			
 			networkManager.getClient().addUserMessage(messagePacket.getSender(), messagePacket.getMessage());
 			
@@ -191,7 +190,7 @@ public class ClientConnectionManager {
 			
 		case ENTITY:
 			
-			SPacket05Entity entityPacket = new SPacket05Entity(dataAsString);
+			SPacket04Entity entityPacket = new SPacket04Entity(dataAsString);
 			
 			if(entityPacket.isLast()) {
 				networkManager.onEntityLoadFinish();
@@ -224,7 +223,7 @@ public class ClientConnectionManager {
 		
 	}
 	
-	public void sendPacketToServer(APacket packet) {
+	public void sendPacketToServer(TCPPacket packet) {
 		sendMessageToServer(packet.getDataAsString());
 	}
 	

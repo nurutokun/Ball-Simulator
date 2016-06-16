@@ -1,24 +1,28 @@
-package com.rawad.ballsimulator.networking.client;
+package com.rawad.ballsimulator.networking.client.udp.entity;
 
-import com.rawad.ballsimulator.entity.MovementComponent;
+import java.util.ArrayList;
+
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
+import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 
-public class NetworkMovementSystem extends GameSystem {
+public class EntityNetworkSystem extends GameSystem {
 	
 	private ClientNetworkManager networkManager;
 	
-	public NetworkMovementSystem(ClientNetworkManager networkManager) {
+	private ArrayList<AComponentUpdater> updaters;
+	
+	public EntityNetworkSystem(ClientNetworkManager networkManager) {
 		super();
 		
 		this.networkManager = networkManager;
 		
+		updaters = new ArrayList<AComponentUpdater>();
+		
 		compatibleComponentTypes.add(NetworkComponent.class);
 		compatibleComponentTypes.add(TransformComponent.class);
-		compatibleComponentTypes.add(MovementComponent.class);
 		
 	}
 	
@@ -26,12 +30,15 @@ public class NetworkMovementSystem extends GameSystem {
 	public void tick(Entity e) {
 		
 		NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
-		MovementComponent movementComp = e.getComponent(MovementComponent.class);
 		
-		CPacket02Move moveRequest = new CPacket02Move(networkComp, movementComp);
+		for(AComponentUpdater updater: updaters) {
+			updater.tick(networkManager, e, networkComp);
+		}
 		
-		networkManager.sendPacket(moveRequest);
-		
+	}
+	
+	public ArrayList<AComponentUpdater> getUpdaters() {
+		return updaters;
 	}
 	
 }

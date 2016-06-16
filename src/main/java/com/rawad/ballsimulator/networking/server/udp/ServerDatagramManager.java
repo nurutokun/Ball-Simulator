@@ -13,7 +13,9 @@ import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
+import com.rawad.ballsimulator.networking.client.udp.CPacket03Ping;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.ServerConnectionManager.ClientInputManager;
 import com.rawad.ballsimulator.server.Server;
@@ -83,6 +85,21 @@ public class ServerDatagramManager {
 			
 			break;
 			
+		case PING:
+			
+			CPacket03Ping userUpdateRequest = new CPacket03Ping(dataAsString);
+			
+			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+			UserComponent userComp = e.getComponent(UserComponent.class);
+			
+			userComp.setPing(userUpdateRequest.getPing());
+			
+			Logger.log(Logger.DEBUG, userComp.getUsername() + " calculated a ping of: " + userComp.getPing());
+			
+			sendPacketToAllClients(networkComp.getId(), new SPacket03Ping(networkComp, userComp));
+			
+			break;
+			
 		case INVALID:
 		default:
 			Logger.log(Logger.WARNING, "Invalid packet: \"" + data + "\".");
@@ -102,16 +119,18 @@ public class ServerDatagramManager {
 	
 	public void sendMoveUpdate(Entity entity) {
 		
-		sendPacketToAllClients(new SPacket02Move(entity.getComponent(NetworkComponent.class), 
+		sendPacketToAllClients(-1, new SPacket02Move(entity.getComponent(NetworkComponent.class), 
 				entity.getComponent(TransformComponent.class), entity.getComponent(MovementComponent.class)));
 		
 	}
 	
-	public void sendPacketToAllClients(APacket packet) {
+	public void sendPacketToAllClients(int clientIdToExclude, UDPPacket packet) {
 		
 		ArrayList<ClientInputManager> clients = networkManager.getConnectionManager().getClientInputManagers();
 		
 		for(ClientInputManager cim: clients) {
+			
+			if(cim.getClientId() == clientIdToExclude) continue;
 			
 			Socket client = cim.getClient();
 			
@@ -121,7 +140,7 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendPacket(APacket packet, String address, int port) {
+	public void sendPacket(UDPPacket packet, String address, int port) {
 		
 		try {
 			
