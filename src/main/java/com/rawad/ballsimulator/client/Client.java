@@ -34,8 +34,8 @@ import javafx.stage.Stage;
 
 public class Client extends AClient {
 	
-	// www5.narutoget.io and watchnaruto.tv
-	// Episode 428.
+	// narutoget.io and watchnaruto.tv
+	// Episode 429.
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
@@ -108,7 +108,7 @@ public class Client extends AClient {
 			LookAndFeel laf = UIManager.getLookAndFeel();
 			laf.getDefaults().put("defaultFont", f);
 			
-		} catch (FontFormatException | IOException ex) {
+		} catch(FontFormatException | IOException ex) {
 			ex.printStackTrace();
 			
 			Logger.log(Logger.DEBUG, "Couln't load font: \"" + DEFAULT_FONT + "\"");
