@@ -49,9 +49,6 @@ public class MenuState extends State {
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
 		
-		btnMultiplayer.setDisable(true);
-		btnMultiplayer.setText("Coming Soon!");
-		
 	}
 	
 }

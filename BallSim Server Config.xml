@@ -2,10 +2,10 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator.jar</jar>
-  <outfile>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator.exe</outfile>
+  <jar>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator Server.jar</jar>
+  <outfile>C:\Users\Rawad\Documents\Programming Tools\Git Repositories\Ball Simulator\Ball Simulator Server.exe</outfile>
   <errTitle></errTitle>
-  <cmdLine>devEnv=true</cmdLine>
+  <cmdLine>devEnv=true useGui=true</cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
