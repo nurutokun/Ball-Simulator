@@ -34,7 +34,8 @@ import javafx.stage.Stage;
 
 public class Client extends AClient {
 	
-	// episode 427
+	// www5.narutoget.io and watchnaruto.tv
+	// Episode 428.
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	

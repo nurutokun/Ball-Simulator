@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
-import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
@@ -32,6 +31,8 @@ public class Server extends AServer {
 	private static final int TICKS_PER_UPDATE = 50;
 	
 	private ServerNetworkManager networkManager;
+	
+	private ArrayList<IServerSync> serverSyncs;
 	
 	private int tickCount;
 	
@@ -67,6 +68,10 @@ public class Server extends AServer {
 		
 		game.getGameEngine().setGameSystems(gameSystems);
 		
+		serverSyncs = new ArrayList<IServerSync>();
+		serverSyncs.add(new MovementSync());
+		serverSyncs.add(new PingSync());
+		
 		readyToUpdate = true;
 		
 		networkManager = new ServerNetworkManager(this);
@@ -81,11 +86,16 @@ public class Server extends AServer {
 		if(tickCount >= TICKS_PER_UPDATE) {
 			// sync players with server.
 			for(Entity e: getGame().getWorld().getEntities()) {
-//				if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.PLAYER).getEntityBase())) {
-				if(e.getComponent(MovementComponent.class) != null) {
+				
+				NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+				
+				if(networkComp != null) {
 					// Send movement, health, etc. to all players.
-					networkManager.getDatagramManager().sendMoveUpdate(e);
+					for(IServerSync serverSync: serverSyncs) {
+						serverSync.sync(e, networkComp, networkManager.getDatagramManager());
+					}
 				}
+				
 			}
 			
 			tickCount = 0;
@@ -115,6 +125,10 @@ public class Server extends AServer {
 		
 		return null;
 		
+	}
+	
+	public ArrayList<IServerSync> getServerSyncs() {
+		return serverSyncs;
 	}
 	
 	private static class WorldMP extends World {

@@ -10,7 +10,11 @@ import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.udp.SPacket02Move;
+import com.rawad.ballsimulator.networking.server.udp.SPacket03Ping;
+import com.rawad.ballsimulator.server.Server;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
@@ -82,6 +86,26 @@ public class ClientDatagramManager {
 			
 			break;
 		
+		case PING:
+			
+			SPacket03Ping pingPacket = new SPacket03Ping(dataAsString);
+			
+			if(pingPacket.isRequest()) {
+				
+				NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+				UserComponent userComp = e.getComponent(UserComponent.class);
+				
+				sendPacket(new CPacket03Ping(networkComp, userComp, pingPacket.getTimeStamp()), 
+						networkManager.getConnectionManager().getServerAddress(), Server.PORT);
+				
+			} else {
+				
+				e.getComponent(UserComponent.class).setPing(pingPacket.getPing());
+				
+			}
+			
+			break;
+			
 		case INVALID:
 		default:
 			Logger.log(Logger.WARNING, "Invalid packet: \"" + dataAsString + "\".");
@@ -127,13 +151,17 @@ public class ClientDatagramManager {
 				
 				while(networkManager.isConnectedToServer()) {
 					
-					byte[] dataBuffer = new byte[APacket.BUFFER_SIZE];
-					
-					DatagramPacket packetReceived = new DatagramPacket(dataBuffer, dataBuffer.length);
-					
-					socket.receive(packetReceived);
-					
-					handlePacketData(dataBuffer);
+					if(networkManager.isLoggedIn()) {
+						
+						byte[] dataBuffer = new byte[APacket.BUFFER_SIZE];
+						
+						DatagramPacket packetReceived = new DatagramPacket(dataBuffer, dataBuffer.length);
+						
+						socket.receive(packetReceived);
+						
+						handlePacketData(dataBuffer);
+						
+					}
 					
 				}
 				

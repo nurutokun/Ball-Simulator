@@ -1,17 +1,22 @@
 package com.rawad.ballsimulator.game;
 
+import java.util.ArrayList;
+
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.gamehelpers.client.input.InputBindings;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.IListener;
 
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.KeyEvent;
 
 public class MovementControlSystem extends GameSystem implements EventHandler<KeyEvent> {
+	
+	private ArrayList<IListener<MovementComponent>> listeners;
 	
 	private InputBindings inputBindings;
 	
@@ -23,6 +28,8 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 	public MovementControlSystem(InputBindings inputBindings) {
 		super();
 		
+		listeners = new ArrayList<IListener<MovementComponent>>();
+		
 		this.inputBindings = inputBindings;
 		
 		compatibleComponentTypes.add(UserControlComponent.class);
@@ -33,12 +40,21 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 	@Override
 	public void tick(Entity e) {
 		
-		MovementComponent movingComp = e.getComponent(MovementComponent.class);
+		MovementComponent movementComp = e.getComponent(MovementComponent.class);
 		
-		movingComp.setUp(up);
-		movingComp.setDown(down);
-		movingComp.setRight(right);
-		movingComp.setLeft(left);
+		if(movementComp.isUp() != up || movementComp.isDown() != down || movementComp.isRight() != right || 
+				movementComp.isLeft() != left) {
+			
+			movementComp.setUp(up);
+			movementComp.setDown(down);
+			movementComp.setRight(right);
+			movementComp.setLeft(left);
+			
+			for(IListener<MovementComponent> listener: listeners) {
+				listener.onEvent(e, movementComp);
+			}
+			
+		}
 		
 	}
 	
@@ -109,6 +125,10 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 			break;
 		
 		}
+	}
+	
+	public ArrayList<IListener<MovementComponent>> getListeners() {
+		return listeners;
 	}
 	
 }

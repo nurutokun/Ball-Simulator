@@ -16,8 +16,6 @@ public class UserComponent extends Component {
 	
 	private int ping = 0;
 	
-	private int pingUpdateCounter = 0;
-	
 	/**
 	 * @return the username
 	 */
@@ -58,20 +56,6 @@ public class UserComponent extends Component {
 	 */
 	public void setPing(int ping) {
 		this.ping = ping;
-	}
-	
-	/**
-	 * @return the pingUpdateCounter
-	 */
-	public int getPingUpdateCounter() {
-		return pingUpdateCounter;
-	}
-	
-	/**
-	 * @param pingUpdateCounter the pingUpdateCounter to set
-	 */
-	public void setPingUpdateCounter(int pingUpdateCounter) {
-		this.pingUpdateCounter = pingUpdateCounter;
 	}
 	
 	@Override

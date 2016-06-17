@@ -145,7 +145,7 @@ public class ClientNetworkManager {
 		this.loggedIn = loggedIn;
 	}
 	
-	public boolean isLoggedIn() {
+	public synchronized boolean isLoggedIn() {// synchronized because it's used in datagram manager; doesn't work w/-out.
 		return loggedIn;
 	}
 	

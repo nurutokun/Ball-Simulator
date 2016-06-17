@@ -180,6 +180,8 @@ public class ServerGui extends AClient {
 		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		stage.setScene(scene);
 		
+		server.getServerSyncs().add(new GuiSync(playerList));
+		
 //		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
 //			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 //		});

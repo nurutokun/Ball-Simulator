@@ -6,9 +6,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import com.rawad.ballsimulator.entity.MovementComponent;
-import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
@@ -87,16 +87,16 @@ public class ServerDatagramManager {
 			
 		case PING:
 			
-			CPacket03Ping userUpdateRequest = new CPacket03Ping(dataAsString);
+			CPacket03Ping pingResponse = new CPacket03Ping(dataAsString);
 			
 			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 			UserComponent userComp = e.getComponent(UserComponent.class);
 			
-			userComp.setPing(userUpdateRequest.getPing());
+			long curTime = System.nanoTime();
 			
-			Logger.log(Logger.DEBUG, userComp.getUsername() + " calculated a ping of: " + userComp.getPing());
+			userComp.setPing((int) (TimeUnit.NANOSECONDS.toMillis(curTime - pingResponse.getTimeStamp()) / 2));
 			
-			sendPacketToAllClients(networkComp.getId(), new SPacket03Ping(networkComp, userComp));
+			sendPacketToAllClients(new SPacket03Ping(networkComp, userComp, 0, false));
 			
 			break;
 			
@@ -117,20 +117,11 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendMoveUpdate(Entity entity) {
-		
-		sendPacketToAllClients(-1, new SPacket02Move(entity.getComponent(NetworkComponent.class), 
-				entity.getComponent(TransformComponent.class), entity.getComponent(MovementComponent.class)));
-		
-	}
-	
-	public void sendPacketToAllClients(int clientIdToExclude, UDPPacket packet) {
+	public void sendPacketToAllClients(UDPPacket packet) {
 		
 		ArrayList<ClientInputManager> clients = networkManager.getConnectionManager().getClientInputManagers();
 		
 		for(ClientInputManager cim: clients) {
-			
-			if(cim.getClientId() == clientIdToExclude) continue;
 			
 			Socket client = cim.getClient();
 			
