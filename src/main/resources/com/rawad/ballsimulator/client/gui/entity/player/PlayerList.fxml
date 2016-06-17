@@ -8,8 +8,6 @@
 
 <fx:root type="PlayerList" xmlns:fx="http://javafx.com/javafx" >
 	
-	<visible>false</visible>
-	
 	<focusTraversable>false</focusTraversable>
 	
 	<placeholder>

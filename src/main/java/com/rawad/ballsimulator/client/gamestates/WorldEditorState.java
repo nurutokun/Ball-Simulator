@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
@@ -78,12 +79,12 @@ public class WorldEditorState extends State {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
-		movementControlSystem = new MovementControlSystem();
+		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
 		gameSystems.add(movementControlSystem);
 		gameSystems.add(cameraRoamingSystem);
-		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(null, world.getWidth(), world.getHeight()));
 		gameSystems.add(new EntitySelectionSystem(cameraTransform));
 		gameSystems.add(new EntityPlacementSystem(cameraTransform));
 		
@@ -130,9 +131,11 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			switch(keyEvent.getCode()) {
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
 			
-			case C:
+			switch(action) {
+			
+			case CLAMP:
 				
 				if(Mouse.isClamped()) {
 					Mouse.unclamp();
@@ -142,11 +145,11 @@ public class WorldEditorState extends State {
 				
 				break;
 			
-			case S:
+			case SAVE:
 				if(keyEvent.isControlDown()) saveTerrain("terrain");
 				break;
 				
-			case ESCAPE:
+			case PAUSE:
 				pauseScreen.setVisible(!pauseScreen.isVisible());
 				break;
 				
@@ -158,17 +161,19 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 			
-			switch(mouseEvent.getButton()) {
+			InputAction action = (InputAction) client.getInputBindings().get(mouseEvent.getButton());
 			
-			case PRIMARY:
+			switch(action) {
+			
+			case PLACE:
 				placeableComp.setPlaceRequested(true);
 				break;
 				
-			case SECONDARY:
+			case REMOVE:
 				placeableComp.setRemoveRequested(true);
 				break;
 			
-			case MIDDLE:
+			case EXTRACT:
 				placeableComp.setExtractRequested(true);
 				break;
 				
@@ -206,11 +211,7 @@ public class WorldEditorState extends State {
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
 		pauseScreen.visibleProperty().addListener((e, prevVisible, currentlyVisible) -> {
-			
-			if(currentlyVisible) {
-				Mouse.unclamp();
-			}
-			
+			if(currentlyVisible) Mouse.unclamp();
 		});
 		
 		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));

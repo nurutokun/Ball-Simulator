@@ -3,7 +3,7 @@ package com.rawad.ballsimulator.networking.server.udp;
 import com.rawad.ballsimulator.entity.HealthComponent;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 
 public class SPacket01Damage extends UDPPacket {
 	

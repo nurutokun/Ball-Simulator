@@ -4,7 +4,7 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.gamehelpers.utils.Util;
 
 public class SPacket02Move extends UDPPacket {

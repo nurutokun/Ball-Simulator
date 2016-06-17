@@ -59,7 +59,7 @@ public class EntityPlacementSystem extends GameSystem {
 			
 			Entity toRemove = EntityPlacementSystem.getMousedOverEntity(world, e, cameraTransform);
 			
-			world.getEntitiesAsList().remove(toRemove);
+			world.removeEntity(toRemove);
 			
 			placeableComp.setRemoveRequested(false);
 			

@@ -17,7 +17,7 @@
 	
 	<children>
 		
-		<VBox alignment="CENTER">
+		<VBox fx:id="connectContainer" alignment="CENTER">
 			<children>
 			
 			<Label fx:id="lblConnectingMessage" text="Connecting..." />
@@ -48,7 +48,7 @@
 			
 		</GridPane>
 		
-		<GridPane>
+		<GridPane fx:id="playerListContainer">
 			
 			<columnConstraints>
 				<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
@@ -68,7 +68,7 @@
 			</children>
 			
 		</GridPane>
-				
+		
 		<PlayerInventory fx:id="inventory" />
 		
 		<PauseScreen fx:id="pauseScreen" />

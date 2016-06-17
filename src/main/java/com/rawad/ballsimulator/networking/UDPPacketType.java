@@ -4,7 +4,8 @@ public enum UDPPacketType {
 	
 	INVALID("00"),
 	DAMAGE("01"),
-	MOVE("02");
+	MOVE("02"),
+	PING("03");
 	
 	private final String id;
 	

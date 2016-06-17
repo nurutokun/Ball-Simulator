@@ -3,8 +3,8 @@ package com.rawad.ballsimulator.networking.server.tcp;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
-import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 
 public class SPacket01Login extends TCPPacket {
 	

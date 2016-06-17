@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
-import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 

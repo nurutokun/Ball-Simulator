@@ -52,7 +52,9 @@ public class TerrainFileParser extends FileParser {
 	protected void stop() {
 		super.stop();
 		
-		world.getEntitiesAsList().addAll(staticEntities);
+		for(Entity staticEntity: staticEntities) {
+			world.addEntity(staticEntity);
+		}
 		
 	}
 	
@@ -80,10 +82,10 @@ public class TerrainFileParser extends FileParser {
 	public void setWorld(World world) {
 		this.world = world;
 		
-		world.getEntitiesAsList().removeAll(staticEntities);
+		world.getEntities().removeAll(staticEntities);
 		staticEntities.clear();
 		
-		for(Entity e: world.getEntitiesAsList()) {
+		for(Entity e: world.getEntities()) {
 			if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase())) staticEntities.add(e);
 		}
 // TODO: Test if this compare works properly (Entity.compare(Entity, Class<? extends Component>[]) may be deprecated now).

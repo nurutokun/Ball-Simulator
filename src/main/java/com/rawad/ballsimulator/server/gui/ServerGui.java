@@ -8,9 +8,10 @@ import java.util.List;
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
+import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
@@ -30,6 +31,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -116,7 +118,7 @@ public class ServerGui extends AClient {
 					
 					debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
 					
-					game.getWorld().getObservableEntities().addListener((Change<? extends Entity> change) -> {
+					game.getWorld().getEntities().addListener((Change<? extends Entity> change) -> {
 						while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
 							if(change.getAddedSize() > 0) {
 								
@@ -178,6 +180,8 @@ public class ServerGui extends AClient {
 		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		stage.setScene(scene);
 		
+		server.getServerSyncs().add(new GuiSync(playerList));
+		
 //		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
 //			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 //		});
@@ -223,7 +227,7 @@ public class ServerGui extends AClient {
 		
 		if(input.length() > command.length()) {
 			if (input.substring(0, command.length()).equalsIgnoreCase(command)) {
-				SPacket04Message packet = new SPacket04Message(Server.SIMPLE_NAME, input.substring(command.length()));
+				SPacket03Message packet = new SPacket03Message(Server.SIMPLE_NAME, input.substring(command.length()));
 				
 				server.getNetworkManager().getConnectionManager().sendPacketToAllClients(null, packet);
 				
@@ -256,6 +260,22 @@ public class ServerGui extends AClient {
 		ResourceManager.releaseResources();
 		
 		Platform.runLater(() -> stage.close());
+		
+	}
+
+	@Override
+	protected void initInputBindings() {
+		
+		inputBindings.setDefaultBinding(InputAction.DEFAULT);
+		
+		inputBindings.put(KeyCode.UP, InputAction.MOVE_UP);
+		inputBindings.put(KeyCode.DOWN, InputAction.MOVE_DOWN);
+		inputBindings.put(KeyCode.RIGHT, InputAction.MOVE_RIGHT);
+		inputBindings.put(KeyCode.LEFT, InputAction.MOVE_LEFT);
+		inputBindings.put(KeyCode.W, InputAction.MOVE_UP);
+		inputBindings.put(KeyCode.S, InputAction.MOVE_DOWN);
+		inputBindings.put(KeyCode.D, InputAction.MOVE_RIGHT);
+		inputBindings.put(KeyCode.A, InputAction.MOVE_LEFT);
 		
 	}
 	

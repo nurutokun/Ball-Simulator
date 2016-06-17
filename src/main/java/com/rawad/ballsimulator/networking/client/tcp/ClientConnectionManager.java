@@ -5,24 +5,24 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket04Message;
-import com.rawad.ballsimulator.networking.server.tcp.SPacket05Entity;
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
-import com.rawad.ballsimulator.server.entity.UserComponent;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
+import com.rawad.ballsimulator.networking.server.tcp.SPacket04Entity;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
+
+import javafx.collections.ObservableList;
 
 /**
  * Handles connecting to the server and telling the server when to disconnect/knowing when to get disconnected. Also just 
@@ -182,7 +182,7 @@ public class ClientConnectionManager {
 			
 		case MESSAGE:
 			
-			SPacket04Message messagePacket = new SPacket04Message(dataAsString);
+			SPacket03Message messagePacket = new SPacket03Message(dataAsString);
 			
 			networkManager.getClient().addUserMessage(messagePacket.getSender(), messagePacket.getMessage());
 			
@@ -190,12 +190,11 @@ public class ClientConnectionManager {
 			
 		case ENTITY:
 			
-			SPacket05Entity entityPacket = new SPacket05Entity(dataAsString);
+			SPacket04Entity entityPacket = new SPacket04Entity(dataAsString);
 			
 			if(entityPacket.isLast()) {
 				networkManager.onEntityLoadFinish();
 			} else {
-				ArrayList<Entity> entities = world.getEntitiesAsList();
 				
 				Entity entity = Entity.createEntity(EEntity.getByName(entityPacket.getEntityName()));
 				
@@ -205,6 +204,8 @@ public class ClientConnectionManager {
 				entityTransform.setScaleX(entityPacket.getScaleX());
 				entityTransform.setScaleY(entityPacket.getScaleY());
 				entityTransform.setTheta(entityPacket.getTheta());
+				
+				ObservableList<Entity> entities = world.getEntities();
 				
 				synchronized(entities) {
 					world.addEntity(entity);
@@ -222,7 +223,7 @@ public class ClientConnectionManager {
 		
 	}
 	
-	public void sendPacketToServer(APacket packet) {
+	public void sendPacketToServer(TCPPacket packet) {
 		sendMessageToServer(packet.getDataAsString());
 	}
 	

@@ -4,7 +4,7 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 
-public class SPacket05Entity extends TCPPacket {
+public class SPacket04Entity extends TCPPacket {
 	
 	private static final int ENTITY_NAME_INDEX = 1;
 	
@@ -18,14 +18,14 @@ public class SPacket05Entity extends TCPPacket {
 	
 	private static final int LAST_INDEX = 7;
 	
-	public SPacket05Entity(String entityName, TransformComponent transformComp, boolean last) {
+	public SPacket04Entity(String entityName, TransformComponent transformComp, boolean last) {
 		super(TCPPacketType.ENTITY, entityName, Double.toString(transformComp.getX()), 
 				Double.toString(transformComp.getY()), Double.toString(transformComp.getScaleX()), 
 				Double.toString(transformComp.getScaleY()), Double.toString(transformComp.getTheta()), 
 				Boolean.toString(last));
 	}
 	
-	public SPacket05Entity(String dataAsString) {
+	public SPacket04Entity(String dataAsString) {
 		super(dataAsString);
 	}
 	

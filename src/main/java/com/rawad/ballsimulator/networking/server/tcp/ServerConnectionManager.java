@@ -11,19 +11,20 @@ import java.util.ArrayList;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.TCPPacketType;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket01Login;
-import com.rawad.ballsimulator.networking.client.tcp.CPacket04Message;
+import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
-import com.rawad.ballsimulator.server.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
+
+import javafx.collections.ObservableList;
 
 /**
  * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in general.
@@ -113,11 +114,6 @@ public class ServerConnectionManager {
 				Logger.log(Logger.DEBUG, "Player with id \"" + clientLoginPacket.getEntityId() + "\" is already logged in"
 						+ ", disconnecting new player.");
 				
-//				sendPacketToClient(client, new SPacket01Login(new NetworkComponent(), new UserComponent(),  
-//						new TransformComponent(), "", false));// Just remove it... no need to reply; send entities isntead
-				// of sending terrain file name. Problem: terrain might not be loaded in time on server side; hjave to
-				// initialize network manager later.
-				
 				SPacket01Login denyLoginPacket = new SPacket01Login(new NetworkComponent(), new UserComponent(), 
 						new TransformComponent(), false);
 				
@@ -144,7 +140,7 @@ public class ServerConnectionManager {
 			player.addComponent(networkComp);
 			player.addComponent(userComp);
 			
-			ArrayList<Entity> entities = world.getEntitiesAsList();
+			ObservableList<Entity> entities = world.getEntities();
 			
 			synchronized(entities) {
 				world.addEntity(player);// Assigns id (WorldMP).
@@ -153,11 +149,11 @@ public class ServerConnectionManager {
 			String loginMessage = userComp.getUsername() + " has joined the game...";
 			Logger.log(Logger.DEBUG, loginMessage);
 			
-			sendPacketToAllClients(null, new SPacket04Message(Server.SIMPLE_NAME, loginMessage));
+			sendPacketToAllClients(null, new SPacket03Message(Server.SIMPLE_NAME, loginMessage));
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
-			transformComp.setX(30);
-			transformComp.setY(30);
+			transformComp.setX(50);
+			transformComp.setY(50);
 			
 			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp, true);
 			
@@ -176,7 +172,7 @@ public class ServerConnectionManager {
 			
 		case MESSAGE:
 			
-			CPacket04Message messagePacket = new CPacket04Message(dataAsString);
+			CPacket03Message messagePacket = new CPacket03Message(dataAsString);
 			
 			username = messagePacket.getSender();
 			
@@ -184,7 +180,7 @@ public class ServerConnectionManager {
 			
 			Logger.log(Logger.DEBUG, username + " sent a message: " + message);
 			
-			SPacket04Message replyPacket = new SPacket04Message(username, message);
+			SPacket03Message replyPacket = new SPacket03Message(username, message);
 			
 			sendPacketToAllClients(client, replyPacket);// Don't need to send it back to the client that sent it.
 			
@@ -192,7 +188,7 @@ public class ServerConnectionManager {
 			
 		case ENTITY:
 			
-			entities = world.getEntitiesAsList();
+			entities = world.getEntities();
 			
 			synchronized(entities) {
 				for(Entity e: entities) {
@@ -200,16 +196,16 @@ public class ServerConnectionManager {
 						
 						String entityName = EEntity.STATIC.getName();
 						
-						if(e.getComponent(UserComponent.class) != null) entityName = EEntity.PLAYER.getName();
+						if(e.getComponent(UserComponent.class) != null) continue;// Sent by login packet.
 						
-						sendPacketToClient(client, new SPacket05Entity(entityName, 
+						sendPacketToClient(client, new SPacket04Entity(entityName, 
 								e.getComponent(TransformComponent.class), false));
 						
 					}
 				}
 				
-				sendPacketToClient(client, new SPacket05Entity("NULL", new TransformComponent(), true));
-				// EntityName can NOT be empty or else it won't be indexed causing an ArrayIndexOutOfBoundsException.
+				sendPacketToClient(client, new SPacket04Entity("", new TransformComponent(), true));
+				
 			}
 			
 			break;
@@ -240,9 +236,9 @@ public class ServerConnectionManager {
 		
 		Logger.log(Logger.DEBUG, logoutMessage);
 		
-		sendPacketToAllClients(cim.getClient(), new SPacket04Message(username, logoutMessage));
+		sendPacketToAllClients(cim.getClient(), new SPacket03Message(username, logoutMessage));
 		
-		synchronized(networkManager.getServer().getGame().getWorld().getEntitiesAsList()) {
+		synchronized(networkManager.getServer().getGame().getWorld().getEntities()) {
 			networkManager.getServer().getGame().getWorld().removeEntity(player);
 		}
 		
@@ -275,21 +271,23 @@ public class ServerConnectionManager {
 		
 	}
 	
-	public void sendPacketToAllClients(Socket clientToExclude, APacket packet) {
+	public void sendPacketToAllClients(Socket clientToExclude, TCPPacket packet) {
 		
-		for(ClientInputManager cim: clientInputManagers) {
-			
-			Socket client = cim.getClient();
-			
-			if(client.equals(clientToExclude)) continue;
-			
-			sendPacketToClient(client, packet);
-			
+		synchronized(clientInputManagers) {
+			for(ClientInputManager cim: clientInputManagers) {
+				
+				Socket client = cim.getClient();
+				
+				if(client.equals(clientToExclude)) continue;
+				
+				sendPacketToClient(client, packet);
+				
+			}
 		}
 		
 	}
 	
-	public void sendPacketToClient(Socket client, APacket packet) {
+	public void sendPacketToClient(Socket client, TCPPacket packet) {
 		sendMessageToClient(client, packet.getDataAsString());
 	}
 	

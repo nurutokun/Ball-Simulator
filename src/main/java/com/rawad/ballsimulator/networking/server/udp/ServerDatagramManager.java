@@ -6,17 +6,19 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import com.rawad.ballsimulator.entity.MovementComponent;
-import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
+import com.rawad.ballsimulator.networking.client.udp.CPacket03Ping;
+import com.rawad.ballsimulator.networking.entity.NetworkComponent;
+import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.networking.server.tcp.ServerConnectionManager.ClientInputManager;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.ballsimulator.server.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
@@ -83,6 +85,21 @@ public class ServerDatagramManager {
 			
 			break;
 			
+		case PING:
+			
+			CPacket03Ping pingResponse = new CPacket03Ping(dataAsString);
+			
+			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
+			UserComponent userComp = e.getComponent(UserComponent.class);
+			
+			long curTime = System.nanoTime();
+			
+			userComp.setPing((int) (TimeUnit.NANOSECONDS.toMillis(curTime - pingResponse.getTimeStamp()) / 2));
+			
+			sendPacketToAllClients(new SPacket03Ping(networkComp, userComp, 0, false));
+			
+			break;
+			
 		case INVALID:
 		default:
 			Logger.log(Logger.WARNING, "Invalid packet: \"" + data + "\".");
@@ -100,14 +117,7 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendMoveUpdate(Entity entity) {
-		
-		sendPacketToAllClients(new SPacket02Move(entity.getComponent(NetworkComponent.class), 
-				entity.getComponent(TransformComponent.class), entity.getComponent(MovementComponent.class)));
-		
-	}
-	
-	public void sendPacketToAllClients(APacket packet) {
+	public void sendPacketToAllClients(UDPPacket packet) {
 		
 		ArrayList<ClientInputManager> clients = networkManager.getConnectionManager().getClientInputManagers();
 		
@@ -121,7 +131,7 @@ public class ServerDatagramManager {
 		
 	}
 	
-	public void sendPacket(APacket packet, String address, int port) {
+	public void sendPacket(UDPPacket packet, String address, int port) {
 		
 		try {
 			
@@ -151,13 +161,13 @@ public class ServerDatagramManager {
 					
 					socket.receive(packet);
 					
-					handlePacket(packet.getData(), packet.getAddress().getHostAddress(), packet.getPort());
+					if(packet.getData() != null)
+						handlePacket(packet.getData(), packet.getAddress().getHostAddress(), packet.getPort());
 					
 				}
 				
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getMessage() + ".");
-//				ex.printStackTrace();
 			}
 			
 		}

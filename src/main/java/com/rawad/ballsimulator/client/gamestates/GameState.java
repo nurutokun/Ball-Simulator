@@ -1,9 +1,12 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import java.util.ArrayList;
+
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
@@ -24,6 +27,7 @@ import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.application.Platform;
@@ -86,19 +90,19 @@ public class GameState extends State {
 		masterRender.registerRender(worldRender);
 		masterRender.registerRender(debugRender);
 		
-		movementControlSystem = new MovementControlSystem();
+		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
 				PREFERRED_SCALE);
 		
 		MovementSystem movementSystem = new MovementSystem();
 		
-		CollisionComponent playerCollision = player.getComponent(CollisionComponent.class);
-		playerCollision.getListeners().add(movementSystem);
+		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
+		collisionListeners.add(movementSystem);
 		
 		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.add(movementControlSystem);
 		gameSystems.add(movementSystem);
-		gameSystems.add(new CollisionSystem(world.getWidth(), world.getHeight()));
+		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
 		gameSystems.add(new RollingSystem());
 		gameSystems.add(cameraFollowSystem);
 		
@@ -112,13 +116,15 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			
 			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
-				switch(keyEvent.getCode()) {
+				switch(action) {
 				
-				case ESCAPE:
+				case PAUSE:
 					mess.setShowing(false);
 					pauseScreen.setVisible(false);
-				case E:
+				case INVENTORY:
 					inventory.setVisible(false);
 					break;
 					
@@ -130,21 +136,21 @@ public class GameState extends State {
 				
 			}
 			
-			switch(keyEvent.getCode()) {
+			switch(action) {
 			
-			case ESCAPE:
+			case PAUSE:
 				pauseScreen.setVisible(true);
 				break;
 				
-			case E:
+			case INVENTORY:
 				inventory.setVisible(!inventory.isVisible());
 				break;
 				
-			case R:
+			case GEN_POS:
 				playerRandomPositioner.setGenerateNewPosition(true);
 				break;
 				
-			case L:
+			case SHOW_WORLD:
 				showEntireWorld = !showEntireWorld;
 				
 				if(showEntireWorld) {
@@ -157,23 +163,23 @@ public class GameState extends State {
 				
 				break;
 				
-			case C:
+			case TILT_RIGHT:
 				cameraTransform.setTheta(cameraTransform.getTheta() + 5);
 				break;
 				
-			case Z:
+			case TILT_LEFT:
 				cameraTransform.setTheta(cameraTransform.getTheta() - 5);
 				break;
 				
-			case X:
+			case TILT_RESET:
 				cameraTransform.setTheta(0);
 				break;
 				
-			case ENTER:
+			case SEND:
 				mess.setShowing(true);
 				break;
 				
-			case F5:
+			case REFRESH:
 				
 				String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
 				
@@ -191,9 +197,11 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
-			switch(keyEvent.getCode()) {
+			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
 			
-			case T:
+			switch(action) {
+			
+			case CHAT:
 				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
 				break;
 			
