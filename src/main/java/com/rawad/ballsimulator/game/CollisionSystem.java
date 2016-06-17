@@ -14,10 +14,20 @@ import com.rawad.gamehelpers.utils.Util;
 
 public class CollisionSystem extends GameSystem {
 	
+	private ArrayList<IListener<CollisionComponent>> listeners;
+	
 	private Rectangle bounds;
 	
-	public CollisionSystem(double maxWidth, double maxHeight) {
+	/**
+	 * 
+	 * @param listeners Can be {@code null}.
+	 * @param maxWidth
+	 * @param maxHeight
+	 */
+	public CollisionSystem(ArrayList<IListener<CollisionComponent>> listeners, double maxWidth, double maxHeight) {
 		super();
+		
+		this.listeners = listeners;
 		
 		bounds = new Rectangle(0, 0, maxWidth, maxHeight);
 		
@@ -62,7 +72,8 @@ public class CollisionSystem extends GameSystem {
 		collisionComp.setCollideX(collideX);
 		collisionComp.setCollideY(collideY);
 		
-		for(IListener<CollisionComponent> listener: collisionComp.getListeners()) {
+		if(listeners != null)
+		for(IListener<CollisionComponent> listener: listeners) {
 			listener.onEvent(e, collisionComp);
 		}
 		
