@@ -1,6 +1,5 @@
 package com.rawad.ballsimulator.client.renderengine.components;
 
-
 import com.rawad.ballsimulator.entity.HealthComponent;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
@@ -8,7 +7,6 @@ import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-
 
 public class HealthComponentRender extends ComponentRender<HealthComponent> {
 	
