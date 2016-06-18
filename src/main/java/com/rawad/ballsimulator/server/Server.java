@@ -10,6 +10,10 @@ import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
+import com.rawad.ballsimulator.server.sync.IServerSync;
+import com.rawad.ballsimulator.server.sync.component.IComponentSync;
+import com.rawad.ballsimulator.server.sync.component.MovementSync;
+import com.rawad.ballsimulator.server.sync.component.PingSync;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
@@ -33,6 +37,7 @@ public class Server extends AServer {
 	private ServerNetworkManager networkManager;
 	
 	private ArrayList<IServerSync> serverSyncs;
+	private ArrayList<IComponentSync> compSyncs;
 	
 	private int tickCount;
 	
@@ -69,8 +74,11 @@ public class Server extends AServer {
 		game.getGameEngine().setGameSystems(gameSystems);
 		
 		serverSyncs = new ArrayList<IServerSync>();
-		serverSyncs.add(new MovementSync());
-		serverSyncs.add(new PingSync());
+		
+		compSyncs = new ArrayList<IComponentSync>();
+		
+		compSyncs.add(new MovementSync());
+		compSyncs.add(new PingSync());
 		
 		readyToUpdate = true;
 		
@@ -91,11 +99,15 @@ public class Server extends AServer {
 				
 				if(networkComp != null) {
 					// Send movement, health, etc. to all players.
-					for(IServerSync serverSync: serverSyncs) {
-						serverSync.sync(e, networkComp, networkManager.getDatagramManager());
+					for(IComponentSync compSync: compSyncs) {
+						compSync.sync(e, networkManager.getDatagramManager(), networkComp);
 					}
 				}
 				
+			}
+			
+			for(IServerSync serverSync: serverSyncs) {
+				serverSync.sync(this);
 			}
 			
 			tickCount = 0;
@@ -129,6 +141,10 @@ public class Server extends AServer {
 	
 	public ArrayList<IServerSync> getServerSyncs() {
 		return serverSyncs;
+	}
+	
+	public ArrayList<IComponentSync> getCompSyncs() {
+		return compSyncs;
 	}
 	
 	private static class WorldMP extends World {

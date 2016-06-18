@@ -1,10 +1,8 @@
 package com.rawad.ballsimulator.server.gui;
 
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
-import com.rawad.ballsimulator.networking.entity.NetworkComponent;
-import com.rawad.ballsimulator.networking.server.udp.ServerDatagramManager;
-import com.rawad.ballsimulator.server.IServerSync;
-import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.sync.IServerSync;
 
 import javafx.application.Platform;
 
@@ -17,7 +15,7 @@ public class GuiSync implements IServerSync {
 	}
 	
 	@Override
-	public void sync(Entity e, NetworkComponent networkComp, ServerDatagramManager datagramManager) {
+	public void sync(Server server) {
 		Platform.runLater(() -> {
 			playerList.refresh();// Did get an exception without runLater wrapper.
 		});
