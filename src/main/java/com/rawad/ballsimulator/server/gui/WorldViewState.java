@@ -6,7 +6,6 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
-import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.gamehelpers.client.AClient;
@@ -19,6 +18,7 @@ import javafx.scene.input.KeyEvent;
 public class WorldViewState extends State {
 	
 	private MovementControlSystem movementControlSystem;
+	private CameraRoamingSystem cameraRoamingSystem;
 	
 	private Entity camera;
 	
@@ -46,9 +46,10 @@ public class WorldViewState extends State {
 		masterRender.registerRender(new DebugRender(client, camera));
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
+		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
-		gameSystems.add(movementControlSystem);
-		gameSystems.add(new CameraRoamingSystem(true, world.getWidth(), world.getHeight()));
+		client.getGame().getGameEngine().addGameSystem(movementControlSystem);
+		client.getGame().getGameEngine().addGameSystem(cameraRoamingSystem);
 		
 	}
 	
@@ -56,10 +57,8 @@ public class WorldViewState extends State {
 	public void initGui() {
 		super.initGui();
 		
-		UserViewComponent userView = camera.getComponent(UserViewComponent.class);
-		
-		userView.getViewport().widthProperty().bind(root.widthProperty());
-		userView.getViewport().heightProperty().bind(root.heightProperty());
+		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraRoamingSystem.requestNewViewportHeight(root.getHeight()));
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);

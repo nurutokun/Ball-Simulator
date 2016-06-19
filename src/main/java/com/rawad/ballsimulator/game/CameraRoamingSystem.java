@@ -42,7 +42,7 @@ public class CameraRoamingSystem extends GameSystem {
 	
 	@Override
 	public void tick(Entity e) {
-		
+		System.out.println("CameraRoamingSystem - tick: " + e);
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		MovementComponent movementComp = e.getComponent(MovementComponent.class);
 		
@@ -87,8 +87,8 @@ public class CameraRoamingSystem extends GameSystem {
 			
 		}
 		
-		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative to
-		// mouse position on screen.
+		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative 
+		// to mouse position on screen.
 		double oldScaleX = transformComp.getScaleX();
 		double oldScaleY = transformComp.getScaleY();
 		

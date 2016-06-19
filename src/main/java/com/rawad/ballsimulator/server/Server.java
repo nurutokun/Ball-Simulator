@@ -15,7 +15,7 @@ import com.rawad.ballsimulator.server.sync.component.IComponentSync;
 import com.rawad.ballsimulator.server.sync.component.MovementSync;
 import com.rawad.ballsimulator.server.sync.component.PingSync;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameSystem;
+import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
@@ -58,20 +58,17 @@ public class Server extends AServer {
 		WorldMP world = new WorldMP();
 		game.setWorld(world);
 		
-		ArrayList<GameSystem> gameSystems = new ArrayList<GameSystem>();
-		
 		MovementSystem movementSystem = new MovementSystem();
 		
 		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
 		collisionListeners.add(movementSystem);
 		
-		// RandomGenerationSystem
-		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(movementSystem);
-		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
-		gameSystems.add(new RollingSystem());
+		GameEngine engine = game.getGameEngine();
 		
-		game.getGameEngine().setGameSystems(gameSystems);
+		engine.addGameSystem(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
+		engine.addGameSystem(movementSystem);
+		engine.addGameSystem(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		engine.addGameSystem(new RollingSystem());
 		
 		serverSyncs = new ArrayList<IServerSync>();
 		

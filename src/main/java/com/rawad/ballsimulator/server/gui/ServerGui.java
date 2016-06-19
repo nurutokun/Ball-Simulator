@@ -9,6 +9,7 @@ import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
@@ -145,6 +146,8 @@ public class ServerGui extends AClient {
 					
 					WorldViewState worldViewState = new WorldViewState(ServerGui.this, game.getWorld());
 					worldViewState.initGui();
+					System.out.println("camera roaming system: " + game.getGameEngine()
+					.getGameSystem(CameraRoamingSystem.class) + " entity: " + game.getWorld().getEntities().get(0));
 					
 					sm.setState(worldViewState);
 					
@@ -182,11 +185,7 @@ public class ServerGui extends AClient {
 		
 		server.getServerSyncs().add(new GuiSync(playerList));
 		
-//		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
-//			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
-//		});
-		tabPane.setFocusTraversable(false);
-		tabPane.getSelectionModel().selectedItemProperty().addListener((e, oldValue, newValue) -> {
+		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
 		});
 		
