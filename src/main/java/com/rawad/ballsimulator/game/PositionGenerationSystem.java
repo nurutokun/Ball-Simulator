@@ -50,7 +50,7 @@ public class PositionGenerationSystem extends GameSystem {
 				transformComp.setX(x);
 				transformComp.setY(y);
 				
-				if(gameEngine.getGameSystem(CollisionSystem.class).checkEntityCollision(e, hitbox) == null) {
+				if(gameEngine.getGameSystems().get(CollisionSystem.class).checkEntityCollision(e, hitbox) == null) {
 					entityBlocked = false;
 				}
 				

@@ -38,35 +38,31 @@ public class ServerStart extends Application {
 			Logger.log(Logger.WARNING, "Didn't specify whether or not gui should be used so it won't be.");
 		}
 		
+		game.getProxies().put(server);
+		
 		if(useGui) {
 			
 			ResourceManager.init(commands);
 			
 			serverGui = new ServerGui(server);
 			
+			game.getProxies().put(serverGui);
+
 			Thread guiThread = new Thread(() -> Application.launch(args), "Gui Thread");
 			guiThread.setDaemon(true);
 			guiThread.start();
 			
+		} else {
+			
+			GameManager.instance().launchGame(game);
+			
 		}
 		
-		GameManager.instance().launchGame(game, server);
+		CustomLoader loader = game.getLoaders().get(CustomLoader.class);
 		
-		synchronized(game) {
-			try {
-				game.wait();
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
-		}
+		TerrainFileParser parser = game.getFileParsers().get(TerrainFileParser.class);
 		
-		if(useGui) serverGui.init(game);
-		
-		CustomLoader loader = game.getLoader(CustomLoader.class);
-		
-		TerrainFileParser parser = game.getFileParser(TerrainFileParser.class);
-		
-		server.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			
 			@Override
 			protected Integer call() throws Exception {
@@ -90,6 +86,8 @@ public class ServerStart extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		
 		serverGui.initGui(primaryStage);
+		
+		GameManager.instance().launchGame(game);
 		
 	}
 	

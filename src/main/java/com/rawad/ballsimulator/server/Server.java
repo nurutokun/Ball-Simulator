@@ -15,13 +15,14 @@ import com.rawad.ballsimulator.server.sync.component.IComponentSync;
 import com.rawad.ballsimulator.server.sync.component.MovementSync;
 import com.rawad.ballsimulator.server.sync.component.PingSync;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameEngine;
+import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
+import com.rawad.gamehelpers.utils.ClassMap;
 
 import javafx.concurrent.Task;
 
@@ -47,7 +48,7 @@ public class Server extends AServer {
 		
 		tickCount = 0;
 		
-		addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			@Override
 			protected Integer call() throws Exception {
 				BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().addComponent(new NetworkComponent());
@@ -63,12 +64,12 @@ public class Server extends AServer {
 		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
 		collisionListeners.add(movementSystem);
 		
-		GameEngine engine = game.getGameEngine();
+		ClassMap<GameSystem> gameSystems = game.getGameEngine().getGameSystems();
 		
-		engine.addGameSystem(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		engine.addGameSystem(movementSystem);
-		engine.addGameSystem(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
-		engine.addGameSystem(new RollingSystem());
+		gameSystems.put(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
+		gameSystems.put(movementSystem);
+		gameSystems.put(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		gameSystems.put(new RollingSystem());
 		
 		serverSyncs = new ArrayList<IServerSync>();
 		
@@ -153,20 +154,17 @@ public class Server extends AServer {
 			
 			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 			
-			if(networkComp == null) {
-				return false;
-//				networkComp = new NetworkComponent();
-//				e.addComponent(networkComp);
+			if(networkComp != null) {
+				networkComp.setId(entityIdCounter++);
+				
+				if(entityIdCounter >= Integer.MAX_VALUE) entityIdCounter = Integer.MIN_VALUE;
+				
+				if(entityIdCounter == -1) Logger.log(Logger.SEVERE, "The absolute entity cap for this world has "
+						+ "been reached.");
 			}
 			
-			networkComp.setId(entityIdCounter++);
-			
-			if(entityIdCounter >= Integer.MAX_VALUE) entityIdCounter = Integer.MIN_VALUE;
-			
-			if(entityIdCounter == -1) Logger.log(Logger.SEVERE, "The absolute entity cap for this world has "
-					+ "been reached.");
-			
 			return super.addEntity(e);
+			
 		}
 		
 	}

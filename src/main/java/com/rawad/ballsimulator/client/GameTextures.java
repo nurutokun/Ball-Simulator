@@ -32,7 +32,7 @@ public final class GameTextures {
 		
 		game.registerTextures();
 		
-		CustomLoader loader = game.getLoader(CustomLoader.class);
+		CustomLoader loader = game.getLoaders().get(CustomLoader.class);
 		
 		Background.registerTextures(loader);
 		

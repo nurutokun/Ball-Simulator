@@ -18,6 +18,8 @@ public class BallSimulatorStart extends Application {
 		
 		ResourceManager.init(Util.parseCommandLineArguments(args));
 		
+		game.getProxies().put(client);
+		
 		Application.launch(args);
 		
 	}
@@ -29,7 +31,7 @@ public class BallSimulatorStart extends Application {
 		
 		client.initGui(primaryStage);
 		
-		gameLauncher.launchGame(game, client);
+		gameLauncher.launchGame(game);
 		
 	}
 	

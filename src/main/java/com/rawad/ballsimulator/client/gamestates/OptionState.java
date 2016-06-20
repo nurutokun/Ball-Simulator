@@ -1,13 +1,13 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
-import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
@@ -33,24 +33,20 @@ public class OptionState extends State {
 	
 	private SettingsFileParser settings;
 	
-	public OptionState(AClient client) {
-		super(client);
+	public OptionState(StateManager sm) {
+		super(sm);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
 		world.addEntity(camera);
 		
-		masterRender.registerRender(new BackgroundRender(camera));
+		masterRender.getRenders().put(new BackgroundRender(camera));
 		
 	}
 	
 	@Override
 	public void initGui() {
 		super.initGui();
-		
-		// Traversal keys
-		
-		// TextLabel on text change -> save ip
 		
 		btnMainMenu.setOnAction(e -> sm.requestStateChange(MenuState.class));
 		btnWorldEditor.setOnAction(e -> sm.requestStateChange(WorldEditorState.class));
@@ -67,16 +63,14 @@ public class OptionState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		Game game = sm.getGame();
+		settings = game.getFileParsers().get(SettingsFileParser.class);
 		
-		settings = game.getFileParser(SettingsFileParser.class);
+		loader = game.getLoaders().get(CustomLoader.class);
 		
-		loader = game.getLoader(CustomLoader.class);
-		
-		client.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.loadSettings(settings, client.getSettingsFileName());
+				loader.loadSettings(settings, game.getProxies().get(Client.class).getSettingsFileName());
 				ipHolder.setText(settings.getIp());
 				
 				return 0;
@@ -90,10 +84,10 @@ public class OptionState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		client.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
-				loader.saveSettings(settings, client.getSettingsFileName());
+				loader.saveSettings(settings, game.getProxies().get(Client.class).getSettingsFileName());
 				
 				return 0;
 				

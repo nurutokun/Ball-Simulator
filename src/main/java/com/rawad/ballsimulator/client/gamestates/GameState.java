@@ -24,8 +24,8 @@ import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.resources.Loader;
@@ -38,6 +38,8 @@ import javafx.scene.input.KeyEvent;
 public class GameState extends State {
 	
 	private static final double PREFERRED_SCALE = 1d / 2d;
+	
+	private Client client;
 	
 	private MovementControlSystem movementControlSystem;
 	private CameraFollowSystem cameraFollowSystem;
@@ -57,8 +59,8 @@ public class GameState extends State {
 	
 	private boolean showEntireWorld;
 	
-	public GameState(AClient client) {
-		super(client);
+	public GameState(StateManager sm) {
+		super(sm);
 		
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
@@ -84,11 +86,13 @@ public class GameState extends State {
 		
 		world.addEntity(camera);
 		
+		client = game.getProxies().get(Client.class);
+		
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
 		
-		masterRender.registerRender(worldRender);
-		masterRender.registerRender(debugRender);
+		masterRender.getRenders().put(worldRender);
+		masterRender.getRenders().put(debugRender);
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
@@ -99,12 +103,12 @@ public class GameState extends State {
 		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
 		collisionListeners.add(movementSystem);
 		
-		gameSystems.add(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		gameSystems.add(movementControlSystem);
-		gameSystems.add(movementSystem);
-		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
-		gameSystems.add(new RollingSystem());
-		gameSystems.add(cameraFollowSystem);
+		gameSystems.put(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
+		gameSystems.put(movementControlSystem);
+		gameSystems.put(movementSystem);
+		gameSystems.put(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		gameSystems.put(new RollingSystem());
+		gameSystems.put(cameraFollowSystem);
 		
 		showEntireWorld = false;
 		
@@ -217,8 +221,8 @@ public class GameState extends State {
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
-		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
-		inventory.visibleProperty().addListener(e -> sm.getGame().setPaused(inventory.isVisible()));
+		pauseScreen.visibleProperty().addListener(e -> game.setPaused(pauseScreen.isVisible()));
+		inventory.visibleProperty().addListener(e -> game.setPaused(inventory.isVisible()));
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
@@ -229,12 +233,12 @@ public class GameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		client.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			protected Integer call() {
 				
-				CustomLoader loader = sm.getGame().getLoader(CustomLoader.class);
+				CustomLoader loader = game.getLoaders().get(CustomLoader.class);
 				
-				TerrainFileParser parser = sm.getGame().getFileParser(TerrainFileParser.class);
+				TerrainFileParser parser = game.getFileParsers().get(TerrainFileParser.class);
 				
 				loader.loadTerrain(parser, world, "terrain");
 				playerRandomPositioner.setGenerateNewPosition(true);

@@ -8,10 +8,9 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
-import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 
 import javafx.scene.input.KeyEvent;
 
@@ -22,10 +21,10 @@ public class WorldViewState extends State {
 	
 	private Entity camera;
 	
-	public WorldViewState(AClient client, World worldToView) {
-		super(client);
+	public WorldViewState(StateManager sm) {
+		super(sm);
 		
-		this.world = worldToView;
+		this.world = game.getWorld();
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -42,14 +41,16 @@ public class WorldViewState extends State {
 		
 		world.addEntity(camera);
 		
-		masterRender.registerRender(new WorldRender(world, camera));
-		masterRender.registerRender(new DebugRender(client, camera));
+		ServerGui client = game.getProxies().get(ServerGui.class);
+		
+		masterRender.getRenders().put(new WorldRender(world, camera));
+		masterRender.getRenders().put(new DebugRender(client, camera));
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
-		client.getGame().getGameEngine().addGameSystem(movementControlSystem);
-		client.getGame().getGameEngine().addGameSystem(cameraRoamingSystem);
+		client.getGame().getGameEngine().getGameSystems().put(movementControlSystem);
+		client.getGame().getGameEngine().getGameSystems().put(cameraRoamingSystem);
 		
 	}
 	
@@ -64,5 +65,5 @@ public class WorldViewState extends State {
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
 		
 	}
-	
+		
 }

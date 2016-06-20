@@ -9,7 +9,6 @@ import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
-import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
@@ -34,6 +33,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -90,9 +90,13 @@ public class ServerGui extends AClient {
 	public void init(Game game) {
 		super.init(game);
 		
-		server.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			@Override
 			protected Integer call() throws Exception {
+				
+				server.getServerSyncs().add(new GuiSync(playerList));
+				
+				WorldViewState worldViewState = new WorldViewState(sm);
 				
 				GameTextures.registerTextures(game);
 				
@@ -144,14 +148,37 @@ public class ServerGui extends AClient {
 						
 					});
 					
-					WorldViewState worldViewState = new WorldViewState(ServerGui.this, game.getWorld());
 					worldViewState.initGui();
-					System.out.println("camera roaming system: " + game.getGameEngine()
-					.getGameSystem(CameraRoamingSystem.class) + " entity: " + game.getWorld().getEntities().get(0));
 					
 					sm.setState(worldViewState);
 					
 					worldViewRoot = worldViewState.getRoot();
+					worldViewRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+						
+						InputAction action = (InputAction) inputBindings.get(keyEvent.getCode());
+						
+						switch(action) {
+						
+						case CLAMP:
+							
+							if(Mouse.isClamped()) {
+								Mouse.unclamp();
+							} else {
+								Mouse.clamp();
+							}
+							
+							break;
+							
+						case DEBUG:
+							game.setDebug(!game.isDebug());							
+							break;
+						
+						default:
+							break;
+						
+						}
+						
+					});
 					
 					worldViewTab.setContent(worldViewRoot);
 					
@@ -182,8 +209,6 @@ public class ServerGui extends AClient {
 		
 		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		stage.setScene(scene);
-		
-		server.getServerSyncs().add(new GuiSync(playerList));
 		
 		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
@@ -275,6 +300,10 @@ public class ServerGui extends AClient {
 		inputBindings.put(KeyCode.S, InputAction.MOVE_DOWN);
 		inputBindings.put(KeyCode.D, InputAction.MOVE_RIGHT);
 		inputBindings.put(KeyCode.A, InputAction.MOVE_LEFT);
+		
+		inputBindings.put(KeyCode.C, InputAction.CLAMP);
+		
+		inputBindings.put(KeyCode.F3, InputAction.DEBUG);
 		
 	}
 	

@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.input.InputAction;
@@ -19,8 +20,8 @@ import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -35,6 +36,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
 public class WorldEditorState extends State {
+	
+	private Client client;
 	
 	private MovementControlSystem movementControlSystem;
 	private CameraRoamingSystem cameraRoamingSystem;
@@ -55,8 +58,10 @@ public class WorldEditorState extends State {
 	@FXML private ComboBox<Double> widthSelector;
 	@FXML private ComboBox<Double> heightSelector;
 	
-	public WorldEditorState(AClient client) {
-		super(client);
+	public WorldEditorState(StateManager sm) {
+		super(sm);
+		
+		this.client = game.getProxies().get(Client.class);
 		
 		Entity camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -76,17 +81,17 @@ public class WorldEditorState extends State {
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
 		
-		masterRender.registerRender(worldRender);
-		masterRender.registerRender(debugRender);
+		masterRender.getRenders().put(worldRender);
+		masterRender.getRenders().put(debugRender);
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
-		gameSystems.add(movementControlSystem);
-		gameSystems.add(cameraRoamingSystem);
-		gameSystems.add(new CollisionSystem(null, world.getWidth(), world.getHeight()));
-		gameSystems.add(new EntitySelectionSystem(cameraTransform));
-		gameSystems.add(new EntityPlacementSystem(cameraTransform));
+		gameSystems.put(movementControlSystem);
+		gameSystems.put(cameraRoamingSystem);
+		gameSystems.put(new CollisionSystem(null, world.getWidth(), world.getHeight()));
+		gameSystems.put(new EntitySelectionSystem(cameraTransform));
+		gameSystems.put(new EntityPlacementSystem(cameraTransform));
 		
 		Entity toBePlaced = Entity.createEntity(EEntity.PLACEABLE);
 		toBePlacedTransform = toBePlaced.getComponent(TransformComponent.class);
@@ -222,7 +227,7 @@ public class WorldEditorState extends State {
 	}
 	
 	private void saveTerrain(String terrainName) {
-		client.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
 				loader.saveTerrain(terrainFileParser, terrainName);
@@ -237,13 +242,13 @@ public class WorldEditorState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		client.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			protected Integer call() throws Exception {
 				
 				Game game = sm.getGame();
 				
-				loader = game.getLoader(CustomLoader.class);
-				terrainFileParser = game.getFileParser(TerrainFileParser.class);
+				loader = game.getLoaders().get(CustomLoader.class);
+				terrainFileParser = game.getFileParsers().get(TerrainFileParser.class);
 				
 				loader.loadTerrain(terrainFileParser, world, "terrain");
 				

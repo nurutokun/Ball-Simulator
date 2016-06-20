@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.gamestates;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
@@ -29,8 +30,8 @@ import com.rawad.ballsimulator.networking.client.listeners.MovementControlListen
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
-import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
@@ -50,6 +51,8 @@ import javafx.scene.layout.VBox;
 public class MultiplayerGameState extends State {
 	
 	private static final double PREFERRED_SCALE = 1d / 2d;
+	
+	private Client client;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
@@ -76,8 +79,10 @@ public class MultiplayerGameState extends State {
 	private Entity player;
 	private UserComponent playerUser;
 	
-	public MultiplayerGameState(AClient client) {
-		super(client);
+	public MultiplayerGameState(StateManager sm) {
+		super(sm);
+		
+		this.client = game.getProxies().get(Client.class);
 		
 		networkManager = new ClientNetworkManager(this);
 		
@@ -103,8 +108,8 @@ public class MultiplayerGameState extends State {
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
 		
-		masterRender.registerRender(worldRender);
-		masterRender.registerRender(debugRender);
+		masterRender.getRenders().put(worldRender);
+		masterRender.getRenders().put(debugRender);
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		movementControlSystem.getListeners().add(new MovementControlListener(networkManager));
@@ -117,11 +122,11 @@ public class MultiplayerGameState extends State {
 		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
 				PREFERRED_SCALE);
 		
-		gameSystems.add(movementControlSystem);
-		gameSystems.add(movementSystem);
-		gameSystems.add(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
-		gameSystems.add(new RollingSystem());
-		gameSystems.add(cameraFollowSystem);
+		gameSystems.put(movementControlSystem);
+		gameSystems.put(movementSystem);
+		gameSystems.put(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		gameSystems.put(new RollingSystem());
+		gameSystems.put(cameraFollowSystem);
 		
 	}
 	
@@ -239,16 +244,16 @@ public class MultiplayerGameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		client.addTask(new Task<Integer>() {
+		game.addTask(new Task<Integer>() {
 			
 			@Override
 			protected Integer call() throws Exception {
 				
 				Game game = sm.getGame();
 				
-				loader = game.getLoader(CustomLoader.class);
+				loader = game.getLoaders().get(CustomLoader.class);
 				
-				settingsParser = game.getFileParser(SettingsFileParser.class);
+				settingsParser = game.getFileParsers().get(SettingsFileParser.class);
 				
 				loader.loadSettings(settingsParser, client.getSettingsFileName());
 				
