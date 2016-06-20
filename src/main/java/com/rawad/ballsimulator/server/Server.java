@@ -4,10 +4,12 @@ import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.sync.IServerSync;
@@ -31,16 +33,26 @@ public class Server extends AServer {
 	/** Mainly used to identify the server for announcements/messages. */
 	public static final String SIMPLE_NAME = "Server";
 	
+	private static final String TERRAIN_NAME = "terrain";
+	
 	public static final int PORT = 8008;
 	
 	private static final int TICKS_PER_UPDATE = 50;
 	
 	private ServerNetworkManager networkManager;
 	
-	private ArrayList<IServerSync> serverSyncs;
-	private ArrayList<IComponentSync> compSyncs;
+	private ArrayList<IServerSync> serverSyncs = new ArrayList<IServerSync>();
+	private ArrayList<IComponentSync> compSyncs = new ArrayList<IComponentSync>();
 	
 	private int tickCount;
+	
+	@Override
+	public void preInit(Game game) {
+		super.preInit(game);
+		
+		game.setWorld(new WorldMP());// So that ServerGui can have it in time.
+		
+	}
 	
 	@Override
 	public void init(Game game) {
@@ -48,16 +60,7 @@ public class Server extends AServer {
 		
 		tickCount = 0;
 		
-		game.addTask(new Task<Integer>() {
-			@Override
-			protected Integer call() throws Exception {
-				BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().addComponent(new NetworkComponent());
-				return 0;
-			}
-		});
-		
-		WorldMP world = new WorldMP();
-		game.setWorld(world);
+		World world = game.getWorld();
 		
 		MovementSystem movementSystem = new MovementSystem();
 		
@@ -71,16 +74,35 @@ public class Server extends AServer {
 		gameSystems.put(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
 		gameSystems.put(new RollingSystem());
 		
-		serverSyncs = new ArrayList<IServerSync>();
-		
-		compSyncs = new ArrayList<IComponentSync>();
-		
 		compSyncs.add(new MovementSync());
 		compSyncs.add(new PingSync());
 		
-		readyToUpdate = true;
-		
 		networkManager = new ServerNetworkManager(this);
+		
+		game.addTask(new Task<Integer>() {
+			@Override
+			protected Integer call() throws Exception {
+				
+				BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().addComponent(new NetworkComponent());
+				
+				CustomLoader loader = game.getLoaders().get(CustomLoader.class);
+				
+				TerrainFileParser parser = game.getFileParsers().get(TerrainFileParser.class);
+				
+				Logger.log(Logger.DEBUG, "Loading terrain...");
+				loader.loadTerrain(parser, world, TERRAIN_NAME);
+				Logger.log(Logger.DEBUG, "Terrain loaded successfully.");
+				
+				Logger.log(Logger.DEBUG, "Initializing network manager...");
+				networkManager.init();// Allows for world to be initialized before clients can connect.
+				Logger.log(Logger.DEBUG, "Network manager initialized.");
+				
+				readyToUpdate = true;
+				
+				return 0;
+				
+			}
+		});
 		
 	}
 	
@@ -116,7 +138,14 @@ public class Server extends AServer {
 	
 	@Override
 	public void stop() {
+		
+		readyToUpdate = false;
+		
 		networkManager.stop();
+		
+		serverSyncs.clear();
+		compSyncs.clear();
+		
 	}
 	
 	public ServerNetworkManager getNetworkManager() {

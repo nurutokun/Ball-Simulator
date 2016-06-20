@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.server.gui;
 
+import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
@@ -16,10 +17,14 @@ import javafx.scene.input.KeyEvent;
 
 public class WorldViewState extends State {
 	
+	private static final double PREFERRED_SCALE = 1d;
+	
 	private MovementControlSystem movementControlSystem;
 	private CameraRoamingSystem cameraRoamingSystem;
 	
 	private Entity camera;
+	
+	private boolean showEntireWorld;
 	
 	public WorldViewState(StateManager sm) {
 		super(sm);
@@ -33,8 +38,8 @@ public class WorldViewState extends State {
 		
 		TransformComponent cameraTransform = camera.getComponent(TransformComponent.class);
 		
-		cameraTransform.setScaleX(1d);
-		cameraTransform.setScaleY(1d);
+		cameraTransform.setScaleX(PREFERRED_SCALE);
+		cameraTransform.setScaleY(PREFERRED_SCALE);
 		
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
@@ -52,11 +57,40 @@ public class WorldViewState extends State {
 		client.getGame().getGameEngine().getGameSystems().put(movementControlSystem);
 		client.getGame().getGameEngine().getGameSystems().put(cameraRoamingSystem);
 		
+		showEntireWorld = false;
+		
 	}
 	
 	@Override
 	public void initGui() {
 		super.initGui();
+		
+		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+			
+			InputAction action = (InputAction) game.getProxies().get(ServerGui.class).getInputBindings()
+					.get(keyEvent.getCode());
+			
+			switch(action) {
+			
+			case SHOW_WORLD:
+				showEntireWorld = !showEntireWorld;
+				
+				if(showEntireWorld) {
+					cameraRoamingSystem.requestScaleX(Double.MIN_VALUE);
+					cameraRoamingSystem.requestScaleY(Double.MIN_VALUE);
+				} else {
+					cameraRoamingSystem.requestScaleX(PREFERRED_SCALE);
+					cameraRoamingSystem.requestScaleY(PREFERRED_SCALE);
+				}
+				
+				break;
+				
+			default:
+				break;
+			
+			}
+			
+		});
 		
 		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));
 		root.heightProperty().addListener(e -> cameraRoamingSystem.requestNewViewportHeight(root.getHeight()));

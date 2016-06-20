@@ -41,7 +41,7 @@ public class ServerGui extends AClient {
 	
 	private Server server;
 	
-	private StackPane worldViewRoot;
+	private WorldViewState worldViewState;
 	
 	private FXMLLoader loader;
 	
@@ -57,11 +57,6 @@ public class ServerGui extends AClient {
 	
 	private PrintStream consolePrinter;
 	
-	/**
-	 * 
-	 * @param server
-	 * @param game Used only for registering textures.
-	 */
 	public ServerGui(Server server) {
 		this.server = server;
 		
@@ -94,9 +89,7 @@ public class ServerGui extends AClient {
 			@Override
 			protected Integer call() throws Exception {
 				
-				server.getServerSyncs().add(new GuiSync(playerList));
-				
-				WorldViewState worldViewState = new WorldViewState(sm);
+				worldViewState = new WorldViewState(sm);
 				
 				GameTextures.registerTextures(game);
 				
@@ -116,75 +109,7 @@ public class ServerGui extends AClient {
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
 				
-				Platform.runLater(() -> {
-					
-					stage.setTitle(game.toString() + " Server");
-					stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation()));
-					
-					debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
-					
-					game.getWorld().getEntities().addListener((Change<? extends Entity> change) -> {
-						while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
-							if(change.getAddedSize() > 0) {
-								
-								List<? extends Entity> addedEntities = change.getAddedSubList();
-								
-								for(Entity e: addedEntities) {
-									if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
-								}
-								
-							}
-							
-							if(change.getRemovedSize() > 0) {
-								
-								List<? extends Entity> removedEntities = change.getRemoved();
-								
-								for(Entity e: removedEntities) {
-									if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
-								}
-								
-							}
-						}
-						
-					});
-					
-					worldViewState.initGui();
-					
-					sm.setState(worldViewState);
-					
-					worldViewRoot = worldViewState.getRoot();
-					worldViewRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-						
-						InputAction action = (InputAction) inputBindings.get(keyEvent.getCode());
-						
-						switch(action) {
-						
-						case CLAMP:
-							
-							if(Mouse.isClamped()) {
-								Mouse.unclamp();
-							} else {
-								Mouse.clamp();
-							}
-							
-							break;
-							
-						case DEBUG:
-							game.setDebug(!game.isDebug());							
-							break;
-						
-						default:
-							break;
-						
-						}
-						
-					});
-					
-					worldViewTab.setContent(worldViewRoot);
-					
-					readyToRender = true;
-					
-				});
+				initGameDependantGui();
 				
 				return 0;
 				
@@ -192,6 +117,93 @@ public class ServerGui extends AClient {
 		});
 
 		
+	}
+	
+	private void initGameDependantGui() {
+		Platform.runLater(() -> {
+
+			stage.setOnCloseRequest(e -> {
+				
+				requestClose();
+				
+				e.consume();
+				
+			});
+			stage.setTitle(game.toString() + " Server");
+			stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation()));
+			
+			debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
+			
+			game.getWorld().getEntities().addListener((Change<? extends Entity> change) -> {
+				while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
+					if(change.getAddedSize() > 0) {
+						
+						List<? extends Entity> addedEntities = change.getAddedSubList();
+						
+						for(Entity e: addedEntities) {
+							if(e.getComponent(UserComponent.class) != null) playerList.getItems().add(e);
+						}
+						
+					}
+					
+					if(change.getRemovedSize() > 0) {
+						
+						List<? extends Entity> removedEntities = change.getRemoved();
+						
+						for(Entity e: removedEntities) {
+							if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
+						}
+						
+					}
+				}
+				
+			});
+			
+			worldViewState.initGui();
+			
+			readyToUpdate = true;
+			
+			sm.setState(worldViewState);
+			
+			StackPane worldViewRoot = worldViewState.getRoot();
+			worldViewRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+				
+				InputAction action = (InputAction) inputBindings.get(keyEvent.getCode());
+				
+				switch(action) {
+				
+				case CLAMP:
+					
+					if(Mouse.isClamped()) {
+						Mouse.unclamp();
+					} else {
+						Mouse.clamp();
+					}
+					
+					break;
+					
+				case DEBUG:
+					game.setDebug(!game.isDebug());							
+					break;
+				
+				default:
+					break;
+				
+				}
+				
+			});
+			
+			worldViewTab.setContent(worldViewRoot);
+			
+			tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
+				tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
+			});
+			
+			server.getServerSyncs().add(new GuiSync(playerList));
+			
+			readyToRender = true;
+			
+		});
 	}
 	
 	@Override
@@ -210,10 +222,6 @@ public class ServerGui extends AClient {
 		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		stage.setScene(scene);
 		
-		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
-			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
-		});
-		
 		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
 			String input = console.getInputArea().getText();
@@ -231,17 +239,9 @@ public class ServerGui extends AClient {
 		
 		stage.setTitle("Server");
 		stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-		stage.setOnCloseRequest(e -> {
-			
-			requestClose();
-			
-			e.consume();
-			
-		});
+		stage.setOnCloseRequest(null);
 		stage.sizeToScene();
 		stage.show();
-		
-		readyToUpdate = true;
 		
 	}
 	
@@ -271,7 +271,7 @@ public class ServerGui extends AClient {
 	@Override
 	public void tick() {
 		
-		Mouse.update(worldViewRoot);
+		Mouse.update(worldViewState.getRoot());
 		
 	}
 	
@@ -286,7 +286,7 @@ public class ServerGui extends AClient {
 		Platform.runLater(() -> stage.close());
 		
 	}
-
+	
 	@Override
 	protected void initInputBindings() {
 		
@@ -302,6 +302,7 @@ public class ServerGui extends AClient {
 		inputBindings.put(KeyCode.A, InputAction.MOVE_LEFT);
 		
 		inputBindings.put(KeyCode.C, InputAction.CLAMP);
+		inputBindings.put(KeyCode.L, InputAction.SHOW_WORLD);
 		
 		inputBindings.put(KeyCode.F3, InputAction.DEBUG);
 		

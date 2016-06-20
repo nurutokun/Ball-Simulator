@@ -10,15 +10,17 @@ import javafx.stage.Stage;
 
 public class BallSimulatorStart extends Application {
 	
-	private static BallSimulator game = new BallSimulator();
+	private static final BallSimulator game = new BallSimulator();
 	
-	private static Client client = new Client();
+	private static final Client client = new Client();
 	
 	public static void main(String... args) {
 		
 		ResourceManager.init(Util.parseCommandLineArguments(args));
 		
 		game.getProxies().put(client);
+		
+		GameManager.instance().launchGame(game);
 		
 		Application.launch(args);
 		
@@ -27,11 +29,7 @@ public class BallSimulatorStart extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		GameManager gameLauncher = GameManager.instance();
-		
 		client.initGui(primaryStage);
-		
-		gameLauncher.launchGame(game);
 		
 	}
 	
