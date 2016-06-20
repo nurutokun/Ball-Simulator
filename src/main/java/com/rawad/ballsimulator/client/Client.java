@@ -78,6 +78,9 @@ public class Client extends AClient {
 			
 			case FULLSCREEN:
 				
+				stage.getX();
+				stage.getY();
+				
 				if(!stage.isFullScreen()) {
 					stage.setFullScreen(true);
 				} else {

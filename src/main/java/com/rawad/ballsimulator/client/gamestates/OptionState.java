@@ -10,22 +10,19 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
-import com.rawad.gamehelpers.log.Logger;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
 public class OptionState extends State {
 	
 	private Entity camera;
 	
-	@FXML private ComboBox<String> resolutions;
-	
 	@FXML private Button btnMainMenu;
 	@FXML private Button btnWorldEditor;
+	@FXML private Button btnControls;
 	
 	@FXML private TextField ipHolder;
 	
@@ -50,8 +47,7 @@ public class OptionState extends State {
 		
 		btnMainMenu.setOnAction(e -> sm.requestStateChange(MenuState.class));
 		btnWorldEditor.setOnAction(e -> sm.requestStateChange(WorldEditorState.class));
-		
-		resolutions.setOnAction(e -> Logger.log(Logger.DEBUG, "Changed resolution to: " + resolutions.getValue()));
+//		btnControls.setOnAction(e -> sm.requestStateChange(ControlsState.class));
 		
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
