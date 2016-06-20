@@ -70,7 +70,7 @@ public class EntityPlacementSystem extends GameSystem {
 			CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 			
 			if(!(collisionComp == null)) {
-				if(gameEngine.getGameSystem(CollisionSystem.class).checkEntityCollision(e, 
+				if(gameEngine.getGameSystems().get(CollisionSystem.class).checkEntityCollision(e, 
 						collisionComp.getHitbox()) == null) {
 					
 					Entity newEntity = Entity.createEntity(e, placeableComp.getToPlace());

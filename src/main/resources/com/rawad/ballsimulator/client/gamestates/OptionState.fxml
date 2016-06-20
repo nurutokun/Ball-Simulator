@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -29,9 +28,9 @@
 		</rowConstraints>
 		
 		<children>
-			<ComboBox fx:id="resolutions" GridPane.columnIndex="2" GridPane.rowIndex="1" maxWidth="Infinity" />
-			<Button fx:id="btnWorldEditor" mnemonicParsing="false" text="World Editor" GridPane.columnIndex="2" GridPane.rowIndex="2" maxWidth="Infinity" />
-			<TextField fx:id="ipHolder" promptText="Server IP Address" GridPane.columnIndex="2" GridPane.rowIndex="3" maxWidth="Infinity" />
+			<Button fx:id="btnWorldEditor" mnemonicParsing="false" text="World Editor" GridPane.columnIndex="2" GridPane.rowIndex="1" maxWidth="Infinity" />
+			<TextField fx:id="ipHolder" promptText="Server IP Address" GridPane.columnIndex="2" GridPane.rowIndex="2" maxWidth="Infinity" />
+			<Button fx:id="btnControls" mnemonicParsing="false" text="Controls" GridPane.columnIndex="2" GridPane.rowIndex="3" maxWidth="Infinity" />
 			<Button fx:id="btnMainMenu" mnemonicParsing="false" text="Main Menu" GridPane.columnIndex="2" GridPane.rowIndex="4" maxWidth="Infinity" />
 		</children>
 		

@@ -12,7 +12,7 @@ import com.rawad.gamehelpers.utils.Util;
 
 public class CameraRoamingSystem extends GameSystem {
 	
-	/** Whether or not this {@code GameSystem} should use the {@code Mouse}, when clamped, to move. */
+	/** Whether or not this {@code ameraRoamingSystem} should use the {@code Mouse}, when clamped, to move. */
 	private final boolean useMouse;
 	
 	private Rectangle bounds;
@@ -75,20 +75,15 @@ public class CameraRoamingSystem extends GameSystem {
 		double boundsWidth = bounds.getWidth();
 		double boundsHeight = bounds.getHeight();
 		
-		if(requestedViewportWidth > 0 && requestedViewportWidth != viewport.getWidth()) {
-			
+		if(requestedViewportWidth > 0 && requestedViewportWidth != viewport.getWidth()) 
 			viewport.setWidth(requestedViewportWidth);
-			
-		}
 		
-		if(requestedViewportWidth > 0 && requestedViewportHeight != viewport.getHeight()) {
-			
+		if(requestedViewportWidth > 0 && requestedViewportHeight != viewport.getHeight()) 
 			viewport.setHeight(requestedViewportHeight);
-			
-		}
 		
-		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative to
-		// mouse position on screen.
+		
+		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative 
+		// to mouse position on screen.
 		double oldScaleX = transformComp.getScaleX();
 		double oldScaleY = transformComp.getScaleY();
 		

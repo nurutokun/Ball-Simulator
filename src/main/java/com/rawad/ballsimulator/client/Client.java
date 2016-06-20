@@ -35,7 +35,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// Episode 429.
+	// Episode 432.
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
@@ -77,6 +77,9 @@ public class Client extends AClient {
 				break;
 			
 			case FULLSCREEN:
+				
+				stage.getX();
+				stage.getY();
 				
 				if(!stage.isFullScreen()) {
 					stage.setFullScreen(true);
@@ -121,15 +124,15 @@ public class Client extends AClient {
 		
 		GameTextures.registerTextures(game);
 		
-		sm.addState(new MenuState(this));
-		sm.addState(new GameState(this));
-		sm.addState(new OptionState(this));
-		sm.addState(new WorldEditorState(this));
-		sm.addState(new MultiplayerGameState(this));
+		new MenuState(sm);
+		new GameState(sm);
+		new OptionState(sm);
+		new WorldEditorState(sm);
+		new MultiplayerGameState(sm);
 		
 		sm.initGui();
 		
-		GameHelpersLoader ghLoader = game.getLoader(GameHelpersLoader.class);
+		GameHelpersLoader ghLoader = game.getLoaders().get(GameHelpersLoader.class);
 		
 		loadFont(ghLoader);
 		
@@ -188,10 +191,9 @@ public class Client extends AClient {
 			
 		};
 		
-		LoadingState loadingState = new LoadingState(this, task);
-		sm.addState(loadingState);
+		LoadingState loadingState = new LoadingState(sm, task);
 		
-		addTask(task);
+		game.addTask(task);
 		
 		Platform.runLater(() -> {
 			

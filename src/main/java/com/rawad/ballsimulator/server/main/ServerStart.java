@@ -2,9 +2,7 @@ package com.rawad.ballsimulator.server.main;
 
 import java.util.HashMap;
 
-import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.BallSimulator;
-import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.gui.ServerGui;
 import com.rawad.gamehelpers.game.GameManager;
@@ -13,16 +11,13 @@ import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Application;
-import javafx.concurrent.Task;
 import javafx.stage.Stage;
 
 public class ServerStart extends Application {
 	
-	private static final String TERRAIN_NAME = "terrain";
+	private static final BallSimulator game = new BallSimulator();
 	
 	private static final Server server = new Server();
-	
-	private static final BallSimulator game = new BallSimulator();
 	
 	private static ServerGui serverGui;
 	
@@ -38,11 +33,15 @@ public class ServerStart extends Application {
 			Logger.log(Logger.WARNING, "Didn't specify whether or not gui should be used so it won't be.");
 		}
 		
+		game.getProxies().put(server);
+		
 		if(useGui) {
 			
 			ResourceManager.init(commands);
 			
 			serverGui = new ServerGui(server);
+			
+			game.getProxies().put(serverGui, 0);
 			
 			Thread guiThread = new Thread(() -> Application.launch(args), "Gui Thread");
 			guiThread.setDaemon(true);
@@ -50,39 +49,7 @@ public class ServerStart extends Application {
 			
 		}
 		
-		GameManager.instance().launchGame(game, server);
-		
-		synchronized(game) {
-			try {
-				game.wait();
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
-		}
-		
-		if(useGui) serverGui.init(game);
-		
-		CustomLoader loader = game.getLoader(CustomLoader.class);
-		
-		TerrainFileParser parser = game.getFileParser(TerrainFileParser.class);
-		
-		server.addTask(new Task<Integer>() {
-			
-			@Override
-			protected Integer call() throws Exception {
-				
-				Logger.log(Logger.DEBUG, "Loading terrain...");
-				loader.loadTerrain(parser, game.getWorld(), TERRAIN_NAME);
-				Logger.log(Logger.DEBUG, "Terrain loaded successfully.");
-				
-				Logger.log(Logger.DEBUG, "Initializing network manager...");
-				server.getNetworkManager().init();// Allows for world to be initialized before clients can connect.
-				Logger.log(Logger.DEBUG, "Network manager initialized.");
-				
-				return 0;
-				
-			}
-		});
+		GameManager.instance().launchGame(game);
 		
 	}
 	

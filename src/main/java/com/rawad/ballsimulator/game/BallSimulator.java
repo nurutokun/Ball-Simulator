@@ -36,12 +36,12 @@ public class BallSimulator extends Game {
 	protected void init() {
 		super.init();
 		
-		loaders.put(CustomLoader.class, new CustomLoader());
+		loaders.put(new CustomLoader());
 		
-		fileParsers.put(TerrainFileParser.class, new TerrainFileParser());
-		fileParsers.put(SettingsFileParser.class, new SettingsFileParser());
+		fileParsers.put(new TerrainFileParser());
+		fileParsers.put(new SettingsFileParser());
 		
-		getProxy().addTask(new Task<Integer>() {
+		addTask(new Task<Integer>() {
 			@Override
 			protected Integer call() throws Exception {
 				

@@ -2,7 +2,6 @@
 
 <?import com.rawad.ballsimulator.client.gui.Messenger?>
 <?import com.rawad.ballsimulator.client.gui.entity.player.PlayerList?>
-<?import com.rawad.ballsimulator.client.gui.CanvasPane?>
 
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Label?>
@@ -14,11 +13,10 @@
 <?import javafx.scene.layout.BorderPane?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml">
+	
 	<center>
 		<TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-			
 			<focusTraversable>false</focusTraversable>
-			
 			<tabs>
 				<Tab fx:id="worldViewTab" text="World" />
 				<Tab text="Players">
@@ -26,7 +24,7 @@
 						<PlayerList fx:id="playerList" />
 					</content>
 				</Tab>
-				<Tab text="Console" >
+				<Tab text="Console">
 					<content>
 						<Messenger fx:id="console" />
 					</content>
