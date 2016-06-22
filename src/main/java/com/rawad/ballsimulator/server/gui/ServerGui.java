@@ -129,7 +129,7 @@ public class ServerGui extends AClient {
 				e.consume();
 				
 			});
-			stage.setTitle(game.toString() + " Server");
+			stage.setTitle(game.toString() + " " + Server.SIMPLE_NAME);
 			stage.getIcons().add(ResourceManager.getTexture(game.getIconLocation()));
 			
 			debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
@@ -237,7 +237,7 @@ public class ServerGui extends AClient {
 		
 		Logger.getPrintStreams().add(consolePrinter);
 		
-		stage.setTitle("Server");
+		stage.setTitle(Server.SIMPLE_NAME);
 		stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		stage.setOnCloseRequest(null);
 		stage.sizeToScene();
