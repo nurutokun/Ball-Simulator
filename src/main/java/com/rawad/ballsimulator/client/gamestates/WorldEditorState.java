@@ -155,7 +155,10 @@ public class WorldEditorState extends State {
 				break;
 				
 			case PAUSE:
-				pauseScreen.setVisible(!pauseScreen.isVisible());
+				if(pauseScreen.isVisible())
+					pauseScreen.hide();
+				else
+					pauseScreen.show();
 				break;
 				
 			default:
@@ -262,9 +265,7 @@ public class WorldEditorState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		Platform.runLater(() -> pauseScreen.setVisible(false));
-		
-//		saveTerrain("terrain");
+		Platform.runLater(() -> pauseScreen.hide());
 		
 	}
 	

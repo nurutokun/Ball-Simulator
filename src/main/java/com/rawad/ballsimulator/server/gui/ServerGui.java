@@ -233,7 +233,7 @@ public class ServerGui extends AClient {
 		});
 		console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
 		console.getOutputArea().setWrapText(false);
-		console.setShowing(true);
+		console.show();
 		
 		Logger.getPrintStreams().add(consolePrinter);
 		

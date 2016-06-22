@@ -145,8 +145,8 @@ public class MultiplayerGameState extends State {
 				switch(action) {
 				
 				case PAUSE:
-					mess.setShowing(false);
-					pauseScreen.setVisible(false);
+					mess.hide();
+					pauseScreen.hide();
 					
 				case INVENTORY:
 					inventory.setVisible(false);
@@ -161,15 +161,18 @@ public class MultiplayerGameState extends State {
 				switch(action) {
 					
 				case PAUSE:
-					pauseScreen.setVisible(true);
+					pauseScreen.show();
 					break;
 					
 				case INVENTORY:
-					inventory.setVisible(!inventory.isVisible());
+					if(inventory.isShowing())
+						inventory.hide();
+					else
+						inventory.show();
 					break;
 					
 				case SEND:
-					mess.setShowing(true);
+					mess.show();
 					break;
 					
 				case PLAYER_LIST:
@@ -195,7 +198,7 @@ public class MultiplayerGameState extends State {
 			switch(action) {
 			
 			case CHAT:
-				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
+				if(!pauseScreen.isShowing() && !inventory.isShowing()) mess.show();
 				break;
 				
 			case PLAYER_LIST:
@@ -266,8 +269,7 @@ public class MultiplayerGameState extends State {
 			}
 		});
 		
-		pauseScreen.setVisible(false);
-		mess.setVisible(false);
+		mess.hide();
 		connectContainer.setVisible(true);
 		playerListContainer.setVisible(false);
 		

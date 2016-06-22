@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
 import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
+import com.rawad.gamehelpers.client.gui.IHideable;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.fxml.FXMLLoader;
@@ -12,7 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 
-public class PlayerInventory extends GridPane {
+public class PlayerInventory extends GridPane implements IHideable {
 	
 	// 5 rows. 10 columns default
 	private static final int ROWS = 5;
@@ -80,6 +81,21 @@ public class PlayerInventory extends GridPane {
 			
 		}
 		
+	}
+	
+	@Override
+	public void show() {
+		setVisible(true);
+	}
+	
+	@Override
+	public void hide() {
+		setVisible(false);
+	}
+	
+	@Override
+	public boolean isShowing() {
+		return isVisible();
 	}
 	
 }

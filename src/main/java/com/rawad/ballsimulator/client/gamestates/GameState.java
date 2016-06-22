@@ -122,14 +122,14 @@ public class GameState extends State {
 			
 			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
 			
-			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
+			if(pauseScreen.isShowing() || inventory.isShowing() || mess.isShowing()) {
 				switch(action) {
 				
 				case PAUSE:
-					mess.setShowing(false);
-					pauseScreen.setVisible(false);
+					mess.hide();
+					pauseScreen.hide();
 				case INVENTORY:
-					inventory.setVisible(false);
+					inventory.hide();
 					break;
 					
 				default:
@@ -143,11 +143,14 @@ public class GameState extends State {
 			switch(action) {
 			
 			case PAUSE:
-				pauseScreen.setVisible(true);
+				pauseScreen.show();
 				break;
 				
 			case INVENTORY:
-				inventory.setVisible(!inventory.isVisible());
+				if(inventory.isShowing())
+					inventory.hide();
+				else
+					inventory.show();
 				break;
 				
 			case GEN_POS:
@@ -180,7 +183,7 @@ public class GameState extends State {
 				break;
 				
 			case SEND:
-				mess.setShowing(true);
+				mess.show();
 				break;
 				
 			case REFRESH:
@@ -206,7 +209,7 @@ public class GameState extends State {
 			switch(action) {
 			
 			case CHAT:
-				if(!pauseScreen.isVisible() && !inventory.isVisible()) mess.setShowing(true);
+				if(!pauseScreen.isShowing() && !inventory.isShowing()) mess.show();
 				break;
 			
 			default:
@@ -221,8 +224,8 @@ public class GameState extends State {
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
-		pauseScreen.visibleProperty().addListener(e -> game.setPaused(pauseScreen.isVisible()));
-		inventory.visibleProperty().addListener(e -> game.setPaused(inventory.isVisible()));
+		pauseScreen.visibleProperty().addListener(e -> game.setPaused(pauseScreen.isShowing()));
+		inventory.visibleProperty().addListener(e -> game.setPaused(inventory.isShowing()));
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
@@ -232,6 +235,9 @@ public class GameState extends State {
 	@Override
 	protected void onActivate() {
 		super.onActivate();
+		
+		inventory.setVisible(false);
+		mess.hide();
 		
 		game.addTask(new Task<Integer>() {
 			protected Integer call() {
@@ -256,9 +262,7 @@ public class GameState extends State {
 		super.onDeactivate();
 		
 		Platform.runLater(() -> {
-			pauseScreen.setVisible(false);
-			inventory.setVisible(false);
-			mess.setShowing(false);
+			pauseScreen.hide();
 		});
 		
 	}

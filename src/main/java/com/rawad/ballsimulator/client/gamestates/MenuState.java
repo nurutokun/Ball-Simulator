@@ -8,6 +8,7 @@ import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -43,12 +44,20 @@ public class MenuState extends State {
 		btnSingleplayer.setOnAction(e -> sm.requestStateChange(GameState.class));
 		btnMultiplayer.setOnAction(e -> sm.requestStateChange(MultiplayerGameState.class));
 		btnOptions.setOnAction(e -> sm.requestStateChange(OptionState.class));
-		btnExit.setOnAction(e -> sm.getGame().requestStop());
+		btnExit.setOnAction(e -> game.requestStop());
 		
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
 		
+	}
+	
+	@Override
+	public TranslateTransition getSlideTransition() {
+		TranslateTransition slide = super.getSlideTransition();
+		slide.setFromX(0);
+		slide.setToX(-guiContainer.getWidth());
+		return slide;
 	}
 	
 }

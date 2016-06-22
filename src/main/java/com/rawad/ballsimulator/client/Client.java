@@ -23,6 +23,7 @@ import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.resources.TextureResource;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -30,12 +31,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// Episode 432.
+	// Episode 433.
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
@@ -50,6 +53,8 @@ public class Client extends AClient {
 	@Override
 	public void initGui(Stage stage) {
 		super.initGui(stage);
+		
+		scene.setFill(Color.BLACK);
 		
 		stage.titleProperty().bind(gameTitle);
 		
@@ -197,11 +202,9 @@ public class Client extends AClient {
 		
 		Platform.runLater(() -> {
 			
-			gameTitle.setValue(game.toString());// Might as well put them together...
+			gameTitle.setValue(game.toString());
 			
 			loadingState.initGui();
-			
-			stage.setScene(sm.getScene());
 			
 			sm.setState(LoadingState.class);
 			
@@ -273,11 +276,19 @@ public class Client extends AClient {
 		readyToUpdate = false;
 		readyToRender = false;
 		
-		sm.stop();
-		
-		ResourceManager.releaseResources();
-		
-		Platform.runLater(() -> stage.close());
+		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), scene.getRoot());
+		fadeOut.setFromValue(1.0d);
+		fadeOut.setToValue(0.1d);
+		fadeOut.setOnFinished(e -> {
+			
+			sm.stop();
+			
+			ResourceManager.releaseResources();
+			
+			stage.close();
+			
+		});
+		fadeOut.playFromStart();;
 		
 	}
 	

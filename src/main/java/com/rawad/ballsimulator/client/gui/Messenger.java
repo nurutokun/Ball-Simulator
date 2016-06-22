@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.client.gui;
 
+import com.rawad.gamehelpers.client.gui.IHideable;
 import com.rawad.gamehelpers.resources.Loader;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -13,7 +14,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 
-public class Messenger extends BorderPane {
+public class Messenger extends BorderPane implements IHideable {
 	
 	@FXML private TextArea outputArea;
 	@FXML private TextField inputArea;
@@ -35,7 +36,7 @@ public class Messenger extends BorderPane {
 			
 			appendNewLine(inputArea.getText());
 			
-			setShowing(false);
+			hide();
 			
 		});
 
@@ -55,7 +56,6 @@ public class Messenger extends BorderPane {
 		};
 		
 		inputArea.visibleProperty().addListener(focusKeeper);
-		inputArea.focusedProperty().addListener(e -> inputArea.setText(""));
 		outputArea.focusedProperty().addListener(focusKeeper);
 		
 		sceneProperty().addListener((e, prevScene, curScene) -> {
@@ -90,10 +90,23 @@ public class Messenger extends BorderPane {
 		
 	}
 	
-	public void setShowing(boolean showing) {
-		inputArea.setVisible(showing);
+	@Override
+	public void show() {
+		
+		inputArea.setText("");
+		inputArea.setVisible(true);
+		
 	}
 	
+	@Override
+	public void hide() {
+		
+		inputArea.setVisible(false);
+		inputArea.setText("");
+		
+	}
+	
+	@Override
 	public boolean isShowing() {
 		return inputArea.isVisible();
 	}
