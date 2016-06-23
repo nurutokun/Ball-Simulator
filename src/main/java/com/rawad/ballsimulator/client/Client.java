@@ -14,6 +14,7 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
+import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
@@ -23,7 +24,6 @@ import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.resources.TextureResource;
 
-import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -33,12 +33,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// Episode 433.
+	// Episode 434.
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
@@ -82,9 +81,6 @@ public class Client extends AClient {
 				break;
 			
 			case FULLSCREEN:
-				
-				stage.getX();
-				stage.getY();
 				
 				if(!stage.isFullScreen()) {
 					stage.setFullScreen(true);
@@ -188,7 +184,7 @@ public class Client extends AClient {
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
 				
-				sm.requestStateChange(MenuState.class);
+				sm.requestStateChange(MenuState.class);// Maybe a fade-in, fade-out type thing.
 				
 				return 0;
 				
@@ -276,10 +272,7 @@ public class Client extends AClient {
 		readyToUpdate = false;
 		readyToRender = false;
 		
-		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), scene.getRoot());
-		fadeOut.setFromValue(1.0d);
-		fadeOut.setToValue(0.1d);
-		fadeOut.setOnFinished(e -> {
+		Transitions.exit(scene.getRoot(), Transitions.DEFAULT_DURATION, e -> {
 			
 			sm.stop();
 			
@@ -287,8 +280,7 @@ public class Client extends AClient {
 			
 			stage.close();
 			
-		});
-		fadeOut.playFromStart();;
+		}).playFromStart();;
 		
 	}
 	

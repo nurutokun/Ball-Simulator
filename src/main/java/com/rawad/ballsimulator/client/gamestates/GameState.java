@@ -1,21 +1,20 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import java.util.ArrayList;
-
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
-import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.GuiComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
@@ -27,9 +26,9 @@ import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.resources.Loader;
 
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -42,13 +41,13 @@ public class GameState extends State {
 	private Client client;
 	
 	private MovementControlSystem movementControlSystem;
-	private CameraFollowSystem cameraFollowSystem;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
 	private Entity camera;
 	private TransformComponent cameraTransform;
+	private UserViewComponent cameraView;
 	
 	private Entity player;
 	private RandomPositionComponent playerRandomPositioner;
@@ -84,6 +83,10 @@ public class GameState extends State {
 		cameraTransform.setMaxScaleX(5d);
 		cameraTransform.setMaxScaleY(5d);
 		
+		cameraView = camera.getComponent(UserViewComponent.class);
+		cameraView.setPreferredScaleX(PREFERRED_SCALE);
+		cameraView.setPreferredScaleY(PREFERRED_SCALE);
+		
 		world.addEntity(camera);
 		
 		client = game.getProxies().get(Client.class);
@@ -95,20 +98,13 @@ public class GameState extends State {
 		masterRender.getRenders().put(debugRender);
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
-		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
-				PREFERRED_SCALE);
-		
-		MovementSystem movementSystem = new MovementSystem();
-		
-		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
-		collisionListeners.add(movementSystem);
 		
 		gameSystems.put(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(movementControlSystem);
-		gameSystems.put(movementSystem);
-		gameSystems.put(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		gameSystems.put(new MovementSystem());
+		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new RollingSystem());
-		gameSystems.put(cameraFollowSystem);
+		gameSystems.put(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		
 		showEntireWorld = false;
 		
@@ -161,11 +157,11 @@ public class GameState extends State {
 				showEntireWorld = !showEntireWorld;
 				
 				if(showEntireWorld) {
-					cameraFollowSystem.setPreferredScaleX(Double.MIN_VALUE);
-					cameraFollowSystem.setPreferredScaleY(Double.MIN_VALUE);
+					cameraView.setPreferredScaleX(Double.MIN_VALUE);
+					cameraView.setPreferredScaleY(Double.MIN_VALUE);
 				} else {
-					cameraFollowSystem.setPreferredScaleX(PREFERRED_SCALE);
-					cameraFollowSystem.setPreferredScaleY(PREFERRED_SCALE);
+					cameraView.setPreferredScaleX(PREFERRED_SCALE);
+					cameraView.setPreferredScaleY(PREFERRED_SCALE);
 				}
 				
 				break;
@@ -188,7 +184,7 @@ public class GameState extends State {
 				
 			case REFRESH:
 				
-				String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
+				String style = Loader.getStyleSheetLocation(Client.class, getStyleSheet());
 				
 				root.getScene().getStylesheets().remove(style);
 				root.getScene().getStylesheets().add(style);
@@ -219,8 +215,8 @@ public class GameState extends State {
 			
 		});
 		
-		root.widthProperty().addListener(e -> cameraFollowSystem.requestNewViewportWidth(root.getWidth()));
-		root.heightProperty().addListener(e -> cameraFollowSystem.requestNewViewportHeight(root.getHeight()));
+		root.widthProperty().addListener(e -> cameraView.getRequestedViewport().setWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraView.getRequestedViewport().setHeight(root.getHeight()));
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		
@@ -265,6 +261,16 @@ public class GameState extends State {
 			pauseScreen.hide();
 		});
 		
+	}
+	
+	@Override
+	public Transition getOnActivateTransition() {
+		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
+	}
+	
+	@Override
+	public Transition getOnDeactivateTransition() {
+		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 	public Entity getPlayer() {

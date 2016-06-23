@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.client.gamestates;
 
+import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
@@ -8,7 +9,7 @@ import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
-import javafx.animation.TranslateTransition;
+import javafx.animation.Transition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -53,11 +54,17 @@ public class MenuState extends State {
 	}
 	
 	@Override
-	public TranslateTransition getSlideTransition() {
-		TranslateTransition slide = super.getSlideTransition();
-		slide.setFromX(0);
-		slide.setToX(-guiContainer.getWidth());
-		return slide;
+	public Transition getOnActivateTransition() {
+		// TODO: Change default in Transitions to slide to right then customize translate transition for this one.
+		// Note: Transition isn't be shown right after the LoadingState is done so it shouldn't look weird/won't need to
+		// keep track of next/prev states to determine different animations to play.
+		// Note: This Transition doesn't seem to be sliding properly anyways.
+		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
+	}
+	
+	@Override
+	public Transition getOnDeactivateTransition() {
+		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 }

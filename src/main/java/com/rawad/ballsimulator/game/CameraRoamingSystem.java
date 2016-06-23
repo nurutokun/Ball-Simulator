@@ -17,21 +17,12 @@ public class CameraRoamingSystem extends GameSystem {
 	
 	private Rectangle bounds;
 	
-	private double requestedViewportWidth;
-	private double requestedViewportHeight;
-	
-	private double requestedScaleX;
-	private double requestedScaleY;
-	
 	public CameraRoamingSystem(boolean useMouse, double width, double height) {
 		super();
 		
 		this.useMouse = useMouse;
 		
 		bounds = new Rectangle(0, 0, width, height);
-		
-		requestedScaleX = 0;
-		requestedScaleY = 0;
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(MovementComponent.class);
@@ -70,17 +61,19 @@ public class CameraRoamingSystem extends GameSystem {
 			
 		}
 		
-		Rectangle viewport = e.getComponent(UserViewComponent.class).getViewport();
+		UserViewComponent userViewComp = e.getComponent(UserViewComponent.class);
+		
+		Rectangle viewport = userViewComp.getViewport();
+		Rectangle requestedViewport = userViewComp.getRequestedViewport();
 		
 		double boundsWidth = bounds.getWidth();
 		double boundsHeight = bounds.getHeight();
 		
-		if(requestedViewportWidth > 0 && requestedViewportWidth != viewport.getWidth()) 
-			viewport.setWidth(requestedViewportWidth);
+		if(requestedViewport.getWidth() > 0 && requestedViewport.getWidth() != viewport.getWidth()) 
+			viewport.setWidth(requestedViewport.getWidth());
 		
-		if(requestedViewportWidth > 0 && requestedViewportHeight != viewport.getHeight()) 
-			viewport.setHeight(requestedViewportHeight);
-		
+		if(requestedViewport.getHeight() > 0 && requestedViewport.getHeight() != viewport.getHeight()) 
+			viewport.setHeight(requestedViewport.getHeight());
 		
 		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative 
 		// to mouse position on screen.
@@ -89,6 +82,9 @@ public class CameraRoamingSystem extends GameSystem {
 		
 		double minScaleX = viewport.getWidth() / boundsWidth;
 		double minScaleY = viewport.getHeight() / boundsHeight;
+		
+		double requestedScaleX = userViewComp.getPreferredScaleX();
+		double requestedScaleY = userViewComp.getPreferredScaleY();
 		
 		if(requestedScaleX != 0)
 			transformComp.setScaleX(Util.clamp(requestedScaleX, minScaleX, transformComp.getMaxScaleX()));
@@ -117,22 +113,6 @@ public class CameraRoamingSystem extends GameSystem {
 		transformComp.setX(viewport.getX());
 		transformComp.setY(viewport.getY());
 		
-	}
-	
-	public void requestNewViewportWidth(double newWidth) {
-		requestedViewportWidth = newWidth;
-	}
-	
-	public void requestNewViewportHeight(double newHeight) {
-		requestedViewportHeight = newHeight;
-	}
-	
-	public void requestScaleX(double scaleFactor) {
-		requestedScaleX = scaleFactor;
-	}
-	
-	public void requestScaleY(double scaleFactor) {
-		requestedScaleY = scaleFactor;
 	}
 	
 }

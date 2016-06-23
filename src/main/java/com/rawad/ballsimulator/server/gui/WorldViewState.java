@@ -7,6 +7,7 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.gamehelpers.client.gamestates.State;
@@ -23,6 +24,7 @@ public class WorldViewState extends State {
 	private CameraRoamingSystem cameraRoamingSystem;
 	
 	private Entity camera;
+	private UserViewComponent cameraView;
 	
 	private boolean showEntireWorld;
 	
@@ -43,6 +45,8 @@ public class WorldViewState extends State {
 		
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
+		
+		cameraView = camera.getComponent(UserViewComponent.class);
 		
 		world.addEntity(camera);
 		
@@ -76,11 +80,11 @@ public class WorldViewState extends State {
 				showEntireWorld = !showEntireWorld;
 				
 				if(showEntireWorld) {
-					cameraRoamingSystem.requestScaleX(Double.MIN_VALUE);
-					cameraRoamingSystem.requestScaleY(Double.MIN_VALUE);
+					cameraView.setPreferredScaleX(Double.MIN_VALUE);
+					cameraView.setPreferredScaleY(Double.MIN_VALUE);
 				} else {
-					cameraRoamingSystem.requestScaleX(PREFERRED_SCALE);
-					cameraRoamingSystem.requestScaleY(PREFERRED_SCALE);
+					cameraView.setPreferredScaleX(PREFERRED_SCALE);
+					cameraView.setPreferredScaleY(PREFERRED_SCALE);
 				}
 				
 				break;
@@ -92,8 +96,8 @@ public class WorldViewState extends State {
 			
 		});
 		
-		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));
-		root.heightProperty().addListener(e -> cameraRoamingSystem.requestNewViewportHeight(root.getHeight()));
+		root.widthProperty().addListener(e -> cameraView.getRequestedViewport().setWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraView.getRequestedViewport().setHeight(root.getHeight()));
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);

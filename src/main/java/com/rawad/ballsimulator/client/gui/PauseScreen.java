@@ -3,7 +3,7 @@ package com.rawad.ballsimulator.client.gui;
 import com.rawad.gamehelpers.client.gui.IHideable;
 import com.rawad.gamehelpers.resources.Loader;
 
-import javafx.animation.FadeTransition;
+import javafx.animation.Transition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -14,8 +14,6 @@ public class PauseScreen extends GridPane implements IHideable {
 	
 	@FXML private Button resume;
 	@FXML private Button mainMenu;
-	
-	private FadeTransition fadeTransition;
 	
 	public PauseScreen() {
 		
@@ -32,8 +30,6 @@ public class PauseScreen extends GridPane implements IHideable {
 		
 		resume.setOnAction(e -> hide());
 		
-		fadeTransition = new FadeTransition(Duration.millis(300), this);
-		
 	}
 	
 	@Override
@@ -41,13 +37,9 @@ public class PauseScreen extends GridPane implements IHideable {
 		
 		if(isVisible()) return;
 		
-		fadeTransition.setFromValue(0.1d);
-		fadeTransition.setToValue(1.0d);
-		fadeTransition.setOnFinished(null);
-		
 		setVisible(true);
 		
-		fadeTransition.playFromStart();
+		Transitions.fade(this, Duration.millis(300), Transitions.OPAQUE).playFromStart();
 		
 	}
 	
@@ -56,14 +48,12 @@ public class PauseScreen extends GridPane implements IHideable {
 		
 		if(!isVisible()) return;
 		
-		fadeTransition.setFromValue(1.0d);
-		fadeTransition.setToValue(0.1d);
-		fadeTransition.setOnFinished(e -> {
+		Transition transition = Transitions.fade(this, Duration.millis(50), Transitions.HIDDEN);
+		transition.setOnFinished(e -> {
 			setVisible(false);
 			getParent().requestFocus();
 		});
-		
-		fadeTransition.playFromStart();
+		transition.playFromStart();
 		
 	}
 	

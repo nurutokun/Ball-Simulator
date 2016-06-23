@@ -13,6 +13,7 @@ import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
@@ -40,12 +41,12 @@ public class WorldEditorState extends State {
 	private Client client;
 	
 	private MovementControlSystem movementControlSystem;
-	private CameraRoamingSystem cameraRoamingSystem;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
 	private TransformComponent cameraTransform;
+	private UserViewComponent cameraView;
 	
 	private TransformComponent toBePlacedTransform;
 	private PlaceableComponent placeableComp;
@@ -76,6 +77,8 @@ public class WorldEditorState extends State {
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
 		
+		cameraView = camera.getComponent(UserViewComponent.class);
+		
 		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
@@ -85,11 +88,10 @@ public class WorldEditorState extends State {
 		masterRender.getRenders().put(debugRender);
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
-		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
 		gameSystems.put(movementControlSystem);
-		gameSystems.put(cameraRoamingSystem);
-		gameSystems.put(new CollisionSystem(null, world.getWidth(), world.getHeight()));
+		gameSystems.put(new CameraRoamingSystem(true, world.getWidth(), world.getHeight()));
+		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new EntitySelectionSystem(cameraTransform));
 		gameSystems.put(new EntityPlacementSystem(cameraTransform));
 		
@@ -196,8 +198,8 @@ public class WorldEditorState extends State {
 			
 			double scaleFactor = e.getDeltaY() / 100d;
 			
-			cameraRoamingSystem.requestScaleX(cameraTransform.getScaleX() + scaleFactor);
-			cameraRoamingSystem.requestScaleY(cameraTransform.getScaleY() + scaleFactor);
+			cameraView.setPreferredScaleX(cameraTransform.getScaleX() + scaleFactor);
+			cameraView.setPreferredScaleY(cameraTransform.getScaleY() + scaleFactor);
 			
 		});
 		
@@ -222,8 +224,8 @@ public class WorldEditorState extends State {
 			if(currentlyVisible) Mouse.unclamp();
 		});
 		
-		root.widthProperty().addListener(e -> cameraRoamingSystem.requestNewViewportWidth(root.getWidth()));
-		root.heightProperty().addListener(e -> cameraRoamingSystem.requestNewViewportHeight(root.getHeight()));
+		root.widthProperty().addListener(e -> cameraView.getRequestedViewport().setWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraView.getRequestedViewport().setHeight(root.getHeight()));
 		
 		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
 		

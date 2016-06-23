@@ -2,7 +2,6 @@ package com.rawad.ballsimulator.server;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CollisionSystem;
@@ -20,7 +19,6 @@ import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.server.AServer;
@@ -62,16 +60,11 @@ public class Server extends AServer {
 		
 		World world = game.getWorld();
 		
-		MovementSystem movementSystem = new MovementSystem();
-		
-		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
-		collisionListeners.add(movementSystem);
-		
 		ClassMap<GameSystem> gameSystems = game.getGameEngine().getGameSystems();
 		
 		gameSystems.put(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		gameSystems.put(movementSystem);
-		gameSystems.put(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		gameSystems.put(new MovementSystem());
+		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new RollingSystem());
 		
 		compSyncs.add(new MovementSync());

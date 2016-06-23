@@ -1,6 +1,5 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 import com.rawad.ballsimulator.client.Client;
@@ -12,7 +11,6 @@ import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
-import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.GuiComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
@@ -34,7 +32,6 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -72,9 +69,9 @@ public class MultiplayerGameState extends State {
 	private ClientNetworkManager networkManager;
 	
 	private MovementControlSystem movementControlSystem;
-	private CameraFollowSystem cameraFollowSystem;
 	
 	private Entity camera;
+	private UserViewComponent cameraView;
 	
 	private Entity player;
 	private UserComponent playerUser;
@@ -105,6 +102,8 @@ public class MultiplayerGameState extends State {
 		cameraTransform.setScaleX(PREFERRED_SCALE);
 		cameraTransform.setScaleY(PREFERRED_SCALE);
 		
+		cameraView = camera.getComponent(UserViewComponent.class);
+		
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
 		
@@ -114,19 +113,11 @@ public class MultiplayerGameState extends State {
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		movementControlSystem.getListeners().add(new MovementControlListener(networkManager));
 		
-		MovementSystem movementSystem = new MovementSystem();
-		
-		ArrayList<IListener<CollisionComponent>> collisionListeners = new ArrayList<IListener<CollisionComponent>>();
-		collisionListeners.add(movementSystem);
-		
-		cameraFollowSystem = new CameraFollowSystem(world.getWidth(), world.getHeight(), PREFERRED_SCALE, 
-				PREFERRED_SCALE);
-		
 		gameSystems.put(movementControlSystem);
-		gameSystems.put(movementSystem);
-		gameSystems.put(new CollisionSystem(collisionListeners, world.getWidth(), world.getHeight()));
+		gameSystems.put(new MovementSystem());
+		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new RollingSystem());
-		gameSystems.put(cameraFollowSystem);
+		gameSystems.put(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		
 	}
 	
@@ -212,8 +203,8 @@ public class MultiplayerGameState extends State {
 			
 		});
 		
-		root.widthProperty().addListener(e -> cameraFollowSystem.requestNewViewportWidth(root.getWidth()));
-		root.heightProperty().addListener(e -> cameraFollowSystem.requestNewViewportHeight(root.getHeight()));
+		root.widthProperty().addListener(e -> cameraView.getRequestedViewport().setWidth(root.getWidth()));
+		root.heightProperty().addListener(e -> cameraView.getRequestedViewport().setHeight(root.getHeight()));
 		
 		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
 		

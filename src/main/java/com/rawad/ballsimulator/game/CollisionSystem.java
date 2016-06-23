@@ -1,7 +1,5 @@
 package com.rawad.ballsimulator.game;
 
-import java.util.ArrayList;
-
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
@@ -14,20 +12,10 @@ import com.rawad.gamehelpers.utils.Util;
 
 public class CollisionSystem extends GameSystem {
 	
-	private ArrayList<IListener<CollisionComponent>> listeners;
-	
 	private Rectangle bounds;
 	
-	/**
-	 * 
-	 * @param listeners Can be {@code null}.
-	 * @param maxWidth
-	 * @param maxHeight
-	 */
-	public CollisionSystem(ArrayList<IListener<CollisionComponent>> listeners, double maxWidth, double maxHeight) {
+	public CollisionSystem(double maxWidth, double maxHeight) {
 		super();
-		
-		this.listeners = listeners;
 		
 		bounds = new Rectangle(0, 0, maxWidth, maxHeight);
 		
@@ -72,10 +60,9 @@ public class CollisionSystem extends GameSystem {
 		collisionComp.setCollideX(collideX);
 		collisionComp.setCollideY(collideY);
 		
-		if(listeners != null)
-		for(IListener<CollisionComponent> listener: listeners) {
-			listener.onEvent(e, collisionComp);
-		}
+		IListener<CollisionComponent> listener = gameEngine.getGameSystems().get(MovementSystem.class);
+		
+		if(listener != null) listener.onEvent(e, collisionComp);
 		
 	}
 	
