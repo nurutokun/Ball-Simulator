@@ -26,7 +26,7 @@ public final class Transitions {
 	public static final ParallelTransition stateOnActivate(Region target, Duration duration) {
 		ParallelTransition transition = emptyParallel(target, null);
 		
-		Transition slide = slideHorizontally(target, duration, 0);
+		Transition slide = slideHorizontally(target, duration, target.getWidth(), 0);
 		Transition fade = fade(target, duration, OPAQUE);
 		
 		transition.getChildren().addAll(slide, fade);
@@ -37,7 +37,7 @@ public final class Transitions {
 	public static final ParallelTransition stateOnDeactivate(Region target, Duration duration) {
 		ParallelTransition transition = emptyParallel(target, null);
 		
-		Transition slide = slideHorizontally(target, duration, -target.getWidth());
+		Transition slide = slideHorizontally(target, duration, 0, target.getWidth());
 		Transition fade = fade(target, duration, HIDDEN);
 		
 		transition.getChildren().addAll(slide, fade);
@@ -55,10 +55,10 @@ public final class Transitions {
 		return transition;
 	}
 	
-	public static final TranslateTransition slideHorizontally(Node node, Duration duration, double toX) {
+	public static final TranslateTransition slideHorizontally(Node node, Duration duration, double from, double to) {
 		TranslateTransition slide = new TranslateTransition(duration, node);
-		slide.setFromX(node.getLayoutX());
-		slide.setToX(toX);
+		slide.setFromX(from);
+		slide.setToX(to);
 		return slide;
 	}
 	

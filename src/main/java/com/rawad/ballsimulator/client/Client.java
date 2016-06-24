@@ -37,7 +37,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// Episode 434.
+	// Episode 435.
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
@@ -147,10 +147,10 @@ public class Client extends AClient {
 	public void init(Game game) {
 		super.init(game);
 		
-		Task<Integer> task = new Task<Integer>() {
+		Task<Void> task = new Task<Void>() {
 			
 			@Override
-			protected Integer call() throws Exception {
+			protected Void call() throws Exception {
 				
 				String message = "Initializing client resources...";
 				
@@ -186,7 +186,7 @@ public class Client extends AClient {
 				
 				sm.requestStateChange(MenuState.class);// Maybe a fade-in, fade-out type thing.
 				
-				return 0;
+				return null;
 				
 			}
 			

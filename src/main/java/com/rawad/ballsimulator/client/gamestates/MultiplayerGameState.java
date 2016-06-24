@@ -5,6 +5,7 @@ import java.util.Random;
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
@@ -35,6 +36,7 @@ import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -238,10 +240,10 @@ public class MultiplayerGameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		game.addTask(new Task<Integer>() {
+		game.addTask(new Task<Void>() {
 			
 			@Override
-			protected Integer call() throws Exception {
+			protected Void call() throws Exception {
 				
 				Game game = sm.getGame();
 				
@@ -255,7 +257,7 @@ public class MultiplayerGameState extends State {
 				
 				networkManager.connectToServer(settingsParser.getIp());
 				
-				return 0;
+				return null;
 				
 			}
 		});
@@ -353,6 +355,16 @@ public class MultiplayerGameState extends State {
 	
 	public Entity getPlayer() {
 		return player;
+	}
+	
+	@Override
+	public Transition getOnActivateTransition() {
+		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
+	}
+	
+	@Override
+	public Transition getOnDeactivateTransition() {
+		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 }

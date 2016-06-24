@@ -9,7 +9,9 @@ import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
+import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -55,16 +57,22 @@ public class MenuState extends State {
 	
 	@Override
 	public Transition getOnActivateTransition() {
-		// TODO: Change default in Transitions to slide to right then customize translate transition for this one.
-		// Note: Transition isn't be shown right after the LoadingState is done so it shouldn't look weird/won't need to
-		// keep track of next/prev states to determine different animations to play.
-		// Note: This Transition doesn't seem to be sliding properly anyways.
-		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
+		ParallelTransition transition = Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
+		
+		TranslateTransition slide = (TranslateTransition) transition.getChildren().get(0);
+		slide.setFromX(-guiContainer.getWidth());
+		
+		return transition;
 	}
 	
 	@Override
 	public Transition getOnDeactivateTransition() {
-		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
+		ParallelTransition transition = Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
+		
+		TranslateTransition slide = (TranslateTransition) transition.getChildren().get(0);
+		slide.setToX(-guiContainer.getWidth());
+		
+		return transition;
 	}
 	
 }

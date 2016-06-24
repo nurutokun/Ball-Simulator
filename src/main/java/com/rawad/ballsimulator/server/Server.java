@@ -72,9 +72,9 @@ public class Server extends AServer {
 		
 		networkManager = new ServerNetworkManager(this);
 		
-		game.addTask(new Task<Integer>() {
+		game.addTask(new Task<Void>() {
 			@Override
-			protected Integer call() throws Exception {
+			protected Void call() throws Exception {
 				
 				BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().addComponent(new NetworkComponent());
 				
@@ -92,7 +92,7 @@ public class Server extends AServer {
 				
 				readyToUpdate = true;
 				
-				return 0;
+				return null;
 				
 			}
 		});

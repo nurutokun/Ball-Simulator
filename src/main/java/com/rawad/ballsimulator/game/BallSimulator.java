@@ -41,9 +41,9 @@ public class BallSimulator extends Game {
 		fileParsers.put(new TerrainFileParser());
 		fileParsers.put(new SettingsFileParser());
 		
-		addTask(new Task<Integer>() {
+		addTask(new Task<Void>() {
 			@Override
-			protected Integer call() throws Exception {
+			protected Void call() throws Exception {
 				
 				Logger.log(Logger.DEBUG, "Loading entity blueprints...");
 				
@@ -56,7 +56,7 @@ public class BallSimulator extends Game {
 				
 				Logger.log(Logger.DEBUG, "Loaded all entity blueprints.");
 				
-				return 0;
+				return null;
 				
 			}
 		});

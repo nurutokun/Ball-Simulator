@@ -4,6 +4,7 @@ import com.rawad.gamehelpers.client.gui.IHideable;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.animation.Transition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -37,9 +38,10 @@ public class PauseScreen extends GridPane implements IHideable {
 		
 		if(isVisible()) return;
 		
-		setVisible(true);
-		
-		Transitions.fade(this, Duration.millis(300), Transitions.OPAQUE).playFromStart();
+		Platform.runLater(() -> {
+			setVisible(true);
+			Transitions.fade(this, Duration.millis(300), Transitions.OPAQUE).playFromStart();			
+		});
 		
 	}
 	

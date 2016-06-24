@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.gamestates;
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -27,6 +28,7 @@ import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -232,12 +234,12 @@ public class WorldEditorState extends State {
 	}
 	
 	private void saveTerrain(String terrainName) {
-		game.addTask(new Task<Integer>() {
-			protected Integer call() throws Exception {
+		game.addTask(new Task<Void>() {
+			protected Void call() throws Exception {
 				
 				loader.saveTerrain(terrainFileParser, terrainName);
 				
-				return 0;
+				return null;
 			}
 		});
 		
@@ -247,8 +249,8 @@ public class WorldEditorState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		game.addTask(new Task<Integer>() {
-			protected Integer call() throws Exception {
+		game.addTask(new Task<Void>() {
+			protected Void call() throws Exception {
 				
 				Game game = sm.getGame();
 				
@@ -257,7 +259,7 @@ public class WorldEditorState extends State {
 				
 				loader.loadTerrain(terrainFileParser, world, "terrain");
 				
-				return 0;
+				return null;
 			}
 		});
 		
@@ -267,8 +269,18 @@ public class WorldEditorState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		Platform.runLater(() -> pauseScreen.hide());
+		pauseScreen.hide();
 		
+	}
+	
+	@Override
+	public Transition getOnActivateTransition() {
+		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
+	}
+	
+	@Override
+	public Transition getOnDeactivateTransition() {
+		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 }

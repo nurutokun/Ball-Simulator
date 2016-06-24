@@ -85,9 +85,9 @@ public class ServerGui extends AClient {
 	public void init(Game game) {
 		super.init(game);
 		
-		game.addTask(new Task<Integer>() {
+		game.addTask(new Task<Void>() {
 			@Override
-			protected Integer call() throws Exception {
+			protected Void call() throws Exception {
 				
 				worldViewState = new WorldViewState(sm);
 				
@@ -111,7 +111,7 @@ public class ServerGui extends AClient {
 				
 				initGameDependantGui();
 				
-				return 0;
+				return null;
 				
 			}
 		});

@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
@@ -11,6 +12,7 @@ import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
+import javafx.animation.Transition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -63,13 +65,13 @@ public class OptionState extends State {
 		
 		loader = game.getLoaders().get(CustomLoader.class);
 		
-		game.addTask(new Task<Integer>() {
-			protected Integer call() throws Exception {
+		game.addTask(new Task<Void>() {
+			protected Void call() throws Exception {
 				
 				loader.loadSettings(settings, game.getProxies().get(Client.class).getSettingsFileName());
 				ipHolder.setText(settings.getIp());
 				
-				return 0;
+				return null;
 				
 			}
 		});
@@ -80,16 +82,26 @@ public class OptionState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		game.addTask(new Task<Integer>() {
-			protected Integer call() throws Exception {
+		game.addTask(new Task<Void>() {
+			protected Void call() throws Exception {
 				
 				loader.saveSettings(settings, game.getProxies().get(Client.class).getSettingsFileName());
 				
-				return 0;
+				return null;
 				
 			}
 		});
 		
+	}
+	
+	@Override
+	public Transition getOnActivateTransition() {
+		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
+	}
+	
+	@Override
+	public Transition getOnDeactivateTransition() {
+		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 }

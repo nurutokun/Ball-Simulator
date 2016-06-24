@@ -29,7 +29,6 @@ import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 
 import javafx.animation.Transition;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
@@ -235,8 +234,8 @@ public class GameState extends State {
 		inventory.setVisible(false);
 		mess.hide();
 		
-		game.addTask(new Task<Integer>() {
-			protected Integer call() {
+		game.addTask(new Task<Void>() {
+			protected Void call() throws Exception {
 				
 				CustomLoader loader = game.getLoaders().get(CustomLoader.class);
 				
@@ -245,7 +244,7 @@ public class GameState extends State {
 				loader.loadTerrain(parser, world, "terrain");
 				playerRandomPositioner.setGenerateNewPosition(true);
 				
-				return 0;
+				return null;
 				
 			}
 			
@@ -257,10 +256,12 @@ public class GameState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		Platform.runLater(() -> {
-			pauseScreen.hide();
-		});
+		pauseScreen.hide();
 		
+	}
+	
+	public Entity getPlayer() {
+		return player;
 	}
 	
 	@Override
@@ -271,10 +272,6 @@ public class GameState extends State {
 	@Override
 	public Transition getOnDeactivateTransition() {
 		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
-	}
-	
-	public Entity getPlayer() {
-		return player;
 	}
 	
 }
