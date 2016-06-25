@@ -1,18 +1,17 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
-import javafx.animation.Transition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -47,9 +46,9 @@ public class OptionState extends State {
 	public void initGui() {
 		super.initGui();
 		
-		btnMainMenu.setOnAction(e -> sm.requestStateChange(MenuState.class));
-		btnWorldEditor.setOnAction(e -> sm.requestStateChange(WorldEditorState.class));
-//		btnControls.setOnAction(e -> sm.requestStateChange(ControlsState.class));
+		btnMainMenu.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MenuState.class)));
+		btnWorldEditor.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(WorldEditorState.class)));
+//		btnControls.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(ControlsState.class)));
 		
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
@@ -92,16 +91,6 @@ public class OptionState extends State {
 			}
 		});
 		
-	}
-	
-	@Override
-	public Transition getOnActivateTransition() {
-		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
-	}
-	
-	@Override
-	public Transition getOnDeactivateTransition() {
-		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 }

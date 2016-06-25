@@ -3,7 +3,6 @@ package com.rawad.ballsimulator.client.gamestates;
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
-import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
@@ -24,7 +23,9 @@ import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 
@@ -217,7 +218,7 @@ public class GameState extends State {
 		root.widthProperty().addListener(e -> cameraView.getRequestedViewport().setWidth(root.getWidth()));
 		root.heightProperty().addListener(e -> cameraView.getRequestedViewport().setHeight(root.getHeight()));
 		
-		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
+		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MenuState.class)));
 		
 		pauseScreen.visibleProperty().addListener(e -> game.setPaused(pauseScreen.isShowing()));
 		inventory.visibleProperty().addListener(e -> game.setPaused(inventory.isShowing()));
@@ -262,16 +263,6 @@ public class GameState extends State {
 	
 	public Entity getPlayer() {
 		return player;
-	}
-	
-	@Override
-	public Transition getOnActivateTransition() {
-		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
-	}
-	
-	@Override
-	public Transition getOnDeactivateTransition() {
-		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 }

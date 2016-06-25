@@ -1,6 +1,5 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
@@ -9,9 +8,6 @@ import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
-import javafx.animation.ParallelTransition;
-import javafx.animation.Transition;
-import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -63,16 +59,6 @@ public class LoadingState extends State {
 			
 		});
 		
-	}
-	
-	@Override
-	public Transition getOnDeactivateTransition() {
-		ParallelTransition transition = Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
-		
-		TranslateTransition slide = (TranslateTransition) transition.getChildren().get(0);
-		slide.setToX(-guiContainer.getWidth());
-		
-		return transition;
 	}
 	
 }

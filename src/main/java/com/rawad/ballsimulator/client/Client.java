@@ -14,9 +14,10 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
-import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.gamehelpers.client.AClient;
+import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
+import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.log.Logger;
@@ -37,7 +38,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// Episode 435.
+	// Episode 436.
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
@@ -184,7 +185,7 @@ public class Client extends AClient {
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
 				
-				sm.requestStateChange(MenuState.class);// Maybe a fade-in, fade-out type thing.
+				sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
 				
 				return null;
 				
@@ -202,7 +203,7 @@ public class Client extends AClient {
 			
 			loadingState.initGui();
 			
-			sm.setState(LoadingState.class);
+			sm.setState(StateChangeRequest.instance(LoadingState.class));
 			
 			stage.show();
 			
@@ -272,7 +273,7 @@ public class Client extends AClient {
 		readyToUpdate = false;
 		readyToRender = false;
 		
-		Transitions.exit(scene.getRoot(), Transitions.DEFAULT_DURATION, e -> {
+		Transitions.parallel(scene.getRoot(), e -> {
 			
 			sm.stop();
 			
@@ -280,7 +281,13 @@ public class Client extends AClient {
 			
 			stage.close();
 			
-		}).playFromStart();;
+			for(Thread thread: Thread.getAllStackTraces().keySet()) {
+				Logger.log(Logger.DEBUG, "Thread: " + thread.getName() + ". State: " + thread.getState()
+						+ ". Daemon: " + thread.isDaemon());// TODO: Find the loose thread.
+				// TODO: Add transitions to states.
+			}
+			
+		}, Transitions.fade(Transitions.DEFAULT_DURATION, Transitions.OPAQUE, Transitions.HIDDEN)).playFromStart();
 		
 	}
 	

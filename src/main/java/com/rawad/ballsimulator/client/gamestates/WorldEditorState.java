@@ -3,7 +3,6 @@ package com.rawad.ballsimulator.client.gamestates;
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
-import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -23,12 +22,12 @@ import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
-import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -219,8 +218,8 @@ public class WorldEditorState extends State {
 		pauseScreen.getChildren().remove(pauseScreen.getMainMenu());
 		pauseScreen.add(pauseScreen.getMainMenu(), column, row + 1);
 		
-		optionsButton.setOnAction(e -> sm.requestStateChange(OptionState.class));
-		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(MenuState.class));
+		optionsButton.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(OptionState.class)));
+		pauseScreen.getMainMenu().setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MenuState.class)));
 		
 		pauseScreen.visibleProperty().addListener((e, prevVisible, currentlyVisible) -> {
 			if(currentlyVisible) Mouse.unclamp();
@@ -271,16 +270,6 @@ public class WorldEditorState extends State {
 		
 		pauseScreen.hide();
 		
-	}
-	
-	@Override
-	public Transition getOnActivateTransition() {
-		return Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
-	}
-	
-	@Override
-	public Transition getOnDeactivateTransition() {
-		return Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
 	}
 	
 }

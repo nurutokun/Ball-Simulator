@@ -1,11 +1,12 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
@@ -44,35 +45,15 @@ public class MenuState extends State {
 		
 		lblTitle.setText(sm.getGame().toString());
 		
-		btnSingleplayer.setOnAction(e -> sm.requestStateChange(GameState.class));
-		btnMultiplayer.setOnAction(e -> sm.requestStateChange(MultiplayerGameState.class));
-		btnOptions.setOnAction(e -> sm.requestStateChange(OptionState.class));
+		btnSingleplayer.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(GameState.class)));
+		btnMultiplayer.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MultiplayerGameState.class)));
+		btnOptions.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(OptionState.class)));
 		btnExit.setOnAction(e -> game.requestStop());
 		
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
 		
-	}
-	
-	@Override
-	public Transition getOnActivateTransition() {
-		ParallelTransition transition = Transitions.stateOnActivate(guiContainer, Transitions.DEFAULT_DURATION);
-		
-		TranslateTransition slide = (TranslateTransition) transition.getChildren().get(0);
-		slide.setFromX(-guiContainer.getWidth());
-		
-		return transition;
-	}
-	
-	@Override
-	public Transition getOnDeactivateTransition() {
-		ParallelTransition transition = Transitions.stateOnDeactivate(guiContainer, Transitions.DEFAULT_DURATION);
-		
-		TranslateTransition slide = (TranslateTransition) transition.getChildren().get(0);
-		slide.setToX(-guiContainer.getWidth());
-		
-		return transition;
 	}
 	
 }
