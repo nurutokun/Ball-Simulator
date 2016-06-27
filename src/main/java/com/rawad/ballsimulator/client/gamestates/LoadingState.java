@@ -61,4 +61,12 @@ public class LoadingState extends State {
 		
 	}
 	
+	public static final int getColumnIndex() {
+		return 0;
+	}
+	
+	public static final int getRowIndex() {
+		return 1;
+	}
+	
 }

@@ -272,4 +272,12 @@ public class WorldEditorState extends State {
 		
 	}
 	
+	public static final int getColumnIndex() {
+		return 2;
+	}
+	
+	public static final int getRowIndex() {
+		return 2;
+	}
+	
 }

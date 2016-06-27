@@ -24,9 +24,10 @@ public class UserComponentRender extends ComponentRender<UserComponent> {
 		
 		final String username = comp.getUsername();
 		
-		BlendMode blendMode = g.getGlobalBlendMode();// TODO: Mess around with blend mode to get an XOR-type effect.
+		BlendMode blendMode = g.getGlobalBlendMode();
 		TextAlignment textAlign = g.getTextAlign();
 		
+		g.setGlobalBlendMode(BlendMode.SRC_OVER);
 		g.setTextAlign(TextAlignment.CENTER);
 		
 		g.rotate(-transformComp.getTheta());

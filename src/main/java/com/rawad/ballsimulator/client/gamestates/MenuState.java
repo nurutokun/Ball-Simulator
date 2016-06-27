@@ -6,13 +6,9 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
-import javafx.animation.ParallelTransition;
-import javafx.animation.Transition;
-import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -54,6 +50,14 @@ public class MenuState extends State {
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
 		
+	}
+	
+	public static final int getColumnIndex() {
+		return 1;
+	}
+	
+	public static final int getRowIndex() {
+		return 1;
 	}
 	
 }

@@ -31,13 +31,11 @@ import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 
-import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -356,6 +354,14 @@ public class MultiplayerGameState extends State {
 	
 	public Entity getPlayer() {
 		return player;
+	}
+	
+	public static final int getColumnIndex() {
+		return 2;
+	}
+	
+	public static final int getRowIndex() {
+		return 0;
 	}
 	
 }

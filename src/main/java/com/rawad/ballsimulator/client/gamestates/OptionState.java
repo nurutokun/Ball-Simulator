@@ -93,4 +93,12 @@ public class OptionState extends State {
 		
 	}
 	
+	public static final int getColumnIndex() {
+		return 1;
+	}
+	
+	public static final int getRowIndex() {
+		return 2;
+	}
+	
 }

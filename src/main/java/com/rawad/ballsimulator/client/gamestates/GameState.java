@@ -25,11 +25,9 @@ import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.resources.Loader;
 
-import javafx.animation.Transition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
@@ -263,6 +261,14 @@ public class GameState extends State {
 	
 	public Entity getPlayer() {
 		return player;
+	}
+	
+	public static final int getColumnIndex() {
+		return 2;
+	}
+	
+	public static final int getRowIndex() {
+		return 1;
 	}
 	
 }

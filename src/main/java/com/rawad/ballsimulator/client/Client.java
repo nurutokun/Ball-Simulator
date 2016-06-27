@@ -16,6 +16,7 @@ import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.gamehelpers.client.AClient;
+import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.client.input.Mouse;
@@ -28,23 +29,34 @@ import com.rawad.gamehelpers.resources.TextureResource;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// Episode 436.
+	// 437
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
+	
+	private static final int COLUMNS = 3;
+	private static final int ROWS = 3;
+	
+	private GridPane root;
 	
 	private SimpleStringProperty gameTitle;
 	
 	public Client() {
+		super();
 		
 		gameTitle = new SimpleStringProperty();
 		
@@ -126,13 +138,24 @@ public class Client extends AClient {
 		
 		GameTextures.registerTextures(game);
 		
-		new MenuState(sm);
-		new GameState(sm);
-		new OptionState(sm);
-		new WorldEditorState(sm);
-		new MultiplayerGameState(sm);
+		MenuState menuState = new MenuState(sm);
+		GameState gameState = new GameState(sm);
+		OptionState optionState = new OptionState(sm);
+		WorldEditorState worldEditorState = new WorldEditorState(sm);
+		MultiplayerGameState multiplayerGameState = new MultiplayerGameState(sm);
 		
 		sm.initGui();
+		
+		Platform.runLater(() -> {
+			
+			root.add(menuState.getRoot(), MenuState.getColumnIndex(), MenuState.getRowIndex());
+			root.add(gameState.getRoot(), GameState.getColumnIndex(), GameState.getRowIndex());
+			root.add(optionState.getRoot(), OptionState.getColumnIndex(), OptionState.getRowIndex());
+			root.add(worldEditorState.getRoot(), WorldEditorState.getColumnIndex(), WorldEditorState.getRowIndex());
+			root.add(multiplayerGameState.getRoot(), MultiplayerGameState.getColumnIndex(), MultiplayerGameState
+					.getRowIndex());
+			
+		});
 		
 		GameHelpersLoader ghLoader = game.getLoaders().get(GameHelpersLoader.class);
 		
@@ -158,7 +181,11 @@ public class Client extends AClient {
 				updateMessage(message);
 				Logger.log(Logger.DEBUG, message);
 				
-				initResources();
+				try {
+					initResources();
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
 				
 				message = "Loading textures...";
 				
@@ -199,11 +226,17 @@ public class Client extends AClient {
 		
 		Platform.runLater(() -> {
 			
+			root = (GridPane) scene.getRoot();
+			
 			gameTitle.setValue(game.toString());
 			
 			loadingState.initGui();
 			
+			root.add(loadingState.getRoot(), LoadingState.getColumnIndex(), LoadingState.getRowIndex());
+			
 			sm.setState(StateChangeRequest.instance(LoadingState.class));
+			
+			moveTo(loadingState);
 			
 			stage.show();
 			
@@ -280,14 +313,62 @@ public class Client extends AClient {
 			ResourceManager.releaseResources();
 			
 			stage.close();
-			
-			for(Thread thread: Thread.getAllStackTraces().keySet()) {
-				Logger.log(Logger.DEBUG, "Thread: " + thread.getName() + ". State: " + thread.getState()
-						+ ". Daemon: " + thread.isDaemon());// TODO: Find the loose thread.
-				// TODO: Add transitions to states.
-			}
+			Platform.exit();// Needed (probably) because of this transition.
 			
 		}, Transitions.fade(Transitions.DEFAULT_DURATION, Transitions.OPAQUE, Transitions.HIDDEN)).playFromStart();
+		
+	}
+	
+	@Override
+	protected GridPane createRoot() {
+		GridPane root = new GridPane();
+		
+		for(int i = 0; i < COLUMNS; i++) {
+			ColumnConstraints col = new ColumnConstraints();
+			col.setPercentWidth(1d / (double) COLUMNS * 100d);
+			col.setHalignment(HPos.CENTER);
+			col.setFillWidth(true);
+			root.getColumnConstraints().add(i, col);
+		}
+		
+		for(int i = 0; i < ROWS; i++) {
+			RowConstraints row = new RowConstraints();
+			row.setPercentHeight(1d / (double) ROWS * 100d);
+			row.setValignment(VPos.CENTER);
+			row.setFillHeight(true);
+			root.getRowConstraints().add(i, row);
+		}
+		
+		root.setPrefWidth(COLUMNS * Game.SCREEN_WIDTH);
+		root.setPrefHeight(ROWS * Game.SCREEN_HEIGHT);
+		
+//		root.setScaleX(COLUMNS);
+//		root.setScaleY(ROWS);
+		
+		root.setTranslateX(0);
+		root.setTranslateY(0);
+		
+		return root;
+	}
+	
+	@Override
+	public void onStateChange() {
+		this.moveTo(sm.getCurrentState());
+	}
+	
+	/**
+	 * Moves {@code root} so that the cell at {@code col, row} is visible in the scene.
+	 * 
+	 * @param col
+	 * @param row
+	 */
+	private void moveTo(State state) {
+		
+		double x = state.getRoot().getTranslateX();
+		double y = state.getRoot().getTranslateY();
+		
+		root.setTranslateX(x);
+		root.setTranslateY(y);
 		
 	}
 	
