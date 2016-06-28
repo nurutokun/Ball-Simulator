@@ -56,8 +56,9 @@ public class GameState extends State {
 	
 	private boolean showEntireWorld;
 	
-	public GameState(StateManager sm) {
-		super(sm);
+	@Override
+	public void init(StateManager sm) {
+		super.init(sm);
 		
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
@@ -87,7 +88,7 @@ public class GameState extends State {
 		
 		world.addEntity(camera);
 		
-		client = game.getProxies().get(Client.class);
+		this.client = game.getProxies().get(Client.class);
 		
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
@@ -261,14 +262,6 @@ public class GameState extends State {
 	
 	public Entity getPlayer() {
 		return player;
-	}
-	
-	public static final int getColumnIndex() {
-		return 2;
-	}
-	
-	public static final int getRowIndex() {
-		return 1;
 	}
 	
 }

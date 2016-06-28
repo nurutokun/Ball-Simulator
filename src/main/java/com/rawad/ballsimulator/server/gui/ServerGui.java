@@ -41,6 +41,8 @@ public class ServerGui extends AClient {
 	
 	private Server server;
 	
+	private Stage stage;
+	
 	private WorldViewState worldViewState;
 	
 	private FXMLLoader loader;
@@ -89,7 +91,9 @@ public class ServerGui extends AClient {
 			@Override
 			protected Void call() throws Exception {
 				
-				worldViewState = new WorldViewState(sm);
+				worldViewState = new WorldViewState();
+				
+				sm.addState(worldViewState);
 				
 				GameTextures.registerTextures(game);
 				
@@ -163,7 +167,7 @@ public class ServerGui extends AClient {
 			
 			readyToUpdate = true;
 			
-			sm.setState(worldViewState);
+			sm.setCurrentState(worldViewState);
 			
 			StackPane worldViewRoot = worldViewState.getRoot();
 			worldViewRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
@@ -207,8 +211,7 @@ public class ServerGui extends AClient {
 	}
 	
 	@Override
-	public void initGui(Stage stage) {
-		super.initGui(stage);
+	public void initGui() {
 		
 		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
 		loader.setController(this);
@@ -264,10 +267,8 @@ public class ServerGui extends AClient {
 		
 		server.getGame().requestStop();
 		
-		Platform.runLater(() -> getStage().close());
-		
 	}
-
+	
 	@Override
 	public void tick() {
 		
@@ -306,6 +307,15 @@ public class ServerGui extends AClient {
 		
 		inputBindings.put(KeyCode.F3, InputAction.DEBUG);
 		
+	}
+	
+	@Override
+	public void onStateChange() {
+		throw new UnsupportedOperationException("Can't change state of StateManager as there should only be one State.");
+	}
+	
+	public void setStage(Stage stage) {
+		this.stage = stage;
 	}
 	
 }

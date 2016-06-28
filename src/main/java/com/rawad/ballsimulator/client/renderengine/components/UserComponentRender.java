@@ -27,12 +27,12 @@ public class UserComponentRender extends ComponentRender<UserComponent> {
 		BlendMode blendMode = g.getGlobalBlendMode();
 		TextAlignment textAlign = g.getTextAlign();
 		
-		g.setGlobalBlendMode(BlendMode.SRC_OVER);
-		g.setTextAlign(TextAlignment.CENTER);
-		
 		g.rotate(-transformComp.getTheta());
 		g.translate(0, -height);
 		g.scale(TEXT_SCALE, TEXT_SCALE);
+		
+		g.setGlobalBlendMode(BlendMode.SRC_OVER);
+		g.setTextAlign(TextAlignment.CENTER);
 		
 		g.setStroke(Color.BLUE);
 		g.strokeText(username, 0, 0);

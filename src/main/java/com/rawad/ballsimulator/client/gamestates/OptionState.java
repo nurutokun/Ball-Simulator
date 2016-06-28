@@ -31,8 +31,9 @@ public class OptionState extends State {
 	
 	private SettingsFileParser settings;
 	
-	public OptionState(StateManager sm) {
-		super(sm);
+	@Override
+	public void init(StateManager sm) {
+		super.init(sm);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -91,14 +92,6 @@ public class OptionState extends State {
 			}
 		});
 		
-	}
-	
-	public static final int getColumnIndex() {
-		return 1;
-	}
-	
-	public static final int getRowIndex() {
-		return 2;
 	}
 	
 }

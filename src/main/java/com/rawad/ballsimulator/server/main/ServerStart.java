@@ -56,7 +56,9 @@ public class ServerStart extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		serverGui.initGui(primaryStage);
+		serverGui.setStage(primaryStage);
+		
+		serverGui.initGui();
 		
 	}
 	

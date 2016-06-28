@@ -28,8 +28,9 @@ public class WorldViewState extends State {
 	
 	private boolean showEntireWorld;
 	
-	public WorldViewState(StateManager sm) {
-		super(sm);
+	@Override
+	public void init(StateManager sm) {
+		super.init(sm);
 		
 		this.world = game.getWorld();
 		

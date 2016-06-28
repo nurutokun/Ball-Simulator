@@ -24,22 +24,23 @@ public class MenuState extends State {
 	@FXML private Button btnOptions;
 	@FXML private Button btnExit;
 	
-	public MenuState(StateManager sm) {
-		super(sm);
+	@Override
+	public void init(StateManager sm) {
+		super.init(sm);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
 		world.addEntity(camera);
 		
 		masterRender.getRenders().put(new BackgroundRender(camera));
-		
+				
 	}
 	
 	@Override
 	public void initGui() {
 		super.initGui();
 		
-		lblTitle.setText(sm.getGame().toString());
+		lblTitle.setText(game.toString());
 		
 		btnSingleplayer.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(GameState.class)));
 		btnMultiplayer.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MultiplayerGameState.class)));
@@ -50,14 +51,6 @@ public class MenuState extends State {
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
 		
-	}
-	
-	public static final int getColumnIndex() {
-		return 1;
-	}
-	
-	public static final int getRowIndex() {
-		return 1;
 	}
 	
 }

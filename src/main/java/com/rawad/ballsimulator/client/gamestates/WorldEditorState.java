@@ -25,7 +25,6 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.input.Mouse;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.application.Platform;
@@ -60,8 +59,9 @@ public class WorldEditorState extends State {
 	@FXML private ComboBox<Double> widthSelector;
 	@FXML private ComboBox<Double> heightSelector;
 	
-	public WorldEditorState(StateManager sm) {
-		super(sm);
+	@Override
+	public void init(StateManager sm) {
+		super.init(sm);
 		
 		this.client = game.getProxies().get(Client.class);
 		
@@ -228,7 +228,7 @@ public class WorldEditorState extends State {
 		root.widthProperty().addListener(e -> cameraView.getRequestedViewport().setWidth(root.getWidth()));
 		root.heightProperty().addListener(e -> cameraView.getRequestedViewport().setHeight(root.getHeight()));
 		
-		pauseScreen.visibleProperty().addListener(e -> sm.getGame().setPaused(pauseScreen.isVisible()));
+		pauseScreen.visibleProperty().addListener(e -> game.setPaused(pauseScreen.isVisible()));
 		
 	}
 	
@@ -251,8 +251,6 @@ public class WorldEditorState extends State {
 		game.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				Game game = sm.getGame();
-				
 				loader = game.getLoaders().get(CustomLoader.class);
 				terrainFileParser = game.getFileParsers().get(TerrainFileParser.class);
 				
@@ -270,14 +268,6 @@ public class WorldEditorState extends State {
 		
 		pauseScreen.hide();
 		
-	}
-	
-	public static final int getColumnIndex() {
-		return 2;
-	}
-	
-	public static final int getRowIndex() {
-		return 2;
 	}
 	
 }

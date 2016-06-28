@@ -29,29 +29,25 @@ import com.rawad.gamehelpers.resources.TextureResource;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
-import javafx.geometry.HPos;
-import javafx.geometry.VPos;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 437
+	// 438
 	
 	private static final String DEFAULT_FONT = "Y2K Neophyte";
 	
-	private static final int COLUMNS = 3;
-	private static final int ROWS = 3;
+	private Stage stage;
 	
-	private GridPane root;
+	private Scene scene;
 	
 	private SimpleStringProperty gameTitle;
 	
@@ -63,10 +59,12 @@ public class Client extends AClient {
 	}
 	
 	@Override
-	public void initGui(Stage stage) {
-		super.initGui(stage);
+	public void initGui() {
 		
+		scene = new Scene(new Pane(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		scene.setFill(Color.BLACK);
+		
+		stage.setScene(scene);
 		
 		stage.titleProperty().bind(gameTitle);
 		
@@ -138,24 +136,15 @@ public class Client extends AClient {
 		
 		GameTextures.registerTextures(game);
 		
-		MenuState menuState = new MenuState(sm);
-		GameState gameState = new GameState(sm);
-		OptionState optionState = new OptionState(sm);
-		WorldEditorState worldEditorState = new WorldEditorState(sm);
-		MultiplayerGameState multiplayerGameState = new MultiplayerGameState(sm);
+		sm.addState(new MenuState());
+		sm.addState(new GameState());
+		sm.addState(new OptionState());
+		sm.addState(new WorldEditorState());
+		sm.addState(new MultiplayerGameState());
 		
-		sm.initGui();
-		
-		Platform.runLater(() -> {
-			
-			root.add(menuState.getRoot(), MenuState.getColumnIndex(), MenuState.getRowIndex());
-			root.add(gameState.getRoot(), GameState.getColumnIndex(), GameState.getRowIndex());
-			root.add(optionState.getRoot(), OptionState.getColumnIndex(), OptionState.getRowIndex());
-			root.add(worldEditorState.getRoot(), WorldEditorState.getColumnIndex(), WorldEditorState.getRowIndex());
-			root.add(multiplayerGameState.getRoot(), MultiplayerGameState.getColumnIndex(), MultiplayerGameState
-					.getRowIndex());
-			
-		});
+		for(State state: sm.getStates().getMap().values()) {
+			if(!state.getClass().equals(LoadingState.class)) state.initGui();
+		}
 		
 		GameHelpersLoader ghLoader = game.getLoaders().get(GameHelpersLoader.class);
 		
@@ -220,23 +209,19 @@ public class Client extends AClient {
 			
 		};
 		
-		LoadingState loadingState = new LoadingState(sm, task);
+		LoadingState loadingState = new LoadingState(task);
+		sm.addState(loadingState);
 		
 		game.addTask(task);
 		
 		Platform.runLater(() -> {
 			
-			root = (GridPane) scene.getRoot();
-			
 			gameTitle.setValue(game.toString());
 			
 			loadingState.initGui();
 			
-			root.add(loadingState.getRoot(), LoadingState.getColumnIndex(), LoadingState.getRowIndex());
-			
-			sm.setState(StateChangeRequest.instance(LoadingState.class));
-			
-			moveTo(loadingState);
+			sm.setCurrentState(loadingState);
+			onStateChange();
 			
 			stage.show();
 			
@@ -294,9 +279,9 @@ public class Client extends AClient {
 		
 		Background.instance().tick();
 		
-		Mouse.update(sm.getCurrentState().getRoot());
+		Mouse.update(scene.getRoot());
 		
-		sm.update();
+		super.tick();
 		
 	}
 	
@@ -320,56 +305,17 @@ public class Client extends AClient {
 	}
 	
 	@Override
-	protected GridPane createRoot() {
-		GridPane root = new GridPane();
-		
-		for(int i = 0; i < COLUMNS; i++) {
-			ColumnConstraints col = new ColumnConstraints();
-			col.setPercentWidth(1d / (double) COLUMNS * 100d);
-			col.setHalignment(HPos.CENTER);
-			col.setFillWidth(true);
-			root.getColumnConstraints().add(i, col);
-		}
-		
-		for(int i = 0; i < ROWS; i++) {
-			RowConstraints row = new RowConstraints();
-			row.setPercentHeight(1d / (double) ROWS * 100d);
-			row.setValignment(VPos.CENTER);
-			row.setFillHeight(true);
-			root.getRowConstraints().add(i, row);
-		}
-		
-		root.setPrefWidth(COLUMNS * Game.SCREEN_WIDTH);
-		root.setPrefHeight(ROWS * Game.SCREEN_HEIGHT);
-		
-//		root.setScaleX(COLUMNS);
-//		root.setScaleY(ROWS);
-		
-		root.setTranslateX(0);
-		root.setTranslateY(0);
-		
-		return root;
-	}
-	
-	@Override
 	public void onStateChange() {
-		this.moveTo(sm.getCurrentState());
+		
+		Platform.runLater(() -> {
+			scene.setRoot(sm.getCurrentState().getRoot());
+			scene.getRoot().requestFocus();
+		});
+		
 	}
 	
-	/**
-	 * Moves {@code root} so that the cell at {@code col, row} is visible in the scene.
-	 * 
-	 * @param col
-	 * @param row
-	 */
-	private void moveTo(State state) {
-		
-		double x = state.getRoot().getTranslateX();
-		double y = state.getRoot().getTranslateY();
-		
-		root.setTranslateX(x);
-		root.setTranslateY(y);
-		
+	protected void setStage(Stage stage) {
+		this.stage = stage;
 	}
 	
 }

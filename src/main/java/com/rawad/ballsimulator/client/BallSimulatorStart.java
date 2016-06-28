@@ -29,7 +29,9 @@ public class BallSimulatorStart extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		client.initGui(primaryStage);
+		client.setStage(primaryStage);
+		
+		client.initGui();
 		
 	}
 	
