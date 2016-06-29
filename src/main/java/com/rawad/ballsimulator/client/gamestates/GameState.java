@@ -231,15 +231,15 @@ public class GameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		inventory.setVisible(false);
+		inventory.hide();
 		mess.hide();
 		
 		game.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				CustomLoader loader = game.getLoaders().get(CustomLoader.class);
+				CustomLoader loader = client.getLoaders().get(CustomLoader.class);
 				
-				TerrainFileParser parser = game.getFileParsers().get(TerrainFileParser.class);
+				TerrainFileParser parser = client.getFileParsers().get(TerrainFileParser.class);
 				
 				loader.loadTerrain(parser, world, "terrain");
 				playerRandomPositioner.setGenerateNewPosition(true);

@@ -21,7 +21,7 @@ public abstract class APacket {
 	/**
 	 * Used to split between different sets of data in {@code String} form.
 	 */
-	protected static final String REGEX = "::";
+	public static final String REGEX = "::";
 	
 	protected static final int IDENTIFIER_LENGTH = 2;// 2 hex bits (one binary byte) reserved for the packet's id.
 	

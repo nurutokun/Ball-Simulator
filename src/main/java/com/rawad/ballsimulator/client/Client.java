@@ -1,12 +1,5 @@
 package com.rawad.ballsimulator.client;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.io.IOException;
-
-import javax.swing.LookAndFeel;
-import javax.swing.UIManager;
-
 import com.rawad.ballsimulator.client.gamestates.GameState;
 import com.rawad.ballsimulator.client.gamestates.LoadingState;
 import com.rawad.ballsimulator.client.gamestates.MenuState;
@@ -15,20 +8,19 @@ import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.fileparser.SettingsFileParser;
+import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.loader.CustomLoader;
 import com.rawad.gamehelpers.client.AClient;
-import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.GameHelpersLoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
-import com.rawad.gamehelpers.resources.TextureResource;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
@@ -41,9 +33,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 438
-	
-	private static final String DEFAULT_FONT = "Y2K Neophyte";
+	// 439
 	
 	private Stage stage;
 	
@@ -114,45 +104,14 @@ public class Client extends AClient {
 		
 	}
 	
-	private void loadFont(GameHelpersLoader loader) {
+	@Override
+	public void preInit(Game game) {
+		super.preInit(game);
 		
-		try {
-			
-			Font f = Font.createFont(Font.PLAIN, loader.loadFontFile(DEFAULT_FONT)).deriveFont(13f);
-			
-			LookAndFeel laf = UIManager.getLookAndFeel();
-			laf.getDefaults().put("defaultFont", f);
-			
-		} catch(FontFormatException | IOException ex) {
-			ex.printStackTrace();
-			
-			Logger.log(Logger.DEBUG, "Couln't load font: \"" + DEFAULT_FONT + "\"");
-			
-		}
+		loaders.put(new CustomLoader());
 		
-	}
-	
-	public void initResources() {
-		
-		GameTextures.registerTextures(game);
-		
-		sm.addState(new MenuState());
-		sm.addState(new GameState());
-		sm.addState(new OptionState());
-		sm.addState(new WorldEditorState());
-		sm.addState(new MultiplayerGameState());
-		
-		for(State state: sm.getStates().getMap().values()) {
-			if(!state.getClass().equals(LoadingState.class)) state.initGui();
-		}
-		
-		GameHelpersLoader ghLoader = game.getLoaders().get(GameHelpersLoader.class);
-		
-		loadFont(ghLoader);
-		
-		ResourceManager.getTextureObject(game.getIconLocation()).setOnloadAction(texture -> {
-			Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
-		});
+		fileParsers.put(new TerrainFileParser());
+		fileParsers.put(new SettingsFileParser());
 		
 	}
 	
@@ -160,63 +119,16 @@ public class Client extends AClient {
 	public void init(Game game) {
 		super.init(game);
 		
-		Task<Void> task = new Task<Void>() {
-			
-			@Override
-			protected Void call() throws Exception {
-				
-				String message = "Initializing client resources...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				try {
-					initResources();
-				} catch(Exception ex) {
-					ex.printStackTrace();
-				}
-				
-				message = "Loading textures...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				int progress = 0;
-				
-				for(TextureResource texture: ResourceManager.getRegisteredTextures().values()) {
-					
-					message = "Loading \"" + texture.getPath() + "\"...";
-					updateMessage(message);
-					
-					ResourceManager.loadTexture(texture);
-					
-					updateProgress(progress++, ResourceManager.getRegisteredTextures().size());
-					
-				}
-				
-				readyToRender = true;
-				
-				message = "Done!";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
-				
-				return null;
-				
-			}
-			
-		};
+		loadingTask.setOnSucceeded(e -> {
+			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));			
+		});
 		
-		LoadingState loadingState = new LoadingState(task);
-		sm.addState(loadingState);
 		
-		game.addTask(task);
+		LoadingState loadingState = new LoadingState(loadingTask);
 		
 		Platform.runLater(() -> {
 			
-			gameTitle.setValue(game.toString());
+			gameTitle.setValue(game.getName());
 			
 			loadingState.initGui();
 			
@@ -227,6 +139,23 @@ public class Client extends AClient {
 			
 			readyToUpdate = true;
 			
+		});
+		
+	}
+	
+	@Override
+	public void initResources() {
+		
+		TexturesRegister.registerTextures(loaders.get(CustomLoader.class));
+		
+		sm.addState(new MenuState());
+		sm.addState(new GameState());
+		sm.addState(new OptionState());
+		sm.addState(new WorldEditorState());
+		sm.addState(new MultiplayerGameState());
+		
+		ResourceManager.getTextureObject(GameTextures.findTexture(GameTextures.GAME_ICON)).setOnloadAction(texture -> {
+			Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
 		});
 		
 	}
@@ -298,7 +227,6 @@ public class Client extends AClient {
 			ResourceManager.releaseResources();
 			
 			stage.close();
-			Platform.exit();// Needed (probably) because of this transition.
 			
 		}, Transitions.fade(Transitions.DEFAULT_DURATION, Transitions.OPAQUE, Transitions.HIDDEN)).playFromStart();
 		
@@ -314,7 +242,7 @@ public class Client extends AClient {
 		
 	}
 	
-	protected void setStage(Stage stage) {
+	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
 	

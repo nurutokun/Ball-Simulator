@@ -244,9 +244,9 @@ public class MultiplayerGameState extends State {
 			@Override
 			protected Void call() throws Exception {
 				
-				loader = game.getLoaders().get(CustomLoader.class);
+				loader = client.getLoaders().get(CustomLoader.class);
 				
-				settingsParser = game.getFileParsers().get(SettingsFileParser.class);
+				settingsParser = client.getFileParsers().get(SettingsFileParser.class);
 				
 				loader.loadSettings(settingsParser, client.getSettingsFileName());
 				

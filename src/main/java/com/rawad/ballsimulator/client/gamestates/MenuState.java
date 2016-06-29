@@ -40,7 +40,7 @@ public class MenuState extends State {
 	public void initGui() {
 		super.initGui();
 		
-		lblTitle.setText(game.toString());
+		lblTitle.setText(game.getName());
 		
 		btnSingleplayer.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(GameState.class)));
 		btnMultiplayer.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MultiplayerGameState.class)));

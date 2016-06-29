@@ -61,14 +61,16 @@ public class OptionState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		settings = game.getFileParsers().get(SettingsFileParser.class);
+		Client client = game.getProxies().get(Client.class);
 		
-		loader = game.getLoaders().get(CustomLoader.class);
+		settings = client.getFileParsers().get(SettingsFileParser.class);
+		
+		loader = client.getLoaders().get(CustomLoader.class);
 		
 		game.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				loader.loadSettings(settings, game.getProxies().get(Client.class).getSettingsFileName());
+				loader.loadSettings(settings, client.getSettingsFileName());
 				ipHolder.setText(settings.getIp());
 				
 				return null;

@@ -50,6 +50,10 @@ public class Server extends AServer {
 		
 		game.setWorld(new WorldMP());// So that ServerGui can have it in time.
 		
+		loaders.put(new CustomLoader());
+		
+		fileParsers.put(new TerrainFileParser());
+		
 	}
 	
 	@Override
@@ -78,9 +82,9 @@ public class Server extends AServer {
 				
 				BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().addComponent(new NetworkComponent());
 				
-				CustomLoader loader = game.getLoaders().get(CustomLoader.class);
+				CustomLoader loader = loaders.get(CustomLoader.class);
 				
-				TerrainFileParser parser = game.getFileParsers().get(TerrainFileParser.class);
+				TerrainFileParser parser = fileParsers.get(TerrainFileParser.class);
 				
 				Logger.log(Logger.DEBUG, "Loading terrain...");
 				loader.loadTerrain(parser, world, TERRAIN_NAME);

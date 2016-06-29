@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.networking.client;
 
 import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
+import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.ConnectionState;
 import com.rawad.ballsimulator.networking.TCPPacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
@@ -48,7 +49,7 @@ public class ClientNetworkManager {
 	}
 	
 	/**
-	 * Should be called after {@code connectionState} has been set to {@code ConnectionState.CONNECTED}
+	 * Should be called after {@code connectionState} has been set to {@link ConnectionState#CONNECTED}
 	 */
 	public void onConnect() {
 		
@@ -59,6 +60,7 @@ public class ClientNetworkManager {
 		Entity player = client.getPlayer();
 		
 		UserComponent userComp = player.getComponent(UserComponent.class);
+		userComp.setUsername(userComp.getUsername().replaceAll(APacket.REGEX, ""));// Ensures a valid username.
 		userComp.setIp(connectionManager.getSocket().getLocalAddress().getHostAddress());
 		
 		CPacket01Login loginPacket = new CPacket01Login(player.getComponent(NetworkComponent.class), userComp);

@@ -1,7 +1,6 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
@@ -21,6 +20,7 @@ import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
@@ -251,8 +251,8 @@ public class WorldEditorState extends State {
 		game.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				loader = game.getLoaders().get(CustomLoader.class);
-				terrainFileParser = game.getFileParsers().get(TerrainFileParser.class);
+				loader = client.getLoaders().get(CustomLoader.class);
+				terrainFileParser = client.getFileParsers().get(TerrainFileParser.class);
 				
 				loader.loadTerrain(terrainFileParser, world, "terrain");
 				

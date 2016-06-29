@@ -40,8 +40,8 @@ public class Background {
 		
 		final TextureResource flippedTexture = ResourceManager.getTextureObject(DEFAULT_FLIPPED_TEXTURE);
 		
-		ResourceManager.getTextureObject(DEFAULT_TEXTURE).setOnloadAction(textureResource -> {// In case they're not loaded 
-			// in the order they're registered (which they are).
+		ResourceManager.getTextureObject(DEFAULT_TEXTURE).setOnloadAction(textureResource -> {// In case they're not 
+			// loaded in the order they're registered (which they are).
 			
 				flippedTexture.setTexture(getHorizontallyFlippedImage(textureResource.getTexture()));
 				

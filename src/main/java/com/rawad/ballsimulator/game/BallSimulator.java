@@ -1,75 +1,33 @@
 package com.rawad.ballsimulator.game;
 
-import com.rawad.ballsimulator.entity.EEntity;
-import com.rawad.ballsimulator.fileparser.SettingsFileParser;
-import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.loader.CustomLoader;
-import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
-import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.entity.Blueprint;
-import com.rawad.gamehelpers.game.entity.BlueprintManager;
-import com.rawad.gamehelpers.log.Logger;
+import java.util.HashMap;
 
-import javafx.concurrent.Task;
+import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.gamehelpers.game.Game;
 
 public class BallSimulator extends Game {
 	
-	/**
-	 * @Temporary
-	 */
 	public static final String NAME = "Ball Simulator";
 	
-	private static int ICON;
-	
-	public BallSimulator() {
-		super();
-	}
-	
 	@Override
-	public void registerTextures() {
+	protected EntityBlueprintLoadObject geEntityBlueprintLoadObject() {
 		
-		ICON = loaders.get(CustomLoader.class).registerTexture("", "game_icon");
+		final HashMap<Object, String> entityBindings = new HashMap<Object, String>();
 		
-	}
-	
-	@Override
-	protected void init() {
-		super.init();
+		for(EEntity entity: EEntity.values()) {
+			entityBindings.put(entity, entity.getName());
+		}
 		
-		loaders.put(new CustomLoader());
+		final String[] contextPaths = {
+				EEntity.class.getPackage().getName()
+		};
 		
-		fileParsers.put(new TerrainFileParser());
-		fileParsers.put(new SettingsFileParser());
-		
-		addTask(new Task<Void>() {
-			@Override
-			protected Void call() throws Exception {
-				
-				Logger.log(Logger.DEBUG, "Loading entity blueprints...");
-				
-				EEntity[] entities = EEntity.values();
-				
-				for(EEntity entity: entities) {
-					BlueprintManager.addBlueprint(entity, new Blueprint(EntityFileParser.parseEntityFile(EEntity.class, 
-							entity.getName(), EEntity.class.getPackage().getName())));
-				}
-				
-				Logger.log(Logger.DEBUG, "Loaded all entity blueprints.");
-				
-				return null;
-				
-			}
-		});
+		return new EntityBlueprintLoadObject(entityBindings, EEntity.class, contextPaths);
 		
 	}
 	
 	@Override
-	public int getIconLocation() {
-		return ICON;
-	}
-	
-	@Override
-	public String toString() {
+	public String getName() {
 		return NAME;
 	}
 	
