@@ -1,7 +1,9 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -123,7 +125,8 @@ public class WorldEditorState extends State {
 	
 	@Override
 	public void initGui() {
-		super.initGui();
+		
+		Root root = GuiRegister.loadGui(this);
 		
 		widthSelector.setFocusTraversable(false);// Mainly for when in pause screen.
 		heightSelector.setFocusTraversable(false);

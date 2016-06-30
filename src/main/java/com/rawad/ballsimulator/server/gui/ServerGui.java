@@ -6,7 +6,9 @@ import java.io.PrintStream;
 import java.util.List;
 
 import com.rawad.ballsimulator.client.TexturesRegister;
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
+import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.loader.CustomLoader;
@@ -34,7 +36,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class ServerGui extends AClient {
@@ -44,6 +45,7 @@ public class ServerGui extends AClient {
 	private Stage stage;
 	
 	private WorldViewState worldViewState;
+	private Root worldViewStateRoot;
 	
 	private FXMLLoader loader;
 	
@@ -109,9 +111,8 @@ public class ServerGui extends AClient {
 		
 		worldViewState = new WorldViewState();
 		
-		sm.addState(worldViewState);
-		
-		sm.setCurrentState(worldViewState);
+		worldViewState.initGui();// Order doesn't really matter here.
+		worldViewState.init(sm);
 		
 	}
 	
@@ -154,14 +155,11 @@ public class ServerGui extends AClient {
 			
 		});
 		
-		worldViewState.initGui();
-		
 		readyToUpdate = true;
 		
-		sm.setCurrentState(worldViewState);
+		worldViewStateRoot = GuiRegister.getRoot(worldViewState);
 		
-		StackPane worldViewRoot = worldViewState.getRoot();
-		worldViewRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+		worldViewStateRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
 			InputAction action = (InputAction) inputBindings.get(keyEvent.getCode());
 			
@@ -188,7 +186,7 @@ public class ServerGui extends AClient {
 			
 		});
 		
-		worldViewTab.setContent(worldViewRoot);
+		worldViewTab.setContent(worldViewStateRoot);
 		
 		tabPane.focusedProperty().addListener((e, oldValue, newValue) -> {
 			tabPane.getSelectionModel().getSelectedItem().getContent().requestFocus();
@@ -263,8 +261,14 @@ public class ServerGui extends AClient {
 	@Override
 	public void tick() {
 		
-		Mouse.update(worldViewState.getRoot());
+		Mouse.update(worldViewStateRoot);
 		
+	}
+	
+	@Override
+	protected void render() {
+		Platform.runLater(() -> worldViewState.getMasterRender().render(worldViewStateRoot.getCanvas()
+				.getGraphicsContext2D()));
 	}
 	
 	@Override

@@ -1,6 +1,8 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.client.gui.GuiRegister;
+import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
@@ -45,7 +47,8 @@ public class OptionState extends State {
 	
 	@Override
 	public void initGui() {
-		super.initGui();
+		
+		Root root = GuiRegister.loadGui(this);
 		
 		btnMainMenu.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MenuState.class)));
 		btnWorldEditor.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(WorldEditorState.class)));

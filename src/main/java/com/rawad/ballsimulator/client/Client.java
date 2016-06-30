@@ -7,6 +7,7 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -33,7 +34,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 439
+	// 440
 	
 	private Stage stage;
 	
@@ -120,7 +121,7 @@ public class Client extends AClient {
 		super.init(game);
 		
 		loadingTask.setOnSucceeded(e -> {
-			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));			
+			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
 		});
 		
 		
@@ -215,6 +216,14 @@ public class Client extends AClient {
 	}
 	
 	@Override
+	protected void render() {
+		
+		Platform.runLater(() -> sm.getCurrentState().getMasterRender().render(GuiRegister.getRoot(sm.getCurrentState())
+				.getCanvas().getGraphicsContext2D()));
+		
+	}
+	
+	@Override
 	public void stop() {
 		
 		readyToUpdate = false;
@@ -236,7 +245,7 @@ public class Client extends AClient {
 	public void onStateChange() {
 		
 		Platform.runLater(() -> {
-			scene.setRoot(sm.getCurrentState().getRoot());
+			scene.setRoot(GuiRegister.getRoot(sm.getCurrentState()));
 			scene.getRoot().requestFocus();
 		});
 		

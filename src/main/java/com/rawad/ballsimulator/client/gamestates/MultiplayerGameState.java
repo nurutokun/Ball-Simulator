@@ -3,8 +3,10 @@ package com.rawad.ballsimulator.client.gamestates;
 import java.util.Random;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
@@ -124,7 +126,8 @@ public class MultiplayerGameState extends State {
 	
 	@Override
 	public void initGui() {
-		super.initGui();
+		
+		Root root = GuiRegister.loadGui(this);
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			

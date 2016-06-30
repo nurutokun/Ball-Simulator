@@ -1,8 +1,10 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
+import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
@@ -111,7 +113,8 @@ public class GameState extends State {
 	
 	@Override
 	public void initGui() {
-		super.initGui();
+		
+		Root root = GuiRegister.loadGui(this);
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
@@ -183,7 +186,7 @@ public class GameState extends State {
 				
 			case REFRESH:
 				
-				String style = Loader.getStyleSheetLocation(Client.class, getStyleSheet());
+				String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
 				
 				root.getScene().getStylesheets().remove(style);
 				root.getScene().getStylesheets().add(style);
