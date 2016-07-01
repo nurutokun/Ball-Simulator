@@ -2,7 +2,7 @@ package com.rawad.ballsimulator.client.gui;
 
 import com.rawad.gamehelpers.client.gui.IHideable;
 import com.rawad.gamehelpers.client.gui.Transitions;
-import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.resources.ALoader;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -19,7 +19,7 @@ public class PauseScreen extends GridPane implements IHideable {
 	
 	public PauseScreen() {
 		
-		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		FXMLLoader loader = new FXMLLoader(ALoader.getFxmlLocation(getClass()));
 		
 		loader.setController(this);
 		loader.setRoot(this);

@@ -5,7 +5,7 @@ import com.rawad.ballsimulator.networking.TCPPacketType;
 
 public class SPacket03Message extends TCPPacket {
 	
-	private static final int SENDER_INDEX = 1;
+	private static final int INDEX_SENDER = 1;
 	
 	public SPacket03Message(String sender, String message) {
 		super(TCPPacketType.MESSAGE, sender, message);	
@@ -16,7 +16,7 @@ public class SPacket03Message extends TCPPacket {
 	}
 	
 	public String getSender() {
-		return indexedData[SENDER_INDEX];
+		return indexedData[INDEX_SENDER];
 	}
 	
 	public String getMessage() {

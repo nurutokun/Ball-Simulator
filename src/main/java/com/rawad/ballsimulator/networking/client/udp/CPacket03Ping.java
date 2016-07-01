@@ -8,9 +8,9 @@ import com.rawad.ballsimulator.networking.server.udp.SPacket03Ping;
 
 public class CPacket03Ping extends UDPPacket {
 	
-	private static final int PING_INDEX = 2;
+	private static final int INDEX_PING = 2;
 	
-	private static final int TIME_STAMP_INDEX = 3;
+	private static final int INDEX_TIME_STAMP = 3;
 	
 	/**
 	 * 
@@ -28,11 +28,11 @@ public class CPacket03Ping extends UDPPacket {
 	}
 	
 	public int getPing() {
-		return Integer.parseInt(indexedData[PING_INDEX]);
+		return Integer.parseInt(indexedData[INDEX_PING]);
 	}
 	
 	public long getTimeStamp() {
-		return Long.parseLong(indexedData[TIME_STAMP_INDEX]);
+		return Long.parseLong(indexedData[INDEX_TIME_STAMP]);
 	}
 	
 }

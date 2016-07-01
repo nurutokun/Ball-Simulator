@@ -21,7 +21,7 @@ import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
@@ -53,7 +53,7 @@ public class WorldEditorState extends State {
 	private TransformComponent toBePlacedTransform;
 	private PlaceableComponent placeableComp;
 	
-	private CustomLoader loader;
+	private Loader loader;
 	private TerrainFileParser terrainFileParser;
 	
 	@FXML private PauseScreen pauseScreen;
@@ -254,7 +254,7 @@ public class WorldEditorState extends State {
 		game.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				loader = client.getLoaders().get(CustomLoader.class);
+				loader = client.getLoaders().get(Loader.class);
 				terrainFileParser = client.getFileParsers().get(TerrainFileParser.class);
 				
 				loader.loadTerrain(terrainFileParser, world, "terrain");

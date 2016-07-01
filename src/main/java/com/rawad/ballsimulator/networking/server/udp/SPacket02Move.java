@@ -5,20 +5,19 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
-import com.rawad.gamehelpers.utils.Util;
 
 public class SPacket02Move extends UDPPacket {
 	
-	private static final int X_INDEX = 2;
-	private static final int Y_INDEX = 3;
+	private static final int INDEX_X = 2;
+	private static final int INDEX_Y = 3;
 	
-	private static final int VX_INDEX = 4;
-	private static final int VY_INDEX = 5;
+	private static final int INDEX_VX = 4;
+	private static final int INDEX_VY = 5;
 	
-	private static final int AX_INDEX = 6;
-	private static final int AY_INDEX = 7;
+	private static final int INDEX_AX = 6;
+	private static final int INDEX_AY = 7;
 	
-	private static final int THETA_INDEX = 8;
+	private static final int INDEX_THETA = 8;
 	
 	public SPacket02Move(NetworkComponent networkComp, TransformComponent transformComp, MovementComponent movementComp) {
 		super(UDPPacketType.MOVE, networkComp.getId(), Double.toString(transformComp.getX()), 
@@ -32,31 +31,31 @@ public class SPacket02Move extends UDPPacket {
 	}
 	
 	public double getX() {
-		return Util.parseDouble(indexedData[X_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_X]);
 	}
 	
 	public double getY() {
-		return Util.parseDouble(indexedData[Y_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_Y]);
 	}
 	
 	public double getVx() {
-		return Util.parseDouble(indexedData[VX_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_VX]);
 	}
 	
 	public double getVy() {
-		return Util.parseDouble(indexedData[VY_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_VY]);
 	}
 	
 	public double getAx() {
-		return Util.parseDouble(indexedData[AX_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_AX]);
 	}
 	
 	public double getAy() {
-		return Util.parseDouble(indexedData[AY_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_AY]);
 	}
 	
 	public double getTheta() {
-		return Util.parseDouble(indexedData[THETA_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_THETA]);
 	}
 	
 }

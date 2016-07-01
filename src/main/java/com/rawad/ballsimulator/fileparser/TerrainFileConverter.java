@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
@@ -30,11 +30,11 @@ public final class TerrainFileConverter {
 			return;
 		}
 		
-		CustomLoader loader = new CustomLoader();
+		Loader loader = new Loader();
 		
 		Logger.log(Logger.DEBUG, "Loading file " + fileToConvert + "...");
 		
-		BufferedReader reader = loader.readFile(CustomLoader.TERRAIN_FOLDER, fileToConvert);
+		BufferedReader reader = loader.readFile(Loader.FOLDER_TERRAIN, fileToConvert);
 		
 		TerrainFileConverter converter = new TerrainFileConverter();
 		
@@ -74,7 +74,7 @@ public final class TerrainFileConverter {
 		Logger.log(Logger.DEBUG, "Saving file " + fileToSaveTo + "...");
 		
 		loader.saveFile(Util.getStringFromLines(lines.toArray(new String[lines.size()]), Util.NL, false), 
-				CustomLoader.TERRAIN_FOLDER, fileToSaveTo);
+				Loader.FOLDER_TERRAIN, fileToSaveTo);
 		
 		Logger.log(Logger.DEBUG, "Done!");
 		

@@ -10,7 +10,7 @@ import com.rawad.ballsimulator.entity.RollingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
@@ -25,7 +25,7 @@ public class EntityBlueprintFileMaker {
 		
 		ResourceManager.init(Util.parseCommandLineArguments(args));
 		
-		CustomLoader loader = new CustomLoader();
+		Loader loader = new Loader();
 		
 		Entity player = Entity.createEntity();
 		

@@ -1,7 +1,5 @@
 package com.rawad.ballsimulator.fileparser;
 
-import java.util.Set;
-
 import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -25,9 +23,9 @@ public class SettingsFileParser extends FileParser {
 		
 		String[] tokens = line.split(REGEX);
 		
-		if(tokens != null && tokens.length >= 2) {
+		if(tokens.length >= 2) {
 			
-			data.put(tokens[0], tokens[1]);
+			data.put(tokens[0].trim(), tokens[1].trim());
 			
 		}
 		
@@ -36,19 +34,14 @@ public class SettingsFileParser extends FileParser {
 	@Override
 	public String getContent() {
 		
-		Set<String> keys = data.keySet();
-		
-		String[] lines = new String[keys.size()];
+		String[] lines = new String[data.size()];
 		
 		int i = 0;
 		
-		for(String key: keys) {
+		for(String key: data.keySet()) {
 			
-			String value = data.get(key);
+			lines[i++] = key + " " + REGEX + " " + data.get(key);
 			
-			lines[i] = key + REGEX + value;
-			
-			i++;
 		}
 		
 		return Util.getStringFromLines(lines, Util.NL, false);

@@ -8,20 +8,20 @@ import com.rawad.ballsimulator.networking.entity.UserComponent;
 
 public class SPacket01Login extends TCPPacket {
 	
-	private static final int ENTITY_ID_INDEX = 1;
+	private static final int INDEX_ENTITY_ID = 1;
 	
-	private static final int USERNAME_INDEX = 2;
-	private static final int IP_INDEX = 3;
+	private static final int INDEX_USERNAME = 2;
+	private static final int INDEX_IP = 3;
 	
-	private static final int X_INDEX = 4;
-	private static final int Y_INDEX = 5;
+	private static final int INDEX_X = 4;
+	private static final int INDEX_Y = 5;
 	
-	private static final int SCALE_X_INDEX = 6;
-	private static final int SCALE_Y_INDEX = 7;
+	private static final int INDEX_SCALE_X = 6;
+	private static final int INDEX_SCALE_Y = 7;
 	
-	private static final int THETA_INDEX = 8;
+	private static final int INDEX_THETA = 8;
 	
-	private static final int LOGIN_INDEX = 9;
+	private static final int INDEX_LOGIN = 9;
 	
 	public SPacket01Login(NetworkComponent networkComp, UserComponent userComp, TransformComponent transformComp, 
 			boolean login) {
@@ -36,39 +36,39 @@ public class SPacket01Login extends TCPPacket {
 	}
 	
 	public int getEntityId() {
-		return Integer.parseInt(indexedData[ENTITY_ID_INDEX]);
+		return Integer.parseInt(indexedData[INDEX_ENTITY_ID]);
 	}
 	
 	public String getUsername() {
-		return indexedData[USERNAME_INDEX];
+		return indexedData[INDEX_USERNAME];
 	}
 	
 	public String getIp() {
-		return indexedData[IP_INDEX];
+		return indexedData[INDEX_IP];
 	}
 	
 	public double getX() {
-		return Double.parseDouble(indexedData[X_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_X]);
 	}
 	
 	public double getY() {
-		return Double.parseDouble(indexedData[Y_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_Y]);
 	}
 	
 	public double getScaleX() {
-		return Double.parseDouble(indexedData[SCALE_X_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_SCALE_X]);
 	}
 	
 	public double getScaleY() {
-		return Double.parseDouble(indexedData[SCALE_Y_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_SCALE_Y]);
 	}
 	
 	public double getTheta() {
-		return Double.parseDouble(indexedData[THETA_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_THETA]);
 	}
 	
 	public boolean canLogin() {
-		return Boolean.parseBoolean(indexedData[LOGIN_INDEX]);
+		return Boolean.parseBoolean(indexedData[INDEX_LOGIN]);
 	}
 	
 }

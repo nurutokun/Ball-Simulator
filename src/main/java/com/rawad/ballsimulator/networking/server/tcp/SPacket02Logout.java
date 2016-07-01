@@ -5,7 +5,7 @@ import com.rawad.ballsimulator.networking.TCPPacketType;
 
 public class SPacket02Logout extends TCPPacket {
 	
-	private static final int ENTITY_ID_INDEX = 1;
+	private static final int INDEX_ENTITY_ID = 1;
 	
 	public SPacket02Logout(int entityId) {
 		super(TCPPacketType.LOGOUT, Integer.toString(entityId));
@@ -16,7 +16,7 @@ public class SPacket02Logout extends TCPPacket {
 	}
 	
 	public int getEntityId() {
-		return Integer.parseInt(indexedData[ENTITY_ID_INDEX]);
+		return Integer.parseInt(indexedData[INDEX_ENTITY_ID]);
 	}
 	
 }

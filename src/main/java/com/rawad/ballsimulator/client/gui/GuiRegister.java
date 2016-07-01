@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.resources.ALoader;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -28,14 +28,14 @@ public final class GuiRegister {
 	
 	public static final Root loadGui(State state, String styleSheet) {
 		
-		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(state.getClass()));
+		FXMLLoader loader = new FXMLLoader(ALoader.getFxmlLocation(state.getClass()));
 		loader.setController(state);
 		
 		StackPane guiContainer = new StackPane();
 		loader.setRoot(guiContainer);
 		
 		Root root = new Root(guiContainer);
-		root.getStylesheets().add(Loader.getStyleSheetLocation(state.getClass(), styleSheet));		
+		root.getStylesheets().add(ALoader.getStyleSheetLocation(state.getClass(), styleSheet));		
 		
 		try {
 			

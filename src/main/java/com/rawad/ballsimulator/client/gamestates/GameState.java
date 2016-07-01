@@ -23,12 +23,12 @@ import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.resources.ALoader;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -186,7 +186,7 @@ public class GameState extends State {
 				
 			case REFRESH:
 				
-				String style = Loader.getStyleSheetLocation(Client.class, "StyleSheet");
+				String style = ALoader.getStyleSheetLocation(Client.class, "StyleSheet");
 				
 				root.getScene().getStylesheets().remove(style);
 				root.getScene().getStylesheets().add(style);
@@ -240,7 +240,7 @@ public class GameState extends State {
 		game.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				CustomLoader loader = client.getLoaders().get(CustomLoader.class);
+				Loader loader = client.getLoaders().get(Loader.class);
 				
 				TerrainFileParser parser = client.getFileParsers().get(TerrainFileParser.class);
 				

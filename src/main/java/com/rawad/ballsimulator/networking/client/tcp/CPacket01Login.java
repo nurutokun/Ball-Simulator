@@ -7,10 +7,10 @@ import com.rawad.ballsimulator.networking.entity.UserComponent;
 
 public class CPacket01Login extends TCPPacket {
 	
-	private static final int ENTITY_ID_INDEX = 1;
+	private static final int INDEX_ENTITY_ID = 1;
 	
-	private static final int USERNAME_INDEX = 2;
-	private static final int IP_INDEX = 3;
+	private static final int INDEX_USERNAME = 2;
+	private static final int INDEX_IP = 3;
 	
 	public CPacket01Login(NetworkComponent networkComp, UserComponent userComp) {
 		super(TCPPacketType.LOGIN, Integer.toString(networkComp.getId()), userComp.getUsername(), userComp.getIp());
@@ -21,15 +21,15 @@ public class CPacket01Login extends TCPPacket {
 	}
 	
 	public int getEntityId() {
-		return Integer.parseInt(indexedData[ENTITY_ID_INDEX]);
+		return Integer.parseInt(indexedData[INDEX_ENTITY_ID]);
 	}
 	
 	public String getUsername() {
-		return indexedData[USERNAME_INDEX];
+		return indexedData[INDEX_USERNAME];
 	}
 	
 	public String getIp() {
-		return indexedData[IP_INDEX];
+		return indexedData[INDEX_IP];
 	}
 	
 }

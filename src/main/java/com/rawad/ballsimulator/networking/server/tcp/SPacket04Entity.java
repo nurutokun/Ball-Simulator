@@ -6,17 +6,17 @@ import com.rawad.ballsimulator.networking.TCPPacketType;
 
 public class SPacket04Entity extends TCPPacket {
 	
-	private static final int ENTITY_NAME_INDEX = 1;
+	private static final int INDEX_ENTITY_NAME = 1;
 	
-	private static final int X_INDEX = 2;
-	private static final int Y_INDEX = 3;
+	private static final int INDEX_X = 2;
+	private static final int INDEX_Y = 3;
 	
-	private static final int SCALE_X_INDEX = 4;
-	private static final int SCALE_Y_INDEX = 5;
+	private static final int INDEX_SCALE_X = 4;
+	private static final int INDEX_SCALE_Y = 5;
 	
-	private static final int THETA_INDEX = 6;
+	private static final int INDEX_THETA = 6;
 	
-	private static final int LAST_INDEX = 7;
+	private static final int INDEX_LAST = 7;
 	
 	public SPacket04Entity(String entityName, TransformComponent transformComp, boolean last) {
 		super(TCPPacketType.ENTITY, entityName, Double.toString(transformComp.getX()), 
@@ -30,31 +30,31 @@ public class SPacket04Entity extends TCPPacket {
 	}
 	
 	public String getEntityName() {
-		return indexedData[ENTITY_NAME_INDEX];
+		return indexedData[INDEX_ENTITY_NAME];
 	}
 	
 	public double getX() {
-		return Double.parseDouble(indexedData[X_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_X]);
 	}
 	
 	public double getY() {
-		return Double.parseDouble(indexedData[Y_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_Y]);
 	}
 	
 	public double getScaleX() {
-		return Double.parseDouble(indexedData[SCALE_X_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_SCALE_X]);
 	}
 	
 	public double getScaleY() {
-		return Double.parseDouble(indexedData[SCALE_Y_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_SCALE_Y]);
 	}
 	
 	public double getTheta() {
-		return Double.parseDouble(indexedData[THETA_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_THETA]);
 	}
 	
 	public boolean isLast() {
-		return Boolean.parseBoolean(indexedData[LAST_INDEX]);
+		return Boolean.parseBoolean(indexedData[INDEX_LAST]);
 	}
 	
 }

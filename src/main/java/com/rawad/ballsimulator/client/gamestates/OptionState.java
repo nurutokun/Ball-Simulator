@@ -7,7 +7,7 @@ import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
@@ -29,7 +29,7 @@ public class OptionState extends State {
 	
 	@FXML private TextField ipHolder;
 	
-	private CustomLoader loader;
+	private Loader loader;
 	
 	private SettingsFileParser settings;
 	
@@ -68,7 +68,7 @@ public class OptionState extends State {
 		
 		settings = client.getFileParsers().get(SettingsFileParser.class);
 		
-		loader = client.getLoaders().get(CustomLoader.class);
+		loader = client.getLoaders().get(Loader.class);
 		
 		game.addTask(new Task<Void>() {
 			protected Void call() throws Exception {

@@ -3,12 +3,14 @@ package com.rawad.ballsimulator.client;
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 public final class TexturesRegister {
+	
+	public static final Object GAME_ICON = new Object();// Reserved for game icon texture.
 	
 	private static final String FOLDER_ENTITY = "entity";
 	
@@ -20,11 +22,11 @@ public final class TexturesRegister {
 	/**
 	 * Registers all textures used in this {@code BallSimulator} game.
 	 */
-	public static void registerTextures(CustomLoader loader) {
+	public static void registerTextures(Loader loader) {
 		
 		ResourceManager.registerUnkownTexture();
 		
-		GameTextures.putTexture(GameTextures.GAME_ICON, loader.registerTexture("", "game_icon"));
+		GameTextures.putTexture(GAME_ICON, loader.registerTexture("", "game_icon"));
 		
 		Background.registerTextures(loader);
 		

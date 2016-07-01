@@ -8,7 +8,7 @@ import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.sync.IServerSync;
@@ -50,7 +50,7 @@ public class Server extends AServer {
 		
 		game.setWorld(new WorldMP());// So that ServerGui can have it in time.
 		
-		loaders.put(new CustomLoader());
+		loaders.put(new Loader());
 		
 		fileParsers.put(new TerrainFileParser());
 		
@@ -82,7 +82,7 @@ public class Server extends AServer {
 				
 				BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().addComponent(new NetworkComponent());
 				
-				CustomLoader loader = loaders.get(CustomLoader.class);
+				Loader loader = loaders.get(Loader.class);
 				
 				TerrainFileParser parser = fileParsers.get(TerrainFileParser.class);
 				

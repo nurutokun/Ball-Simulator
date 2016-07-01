@@ -6,7 +6,7 @@ import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 
 public class CPacket01Damage extends UDPPacket {
 	
-	private static final int DAMAGE_INDEX = 2;
+	private static final int INDEX_DAMAGE = 2;
 	
 	public CPacket01Damage(NetworkComponent networkComp, double damage) {
 		super(UDPPacketType.DAMAGE, networkComp.getId(), Double.toString(damage));
@@ -17,7 +17,7 @@ public class CPacket01Damage extends UDPPacket {
 	}
 	
 	public double getDamage() {
-		return Double.parseDouble(indexedData[DAMAGE_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_DAMAGE]);
 	}
 	
 }

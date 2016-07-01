@@ -11,7 +11,7 @@ import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
@@ -21,7 +21,7 @@ import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.resources.ALoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 import javafx.application.Platform;
@@ -89,7 +89,7 @@ public class ServerGui extends AClient {
 	public void preInit(Game game) {
 		super.preInit(game);
 		
-		loaders.put(new CustomLoader());
+		loaders.put(new Loader());
 		
 	}
 	
@@ -107,7 +107,7 @@ public class ServerGui extends AClient {
 	@Override
 	public void initResources() {
 		
-		TexturesRegister.registerTextures(loaders.get(CustomLoader.class));
+		TexturesRegister.registerTextures(loaders.get(Loader.class));
 		
 		worldViewState = new WorldViewState();
 		
@@ -126,7 +126,7 @@ public class ServerGui extends AClient {
 			
 		});
 		stage.setTitle(game.getName() + " " + Server.SIMPLE_NAME);
-		stage.getIcons().add(ResourceManager.getTexture(GameTextures.findTexture(GameTextures.GAME_ICON)));
+		stage.getIcons().add(ResourceManager.getTexture(GameTextures.findTexture(TexturesRegister.GAME_ICON)));
 		
 		debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
 		
@@ -202,7 +202,7 @@ public class ServerGui extends AClient {
 	@Override
 	public void initGui() {
 		
-		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		loader = new FXMLLoader(ALoader.getFxmlLocation(getClass()));
 		loader.setController(this);
 		
 		try {

@@ -3,7 +3,7 @@ package com.rawad.ballsimulator.client.gui.entity.item;
 import java.io.IOException;
 
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.resources.ALoader;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,7 +26,7 @@ public class ItemSlot extends StackPane {
 		
 		this.count = count;
 		
-		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		FXMLLoader loader = new FXMLLoader(ALoader.getFxmlLocation(getClass()));
 		loader.setController(this);
 		loader.setRoot(this);
 		

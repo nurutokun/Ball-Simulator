@@ -24,7 +24,7 @@ import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.listeners.MovementControlListener;
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
@@ -56,7 +56,7 @@ public class MultiplayerGameState extends State {
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
-	private CustomLoader loader;
+	private Loader loader;
 	private SettingsFileParser settingsParser;
 	
 	@FXML private Messenger mess;
@@ -247,7 +247,7 @@ public class MultiplayerGameState extends State {
 			@Override
 			protected Void call() throws Exception {
 				
-				loader = client.getLoaders().get(CustomLoader.class);
+				loader = client.getLoaders().get(Loader.class);
 				
 				settingsParser = client.getFileParsers().get(SettingsFileParser.class);
 				

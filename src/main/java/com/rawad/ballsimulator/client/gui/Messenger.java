@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client.gui;
 
 import com.rawad.gamehelpers.client.gui.IHideable;
-import com.rawad.gamehelpers.resources.Loader;
+import com.rawad.gamehelpers.resources.ALoader;
 import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Platform;
@@ -21,7 +21,7 @@ public class Messenger extends BorderPane implements IHideable {
 	
 	public Messenger() {
 		
-		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		FXMLLoader loader = new FXMLLoader(ALoader.getFxmlLocation(getClass()));
 		loader.setController(this);
 		loader.setRoot(this);
 		

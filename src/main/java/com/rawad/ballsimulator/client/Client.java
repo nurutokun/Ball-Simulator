@@ -11,7 +11,7 @@ import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
@@ -34,7 +34,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 440
+	// 441
 	
 	private Stage stage;
 	
@@ -109,7 +109,7 @@ public class Client extends AClient {
 	public void preInit(Game game) {
 		super.preInit(game);
 		
-		loaders.put(new CustomLoader());
+		loaders.put(new Loader());
 		
 		fileParsers.put(new TerrainFileParser());
 		fileParsers.put(new SettingsFileParser());
@@ -147,7 +147,7 @@ public class Client extends AClient {
 	@Override
 	public void initResources() {
 		
-		TexturesRegister.registerTextures(loaders.get(CustomLoader.class));
+		TexturesRegister.registerTextures(loaders.get(Loader.class));
 		
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
@@ -155,9 +155,10 @@ public class Client extends AClient {
 		sm.addState(new WorldEditorState());
 		sm.addState(new MultiplayerGameState());
 		
-		ResourceManager.getTextureObject(GameTextures.findTexture(GameTextures.GAME_ICON)).setOnloadAction(texture -> {
-			Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
-		});
+		ResourceManager.getTextureObject(GameTextures.findTexture(TexturesRegister.GAME_ICON))
+				.setOnloadAction(texture -> {
+						Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
+				});
 		
 	}
 	

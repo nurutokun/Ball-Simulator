@@ -7,7 +7,7 @@ import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 
 public class SPacket01Damage extends UDPPacket {
 	
-	private static final int HEALTH_INDEX = 2;
+	private static final int INDEX_HEALTH = 2;
 	
 	public SPacket01Damage(NetworkComponent networkComp, HealthComponent healthComp) {
 		super(UDPPacketType.DAMAGE, networkComp.getId(), Double.toString(healthComp.getHealth()));
@@ -18,7 +18,7 @@ public class SPacket01Damage extends UDPPacket {
 	}
 	
 	public double getHealth() {
-		return Double.parseDouble(indexedData[HEALTH_INDEX]);
+		return Double.parseDouble(indexedData[INDEX_HEALTH]);
 	}
 	
 }

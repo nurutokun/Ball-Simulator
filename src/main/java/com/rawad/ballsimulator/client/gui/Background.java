@@ -1,6 +1,6 @@
 package com.rawad.ballsimulator.client.gui;
 
-import com.rawad.ballsimulator.loader.CustomLoader;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.resources.TextureResource;
 
@@ -29,7 +29,7 @@ public class Background {
 	
 	private Background() {}
 	
-	public static void registerTextures(CustomLoader loader) {
+	public static void registerTextures(Loader loader) {
 		
 		DEFAULT_TEXTURE = loader.registerTexture("", DEFAULT_TEXTURE_FILE);
 		
