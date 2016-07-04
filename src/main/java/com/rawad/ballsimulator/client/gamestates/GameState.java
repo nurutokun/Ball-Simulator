@@ -28,7 +28,6 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.resources.ALoader;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -186,7 +185,7 @@ public class GameState extends State {
 				
 			case REFRESH:
 				
-				String style = ALoader.getStyleSheetLocation(Client.class, "StyleSheet");
+				String style = Loader.getStyleSheetLocation(GameState.class, root.getStyleSheet());
 				
 				root.getScene().getStylesheets().remove(style);
 				root.getScene().getStylesheets().add(style);
@@ -237,7 +236,7 @@ public class GameState extends State {
 		inventory.hide();
 		mess.hide();
 		
-		game.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
 				Loader loader = client.getLoaders().get(Loader.class);

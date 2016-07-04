@@ -13,7 +13,7 @@ public class CollisionComponentRender extends ComponentRender<CollisionComponent
 	@Override
 	public void render(GraphicsContext g, Entity e, CollisionComponent comp) {
 		
-		if(GameManager.instance().getCurrentGame().isDebug()) {
+		if(GameManager.getCurrentGame().isDebug()) {
 			
 			Rectangle hitbox = comp.getHitbox();
 			

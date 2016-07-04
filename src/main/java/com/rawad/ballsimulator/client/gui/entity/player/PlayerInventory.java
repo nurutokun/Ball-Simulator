@@ -1,8 +1,8 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
 import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gui.IHideable;
-import com.rawad.gamehelpers.resources.ALoader;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -32,7 +32,7 @@ public class PlayerInventory extends GridPane implements IHideable {
 		this.rows = rows;
 		this.columns = columns;
 		
-		FXMLLoader loader = new FXMLLoader(ALoader.getFxmlLocation(getClass()));
+		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
 		loader.setController(this);
 		loader.setRoot(this);
 		

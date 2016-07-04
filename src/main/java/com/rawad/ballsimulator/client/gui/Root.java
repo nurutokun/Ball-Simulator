@@ -8,7 +8,9 @@ public final class Root extends StackPane {
 	private final Canvas canvas;
 	private final StackPane guiContainer;
 	
-	public Root(StackPane guiContainer) {
+	private final String styleSheet;
+	
+	public Root(StackPane guiContainer, String styleSheet) {
 		super();
 		
 		canvas = new Canvas();
@@ -22,6 +24,8 @@ public final class Root extends StackPane {
 		
 		this.getChildren().add(guiContainer);
 		
+		this.styleSheet = styleSheet;
+		
 	}
 	
 	public Canvas getCanvas() {
@@ -30,6 +34,10 @@ public final class Root extends StackPane {
 	
 	public StackPane getGuiContainer() {
 		return guiContainer;
+	}
+	
+	public String getStyleSheet() {
+		return styleSheet;
 	}
 	
 }

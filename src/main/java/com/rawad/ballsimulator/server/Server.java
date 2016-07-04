@@ -76,7 +76,7 @@ public class Server extends AServer {
 		
 		networkManager = new ServerNetworkManager(this);
 		
-		game.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
 				

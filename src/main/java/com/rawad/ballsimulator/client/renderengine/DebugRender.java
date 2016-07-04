@@ -30,7 +30,7 @@ public class DebugRender extends LayerRender {
 	@Override
 	public void render(GraphicsContext g) {
 		
-		if(GameManager.instance().getCurrentGame().isDebug() == false) return;
+		if(GameManager.getCurrentGame().isDebug() == false) return;
 		
 		double screenWidth = userView.getViewport().getWidth();
 		double screenHeight = userView.getViewport().getHeight();
@@ -38,7 +38,7 @@ public class DebugRender extends LayerRender {
 		g.setFill(Color.WHITE);
 		g.fillText(
 				"\n" + screenWidth + ", " + screenHeight + " | " + client.getAverageFps() + " |" 
-						+ " " + GameManager.instance().getTimePassed() + "\n" + 
+						+ " " + GameManager.getTimePassed() + "\n" + 
 				Mouse.getX() + ", " + Mouse.getY() + "\n" +
 				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + "\n" +
 				"CamScale: " + cameraTransform.getScaleX() + ", " + cameraTransform.getScaleY() + "\n" +

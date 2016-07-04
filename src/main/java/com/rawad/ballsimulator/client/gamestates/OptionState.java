@@ -70,7 +70,7 @@ public class OptionState extends State {
 		
 		loader = client.getLoaders().get(Loader.class);
 		
-		game.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
 				loader.loadSettings(settings, client.getSettingsFileName());
@@ -87,7 +87,7 @@ public class OptionState extends State {
 	protected void onDeactivate() {
 		super.onDeactivate();
 		
-		game.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
 				loader.saveSettings(settings, game.getProxies().get(Client.class).getSettingsFileName());

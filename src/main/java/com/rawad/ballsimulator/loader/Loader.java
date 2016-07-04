@@ -14,13 +14,13 @@ import com.rawad.gamehelpers.resources.ResourceManager;
 
 public class Loader extends ALoader {
 	
-	private static final String LAYOUT_FILE_EXTENSION = ResourceManager.getString("GameHelpers.layout");
-	private static final String STYLESHEET_FILE_EXTENSION = ResourceManager.getString("GameHelpers.stylesheet");
-	
 	public static final String FOLDER_TERRAIN = "terrains";
-	private static final String FOLDER_MISC = "files";
 	
-	private static final String FOLDER_GUI = ResourceManager.getString("Gui.base");
+	private static final String FOLDER_MISC = "files";
+	private static final String FOLDER_GUI = "gui";
+	
+	private static final String EXTENSION_LAYOUT_FILE = ".fxml";
+	private static final String EXTENSION_STYLESHEET_FILE = ".css";
 	
 	public Loader() {
 		super(BallSimulator.NAME);
@@ -79,7 +79,7 @@ public class Loader extends ALoader {
 	 * @return
 	 */
 	public static URL getFxmlLocation(Class<? extends Object> clazz, String fileName) {
-		return clazz.getResource(fileName + LAYOUT_FILE_EXTENSION);
+		return clazz.getResource(fileName + EXTENSION_LAYOUT_FILE);
 	}
 	
 	/**
@@ -93,7 +93,7 @@ public class Loader extends ALoader {
 	}
 	
 	public static String getStyleSheetLocation(Class<? extends Object> clazz, String styleSheetName) {
-		return clazz.getResource(styleSheetName + STYLESHEET_FILE_EXTENSION).toExternalForm();
+		return clazz.getResource(styleSheetName + EXTENSION_STYLESHEET_FILE).toExternalForm();
 	}
 	
 }

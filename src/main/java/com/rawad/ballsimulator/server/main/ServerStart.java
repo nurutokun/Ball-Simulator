@@ -49,7 +49,7 @@ public class ServerStart extends Application {
 			
 		}
 		
-		GameManager.instance().launchGame(game);
+		GameManager.launchGame(game);
 		
 	}
 	

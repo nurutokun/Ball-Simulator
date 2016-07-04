@@ -8,7 +8,7 @@ import javafx.scene.image.Image;
 
 public class RenderingComponent extends Component {
 	
-	private int texture = TextureResource.UNKNOWN;
+	private int texture = TextureResource.UNKNOWN.getLocation();
 	
 	public void setTexture(int texture) {
 		this.texture = texture;

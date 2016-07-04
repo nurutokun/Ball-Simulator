@@ -34,7 +34,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 441
+	// 443
 	
 	private Stage stage;
 	
@@ -124,23 +124,18 @@ public class Client extends AClient {
 			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
 		});
 		
-		
 		LoadingState loadingState = new LoadingState(loadingTask);
 		
-		Platform.runLater(() -> {
-			
-			gameTitle.setValue(game.getName());
-			
-			loadingState.initGui();
-			
-			sm.setCurrentState(loadingState);
-			onStateChange();
-			
-			stage.show();
-			
-			readyToUpdate = true;
-			
-		});
+		gameTitle.setValue(game.getName());
+		
+		loadingState.initGui();
+		
+		sm.setCurrentState(loadingState);
+		onStateChange();
+		
+		stage.show();
+		
+		readyToUpdate = true;
 		
 	}
 	

@@ -6,13 +6,14 @@ import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
-import com.rawad.gamehelpers.resources.ResourceManager;
 
 public final class TexturesRegister {
 	
 	public static final Object GAME_ICON = new Object();// Reserved for game icon texture.
 	
 	private static final String FOLDER_ENTITY = "entity";
+	
+	private static final String TEXTURE_UNKNOWN = "unknown";
 	
 	private static final String FILE_STATIC_OBJECT = "staticEntity";
 	private static final String FILE_PLAYER = "player";
@@ -24,7 +25,7 @@ public final class TexturesRegister {
 	 */
 	public static void registerTextures(Loader loader) {
 		
-		ResourceManager.registerUnkownTexture();
+		loader.registerUnknownTexture(TEXTURE_UNKNOWN);
 		
 		GameTextures.putTexture(GAME_ICON, loader.registerTexture("", "game_icon"));
 		

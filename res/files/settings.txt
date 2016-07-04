@@ -1,2 +1,2 @@
-fullscreenResolution=640x320
-ip=localhost
+fullscreenResolution = 640x320
+ip = localhost

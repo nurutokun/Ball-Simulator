@@ -236,7 +236,7 @@ public class WorldEditorState extends State {
 	}
 	
 	private void saveTerrain(String terrainName) {
-		game.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
 				loader.saveTerrain(terrainFileParser, terrainName);
@@ -251,7 +251,7 @@ public class WorldEditorState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		game.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
 				loader = client.getLoaders().get(Loader.class);

@@ -242,7 +242,7 @@ public class MultiplayerGameState extends State {
 	protected void onActivate() {
 		super.onActivate();
 		
-		game.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			
 			@Override
 			protected Void call() throws Exception {

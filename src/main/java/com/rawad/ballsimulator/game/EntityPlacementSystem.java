@@ -33,7 +33,7 @@ public class EntityPlacementSystem extends GameSystem {
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		PlaceableComponent placeableComp = e.getComponent(PlaceableComponent.class);
 		
-		World world = GameManager.instance().getCurrentGame().getWorld();
+		World world = GameManager.getCurrentGame().getWorld();
 		
 		if(placeableComp.isExtractRequested()) {
 			

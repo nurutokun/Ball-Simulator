@@ -21,7 +21,6 @@ import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.ALoader;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 import javafx.application.Platform;
@@ -202,7 +201,7 @@ public class ServerGui extends AClient {
 	@Override
 	public void initGui() {
 		
-		loader = new FXMLLoader(ALoader.getFxmlLocation(getClass()));
+		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
 		loader.setController(this);
 		
 		try {
