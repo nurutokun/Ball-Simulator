@@ -33,21 +33,21 @@ public class ServerStart extends Application {
 			Logger.log(Logger.WARNING, "Didn't specify whether or not gui should be used so it won't be.");
 		}
 		
-		game.getProxies().put(server);
-		
 		if(useGui) {
 			
 			ResourceManager.init(commands);
 			
 			serverGui = new ServerGui(server);
 			
-			game.getProxies().put(serverGui, 0);
+			game.getProxies().put(serverGui);
 			
 			Thread guiThread = new Thread(() -> Application.launch(args), "Gui Thread");
 			guiThread.setDaemon(true);
 			guiThread.start();
 			
 		}
+		
+		game.getProxies().put(server);
 		
 		GameManager.launchGame(game);
 		

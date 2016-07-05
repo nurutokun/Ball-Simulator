@@ -110,8 +110,8 @@ public class ServerGui extends AClient {
 		
 		worldViewState = new WorldViewState();
 		
-		worldViewState.initGui();// Order doesn't really matter here.
-		worldViewState.init(sm);
+		worldViewState.init(sm);// MUST init(sm) BEFORE initGui().
+		worldViewState.initGui();
 		
 	}
 	

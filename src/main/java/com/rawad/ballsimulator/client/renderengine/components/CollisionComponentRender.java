@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.renderengine.components;
 
 import com.rawad.ballsimulator.entity.CollisionComponent;
+import com.rawad.gamehelpers.client.renderengine.components.ComponentRender;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;

@@ -22,6 +22,7 @@ import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
+import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
@@ -105,6 +106,7 @@ public class GameState extends State {
 		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new RollingSystem());
 		gameSystems.put(new CameraFollowSystem(world.getWidth(), world.getHeight()));
+		gameSystems.put(new RenderingSystem(worldRender));
 		
 		showEntireWorld = false;
 		

@@ -34,7 +34,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 443
+	// 444
 	
 	private Stage stage;
 	
@@ -133,9 +133,9 @@ public class Client extends AClient {
 		sm.setCurrentState(loadingState);
 		onStateChange();
 		
-		stage.show();
-		
 		readyToUpdate = true;
+		
+		Platform.runLater(() -> stage.show());
 		
 	}
 	
@@ -214,8 +214,12 @@ public class Client extends AClient {
 	@Override
 	protected void render() {
 		
-		Platform.runLater(() -> sm.getCurrentState().getMasterRender().render(GuiRegister.getRoot(sm.getCurrentState())
-				.getCanvas().getGraphicsContext2D()));
+		Platform.runLater(() -> {
+			synchronized(game.getWorld().getEntities()) {
+				sm.getCurrentState().getMasterRender().render(GuiRegister.getRoot(sm.getCurrentState())
+						.getCanvas().getGraphicsContext2D());
+			}
+		});
 		
 	}
 	

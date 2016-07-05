@@ -21,6 +21,7 @@ import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
+import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.State;
@@ -97,6 +98,7 @@ public class WorldEditorState extends State {
 		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new EntitySelectionSystem(cameraTransform));
 		gameSystems.put(new EntityPlacementSystem(cameraTransform));
+		gameSystems.put(new RenderingSystem(worldRender));
 		
 		Entity toBePlaced = Entity.createEntity(EEntity.PLACEABLE);
 		toBePlacedTransform = toBePlaced.getComponent(TransformComponent.class);

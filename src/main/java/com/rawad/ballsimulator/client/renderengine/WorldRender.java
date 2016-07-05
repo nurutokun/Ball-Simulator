@@ -1,6 +1,8 @@
 package com.rawad.ballsimulator.client.renderengine;
 
-import com.rawad.ballsimulator.entity.RenderingComponent;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
@@ -16,6 +18,8 @@ public class WorldRender extends LayerRender {
 	
 	private World world;
 	
+	private LinkedHashMap<Integer, ArrayList<Entity>> entities;
+	
 	private TransformComponent cameraTransform;
 	private UserViewComponent userView;
 	
@@ -25,6 +29,8 @@ public class WorldRender extends LayerRender {
 	public WorldRender(World world, Entity camera) {
 		
 		this.world = world;
+		
+		entities = new LinkedHashMap<Integer, ArrayList<Entity>>();
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);
 		userView = camera.getComponent(UserViewComponent.class);
@@ -54,11 +60,16 @@ public class WorldRender extends LayerRender {
 		
 		terrainRender.render(g, world.getWidth(), world.getHeight());
 		
-		for(Entity e: world.getEntities()) {
-			if(e.getComponent(RenderingComponent.class) == null) continue;
+		for(Integer texture: entities.keySet()) {
 			
-			entityRender.render(g, e);
-			g.setTransform(affine);
+			ArrayList<Entity> batch = entities.get(texture);
+			
+			for(Entity e: batch) {
+				
+				entityRender.render(g, e);
+				g.setTransform(affine);
+				
+			}
 			
 		}
 			
@@ -66,6 +77,10 @@ public class WorldRender extends LayerRender {
 //		g.strokeRect(cameraTransform.getX(), cameraTransform.getY(), viewport.getWidth() / cameraTransform.getScaleX(), 
 //				viewport.getHeight() / cameraTransform.getScaleY());
 		
+	}
+	
+	public void setEntities(LinkedHashMap<Integer, ArrayList<Entity>> entities) {
+		this.entities = entities;
 	}
 	
 	/**
