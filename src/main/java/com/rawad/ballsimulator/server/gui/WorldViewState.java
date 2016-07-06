@@ -12,9 +12,12 @@ import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
+import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.utils.ClassMap;
 
 import javafx.scene.input.KeyEvent;
 
@@ -55,14 +58,19 @@ public class WorldViewState extends State {
 		
 		ServerGui client = game.getProxies().get(ServerGui.class);
 		
-		masterRender.getRenders().put(new WorldRender(world, camera));
+		WorldRender worldRender = new WorldRender(world, camera);
+		
+		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(new DebugRender(client, camera));
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
-		client.getGame().getGameEngine().getGameSystems().put(movementControlSystem);
-		client.getGame().getGameEngine().getGameSystems().put(cameraRoamingSystem);
+		ClassMap<GameSystem> gameSystems = sm.getGame().getGameEngine().getGameSystems();
+		
+		gameSystems.put(movementControlSystem);
+		gameSystems.put(cameraRoamingSystem);
+		gameSystems.put(new RenderingSystem(worldRender));
 		
 		showEntireWorld = false;
 		

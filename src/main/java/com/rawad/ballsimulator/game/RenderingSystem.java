@@ -7,14 +7,18 @@ import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.geometry.Rectangle;
 
 
 public class RenderingSystem extends GameSystem {
 	
 	private WorldRender worldRender;
+	
+	private UserViewComponent userView;
 	
 	private LinkedHashMap<Integer, ArrayList<Entity>> entities;
 	
@@ -22,6 +26,8 @@ public class RenderingSystem extends GameSystem {
 		super();
 		
 		this.worldRender = worldRender;
+		
+		this.userView = worldRender.getUserView();
 		
 		entities = new LinkedHashMap<Integer, ArrayList<Entity>>();
 		
@@ -49,7 +55,21 @@ public class RenderingSystem extends GameSystem {
 	@Override
 	public void tick(Entity e) {
 		
+		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		RenderingComponent renderingComp = e.getComponent(RenderingComponent.class);
+		
+		Rectangle boundingBox = new Rectangle(0, 0, renderingComp.getTexture().getWidth(), 
+				renderingComp.getTexture().getHeight());
+		boundingBox.setX(-boundingBox.getWidth() / 2d);
+		boundingBox.setY(-boundingBox.getHeight() / 2d);
+		
+		Rectangle viewport = userView.getViewport();
+		TransformComponent cameraTransform = worldRender.getCameraTransform();
+		
+		Rectangle scaledUserView = new Rectangle(viewport.getX(), viewport.getY(), viewport.getWidth() / 
+				cameraTransform.getScaleX(), viewport.getHeight() / cameraTransform.getScaleY());
+		
+		if(!CollisionSystem.isInBounds(transformComp, boundingBox, scaledUserView)) return;
 		
 		ArrayList<Entity> batch = entities.get(renderingComp.getTextureLocation());
 		

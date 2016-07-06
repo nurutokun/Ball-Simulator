@@ -114,7 +114,16 @@ public class CollisionSystem extends GameSystem {
 		
 	}
 	
-	private static boolean isOutOfBounds(TransformComponent hitboxTransform, Rectangle hitbox, Rectangle bounds) {
+	/**
+	 * 
+	 * @param hitboxTransform
+	 * @param hitbox
+	 * @param bounds
+	 * @return {@code true} if the {@code hitbox}, in the {@code hitboxTransform}'s space is partially outside 
+	 * 		{@code bounds}, {@code false} if completely within {@code bounds}.
+	 * 
+	 */
+	public static boolean isOutOfBounds(TransformComponent hitboxTransform, Rectangle hitbox, Rectangle bounds) {
 		
 		hitbox = CollisionSystem.getHitboxInTransform(hitboxTransform, hitbox);
 		
@@ -123,6 +132,18 @@ public class CollisionSystem extends GameSystem {
 			return true;
 		
 		return false;
+		
+	}
+	
+	public static boolean isInBounds(TransformComponent hitboxTransform, Rectangle hitbox, Rectangle bounds) {
+		
+		hitbox = CollisionSystem.getHitboxInTransform(hitboxTransform, hitbox);
+		
+		if(hitbox.getX() + hitbox.getWidth() < bounds.getX() || hitbox.getX() > bounds.getX() + bounds.getWidth() || 
+				hitbox.getY() + hitbox.getHeight() < bounds.getY() || hitbox.getY() > bounds.getY() + bounds.getHeight())
+			return false;
+		
+		return true;
 		
 	}
 	

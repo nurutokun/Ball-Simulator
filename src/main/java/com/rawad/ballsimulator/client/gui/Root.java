@@ -1,5 +1,8 @@
 package com.rawad.ballsimulator.client.gui;
 
+import com.rawad.gamehelpers.client.gui.Transitions;
+
+import javafx.animation.ParallelTransition;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.StackPane;
 
@@ -38,6 +41,16 @@ public final class Root extends StackPane {
 	
 	public String getStyleSheet() {
 		return styleSheet;
+	}
+	
+	public ParallelTransition getOutTransition() {
+		
+		double from = 0d;
+		
+		ParallelTransition out = Transitions.parallel(guiContainer, null, Transitions.slideHorizontally(
+				Transitions.DEFAULT_DURATION, from, from + 10));
+		
+		return out;
 	}
 	
 }

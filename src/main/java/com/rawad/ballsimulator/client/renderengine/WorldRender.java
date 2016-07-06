@@ -49,9 +49,7 @@ public class WorldRender extends LayerRender {
 		g.fillRect(0, 0, viewport.getWidth(), viewport.getHeight());
 		
 		g.scale(cameraTransform.getScaleX(), cameraTransform.getScaleY());
-		
 		g.rotate(cameraTransform.getTheta());
-		
 		g.translate(-cameraTransform.getX(), -cameraTransform.getY());
 		
 //		g.scale(viewport.getWidth() / world.getWidth(), viewport.getHeight() / world.getHeight());
@@ -72,7 +70,7 @@ public class WorldRender extends LayerRender {
 			}
 			
 		}
-			
+		
 //		g.setStroke(Color.BLACK);// Optional rendering, with the g.scale() earlier to show viewport in world.
 //		g.strokeRect(cameraTransform.getX(), cameraTransform.getY(), viewport.getWidth() / cameraTransform.getScaleX(), 
 //				viewport.getHeight() / cameraTransform.getScaleY());
@@ -92,6 +90,24 @@ public class WorldRender extends LayerRender {
 	 */
 	public EntityRender getEntityRender() {
 		return entityRender;
+	}
+	
+	/**
+	 * Used by the {@link com.rawad.ballsimulator.game.RenderingSystem} to determine which entities are in view.
+	 * 
+	 * @return
+	 */
+	public UserViewComponent getUserView() {
+		return userView;
+	}
+	
+	/**
+	 * Used by the {@link com.rawad.ballsimulator.game.RenderingSystem} to determine which entities are in view.
+	 * 
+	 * @return
+	 */
+	public TransformComponent getCameraTransform() {
+		return cameraTransform;
 	}
 	
 }

@@ -29,8 +29,6 @@ public class BallSimulatorStart extends Application {
 		
 		client.setStage(primaryStage);
 		
-		client.initGui();
-		
 		GameManager.launchGame(game);
 		
 	}

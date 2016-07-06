@@ -3,13 +3,13 @@ package com.rawad.ballsimulator.client.renderengine;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.client.renderengine.components.CollisionComponentRender;
+import com.rawad.ballsimulator.client.renderengine.components.ComponentRender;
 import com.rawad.ballsimulator.client.renderengine.components.HealthComponentRender;
 import com.rawad.ballsimulator.client.renderengine.components.SelectionComponentRender;
 import com.rawad.ballsimulator.client.renderengine.components.UserComponentRender;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.client.renderengine.Render;
-import com.rawad.gamehelpers.client.renderengine.components.ComponentRender;
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
 

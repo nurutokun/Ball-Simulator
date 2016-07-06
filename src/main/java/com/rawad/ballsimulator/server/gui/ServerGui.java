@@ -199,7 +199,7 @@ public class ServerGui extends AClient {
 	}
 	
 	@Override
-	public void initGui() {
+	protected void initGui() {
 		
 		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
 		loader.setController(this);
@@ -210,29 +210,33 @@ public class ServerGui extends AClient {
 			ex.printStackTrace();
 		}
 		
-		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-		stage.setScene(scene);
-		
-		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
-			
-			String input = console.getInputArea().getText();
-			
-			Logger.log(Logger.DEBUG, input);
-			
-			parseConsoleInput(input);
-			
-		});
-		console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
-		console.getOutputArea().setWrapText(false);
-		console.show();
-		
 		Logger.getPrintStreams().add(consolePrinter);
 		
-		stage.setTitle(Server.SIMPLE_NAME);
-		stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-		stage.setOnCloseRequest(null);
-		stage.sizeToScene();
-		stage.show();
+		Platform.runLater(() -> {
+			
+			Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+			stage.setScene(scene);
+			
+			console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
+				
+				String input = console.getInputArea().getText();
+				
+				Logger.log(Logger.DEBUG, input);
+				
+				parseConsoleInput(input);
+				
+			});
+			console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
+			console.getOutputArea().setWrapText(false);
+			console.show();
+			
+			stage.setTitle(Server.SIMPLE_NAME);
+			stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+			stage.setOnCloseRequest(null);
+			stage.sizeToScene();
+			stage.show();
+			
+		});
 		
 	}
 	
@@ -266,8 +270,14 @@ public class ServerGui extends AClient {
 	
 	@Override
 	protected void render() {
-		Platform.runLater(() -> worldViewState.getMasterRender().render(worldViewStateRoot.getCanvas()
-				.getGraphicsContext2D()));
+		
+		Platform.runLater(() -> {
+			synchronized(game.getWorld().getEntities()) {
+				worldViewState.getMasterRender().render(worldViewStateRoot.getCanvas()
+						.getGraphicsContext2D());
+			}
+		});
+		
 	}
 	
 	@Override

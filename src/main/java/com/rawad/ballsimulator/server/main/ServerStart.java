@@ -58,8 +58,6 @@ public class ServerStart extends Application {
 		
 		serverGui.setStage(primaryStage);
 		
-		serverGui.initGui();
-		
 	}
 	
 }

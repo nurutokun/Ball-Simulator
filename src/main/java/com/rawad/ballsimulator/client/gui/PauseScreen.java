@@ -41,7 +41,7 @@ public class PauseScreen extends GridPane implements IHideable {
 		
 		Platform.runLater(() -> {
 			setVisible(true);
-			FadeTransition fadeIn = Transitions.fade(Duration.millis(300), Transitions.HIDDEN, Transitions.OPAQUE);
+			FadeTransition fadeIn = Transitions.fade(Duration.millis(300), Transitions.HIDDEN, Transitions.SHOWING);
 			fadeIn.setNode(this);
 			fadeIn.playFromStart();
 		});
@@ -53,7 +53,7 @@ public class PauseScreen extends GridPane implements IHideable {
 		
 		if(!isVisible()) return;
 		
-		FadeTransition fadeOut = Transitions.fade(Duration.millis(50), Transitions.OPAQUE, Transitions.HIDDEN);
+		FadeTransition fadeOut = Transitions.fade(Duration.millis(50), Transitions.SHOWING, Transitions.HIDDEN);
 		fadeOut.setOnFinished(e -> {
 			setVisible(false);
 			getParent().requestFocus();

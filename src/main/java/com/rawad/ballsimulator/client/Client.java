@@ -8,6 +8,7 @@ import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
+import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -27,14 +28,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 444
+	// 445
 	
 	private Stage stage;
 	
@@ -42,20 +43,13 @@ public class Client extends AClient {
 	
 	private SimpleStringProperty gameTitle;
 	
-	public Client() {
-		super();
-		
-		gameTitle = new SimpleStringProperty();
-		
-	}
-	
 	@Override
-	public void initGui() {
+	protected void initGui() {
 		
-		scene = new Scene(new Pane(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		scene = new Scene(new Root(new StackPane(), ""), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		scene.setFill(Color.BLACK);
 		
-		stage.setScene(scene);
+		gameTitle = new SimpleStringProperty("Game");
 		
 		stage.titleProperty().bind(gameTitle);
 		
@@ -81,7 +75,7 @@ public class Client extends AClient {
 				game.setDebug(!game.isDebug());
 				
 				break;
-			
+				
 			case FULLSCREEN:
 				
 				if(!stage.isFullScreen()) {
@@ -102,6 +96,8 @@ public class Client extends AClient {
 			keyEvent.consume();
 			
 		});
+		
+		Platform.runLater(() -> stage.setScene(scene));
 		
 	}
 	
@@ -133,9 +129,10 @@ public class Client extends AClient {
 		sm.setCurrentState(loadingState);
 		onStateChange();
 		
-		readyToUpdate = true;
-		
-		Platform.runLater(() -> stage.show());
+		Platform.runLater(() -> {
+			stage.show();
+			readyToUpdate = true;			
+		});
 		
 	}
 	
@@ -237,7 +234,7 @@ public class Client extends AClient {
 			
 			stage.close();
 			
-		}, Transitions.fade(Transitions.DEFAULT_DURATION, Transitions.OPAQUE, Transitions.HIDDEN)).playFromStart();
+		}, Transitions.fade(Transitions.DEFAULT_DURATION, Transitions.SHOWING, Transitions.HIDDEN)).playFromStart();
 		
 	}
 	
@@ -245,8 +242,29 @@ public class Client extends AClient {
 	public void onStateChange() {
 		
 		Platform.runLater(() -> {
-			scene.setRoot(GuiRegister.getRoot(sm.getCurrentState()));
-			scene.getRoot().requestFocus();
+			
+			Root oldRoot = (Root) scene.getRoot();
+			Root newRoot = GuiRegister.getRoot(sm.getCurrentState());
+			
+			StackPane oldGuiContainer = oldRoot.getGuiContainer();
+			StackPane newGuiContainer = newRoot.getGuiContainer();
+			
+			Transitions.parallel(oldGuiContainer, e -> {
+				
+				scene.setRoot(newRoot);
+				scene.getRoot().requestFocus();
+				
+				oldGuiContainer.setOpacity(Transitions.SHOWING);
+				
+				Transitions.parallel(newGuiContainer, e2 -> {
+					newGuiContainer.setOpacity(Transitions.SHOWING);
+					newGuiContainer.setTranslateX(0);
+				}, 
+						Transitions.fade(Transitions.DEFAULT_DURATION, Transitions.HIDDEN, Transitions.SHOWING), 
+						Transitions.slideHorizontally(Transitions.DEFAULT_DURATION, -newGuiContainer.getWidth(), 0))
+				.playFromStart();
+				
+			}, Transitions.fade(Transitions.DEFAULT_DURATION, Transitions.SHOWING, Transitions.HIDDEN)).playFromStart();
 		});
 		
 	}

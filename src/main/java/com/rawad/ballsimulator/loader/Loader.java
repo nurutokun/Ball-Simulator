@@ -64,7 +64,9 @@ public class Loader extends ALoader {
 		
 	}
 	
-	public void saveTerrain(TerrainFileParser parser, String terrainName) {
+	public void saveTerrain(World world, TerrainFileParser parser, String terrainName) {
+		
+		parser.setWorld(world);
 		
 		saveFile(parser.getContent(), FOLDER_TERRAIN, terrainName);
 		
