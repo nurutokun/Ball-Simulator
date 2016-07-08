@@ -39,8 +39,6 @@ public class OptionState extends State {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
-		world.addEntity(camera);
-		
 		masterRender.getRenders().put(new BackgroundRender(camera));
 		
 	}
@@ -52,7 +50,7 @@ public class OptionState extends State {
 		
 		btnMainMenu.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MenuState.class)));
 		btnWorldEditor.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(WorldEditorState.class)));
-//		btnControls.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(ControlsState.class)));
+		btnControls.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(ControlState.class)));
 		
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
@@ -63,6 +61,8 @@ public class OptionState extends State {
 	@Override
 	protected void onActivate() {
 		super.onActivate();
+		
+		world.addEntity(camera);
 		
 		Client client = game.getProxies().get(Client.class);
 		

@@ -61,6 +61,8 @@ public class ClientDatagramManager {
 		
 		Entity e = networkManager.getClient().getEntityById(UDPPacket.getEntityIdFromString(dataAsString));
 		
+		if(e == null) return;// No need to deal with that mess...
+		
 		switch(type) {
 		
 		case DAMAGE:
@@ -168,6 +170,7 @@ public class ClientDatagramManager {
 			} catch(Exception ex) {
 				Logger.log(Logger.WARNING, ex.getMessage() + "; Couldn't receive packet from server or "
 						+ "socket was closed.");
+				ex.printStackTrace();
 			}
 			
 		}

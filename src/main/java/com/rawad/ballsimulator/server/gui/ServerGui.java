@@ -96,10 +96,11 @@ public class ServerGui extends AClient {
 	public void init(Game game) {
 		super.init(game);
 		
-		loadingTask.setOnSucceeded(e -> {
-			initGameDependantGui();
+		Platform.runLater(() -> {
+			loadingTask.setOnSucceeded(e -> {
+				initGameDependantGui();
+			});
 		});
-
 		
 	}
 	
@@ -297,19 +298,19 @@ public class ServerGui extends AClient {
 		
 		inputBindings.setDefaultBinding(InputAction.DEFAULT);
 		
-		inputBindings.put(KeyCode.UP, InputAction.MOVE_UP);
-		inputBindings.put(KeyCode.DOWN, InputAction.MOVE_DOWN);
-		inputBindings.put(KeyCode.RIGHT, InputAction.MOVE_RIGHT);
-		inputBindings.put(KeyCode.LEFT, InputAction.MOVE_LEFT);
-		inputBindings.put(KeyCode.W, InputAction.MOVE_UP);
-		inputBindings.put(KeyCode.S, InputAction.MOVE_DOWN);
-		inputBindings.put(KeyCode.D, InputAction.MOVE_RIGHT);
-		inputBindings.put(KeyCode.A, InputAction.MOVE_LEFT);
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.S);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.RIGHT);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.D);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.LEFT);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.A);
 		
-		inputBindings.put(KeyCode.C, InputAction.CLAMP);
-		inputBindings.put(KeyCode.L, InputAction.SHOW_WORLD);
+		inputBindings.put(InputAction.CLAMP, KeyCode.C);
+		inputBindings.put(InputAction.SHOW_WORLD, KeyCode.L);
 		
-		inputBindings.put(KeyCode.F3, InputAction.DEBUG);
+		inputBindings.put(InputAction.DEBUG, KeyCode.F3);
 		
 	}
 	

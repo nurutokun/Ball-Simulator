@@ -103,10 +103,12 @@ public class MultiplayerGameState extends State {
 		camera.addComponent(attachmentComp);
 		
 		TransformComponent cameraTransform = camera.getComponent(TransformComponent.class);
-		cameraTransform.setScaleX(PREFERRED_SCALE);
-		cameraTransform.setScaleY(PREFERRED_SCALE);
+		cameraTransform.setMaxScaleX(5d);
+		cameraTransform.setMaxScaleY(5d);
 		
 		cameraView = camera.getComponent(UserViewComponent.class);
+		cameraView.setPreferredScaleX(PREFERRED_SCALE);
+		cameraView.setPreferredScaleY(PREFERRED_SCALE);
 		
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
@@ -137,7 +139,7 @@ public class MultiplayerGameState extends State {
 			
 			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
 			
-			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing()) {
+			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing() || playerListContainer.isVisible()) {
 				
 				switch(action) {
 				
@@ -153,7 +155,7 @@ public class MultiplayerGameState extends State {
 					break;
 				}
 				
-			} else if(!playerList.isVisible()) {
+			} else {
 				
 				switch(action) {
 					
@@ -166,6 +168,10 @@ public class MultiplayerGameState extends State {
 						inventory.hide();
 					else
 						inventory.show();
+					break;
+					
+				case SHOW_WORLD:
+					cameraView.setShowEntireWorld(!cameraView.isShowEntireWorld());
 					break;
 					
 				case SEND:
@@ -290,7 +296,6 @@ public class MultiplayerGameState extends State {
 	
 	public void onDisconnect() {
 		
-		world.clearEntities();
 		playerList.getItems().clear();
 		
 		sm.requestStateChange(StateChangeRequest.instance(MenuState.class));

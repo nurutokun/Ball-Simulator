@@ -9,6 +9,7 @@ import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -34,6 +35,10 @@ public class LoadingState extends State {
 		
 		this.taskToWatch = taskToWatch;	
 		
+		camera = Entity.createEntity(EEntity.CAMERA);
+		
+		masterRender.getRenders().put(new BackgroundRender(camera));
+		
 	}
 	
 	@Override
@@ -41,25 +46,24 @@ public class LoadingState extends State {
 		
 		Root root = GuiRegister.loadGui(this);
 		
-		progressBar.progressProperty().bind(taskToWatch.progressProperty());
-		loadingProgressLabel.textProperty().bind(taskToWatch.messageProperty());
-		taskToWatch.runningProperty().addListener((e, prevRunning, currentlyRunning) -> {
+		Platform.runLater(() -> {
 			
-			if(currentlyRunning) {
-				
-				camera = Entity.createEntity(EEntity.CAMERA);// Waits until entities are loaded (this State is special).
-				
-				world.addEntity(camera);
-				
-				masterRender.getRenders().put(new BackgroundRender(camera));
-				
-				Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
-				viewport.widthProperty().bind(root.widthProperty());
-				viewport.heightProperty().bind(root.heightProperty());
-				
-			}
+			progressBar.progressProperty().bind(taskToWatch.progressProperty());
+			loadingProgressLabel.textProperty().bind(taskToWatch.messageProperty());
+			
+			Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
+			viewport.widthProperty().bind(root.widthProperty());
+			viewport.heightProperty().bind(root.heightProperty());
 			
 		});
+		
+	}
+	
+	@Override
+	protected void onActivate() {
+		super.onActivate();
+		
+		world.addEntity(camera);
 		
 	}
 	

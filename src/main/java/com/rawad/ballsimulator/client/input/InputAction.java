@@ -3,40 +3,50 @@ package com.rawad.ballsimulator.client.input;
 public enum InputAction {
 	
 	// Keyboard
-	MOVE_UP,
-	MOVE_DOWN,
-	MOVE_RIGHT,
-	MOVE_LEFT,
+	MOVE_UP("Move Up"),
+	MOVE_DOWN("Move Down"),
+	MOVE_RIGHT("Move Right"),
+	MOVE_LEFT("Move Left"),
 	
-	TILT_RIGHT,
-	TILT_LEFT,
-	TILT_RESET,
+	TILT_RIGHT("Tilt Right"),
+	TILT_LEFT("Tilt Left"),
+	TILT_RESET("Tile Reset"),
 	
-	GEN_POS,
+	GEN_POS("Generate Position"),
 	
-	PAUSE,
-	INVENTORY,
+	PAUSE("Pause"),
+	INVENTORY("Inventory"),
 	
-	SHOW_WORLD,
+	SHOW_WORLD("Show World"),
 	
-	SEND,
-	CHAT,
+	SEND("Send"),
+	CHAT("Chat"),
 	
-	DEBUG,
-	REFRESH,
-	FULLSCREEN,
+	DEBUG("Debug"),
+	REFRESH("Refresh"),
+	FULLSCREEN("Fullscreen"),
 	
-	CLAMP,
-	SAVE,
+	CLAMP("Clamp Mouse"),
+	SAVE("Save"),
 	
-	PLAYER_LIST,
+	PLAYER_LIST("Player Lit"),
 	
 	// Mouse.
-	PLACE,
-	EXTRACT,
-	REMOVE,
+	PLACE("Place"),
+	EXTRACT("Extract"),
+	REMOVE("Remove"),
 	
 	// To avoid null.
-	DEFAULT;
+	DEFAULT("UNKNOWN");
+	
+	private final String name;
+	
+	private InputAction(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
 	
 }

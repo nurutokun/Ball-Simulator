@@ -121,12 +121,14 @@ public class ServerDatagramManager {
 		
 		ArrayList<ClientInputManager> clients = networkManager.getConnectionManager().getClientInputManagers();
 		
-		for(ClientInputManager cim: clients) {
-			
-			Socket client = cim.getClient();
-			
-			sendPacket(packet, client.getInetAddress().getHostAddress(), client.getPort());
-			
+		synchronized(clients) {
+			for(ClientInputManager cim: clients) {
+				
+				Socket client = cim.getClient();
+				
+				sendPacket(packet, client.getInetAddress().getHostAddress(), client.getPort());
+				
+			}
 		}
 		
 	}

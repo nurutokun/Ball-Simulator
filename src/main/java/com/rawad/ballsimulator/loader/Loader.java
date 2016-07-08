@@ -91,7 +91,7 @@ public class Loader extends ALoader {
 	 * @return
 	 */
 	public static URL getFxmlLocation(Class<? extends Object> clazz) {
-		return getFxmlLocation(clazz, clazz.getSimpleName());
+		return Loader.getFxmlLocation(clazz, clazz.getSimpleName());
 	}
 	
 	public static String getStyleSheetLocation(Class<? extends Object> clazz, String styleSheetName) {

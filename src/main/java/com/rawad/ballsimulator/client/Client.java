@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.client;
 
+import com.rawad.ballsimulator.client.gamestates.ControlState;
 import com.rawad.ballsimulator.client.gamestates.GameState;
 import com.rawad.ballsimulator.client.gamestates.LoadingState;
 import com.rawad.ballsimulator.client.gamestates.MenuState;
@@ -15,6 +16,7 @@ import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.GameTextures;
+import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.client.input.Mouse;
@@ -35,7 +37,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 445
+	// 447
 	
 	private Stage stage;
 	
@@ -105,6 +107,8 @@ public class Client extends AClient {
 	public void preInit(Game game) {
 		super.preInit(game);
 		
+		gameTitle.setValue(game.getName());
+		
 		loaders.put(new Loader());
 		
 		fileParsers.put(new TerrainFileParser());
@@ -120,9 +124,26 @@ public class Client extends AClient {
 			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
 		});
 		
-		LoadingState loadingState = new LoadingState(loadingTask);
+	}
+	
+	@Override
+	public void initResources() {
 		
-		gameTitle.setValue(game.getName());
+		TexturesRegister.registerTextures(loaders.get(Loader.class));
+		
+		sm.addState(new MenuState());
+		sm.addState(new GameState());
+		sm.addState(new OptionState());
+		sm.addState(new WorldEditorState());
+		sm.addState(new MultiplayerGameState());
+		sm.addState(new ControlState());
+		
+		ResourceManager.getTextureObject(GameTextures.findTexture(TexturesRegister.GAME_ICON))
+				.setOnloadAction(texture -> {
+						Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
+				});
+		
+		LoadingState loadingState = new LoadingState(loadingTask);
 		
 		loadingState.initGui();
 		
@@ -137,63 +158,45 @@ public class Client extends AClient {
 	}
 	
 	@Override
-	public void initResources() {
-		
-		TexturesRegister.registerTextures(loaders.get(Loader.class));
-		
-		sm.addState(new MenuState());
-		sm.addState(new GameState());
-		sm.addState(new OptionState());
-		sm.addState(new WorldEditorState());
-		sm.addState(new MultiplayerGameState());
-		
-		ResourceManager.getTextureObject(GameTextures.findTexture(TexturesRegister.GAME_ICON))
-				.setOnloadAction(texture -> {
-						Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
-				});
-		
-	}
-	
-	@Override
 	protected void initInputBindings() {
 		
 		inputBindings.setDefaultBinding(InputAction.DEFAULT);
 		
-		inputBindings.put(KeyCode.UP, InputAction.MOVE_UP);
-		inputBindings.put(KeyCode.DOWN, InputAction.MOVE_DOWN);
-		inputBindings.put(KeyCode.RIGHT, InputAction.MOVE_RIGHT);
-		inputBindings.put(KeyCode.LEFT, InputAction.MOVE_LEFT);
-		inputBindings.put(KeyCode.W, InputAction.MOVE_UP);
-		inputBindings.put(KeyCode.S, InputAction.MOVE_DOWN);
-		inputBindings.put(KeyCode.D, InputAction.MOVE_RIGHT);
-		inputBindings.put(KeyCode.A, InputAction.MOVE_LEFT);
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.S);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.RIGHT);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.D);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.LEFT);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.A);
 		
-		inputBindings.put(KeyCode.C, InputAction.TILT_RIGHT);
-		inputBindings.put(KeyCode.Z, InputAction.TILT_LEFT);
-		inputBindings.put(KeyCode.X, InputAction.TILT_RESET);
+		inputBindings.put(InputAction.TILT_RIGHT, KeyCode.C);
+		inputBindings.put(InputAction.TILT_LEFT, KeyCode.Z);
+		inputBindings.put(InputAction.TILT_RESET, KeyCode.X);
 		
-		inputBindings.put(KeyCode.R, InputAction.GEN_POS);
-		inputBindings.put(KeyCode.L, InputAction.SHOW_WORLD);
+		inputBindings.put(InputAction.GEN_POS, KeyCode.R);
+		inputBindings.put(InputAction.SHOW_WORLD, KeyCode.L);
 		
-		inputBindings.put(KeyCode.V, InputAction.CLAMP);
+		inputBindings.put(InputAction.CLAMP, KeyCode.V);
 		
-		inputBindings.put(KeyCode.F, InputAction.SAVE);
+		inputBindings.put(InputAction.SAVE, KeyCode.F);
 		
-		inputBindings.put(KeyCode.ESCAPE, InputAction.PAUSE);
-		inputBindings.put(KeyCode.E, InputAction.INVENTORY);
+		inputBindings.put(InputAction.PAUSE, KeyCode.ESCAPE);
+		inputBindings.put(InputAction.INVENTORY, KeyCode.E);
 		
-		inputBindings.put(KeyCode.ENTER, InputAction.SEND);
-		inputBindings.put(KeyCode.T, InputAction.CHAT);
+		inputBindings.put(InputAction.SEND, KeyCode.ENTER);
+		inputBindings.put(InputAction.CHAT, KeyCode.T);
 		
-		inputBindings.put(KeyCode.F3, InputAction.DEBUG);
-		inputBindings.put(KeyCode.F5, InputAction.REFRESH);
-		inputBindings.put(KeyCode.F11, InputAction.FULLSCREEN);
+		inputBindings.put(InputAction.DEBUG, KeyCode.F3);
+		inputBindings.put(InputAction.REFRESH, KeyCode.F5);
+		inputBindings.put(InputAction.FULLSCREEN, KeyCode.F11);
 		
-		inputBindings.put(KeyCode.TAB, InputAction.PLAYER_LIST);
+		inputBindings.put(InputAction.PLAYER_LIST, KeyCode.TAB);
 		
-		inputBindings.put(MouseButton.PRIMARY, InputAction.PLACE);
-		inputBindings.put(MouseButton.SECONDARY, InputAction.REMOVE);
-		inputBindings.put(MouseButton.MIDDLE, InputAction.EXTRACT);
+		inputBindings.put(InputAction.PLACE, MouseButton.PRIMARY);
+		inputBindings.put(InputAction.REMOVE, MouseButton.SECONDARY);
+		inputBindings.put(InputAction.EXTRACT, MouseButton.MIDDLE);
 		
 	}
 	
@@ -213,8 +216,11 @@ public class Client extends AClient {
 		
 		Platform.runLater(() -> {
 			synchronized(game.getWorld().getEntities()) {
-				sm.getCurrentState().getMasterRender().render(GuiRegister.getRoot(sm.getCurrentState())
-						.getCanvas().getGraphicsContext2D());
+				
+				State currentState = sm.getCurrentState();
+				
+				currentState.getMasterRender().render(GuiRegister.getRoot(currentState).getCanvas()
+						.getGraphicsContext2D());
 			}
 		});
 		

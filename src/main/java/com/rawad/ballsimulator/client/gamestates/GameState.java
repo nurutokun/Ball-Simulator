@@ -56,8 +56,6 @@ public class GameState extends State {
 	@FXML private PlayerInventory inventory;
 	@FXML private Messenger mess;
 	
-	private boolean showEntireWorld;
-	
 	@Override
 	public void init(StateManager sm) {
 		super.init(sm);
@@ -69,26 +67,19 @@ public class GameState extends State {
 		playerRandomPositioner = new RandomPositionComponent();
 		player.addComponent(playerRandomPositioner);
 		
-		world.addEntity(player);
-		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
 		AttachmentComponent attachmentComp = new AttachmentComponent();
 		attachmentComp.setAttachedTo(player);
 		camera.addComponent(attachmentComp);
 		
-		cameraTransform = camera.getComponent(TransformComponent.class);		
-		cameraTransform.setScaleX(PREFERRED_SCALE);
-		cameraTransform.setScaleY(PREFERRED_SCALE);
-		
+		cameraTransform = camera.getComponent(TransformComponent.class);
 		cameraTransform.setMaxScaleX(5d);
 		cameraTransform.setMaxScaleY(5d);
 		
 		cameraView = camera.getComponent(UserViewComponent.class);
 		cameraView.setPreferredScaleX(PREFERRED_SCALE);
 		cameraView.setPreferredScaleY(PREFERRED_SCALE);
-		
-		world.addEntity(camera);
 		
 		this.client = game.getProxies().get(Client.class);
 		
@@ -107,8 +98,6 @@ public class GameState extends State {
 		gameSystems.put(new RollingSystem());
 		gameSystems.put(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new RenderingSystem(worldRender));
-		
-		showEntireWorld = false;
 		
 	}
 	
@@ -157,16 +146,7 @@ public class GameState extends State {
 				break;
 				
 			case SHOW_WORLD:
-				showEntireWorld = !showEntireWorld;
-				
-				if(showEntireWorld) {
-					cameraView.setPreferredScaleX(Double.MIN_VALUE);
-					cameraView.setPreferredScaleY(Double.MIN_VALUE);
-				} else {
-					cameraView.setPreferredScaleX(PREFERRED_SCALE);
-					cameraView.setPreferredScaleY(PREFERRED_SCALE);
-				}
-				
+				cameraView.setShowEntireWorld(!cameraView.isShowEntireWorld());
 				break;
 				
 			case TILT_RIGHT:
@@ -234,6 +214,9 @@ public class GameState extends State {
 	@Override
 	protected void onActivate() {
 		super.onActivate();
+		
+		world.addEntity(player);
+		world.addEntity(camera);
 		
 		inventory.hide();
 		mess.hide();

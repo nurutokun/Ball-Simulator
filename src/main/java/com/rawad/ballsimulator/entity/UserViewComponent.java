@@ -24,6 +24,8 @@ public class UserViewComponent extends Component {
 	@XmlTransient private double preferredScaleX = 1d;
 	@XmlTransient private double preferredScaleY = 1d;
 	
+	@XmlTransient private boolean showEntireWorld = false;
+	
 	public void setViewport(Rectangle viewport) {
 		this.viewport = viewport;
 	}
@@ -64,6 +66,20 @@ public class UserViewComponent extends Component {
 		this.preferredScaleY = preferredScaleY;
 	}
 	
+	/**
+	 * @return the showEntireWorld
+	 */
+	public boolean isShowEntireWorld() {
+		return showEntireWorld;
+	}
+	
+	/**
+	 * @param showEntireWorld the showEntireWorld to set
+	 */
+	public void setShowEntireWorld(boolean showEntireWorld) {
+		this.showEntireWorld = showEntireWorld;
+	}
+	
 	@Override
 	public Component copyData(Component comp) {
 		
@@ -78,6 +94,11 @@ public class UserViewComponent extends Component {
 			
 			viewport.setWidth(this.viewport.getWidth());
 			viewport.setHeight(this.viewport.getHeight());
+			
+			userViewComp.setPreferredScaleX(getPreferredScaleX());
+			userViewComp.setPreferredScaleY(getPreferredScaleY());
+			
+			userViewComp.setShowEntireWorld(isShowEntireWorld());
 			
 			return userViewComp;
 			

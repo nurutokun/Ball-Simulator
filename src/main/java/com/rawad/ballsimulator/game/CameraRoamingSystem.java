@@ -86,6 +86,11 @@ public class CameraRoamingSystem extends GameSystem {
 		double requestedScaleX = userViewComp.getPreferredScaleX();
 		double requestedScaleY = userViewComp.getPreferredScaleY();
 		
+		if(userViewComp.isShowEntireWorld()) {
+			requestedScaleX = minScaleX;
+			requestedScaleY = minScaleY;
+		}
+		
 		if(requestedScaleX != 0)
 			transformComp.setScaleX(Util.clamp(requestedScaleX, minScaleX, transformComp.getMaxScaleX()));
 		if(requestedScaleY != 0)

@@ -26,6 +26,20 @@ public class TerrainFileParser extends FileParser {
 	private World world;
 	
 	@Override
+	protected void start() {
+		super.start();
+		
+		world.removeAllEntities(staticEntities);
+		staticEntities.clear();
+		
+//		for(Entity e: world.getEntities()) {
+//			if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase())) staticEntities.add(e);
+//			// Adds static entities that aren't known to the fileparser (added somewhere else). Unnecessary, see stop().
+//		}
+		
+	}
+	
+	@Override
 	protected void parseLine(String line) {
 		
 		String[] tokens = line.split(REGEX);
@@ -61,18 +75,20 @@ public class TerrainFileParser extends FileParser {
 	@Override
 	public String getContent() {
 		
-		String[] lines = new String[staticEntities.size()];
+		ArrayList<String> lines = new ArrayList<String>();
 		
-		int i = 0;
-		
-		for(Entity staticEntity: staticEntities) {
+		for(Entity e: world.getEntities()) {
 			
-			TransformComponent transformComp = staticEntity.getComponent(TransformComponent.class);
+			if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase())) {
+// TODO: Test if this compare works properly (Entity.compare(Entity, Class<? extends Component>[]) may be deprecated now).
+				
+				TransformComponent transformComp = e.getComponent(TransformComponent.class);
+				
+				lines.add(transformComp.getX() + REGEX + transformComp.getY() + REGEX + transformComp.getScaleX() + REGEX
+						+ transformComp.getScaleY());
+				
+			}
 			
-			lines[i] = transformComp.getX() + REGEX + transformComp.getY() + REGEX + transformComp.getScaleX() + REGEX 
-					+ transformComp.getScaleY();
-			
-			i++;
 		}
 		
 		return Util.getStringFromLines(lines, Util.NL, false);
@@ -81,15 +97,6 @@ public class TerrainFileParser extends FileParser {
 	
 	public void setWorld(World world) {
 		this.world = world;
-		
-		world.getEntities().removeAll(staticEntities);
-		staticEntities.clear();
-		
-		for(Entity e: world.getEntities()) {
-			if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase())) staticEntities.add(e);
-		}
-// TODO: Test if this compare works properly (Entity.compare(Entity, Class<? extends Component>[]) may be deprecated now).
-		
 	}
 	
 }

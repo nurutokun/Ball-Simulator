@@ -48,9 +48,11 @@ public class WorldEditorState extends State {
 	private WorldRender worldRender;
 	private DebugRender debugRender;
 	
+	private Entity camera;
 	private TransformComponent cameraTransform;
 	private UserViewComponent cameraView;
 	
+	private Entity placeable;
 	private TransformComponent toBePlacedTransform;
 	private PlaceableComponent placeableComp;
 	
@@ -68,7 +70,7 @@ public class WorldEditorState extends State {
 		
 		this.client = game.getProxies().get(Client.class);
 		
-		Entity camera = Entity.createEntity(EEntity.CAMERA);
+		camera = Entity.createEntity(EEntity.CAMERA);
 		
 		camera.addComponent(new MovementComponent());
 		camera.addComponent(new UserControlComponent());
@@ -82,8 +84,6 @@ public class WorldEditorState extends State {
 		cameraTransform.setMaxScaleY(5D);
 		
 		cameraView = camera.getComponent(UserViewComponent.class);
-		
-		world.addEntity(camera);
 		
 		worldRender = new WorldRender(world, camera);
 		debugRender = new DebugRender(client, camera);
@@ -100,10 +100,10 @@ public class WorldEditorState extends State {
 		gameSystems.put(new EntityPlacementSystem(cameraTransform));
 		gameSystems.put(new RenderingSystem(worldRender));
 		
-		Entity toBePlaced = Entity.createEntity(EEntity.PLACEABLE);
-		toBePlacedTransform = toBePlaced.getComponent(TransformComponent.class);
+		placeable = Entity.createEntity(EEntity.PLACEABLE);
+		toBePlacedTransform = placeable.getComponent(TransformComponent.class);
 		
-		placeableComp = toBePlaced.getComponent(PlaceableComponent.class);
+		placeableComp = placeable.getComponent(PlaceableComponent.class);
 		placeableComp.getExtractionListeners().add((e, component) -> {
 			
 			final double scaleX = component.getScaleX();
@@ -118,10 +118,10 @@ public class WorldEditorState extends State {
 			
 		});
 		placeableComp.setToPlace(EEntity.STATIC);// Can be any other entity too. < and V
-		toBePlaced.getComponent(SelectionComponent.class).setSelected(true);
-		toBePlaced.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
+		placeable.getComponent(SelectionComponent.class).setSelected(true);
+		placeable.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
 		
-		world.addEntity(toBePlaced);
+		world.addEntity(placeable);
 		
 	}
 	
@@ -252,6 +252,9 @@ public class WorldEditorState extends State {
 	@Override
 	protected void onActivate() {
 		super.onActivate();
+		
+		world.addEntity(camera);
+		world.addEntity(placeable);
 		
 		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {

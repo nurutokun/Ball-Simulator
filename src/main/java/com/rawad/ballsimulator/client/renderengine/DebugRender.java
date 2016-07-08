@@ -7,6 +7,7 @@ import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.utils.Util;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -37,12 +38,13 @@ public class DebugRender extends LayerRender {
 		
 		g.setFill(Color.WHITE);
 		g.fillText(
-				"\n" + screenWidth + ", " + screenHeight + " | " + client.getAverageFps() + " |" 
-						+ " " + GameManager.getTimePassed() + "\n" + 
-				Mouse.getX() + ", " + Mouse.getY() + "\n" +
-				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + "\n" +
-				"CamScale: " + cameraTransform.getScaleX() + ", " + cameraTransform.getScaleY() + "\n" +
-				"Cam (x,y): (" + cameraTransform.getX() + ", " + cameraTransform.getY() + ")", 0, 0);
+				Util.NL + screenWidth + ", " + screenHeight + " | " + client.getAverageFps() + " |" 
+						+ " " + GameManager.getTimePassed() + Util.NL + 
+				Mouse.getX() + ", " + Mouse.getY() + Util.NL +
+				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + Util.NL +
+				"CamScale: " + cameraTransform.getScaleX() + ", " + cameraTransform.getScaleY() + Util.NL +
+				"Cam (x,y): (" + cameraTransform.getX() + ", " + cameraTransform.getY() + ")" + Util.NL + 
+				"Entities: " + client.getGame().getWorld().getEntities().size(), 0, 0);
 		
 		g.setFill(Color.LAWNGREEN);
 		g.fillOval(screenWidth - 50, screenHeight - 50, 50, 50);

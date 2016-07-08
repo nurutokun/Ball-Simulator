@@ -32,8 +32,6 @@ public class MenuState extends State {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
-		world.addEntity(camera);
-		
 		masterRender.getRenders().put(new BackgroundRender(camera));
 				
 	}
@@ -53,6 +51,13 @@ public class MenuState extends State {
 		Rectangle viewport = camera.getComponent(UserViewComponent.class).getViewport();
 		viewport.widthProperty().bind(root.widthProperty());
 		viewport.heightProperty().bind(root.heightProperty());
+		
+	}
+	@Override
+	protected void onActivate() {
+		super.onActivate();
+		
+		world.addEntity(camera);
 		
 	}
 	

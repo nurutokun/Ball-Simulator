@@ -152,13 +152,28 @@ public class ServerConnectionManager {
 			sendPacketToAllClients(null, new SPacket03Message(Server.SIMPLE_NAME, loginMessage));
 			
 			TransformComponent transformComp = player.getComponent(TransformComponent.class);
-			transformComp.setX(50);
-			transformComp.setY(50);
+			transformComp.setX(0d);
+			transformComp.setY(0d);
 			
 			SPacket01Login serverLoginResponsePacket = new SPacket01Login(networkComp, userComp, transformComp, true);
 			
 			// Inform all current players of this new player's login.
 			sendPacketToAllClients(null, serverLoginResponsePacket);
+			
+			synchronized(world.getEntities()) {
+				for(Entity e: world.getEntities()) {
+					
+					UserComponent eUserComp = e.getComponent(UserComponent.class);
+					
+					if(eUserComp == null) continue;
+					
+					SPacket01Login playerInWorldPacket = new SPacket01Login(e.getComponent(NetworkComponent.class), 
+							eUserComp, e.getComponent(TransformComponent.class), true);
+					
+					sendPacketToClient(client, playerInWorldPacket);
+					
+				}
+			}
 			
 			cim.setClientId(networkComp.getId());
 			
@@ -192,16 +207,15 @@ public class ServerConnectionManager {
 			
 			synchronized(entities) {
 				for(Entity e: entities) {
-					if(e.getComponent(NetworkComponent.class) != null) {
-						
-						String entityName = EEntity.STATIC.getName();
-						
-						if(e.getComponent(UserComponent.class) != null) continue;// Sent by login packet.
-						
-						sendPacketToClient(client, new SPacket04Entity(entityName, 
-								e.getComponent(TransformComponent.class), false));
-						
-					}
+					if(e.getComponent(NetworkComponent.class) == null) continue;
+					
+					String entityName = EEntity.STATIC.getName();
+					
+					if(e.getComponent(UserComponent.class) != null) continue;// Gets sent by login packet.
+					
+					sendPacketToClient(client, new SPacket04Entity(entityName, 
+							e.getComponent(TransformComponent.class), false));
+					
 				}
 				
 				sendPacketToClient(client, new SPacket04Entity("", new TransformComponent(), true));

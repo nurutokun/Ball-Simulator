@@ -31,8 +31,6 @@ public class WorldViewState extends State {
 	private Entity camera;
 	private UserViewComponent cameraView;
 	
-	private boolean showEntireWorld;
-	
 	@Override
 	public void init(StateManager sm) {
 		super.init(sm);
@@ -46,13 +44,12 @@ public class WorldViewState extends State {
 		
 		TransformComponent cameraTransform = camera.getComponent(TransformComponent.class);
 		
-		cameraTransform.setScaleX(PREFERRED_SCALE);
-		cameraTransform.setScaleY(PREFERRED_SCALE);
-		
 		cameraTransform.setMaxScaleX(5D);
 		cameraTransform.setMaxScaleY(5D);
 		
 		cameraView = camera.getComponent(UserViewComponent.class);
+		cameraView.setPreferredScaleX(PREFERRED_SCALE);
+		cameraView.setPreferredScaleY(PREFERRED_SCALE);
 		
 		world.addEntity(camera);
 		
@@ -72,8 +69,6 @@ public class WorldViewState extends State {
 		gameSystems.put(cameraRoamingSystem);
 		gameSystems.put(new RenderingSystem(worldRender));
 		
-		showEntireWorld = false;
-		
 	}
 	
 	@Override
@@ -89,16 +84,7 @@ public class WorldViewState extends State {
 			switch(action) {
 			
 			case SHOW_WORLD:
-				showEntireWorld = !showEntireWorld;
-				
-				if(showEntireWorld) {
-					cameraView.setPreferredScaleX(Double.MIN_VALUE);
-					cameraView.setPreferredScaleY(Double.MIN_VALUE);
-				} else {
-					cameraView.setPreferredScaleX(PREFERRED_SCALE);
-					cameraView.setPreferredScaleY(PREFERRED_SCALE);
-				}
-				
+				cameraView.setShowEntireWorld(!cameraView.isShowEntireWorld());
 				break;
 				
 			default:
