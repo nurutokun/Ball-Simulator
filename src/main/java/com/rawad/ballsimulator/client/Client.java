@@ -37,7 +37,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 447
+	// 448
 	
 	private Stage stage;
 	

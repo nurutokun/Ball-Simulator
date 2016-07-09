@@ -49,4 +49,14 @@ public enum InputAction {
 		return name;
 	}
 	
+	public static final InputAction getByName(String name) {
+		
+		for(InputAction action: InputAction.values()) {
+			if(action.getName().equals(name)) return action;
+		}
+		
+		return DEFAULT;
+		
+	}
+	
 }
