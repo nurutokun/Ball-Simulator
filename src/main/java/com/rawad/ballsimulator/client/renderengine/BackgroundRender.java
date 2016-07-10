@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.renderengine;
 
 import com.rawad.ballsimulator.client.gui.Background;
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -19,7 +20,11 @@ public class BackgroundRender extends LayerRender {
 	}
 	
 	@Override
-	public void render(GraphicsContext g) {
+	public void render() {
+		
+		GraphicsContext g = GuiRegister.getRoot(masterRender.getState()).getCanvas().getGraphicsContext2D();
+		
+		Affine transform = g.getTransform();
 		
 		Background background = Background.instance();
 		
@@ -29,8 +34,6 @@ public class BackgroundRender extends LayerRender {
 		Image texture = ResourceManager.getTexture(background.getTexture());
 		Image flippedTexture = ResourceManager.getTexture(background.getFlippedTexture());
 		
-		Affine affine = g.getTransform();
-		
 		double scaleX = userView.getViewport().getWidth() / background.getMaxWidth();
 		double scaleY = userView.getViewport().getHeight() / background.getMaxHeight();
 		
@@ -39,7 +42,7 @@ public class BackgroundRender extends LayerRender {
 		g.drawImage(texture, x, 0);
 		g.drawImage(flippedTexture, secondX, 0);
 		
-		g.setTransform(affine);
+		g.setTransform(transform);
 		
 	}
 	

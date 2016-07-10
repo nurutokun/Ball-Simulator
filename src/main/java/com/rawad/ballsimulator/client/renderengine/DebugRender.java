@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.client.renderengine;
 
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.AClient;
@@ -11,6 +12,7 @@ import com.rawad.gamehelpers.utils.Util;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
 
 public class DebugRender extends LayerRender {
 	
@@ -29,12 +31,19 @@ public class DebugRender extends LayerRender {
 	}
 	
 	@Override
-	public void render(GraphicsContext g) {
+	public void render() {
 		
 		if(GameManager.getCurrentGame().isDebug() == false) return;
 		
+		GraphicsContext g = GuiRegister.getRoot(masterRender.getState()).getCanvas().getGraphicsContext2D();
+		
+		Affine transform = g.getTransform();
+		
 		double screenWidth = userView.getViewport().getWidth();
 		double screenHeight = userView.getViewport().getHeight();
+		
+		double prefWidth = userView.getRequestedViewport().getWidth();
+		double prefHeight = userView.getRequestedViewport().getHeight();
 		
 		g.setFill(Color.WHITE);
 		g.fillText(
@@ -43,7 +52,8 @@ public class DebugRender extends LayerRender {
 				Mouse.getX() + ", " + Mouse.getY() + Util.NL +
 				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + Util.NL +
 				"CamScale: " + cameraTransform.getScaleX() + ", " + cameraTransform.getScaleY() + Util.NL +
-				"Cam (x,y): (" + cameraTransform.getX() + ", " + cameraTransform.getY() + ")" + Util.NL + 
+				"Cam (x,y): (" + cameraTransform.getX() + ", " + cameraTransform.getY() + ")" + Util.NL +
+				"Cam Pref (width,height): (" + prefWidth + ", " + prefHeight + ")" + Util.NL +
 				"Entities: " + client.getGame().getWorld().getEntities().size(), 0, 0);
 		
 		g.setFill(Color.LAWNGREEN);
@@ -51,6 +61,8 @@ public class DebugRender extends LayerRender {
 		
 		g.setFill(Color.RED);
 		g.fillRect(Mouse.getX(), Mouse.getY(), 1, 1);
+		
+		g.setTransform(transform);
 		
 	}
 	

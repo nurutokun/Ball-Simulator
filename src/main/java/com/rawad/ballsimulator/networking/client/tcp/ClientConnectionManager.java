@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.List;
 
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.TransformComponent;
@@ -21,8 +22,6 @@ import com.rawad.ballsimulator.networking.server.tcp.SPacket04Entity;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
-
-import javafx.collections.ObservableList;
 
 /**
  * Handles connecting to the server and telling the server when to disconnect/knowing when to get disconnected. Also just 
@@ -205,7 +204,7 @@ public class ClientConnectionManager {
 				entityTransform.setScaleY(entityPacket.getScaleY());
 				entityTransform.setTheta(entityPacket.getTheta());
 				
-				ObservableList<Entity> entities = world.getEntities();
+				List<Entity> entities = world.getEntities();
 				
 				synchronized(entities) {
 					world.addEntity(entity);

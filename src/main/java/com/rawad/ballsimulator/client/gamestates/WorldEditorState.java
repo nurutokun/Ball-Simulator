@@ -80,8 +80,8 @@ public class WorldEditorState extends State {
 		cameraTransform.setScaleX(1d);
 		cameraTransform.setScaleY(1d);
 		
-		cameraTransform.setMaxScaleX(5D);
-		cameraTransform.setMaxScaleY(5D);
+		cameraTransform.setMaxScaleX(5d);
+		cameraTransform.setMaxScaleY(5d);
 		
 		cameraView = camera.getComponent(UserViewComponent.class);
 		

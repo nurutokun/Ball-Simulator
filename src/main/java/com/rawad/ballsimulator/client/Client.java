@@ -16,7 +16,6 @@ import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.GameTextures;
-import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.client.input.Mouse;
@@ -37,7 +36,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 448
+	// 449
 	
 	private Stage stage;
 	
@@ -216,11 +215,7 @@ public class Client extends AClient {
 		
 		Platform.runLater(() -> {
 			synchronized(game.getWorld().getEntities()) {
-				
-				State currentState = sm.getCurrentState();
-				
-				currentState.getMasterRender().render(GuiRegister.getRoot(currentState).getCanvas()
-						.getGraphicsContext2D());
+				sm.getCurrentState().getMasterRender().render();
 			}
 		});
 		

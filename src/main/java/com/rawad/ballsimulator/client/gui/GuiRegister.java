@@ -63,7 +63,7 @@ public final class GuiRegister {
 		
 		if(root == null) {
 			root = new Root(new StackPane(), "");
-			Logger.log(Logger.DEBUG, "GUI for " + state + " wasn't initialized.");
+			Logger.log(Logger.WARNING, "GUI for " + state + " wasn't initialized.");
 		}
 		
 		return root;

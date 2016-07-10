@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
@@ -23,8 +24,6 @@ import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
-
-import javafx.collections.ObservableList;
 
 /**
  * TCP server for accepting and terminating server's connections with clients. Also deals with TCP packets in general.
@@ -140,7 +139,7 @@ public class ServerConnectionManager {
 			player.addComponent(networkComp);
 			player.addComponent(userComp);
 			
-			ObservableList<Entity> entities = world.getEntities();
+			List<Entity> entities = world.getEntities();
 			
 			synchronized(entities) {
 				world.addEntity(player);// Assigns id (WorldMP).

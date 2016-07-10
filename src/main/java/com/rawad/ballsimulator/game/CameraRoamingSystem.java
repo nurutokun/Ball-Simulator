@@ -75,7 +75,7 @@ public class CameraRoamingSystem extends GameSystem {
 		if(requestedViewport.getHeight() > 0 && requestedViewport.getHeight() != viewport.getHeight()) 
 			viewport.setHeight(requestedViewport.getHeight());
 		
-		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative 
+		// TODO: Fix centering when zooming in. Currently centers viewport around mouseInWorld but should center relative
 		// to mouse position on screen.
 		double oldScaleX = transformComp.getScaleX();
 		double oldScaleY = transformComp.getScaleY();
@@ -83,25 +83,23 @@ public class CameraRoamingSystem extends GameSystem {
 		double minScaleX = viewport.getWidth() / boundsWidth;
 		double minScaleY = viewport.getHeight() / boundsHeight;
 		
-		double requestedScaleX = userViewComp.getPreferredScaleX();
-		double requestedScaleY = userViewComp.getPreferredScaleY();
+		double prefScaleX = userViewComp.getPreferredScaleX();
+		double prefScaleY = userViewComp.getPreferredScaleY();
 		
 		if(userViewComp.isShowEntireWorld()) {
-			requestedScaleX = minScaleX;
-			requestedScaleY = minScaleY;
+			prefScaleX = minScaleX;
+			prefScaleY = minScaleY;
 		}
 		
-		if(requestedScaleX != 0)
-			transformComp.setScaleX(Util.clamp(requestedScaleX, minScaleX, transformComp.getMaxScaleX()));
-		if(requestedScaleY != 0)
-			transformComp.setScaleY(Util.clamp(requestedScaleY, minScaleY, transformComp.getMaxScaleY()));
+		transformComp.setScaleX(Util.clamp(prefScaleX, minScaleX, transformComp.getMaxScaleX()));
+		transformComp.setScaleY(Util.clamp(prefScaleY, minScaleY, transformComp.getMaxScaleY()));
 		
-		requestedScaleX = transformComp.getScaleX();
-		requestedScaleY = transformComp.getScaleY();
+		prefScaleX = transformComp.getScaleX();
+		prefScaleY = transformComp.getScaleY();
 		
-		if(requestedScaleX != oldScaleX)
+		if(prefScaleX != oldScaleX)
 			x += Mouse.getX() / oldScaleX - (viewport.getWidth() / transformComp.getScaleX() / 2d);
-		if(requestedScaleY != oldScaleY)
+		if(prefScaleY != oldScaleY)
 			y += Mouse.getY() / oldScaleY - (viewport.getHeight() / transformComp.getScaleY() / 2d);
 		
 		viewport.setX(x);

@@ -24,6 +24,7 @@ import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.ResourceManager;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -114,6 +115,8 @@ public class ServerGui extends AClient {
 		worldViewState.init(sm);// MUST init(sm) BEFORE initGui().
 		worldViewState.initGui();
 		
+		sm.setCurrentState(worldViewState);
+		
 	}
 	
 	private void initGameDependantGui() {
@@ -130,7 +133,8 @@ public class ServerGui extends AClient {
 		
 		debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
 		
-		game.getWorld().getEntities().addListener((Change<? extends Entity> change) -> {
+		FXCollections.observableArrayList(game.getWorld().getEntities())
+				.addListener((Change<? extends Entity> change) -> {
 			while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
 				if(change.getAddedSize() > 0) {
 					
@@ -147,7 +151,7 @@ public class ServerGui extends AClient {
 					List<? extends Entity> removedEntities = change.getRemoved();
 					
 					for(Entity e: removedEntities) {
-						if(e.getComponent(UserComponent.class) != null) playerList.getItems().remove(e);
+						playerList.getItems().remove(e);
 					}
 					
 				}
@@ -274,8 +278,7 @@ public class ServerGui extends AClient {
 		
 		Platform.runLater(() -> {
 			synchronized(game.getWorld().getEntities()) {
-				worldViewState.getMasterRender().render(worldViewStateRoot.getCanvas()
-						.getGraphicsContext2D());
+				worldViewState.getMasterRender().render();
 			}
 		});
 		

@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.renderengine;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
@@ -41,7 +42,11 @@ public class WorldRender extends LayerRender {
 	}
 	
 	@Override
-	public void render(GraphicsContext g) {
+	public void render() {
+		
+		GraphicsContext g = GuiRegister.getRoot(masterRender.getState()).getCanvas().getGraphicsContext2D();
+		
+		Affine transform = g.getTransform();
 		
 		Rectangle viewport = userView.getViewport();
 		
@@ -54,7 +59,7 @@ public class WorldRender extends LayerRender {
 		
 //		g.scale(viewport.getWidth() / world.getWidth(), viewport.getHeight() / world.getHeight());
 		
-		Affine affine = g.getTransform();
+		Affine modTransform = g.getTransform();
 		
 		terrainRender.render(g, world.getWidth(), world.getHeight());
 		
@@ -65,7 +70,7 @@ public class WorldRender extends LayerRender {
 			for(Entity e: batch) {
 				
 				entityRender.render(g, e);
-				g.setTransform(affine);
+				g.setTransform(modTransform);
 				
 			}
 			
@@ -74,6 +79,8 @@ public class WorldRender extends LayerRender {
 //		g.setStroke(Color.BLACK);// Optional rendering, with the g.scale() earlier to show viewport in world.
 //		g.strokeRect(cameraTransform.getX(), cameraTransform.getY(), viewport.getWidth() / cameraTransform.getScaleX(), 
 //				viewport.getHeight() / cameraTransform.getScaleY());
+		
+		g.setTransform(transform);
 		
 	}
 	

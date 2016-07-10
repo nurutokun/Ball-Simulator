@@ -44,8 +44,11 @@ public class WorldViewState extends State {
 		
 		TransformComponent cameraTransform = camera.getComponent(TransformComponent.class);
 		
-		cameraTransform.setMaxScaleX(5D);
-		cameraTransform.setMaxScaleY(5D);
+		cameraTransform.setScaleX(1d);
+		cameraTransform.setScaleY(1d);
+		
+		cameraTransform.setMaxScaleX(5d);
+		cameraTransform.setMaxScaleY(5d);
 		
 		cameraView = camera.getComponent(UserViewComponent.class);
 		cameraView.setPreferredScaleX(PREFERRED_SCALE);
