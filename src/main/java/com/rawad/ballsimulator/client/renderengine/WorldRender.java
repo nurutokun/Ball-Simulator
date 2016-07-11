@@ -7,15 +7,18 @@ import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
-import com.rawad.gamehelpers.client.renderengine.MasterRender;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 
 public class WorldRender extends LayerRender {
+	
+	// Has to be 0.0 - 1.0 .
+	public static final Color DEFAULT_BACKGROUND_COLOR = Color.DARKGRAY;//new Color(202, 212, 227, 25);
 	
 	private World world;
 	
@@ -50,7 +53,7 @@ public class WorldRender extends LayerRender {
 		
 		Rectangle viewport = userView.getViewport();
 		
-		g.setFill(MasterRender.DEFAULT_BACKGROUND_COLOR);
+		g.setFill(DEFAULT_BACKGROUND_COLOR);
 		g.fillRect(0, 0, viewport.getWidth(), viewport.getHeight());
 		
 		g.scale(cameraTransform.getScaleX(), cameraTransform.getScaleY());

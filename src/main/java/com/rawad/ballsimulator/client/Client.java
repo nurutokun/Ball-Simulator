@@ -36,7 +36,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 449
+	// 450
 	
 	private Stage stage;
 	
@@ -112,12 +112,6 @@ public class Client extends AClient {
 		
 		fileParsers.put(new TerrainFileParser());
 		fileParsers.put(new SettingsFileParser());
-		
-	}
-	
-	@Override
-	public void init(Game game) {
-		super.init(game);
 		
 		loadingTask.setOnSucceeded(e -> {
 			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
