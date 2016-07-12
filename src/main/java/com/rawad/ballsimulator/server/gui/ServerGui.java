@@ -10,6 +10,7 @@ import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
@@ -108,6 +109,8 @@ public class ServerGui extends AClient {
 	@Override
 	public void initResources() {
 		
+		initInputBindings();
+		
 		TexturesRegister.registerTextures(loaders.get(Loader.class));
 		
 		worldViewState = new WorldViewState();
@@ -165,7 +168,7 @@ public class ServerGui extends AClient {
 		
 		worldViewStateRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) inputBindings.get(keyEvent.getCode());
+			InputAction action = (InputAction) inputBindings.get(new Input(keyEvent.getCode()));
 			
 			switch(action) {
 			
@@ -296,24 +299,23 @@ public class ServerGui extends AClient {
 		
 	}
 	
-	@Override
-	protected void initInputBindings() {
+	private void initInputBindings() {
 		
-		inputBindings.setDefaultBinding(InputAction.DEFAULT);
+		inputBindings.setDefaultAction(InputAction.DEFAULT);
 		
-		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
-		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);
-		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
-		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.S);
-		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.RIGHT);
-		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.D);
-		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.LEFT);
-		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.A);
+		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.UP));
+		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.W));
+		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.DOWN));
+		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.S));
+		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.RIGHT));
+		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.D));
+		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.LEFT));
+		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.A));
 		
-		inputBindings.put(InputAction.CLAMP, KeyCode.C);
-		inputBindings.put(InputAction.SHOW_WORLD, KeyCode.L);
+		inputBindings.put(InputAction.CLAMP, new Input(KeyCode.C));
+		inputBindings.put(InputAction.SHOW_WORLD, new Input(KeyCode.L));
 		
-		inputBindings.put(InputAction.DEBUG, KeyCode.F3);
+		inputBindings.put(InputAction.DEBUG, new Input(KeyCode.F3));
 		
 	}
 	

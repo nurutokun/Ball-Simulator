@@ -4,6 +4,7 @@ import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.Root;
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -144,7 +145,7 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
 			
 			switch(action) {
 			
@@ -177,7 +178,7 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(mouseEvent.getButton());
+			InputAction action = (InputAction) client.getInputBindings().get(new Input(mouseEvent.getButton()));
 			
 			switch(action) {
 			

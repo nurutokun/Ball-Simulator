@@ -1,17 +1,14 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import java.util.ArrayList;
-
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
+import com.rawad.gamehelpers.client.input.AInput;
 import com.rawad.gamehelpers.client.input.InputBindings;
-import com.rawad.gamehelpers.log.Logger;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -83,14 +80,12 @@ public class ControlState extends State {
 		
 		Label actionLabel = new Label(action.getName());
 		
-		ComboBox<Object> inputsSelector = new ComboBox<Object>();
+		ComboBox<AInput> inputsSelector = new ComboBox<AInput>();
 		
 		Button btnAddInput = new Button("Add");
 		Button btnRemoveInput = new Button("Remove");
 		
-		ObservableList<Object> oInputs = FXCollections.observableArrayList(inputBindings.getBindingsMap().get(action));
-		
-		inputsSelector.setItems(oInputs);
+		inputsSelector.setItems(inputBindings.getBindingsMap().get(action));
 		inputsSelector.getSelectionModel().select(0);
 		
 		btnAddInput.setOnAction(e -> {
@@ -110,8 +105,11 @@ public class ControlState extends State {
 			
 			alertDialog.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
 				
-				inputBindings.getBindingsMap().get(action).add(keyEvent.getCode());
-				Logger.log(Logger.DEBUG, "(K) Added " + keyEvent.getCode().getName() + " to "+ action.getName() + ".");
+				Input input = new Input(keyEvent.getCode());
+				
+				inputBindings.put(action, input);
+				inputsSelector.getSelectionModel().select(input);
+				
 				cancelButton.fire();
 				
 				keyEvent.consume();
@@ -120,29 +118,30 @@ public class ControlState extends State {
 			
 			alertDialog.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 				
-				inputBindings.getBindingsMap().get(action).add(mouseEvent.getButton());
-				Logger.log(Logger.DEBUG, "(M) Added " + mouseEvent.getButton().name() + " to "+ action.getName() + ".");
+				Input input = new Input(mouseEvent.getButton());
+				
+				inputBindings.put(action, input);
+				inputsSelector.getSelectionModel().select(input);
+				
 				cancelButton.fire();
 				
 				mouseEvent.consume();
 				
 			});
 			
+			alertDialog.requestFocus();
 			inputAlert.showAndWait();
 			
 		});
 		
 		btnRemoveInput.setOnAction(e -> {
 			
-			ArrayList<Object> inputs = inputBindings.getBindingsMap().get(action);
-			
 			try {
 				
-				Object inputToRemove = inputsSelector.getSelectionModel().getSelectedItem();
+				AInput inputToRemove = inputsSelector.getSelectionModel().getSelectedItem();
 				
-				if(inputs.remove(inputToRemove)) {
-					inputsSelector.getItems().remove(inputToRemove);
-					inputsSelector.getSelectionModel().select(0);
+				if(inputBindings.getBindingsMap().remove(action, inputToRemove)) {
+					inputsSelector.getSelectionModel().selectFirst();
 				}
 				
 			} catch(Exception ex) {

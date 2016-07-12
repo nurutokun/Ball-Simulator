@@ -6,6 +6,7 @@ import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -108,7 +109,7 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
 			
 			if(pauseScreen.isShowing() || inventory.isShowing() || mess.isShowing()) {
 				switch(action) {
@@ -183,7 +184,7 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
 			
 			switch(action) {
 			

@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.server.gui;
 
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Root;
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -82,7 +83,7 @@ public class WorldViewState extends State {
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
 			InputAction action = (InputAction) game.getProxies().get(ServerGui.class).getInputBindings()
-					.get(keyEvent.getCode());
+					.get(new Input(keyEvent.getCode()));
 			
 			switch(action) {
 			

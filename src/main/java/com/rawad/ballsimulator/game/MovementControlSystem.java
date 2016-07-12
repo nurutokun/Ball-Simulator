@@ -2,6 +2,7 @@ package com.rawad.ballsimulator.game;
 
 import java.util.ArrayList;
 
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
@@ -63,7 +64,7 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 		
 		EventType<KeyEvent> eventType = event.getEventType();
 		
-		InputAction action = (InputAction) inputBindings.get(event.getCode());
+		InputAction action = (InputAction) inputBindings.get(new Input(event.getCode()));
 		
 		if(eventType == KeyEvent.KEY_PRESSED) {
 			keyPressed(action);

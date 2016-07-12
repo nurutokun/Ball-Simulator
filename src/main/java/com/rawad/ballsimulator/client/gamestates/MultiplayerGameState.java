@@ -9,6 +9,7 @@ import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -137,7 +138,7 @@ public class MultiplayerGameState extends State {
 			
 			if(!networkManager.isLoggedIn()) return;
 			
-			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
 			
 			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing() || playerListContainer.isVisible()) {
 				
@@ -196,7 +197,7 @@ public class MultiplayerGameState extends State {
 			
 			if(!networkManager.isLoggedIn()) return;
 			
-			InputAction action = (InputAction) client.getInputBindings().get(keyEvent.getCode());
+			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
 			
 			switch(action) {
 			

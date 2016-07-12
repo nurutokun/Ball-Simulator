@@ -10,7 +10,9 @@ import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Root;
+import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
@@ -36,7 +38,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 450
+	// 451
 	
 	private Stage stage;
 	
@@ -67,7 +69,7 @@ public class Client extends AClient {
 		
 		stage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) getInputBindings().get(keyEvent.getCode());
+			InputAction action = (InputAction) getInputBindings().get(new Input(keyEvent.getCode()));
 			
 			switch(action) {
 			
@@ -112,6 +114,7 @@ public class Client extends AClient {
 		
 		fileParsers.put(new TerrainFileParser());
 		fileParsers.put(new SettingsFileParser());
+		fileParsers.put(new ControlsFileParser(inputBindings));
 		
 		loadingTask.setOnSucceeded(e -> {
 			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
@@ -121,6 +124,8 @@ public class Client extends AClient {
 	
 	@Override
 	public void initResources() {
+		
+		initInputBindings();
 		
 		TexturesRegister.registerTextures(loaders.get(Loader.class));
 		
@@ -150,46 +155,45 @@ public class Client extends AClient {
 		
 	}
 	
-	@Override
-	protected void initInputBindings() {
+	private void initInputBindings() {
 		
-		inputBindings.setDefaultBinding(InputAction.DEFAULT);
+		inputBindings.setDefaultAction(InputAction.DEFAULT);
 		
-		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
-		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);
-		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
-		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.S);
-		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.RIGHT);
-		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.D);
-		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.LEFT);
-		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.A);
+		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.UP));
+		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.W));
+		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.DOWN));
+		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.S));
+		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.RIGHT));
+		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.D));
+		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.LEFT));
+		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.A));
 		
-		inputBindings.put(InputAction.TILT_RIGHT, KeyCode.C);
-		inputBindings.put(InputAction.TILT_LEFT, KeyCode.Z);
-		inputBindings.put(InputAction.TILT_RESET, KeyCode.X);
+		inputBindings.put(InputAction.TILT_RIGHT, new Input(KeyCode.C));
+		inputBindings.put(InputAction.TILT_LEFT, new Input(KeyCode.Z));
+		inputBindings.put(InputAction.TILT_RESET, new Input(KeyCode.X));
 		
-		inputBindings.put(InputAction.GEN_POS, KeyCode.R);
-		inputBindings.put(InputAction.SHOW_WORLD, KeyCode.L);
+		inputBindings.put(InputAction.GEN_POS, new Input(KeyCode.R));
+		inputBindings.put(InputAction.SHOW_WORLD, new Input(KeyCode.L));
 		
-		inputBindings.put(InputAction.CLAMP, KeyCode.V);
+		inputBindings.put(InputAction.CLAMP, new Input(KeyCode.V));
 		
-		inputBindings.put(InputAction.SAVE, KeyCode.F);
+		inputBindings.put(InputAction.SAVE, new Input(KeyCode.F));
 		
-		inputBindings.put(InputAction.PAUSE, KeyCode.ESCAPE);
-		inputBindings.put(InputAction.INVENTORY, KeyCode.E);
+		inputBindings.put(InputAction.PAUSE, new Input(KeyCode.ESCAPE));
+		inputBindings.put(InputAction.INVENTORY, new Input(KeyCode.E));
 		
-		inputBindings.put(InputAction.SEND, KeyCode.ENTER);
-		inputBindings.put(InputAction.CHAT, KeyCode.T);
+		inputBindings.put(InputAction.SEND, new Input(KeyCode.ENTER));
+		inputBindings.put(InputAction.CHAT, new Input(KeyCode.T));
 		
-		inputBindings.put(InputAction.DEBUG, KeyCode.F3);
-		inputBindings.put(InputAction.REFRESH, KeyCode.F5);
-		inputBindings.put(InputAction.FULLSCREEN, KeyCode.F11);
+		inputBindings.put(InputAction.DEBUG, new Input(KeyCode.F3));
+		inputBindings.put(InputAction.REFRESH, new Input(KeyCode.F5));
+		inputBindings.put(InputAction.FULLSCREEN, new Input(KeyCode.F11));
 		
-		inputBindings.put(InputAction.PLAYER_LIST, KeyCode.TAB);
+		inputBindings.put(InputAction.PLAYER_LIST, new Input(KeyCode.TAB));
 		
-		inputBindings.put(InputAction.PLACE, MouseButton.PRIMARY);
-		inputBindings.put(InputAction.REMOVE, MouseButton.SECONDARY);
-		inputBindings.put(InputAction.EXTRACT, MouseButton.MIDDLE);
+		inputBindings.put(InputAction.PLACE, new Input(MouseButton.PRIMARY));
+		inputBindings.put(InputAction.REMOVE, new Input(MouseButton.SECONDARY));
+		inputBindings.put(InputAction.EXTRACT, new Input(MouseButton.MIDDLE));
 		
 	}
 	
