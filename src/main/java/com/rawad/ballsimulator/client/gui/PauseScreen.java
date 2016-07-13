@@ -2,7 +2,6 @@ package com.rawad.ballsimulator.client.gui;
 
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gui.IHideable;
-import com.rawad.gamehelpers.client.gui.Transitions;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;

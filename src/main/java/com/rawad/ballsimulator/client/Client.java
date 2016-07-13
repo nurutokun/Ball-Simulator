@@ -10,6 +10,7 @@ import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Root;
+import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.fileparser.ControlsFileParser;
@@ -19,7 +20,6 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gui.Transitions;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.resources.ResourceManager;
@@ -38,7 +38,7 @@ import javafx.stage.Stage;
 public class Client extends AClient {
 	
 	// narutoget.io and watchnaruto.tv
-	// 451
+	// 452
 	
 	private Stage stage;
 	
@@ -202,7 +202,7 @@ public class Client extends AClient {
 		
 		Background.instance().tick();
 		
-		Mouse.update(scene.getRoot());
+		Mouse.update(GuiRegister.getRoot(sm.getCurrentState()));
 		
 		super.tick();
 		

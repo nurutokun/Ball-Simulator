@@ -1,7 +1,5 @@
 package com.rawad.ballsimulator.client.gui;
 
-import com.rawad.gamehelpers.client.gui.Transitions;
-
 import javafx.animation.ParallelTransition;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.StackPane;
