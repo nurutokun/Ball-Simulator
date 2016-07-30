@@ -91,7 +91,7 @@ public class TerrainFileParser extends FileParser {
 			
 		}
 		
-		return Util.getStringFromLines(lines, Util.NL, false);
+		return Util.getStringFromLines(Util.NL, false, lines);
 		
 	}
 	

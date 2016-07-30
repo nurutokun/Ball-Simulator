@@ -1,66 +1,75 @@
 package com.rawad.ballsimulator.loader;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 
+import com.rawad.ballsimulator.client.Texture;
+import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.BallSimulator;
+import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
+import com.rawad.gamehelpers.game.entity.Blueprint;
+import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.ALoader;
-import com.rawad.gamehelpers.resources.ResourceManager;
+
+import javafx.concurrent.Task;
+import javafx.scene.image.Image;
 
 public class Loader extends ALoader {
 	
 	public static final String FOLDER_TERRAIN = "terrains";
 	
+	private static final String FOLDER_RES = "res";
 	private static final String FOLDER_MISC = "files";
-	private static final String FOLDER_GUI = "gui";
+	private static final String FOLDER_TEXTURE = "textures";
+	private static final String FOLDER_ENTITY = "entity";
 	
-	private static final String EXTENSION_LAYOUT_FILE = ".fxml";
-	private static final String EXTENSION_STYLESHEET_FILE = ".css";
+	private static final String EXTENSION_SETTINGS_FILE = "txt";
+	private static final String EXTENSION_TERRAIN_FILE = "txt";
+	private static final String EXTENSION_TEXTURE_FILE = "png";
+	private static final String EXTENSION_LAYOUT_FILE = "fxml";
+	private static final String EXTENSION_STYLESHEET_FILE = "css";
+	private static final String EXTENSION_ENTITY_BLUEPRINT_FILE = "xml";
 	
 	public Loader() {
-		super(BallSimulator.NAME);
+		super(BallSimulator.NAME, FOLDER_RES);
 	}
 	
-	public int loadGuiTexture(String subGuiFolder, String guiTextureFile) {
-		return registerTexture(ResourceManager.getProperPath(FOLDER_GUI, subGuiFolder), guiTextureFile);
+	public Texture loadTexture(String subTexturesFolder, String textureName) {
+		
+		String path = getFilePathFromParts(EXTENSION_TEXTURE_FILE, FOLDER_TEXTURE, FOLDER_ENTITY, textureName);
+		
+		Texture texture = new Texture(new Image(path));
+		
+		return texture;
+		
 	}
 	
 	public void loadSettings(SettingsFileParser parser, String settingsFile) {
 		
-		BufferedReader reader = readFile(FOLDER_MISC, settingsFile);
+		BufferedReader reader = readFile(FOLDER_MISC, settingsFile, EXTENSION_SETTINGS_FILE);
 		
-		try {
-			parser.parseFile(reader);
-		} catch(IOException ex) {
-			Logger.log(Logger.WARNING, "Couldn't parse settings file.");
-			ex.printStackTrace();
-		}
+		parser.parseFile(reader);
 		
 	}
 	
 	public void saveSettings(SettingsFileParser parser, String settingsFile) {
 		
-		saveFile(parser.getContent(), FOLDER_MISC, settingsFile);
+		saveFile(parser.getContent(), FOLDER_MISC, settingsFile, EXTENSION_SETTINGS_FILE);
 		
 	}
 	
 	public void loadTerrain(TerrainFileParser parser, World world, String terrainName) {
 		
-		BufferedReader reader = readFile(FOLDER_TERRAIN, terrainName);
+		BufferedReader reader = readFile(FOLDER_TERRAIN, terrainName, EXTENSION_TERRAIN_FILE);
 		
 		parser.setWorld(world);
 		
-		try {
-			parser.parseFile(reader);
-		} catch(IOException ex) {
-			Logger.log(Logger.WARNING, "Couldn't parse terrain file.");
-			ex.printStackTrace();
-		}
+		parser.parseFile(reader);
 		
 	}
 	
@@ -68,7 +77,21 @@ public class Loader extends ALoader {
 		
 		parser.setWorld(world);
 		
-		saveFile(parser.getContent(), FOLDER_TERRAIN, terrainName);
+		saveFile(parser.getContent(), FOLDER_TERRAIN, terrainName, EXTENSION_TERRAIN_FILE);
+		
+	}
+	
+	public Blueprint loadEntityBlueprint(EntityFileParser parser, String entityName, String... contextPaths) {
+		
+		BufferedReader reader = readFile(FOLDER_ENTITY, entityName, EXTENSION_ENTITY_BLUEPRINT_FILE);
+		
+		parser.setContextPaths(contextPaths);
+		
+		parser.parseFile(reader);
+		
+		Blueprint blueprint = new Blueprint(parser.getEntity());
+		
+		return blueprint;
 		
 	}
 	
@@ -96,6 +119,46 @@ public class Loader extends ALoader {
 	
 	public static String getStyleSheetLocation(Class<? extends Object> clazz, String styleSheetName) {
 		return clazz.getResource(styleSheetName + EXTENSION_STYLESHEET_FILE).toExternalForm();
+	}
+	
+	public static Task<Void> getEntityBlueprintLoadingTask(Loader loader, EntityFileParser parser,
+			String... contextPaths) {
+		
+		final HashMap<Object, String> entityBindings = new HashMap<Object, String>();
+		
+		for(EEntity entity: EEntity.values()) {
+			entityBindings.put(entity, entity.getName());
+		}
+		
+		return new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				
+				Logger.log(Logger.DEBUG, "Loading entity blueprints...");
+				
+				try {
+					
+					for(Object entityKey: entityBindings.keySet()) {
+						
+						String entityName = entityBindings.get(entityKey);
+						
+						BlueprintManager.addBlueprint(entityKey, loader.loadEntityBlueprint(parser, entityName, 
+								contextPaths));
+						
+					}
+					
+					Logger.log(Logger.DEBUG, "Loaded all entity blueprints.");
+					
+				} catch(Exception ex) {
+					Logger.log(Logger.WARNING, "Entity blueprint loading failed");
+					ex.printStackTrace();
+				}
+				
+				return null;
+				
+			}
+		};
+		
 	}
 	
 }

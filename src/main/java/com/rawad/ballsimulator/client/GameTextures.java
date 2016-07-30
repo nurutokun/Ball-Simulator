@@ -7,9 +7,11 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 
-public final class TexturesRegister {
+public final class GameTextures {
 	
 	public static final Object GAME_ICON = new Object();// Reserved for game icon texture.
+	
+	private static final HashMap
 	
 	private static final String FOLDER_ENTITY = "entity";
 	
@@ -18,12 +20,12 @@ public final class TexturesRegister {
 	private static final String FILE_STATIC_OBJECT = "staticEntity";
 	private static final String FILE_PLAYER = "player";
 	
-	private TexturesRegister() {}
+	private GameTextures() {}
 	
 	/**
-	 * Registers all textures used in this {@code BallSimulator} game.
+	 * Loads all textures used in this {@code BallSimulator} game.
 	 */
-	public static void registerTextures(Loader loader) {
+	public static void loadTextures(Loader loader) {
 		
 		loader.registerUnknownTexture(TEXTURE_UNKNOWN);
 		

@@ -73,8 +73,7 @@ public final class TerrainFileConverter {
 		
 		Logger.log(Logger.DEBUG, "Saving file " + fileToSaveTo + "...");
 		
-		loader.saveFile(Util.getStringFromLines(lines, Util.NL, false), 
-				Loader.FOLDER_TERRAIN, fileToSaveTo);
+		loader.saveFile(Util.getStringFromLines(Util.NL, false, lines), Loader.FOLDER_TERRAIN, fileToSaveTo);
 		
 		Logger.log(Logger.DEBUG, "Done!");
 		

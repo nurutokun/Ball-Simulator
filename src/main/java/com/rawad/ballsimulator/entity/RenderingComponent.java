@@ -1,28 +1,17 @@
 package com.rawad.ballsimulator.entity;
 
+import com.rawad.ballsimulator.client.Texture;
 import com.rawad.gamehelpers.game.entity.Component;
-import com.rawad.gamehelpers.resources.ResourceManager;
-import com.rawad.gamehelpers.resources.TextureResource;
-
-import javafx.scene.image.Image;
 
 public class RenderingComponent extends Component {
 	
-	private int texture = TextureResource.UNKNOWN.getLocation();
+	private Texture texture;
 	
-	public void setTexture(int texture) {
+	public void setTexture(Texture texture) {
 		this.texture = texture;
 	}
 	
-	public Image getTexture() {
-		return ResourceManager.getTexture(getTextureLocation());
-	}
-	
-	public TextureResource getTextureObject() {
-		return ResourceManager.getTextureObject(getTextureLocation());
-	}
-	
-	public int getTextureLocation() {
+	public Texture getTexture() {
 		return texture;
 	}
 	
@@ -33,7 +22,7 @@ public class RenderingComponent extends Component {
 			
 			RenderingComponent renderingComp = (RenderingComponent) comp;
 			
-			renderingComp.setTexture(getTextureLocation());
+			renderingComp.setTexture(getTexture());
 			
 			return renderingComp;
 			

@@ -44,7 +44,7 @@ public class SettingsFileParser extends FileParser {
 			
 		}
 		
-		return Util.getStringFromLines(lines, Util.NL, false);
+		return Util.getStringFromLines(Util.NL, false, lines);
 	}
 	
 	public void setIp(String ip) {

@@ -1,5 +1,9 @@
 package com.rawad.ballsimulator.client;
 
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
 import com.rawad.ballsimulator.client.gamestates.ControlState;
 import com.rawad.ballsimulator.client.gamestates.GameState;
 import com.rawad.ballsimulator.client.gamestates.LoadingState;
@@ -17,15 +21,19 @@ import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.input.Mouse;
+import com.rawad.gamehelpers.client.renderengine.IRenderable;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.resources.ResourceManager;
+import com.rawad.gamehelpers.game.Proxy;
+import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.resources.TextureResource;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
@@ -35,18 +43,50 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class Client extends AClient {
+public class Client extends Proxy implements IRenderable {
 	
 	// narutoget.io and watchnaruto.tv
-	// 452
+	// 465
 	
 	private Stage stage;
 	
 	private Scene scene;
 	
+	private StateManager sm;
+	
+	private Timer renderingTimer;
+	
 	private SimpleStringProperty gameTitle;
 	
 	@Override
+	public void preInit(Game game) {
+		super.preInit(game);
+		
+		initGui();
+		
+		gameTitle.setValue(game.getName());
+		
+		Loader loader = new Loader();
+		loaders.put(loader);
+		
+		EntityBlueprintFileParser entityBlueprintParser = new EntityBlueprintFileParser();
+		
+		fileParsers.put(new TerrainFileParser());
+		fileParsers.put(new SettingsFileParser());
+		fileParsers.put(new ControlsFileParser(inputBindings));
+		
+		Task<Void> entityBlueprintloadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser, 
+				contextPaths);
+		
+		loadingTask.setOnSucceeded(e -> {
+			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
+		});
+		
+		renderingTimer = new Timer("Rendering Thread");
+		renderingTimer.scheduleAtFixedRate(getRenderingTask(this), 0, TimeUnit.SECONDS.toMillis(1) / targetFps);
+		
+	}
+	
 	protected void initGui() {
 		
 		scene = new Scene(new Root(new StackPane(), ""), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
@@ -105,29 +145,69 @@ public class Client extends AClient {
 	}
 	
 	@Override
-	public void preInit(Game game) {
-		super.preInit(game);
+	public void init() {
 		
-		gameTitle.setValue(game.getName());
-		
-		loaders.put(new Loader());
-		
-		fileParsers.put(new TerrainFileParser());
-		fileParsers.put(new SettingsFileParser());
-		fileParsers.put(new ControlsFileParser(inputBindings));
-		
-		loadingTask.setOnSucceeded(e -> {
-			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
-		});
+		loadingTask = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				
+				String message = "Initializing client resources...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				try {
+					
+					initResources();
+					
+					for(com.rawad.gamehelpers.client.gamestates.State state: sm.getStates().values()) {
+						state.initGui();
+					}
+				
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
+				
+				message = "Loading textures...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				int progress = 0;
+				
+				for(TextureResource texture: ResourceManager.getRegisteredTextures().values()) {
+					
+					message = "Loading \"" + texture.getPath() + "\"...";
+					updateMessage(message);
+					
+					ResourceManager.loadTexture(texture);
+					
+					updateProgress(++progress, ResourceManager.getRegisteredTextures().size());
+					
+				}
+				
+				message = "Done!";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				return null;
+				
+			}
+		};
 		
 	}
 	
-	@Override
+	/**
+	 * Called from the Loading Thread to initialize anything that might take a while. Note that 
+	 * {@link com.rawad.gamehelpers.client.gamestates.State#initGui} is called immediately after this.
+	 * 
+	 */
 	public void initResources() {
 		
 		initInputBindings();
 		
-		TexturesRegister.registerTextures(loaders.get(Loader.class));
+		GameTextures.loadTextures(loaders.get(Loader.class));
 		
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
@@ -136,7 +216,7 @@ public class Client extends AClient {
 		sm.addState(new MultiplayerGameState());
 		sm.addState(new ControlState());
 		
-		ResourceManager.getTextureObject(GameTextures.findTexture(TexturesRegister.GAME_ICON))
+		ResourceManager.getTextureObject(GameTextures.findTexture(GameTextures.GAME_ICON))
 				.setOnloadAction(texture -> {
 						Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
 				});
@@ -150,7 +230,7 @@ public class Client extends AClient {
 		
 		Platform.runLater(() -> {
 			stage.show();
-			readyToUpdate = true;			
+			readyToUpdate = true;
 		});
 		
 	}
@@ -204,12 +284,12 @@ public class Client extends AClient {
 		
 		Mouse.update(GuiRegister.getRoot(sm.getCurrentState()));
 		
-		super.tick();
+		sm.update();
 		
 	}
 	
 	@Override
-	protected void render() {
+	public void render() {
 		
 		Platform.runLater(() -> {
 			synchronized(game.getWorld().getEntities()) {
@@ -223,7 +303,8 @@ public class Client extends AClient {
 	public void stop() {
 		
 		readyToUpdate = false;
-		readyToRender = false;
+		
+		renderingTimer.cancel();
 		
 		Transitions.parallel(scene.getRoot(), e -> {
 			
@@ -270,6 +351,48 @@ public class Client extends AClient {
 	
 	public void setStage(Stage stage) {
 		this.stage = stage;
+	}
+	
+	public static final TimerTask getRenderingTask(IRenderable renderable) {
+		return new TimerTask() {
+			
+			/** Frames to wait before calculating {@code averageFps}. */
+			private static final int FPS_SAMPLE_RATE = 30;
+			
+			private long totalTime = 0;
+			
+			private long currentTime = System.nanoTime();
+			private long prevTime = currentTime;
+			
+			private int frames;
+			private int targetFps = 60;
+			private int averageFps;
+			
+			@Override
+			public void run() {
+				
+				currentTime = System.nanoTime();
+				
+				long deltaTime = currentTime - prevTime;
+				
+				totalTime += (deltaTime <= 0? 1:deltaTime);// timePassed in ().
+				
+				prevTime = currentTime;
+				
+				if(frames >= FPS_SAMPLE_RATE && totalTime > 0) {
+					averageFps = (int) (frames * TimeUnit.SECONDS.toNanos(1) / totalTime);
+					
+					frames = 0;
+					totalTime = 0;
+					
+				}
+				
+				renderable.render();
+				frames++;
+				
+			}
+			
+		};
 	}
 	
 }

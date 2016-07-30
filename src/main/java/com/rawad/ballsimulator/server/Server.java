@@ -57,8 +57,7 @@ public class Server extends AServer {
 	}
 	
 	@Override
-	public void init(Game game) {
-		super.init(game);
+	public void init() {
 		
 		tickCount = 0;
 		
@@ -76,7 +75,7 @@ public class Server extends AServer {
 		
 		networkManager = new ServerNetworkManager(this);
 		
-		Loader.addTask(new Task<Void>() {
+		ALoader.addTask(new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
 				

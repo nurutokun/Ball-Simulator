@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import com.rawad.ballsimulator.client.TexturesRegister;
+import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.Root;
@@ -95,8 +95,7 @@ public class ServerGui extends AClient {
 	}
 	
 	@Override
-	public void init(Game game) {
-		super.init(game);
+	public void init() {
 		
 		Platform.runLater(() -> {
 			loadingTask.setOnSucceeded(e -> {
@@ -111,7 +110,7 @@ public class ServerGui extends AClient {
 		
 		initInputBindings();
 		
-		TexturesRegister.registerTextures(loaders.get(Loader.class));
+		GameTextures.loadTextures(loaders.get(Loader.class));
 		
 		worldViewState = new WorldViewState();
 		
@@ -132,7 +131,7 @@ public class ServerGui extends AClient {
 			
 		});
 		stage.setTitle(game.getName() + " " + Server.SIMPLE_NAME);
-		stage.getIcons().add(ResourceManager.getTexture(GameTextures.findTexture(TexturesRegister.GAME_ICON)));
+		stage.getIcons().add(ResourceManager.getTexture(GameTextures.findTexture(GameTextures.GAME_ICON)));
 		
 		debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
 		

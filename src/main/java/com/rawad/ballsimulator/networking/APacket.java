@@ -84,7 +84,7 @@ public abstract class APacket {
 			if(datas[i].isEmpty()) datas[i] = NULL;
 		}
 		
-		buffer = Util.getStringFromLines(datas, regex, false);
+		buffer = Util.getStringFromLines(regex, false, datas);
 		
 		return buffer;
 		
