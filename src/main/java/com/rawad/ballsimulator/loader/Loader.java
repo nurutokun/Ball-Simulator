@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.net.URL;
 import java.util.HashMap;
 
-import com.rawad.ballsimulator.client.Texture;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -21,10 +20,9 @@ import javafx.scene.image.Image;
 
 public class Loader extends ALoader {
 	
-	public static final String FOLDER_TERRAIN = "terrains";
-	
 	private static final String FOLDER_RES = "res";
 	private static final String FOLDER_MISC = "files";
+	private static final String FOLDER_TERRAIN = "terrains";
 	private static final String FOLDER_TEXTURE = "textures";
 	private static final String FOLDER_ENTITY = "entity";
 	
@@ -39,19 +37,17 @@ public class Loader extends ALoader {
 		super(BallSimulator.NAME, FOLDER_RES);
 	}
 	
-	public Texture loadTexture(String subTexturesFolder, String textureName) {
+	public Image loadTexture(String subTexturesFolder, String textureName) {
 		
 		String path = getFilePathFromParts(EXTENSION_TEXTURE_FILE, FOLDER_TEXTURE, FOLDER_ENTITY, textureName);
 		
-		Texture texture = new Texture(new Image(path));
-		
-		return texture;
+		return new Image(path);
 		
 	}
 	
 	public void loadSettings(SettingsFileParser parser, String settingsFile) {
 		
-		BufferedReader reader = readFile(FOLDER_MISC, settingsFile, EXTENSION_SETTINGS_FILE);
+		BufferedReader reader = readFile(EXTENSION_SETTINGS_FILE, FOLDER_MISC, settingsFile);
 		
 		parser.parseFile(reader);
 		
@@ -59,13 +55,21 @@ public class Loader extends ALoader {
 	
 	public void saveSettings(SettingsFileParser parser, String settingsFile) {
 		
-		saveFile(parser.getContent(), FOLDER_MISC, settingsFile, EXTENSION_SETTINGS_FILE);
+		saveFile(parser.getContent(), EXTENSION_SETTINGS_FILE, FOLDER_MISC, settingsFile);
 		
+	}
+	
+	public BufferedReader readTerrainFile(String terrainName) {
+		return readFile(EXTENSION_TERRAIN_FILE, FOLDER_TERRAIN, terrainName);
+	}
+	
+	public void saveTerrainFile(String content, String terrainName) {
+		saveFile(content, EXTENSION_TERRAIN_FILE, FOLDER_TERRAIN, terrainName);
 	}
 	
 	public void loadTerrain(TerrainFileParser parser, World world, String terrainName) {
 		
-		BufferedReader reader = readFile(FOLDER_TERRAIN, terrainName, EXTENSION_TERRAIN_FILE);
+		BufferedReader reader = readFile(EXTENSION_TERRAIN_FILE, FOLDER_TERRAIN, terrainName);
 		
 		parser.setWorld(world);
 		
@@ -77,13 +81,13 @@ public class Loader extends ALoader {
 		
 		parser.setWorld(world);
 		
-		saveFile(parser.getContent(), FOLDER_TERRAIN, terrainName, EXTENSION_TERRAIN_FILE);
+		saveTerrainFile(parser.getContent(), terrainName);
 		
 	}
 	
 	public Blueprint loadEntityBlueprint(EntityFileParser parser, String entityName, String... contextPaths) {
 		
-		BufferedReader reader = readFile(FOLDER_ENTITY, entityName, EXTENSION_ENTITY_BLUEPRINT_FILE);
+		BufferedReader reader = readFile(getEntityBlueprintPath(entityName));
 		
 		parser.setContextPaths(contextPaths);
 		
@@ -93,6 +97,10 @@ public class Loader extends ALoader {
 		
 		return blueprint;
 		
+	}
+	
+	public String getEntityBlueprintPath(String entityName) {
+		return getFilePathFromParts(EXTENSION_ENTITY_BLUEPRINT_FILE, FOLDER_ENTITY, entityName);
 	}
 	
 	/**

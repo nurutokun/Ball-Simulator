@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
-import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
-import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
@@ -20,7 +18,7 @@ public class RenderingSystem extends GameSystem {
 	
 	private UserViewComponent userView;
 	
-	private LinkedHashMap<Integer, ArrayList<Entity>> entities;
+	private LinkedHashMap<Object, ArrayList<Entity>> entities;
 	
 	public RenderingSystem(WorldRender worldRender) {
 		super();
@@ -29,10 +27,7 @@ public class RenderingSystem extends GameSystem {
 		
 		this.userView = worldRender.getUserView();
 		
-		entities = new LinkedHashMap<Integer, ArrayList<Entity>>();
-		
-		entities.put(GameTextures.findTexture(EEntity.STATIC), new ArrayList<Entity>());
-		entities.put(GameTextures.findTexture(EEntity.PLAYER), new ArrayList<Entity>());
+		entities = new LinkedHashMap<Object, ArrayList<Entity>>();
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(RenderingComponent.class);
@@ -71,11 +66,11 @@ public class RenderingSystem extends GameSystem {
 		
 		if(!CollisionSystem.isInBounds(transformComp, boundingBox, scaledUserView)) return;
 		
-		ArrayList<Entity> batch = entities.get(renderingComp.getTextureLocation());
+		ArrayList<Entity> batch = entities.get(renderingComp.getTexture());
 		
 		if(batch == null) {
 			batch = new ArrayList<Entity>();
-			entities.put(renderingComp.getTextureLocation(), batch);
+			entities.put(renderingComp.getTexture(), batch);
 		}
 		
 		batch.add(e);

@@ -22,7 +22,7 @@ public class WorldRender extends LayerRender {
 	
 	private World world;
 	
-	private LinkedHashMap<Integer, ArrayList<Entity>> entities;
+	private LinkedHashMap<Object, ArrayList<Entity>> entities;
 	
 	private TransformComponent cameraTransform;
 	private UserViewComponent userView;
@@ -34,7 +34,7 @@ public class WorldRender extends LayerRender {
 		
 		this.world = world;
 		
-		entities = new LinkedHashMap<Integer, ArrayList<Entity>>();
+		entities = new LinkedHashMap<Object, ArrayList<Entity>>();
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);
 		userView = camera.getComponent(UserViewComponent.class);
@@ -66,9 +66,9 @@ public class WorldRender extends LayerRender {
 		
 		terrainRender.render(g, world.getWidth(), world.getHeight());
 		
-		for(Integer texture: entities.keySet()) {
+		for(Object batchKey: entities.keySet()) {
 			
-			ArrayList<Entity> batch = entities.get(texture);
+			ArrayList<Entity> batch = entities.get(batchKey);
 			
 			for(Entity e: batch) {
 				
@@ -87,7 +87,7 @@ public class WorldRender extends LayerRender {
 		
 	}
 	
-	public void setEntities(LinkedHashMap<Integer, ArrayList<Entity>> entities) {
+	public void setEntities(LinkedHashMap<Object, ArrayList<Entity>> entities) {
 		this.entities = entities;
 	}
 	

@@ -1,17 +1,18 @@
 package com.rawad.ballsimulator.entity;
 
-import com.rawad.ballsimulator.client.Texture;
 import com.rawad.gamehelpers.game.entity.Component;
+
+import javafx.scene.image.Image;
 
 public class RenderingComponent extends Component {
 	
-	private Texture texture;
+	private Image texture;
 	
-	public void setTexture(Texture texture) {
+	public void setTexture(Image texture) {
 		this.texture = texture;
 	}
 	
-	public Texture getTexture() {
+	public Image getTexture() {
 		return texture;
 	}
 	

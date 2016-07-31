@@ -46,7 +46,7 @@ import javafx.stage.Stage;
 public class Client extends Proxy implements IRenderable {
 	
 	// narutoget.io and watchnaruto.tv
-	// 465
+	// 466
 	
 	private Stage stage;
 	

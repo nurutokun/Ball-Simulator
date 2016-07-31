@@ -14,18 +14,19 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
-import com.rawad.gamehelpers.resources.ResourceManager;
-import com.rawad.gamehelpers.utils.Util;
 
 public class EntityBlueprintFileMaker {
 	
 	public static void main(String... args) {
 		
-		final String ENTITY_PACKAGE = EEntity.class.getPackage().getName();
-		
-		ResourceManager.init(Util.parseCommandLineArguments(args));
+		final String[] contextPaths = {
+				EEntity.class.getPackage().getName()
+		};
 		
 		Loader loader = new Loader();
+		EntityFileParser parser = new EntityFileParser();
+		
+		parser.setContextPaths(contextPaths);
 		
 		Entity player = Entity.createEntity();
 		
@@ -46,7 +47,7 @@ public class EntityBlueprintFileMaker {
 		player.addComponent(new RollingComponent());
 		player.addComponent(new RenderingComponent());
 		
-		EntityFileParser.saveEntityBlueprint(player, loader.getEntityBlueprintSaveFileLocation(EEntity.PLAYER.getName()), ENTITY_PACKAGE);
+		parser.saveEntityBlueprint(player, loader.getEntityBlueprintPath(EEntity.PLAYER.getName()));
 		
 		Entity eStatic = Entity.createEntity();
 		
@@ -58,14 +59,14 @@ public class EntityBlueprintFileMaker {
 		eStatic.addComponent(new SelectionComponent());
 		eStatic.addComponent(new RenderingComponent());
 		
-		EntityFileParser.saveEntityBlueprint(eStatic, loader.getEntityBlueprintSaveFileLocation(EEntity.STATIC.getName()), ENTITY_PACKAGE);
+		parser.saveEntityBlueprint(eStatic, loader.getEntityBlueprintPath(EEntity.STATIC.getName()));
 		
 		Entity camera = Entity.createEntity();
 		
 		camera.addComponent(new TransformComponent());
 		camera.addComponent(new UserViewComponent());
 		
-		EntityFileParser.saveEntityBlueprint(camera, loader.getEntityBlueprintSaveFileLocation(EEntity.CAMERA.getName()), ENTITY_PACKAGE);
+		parser.saveEntityBlueprint(camera, loader.getEntityBlueprintPath(EEntity.CAMERA.getName()));
 		
 		Entity placeable = Entity.createEntity();
 		
@@ -75,7 +76,7 @@ public class EntityBlueprintFileMaker {
 		placeable.addComponent(new PlaceableComponent());
 		placeable.addComponent(new RenderingComponent());
 		
-		EntityFileParser.saveEntityBlueprint(placeable, loader.getEntityBlueprintSaveFileLocation(EEntity.PLACEABLE.getName()), ENTITY_PACKAGE);
+		parser.saveEntityBlueprint(placeable, loader.getEntityBlueprintPath(EEntity.PLACEABLE.getName()));
 		
 	}
 	

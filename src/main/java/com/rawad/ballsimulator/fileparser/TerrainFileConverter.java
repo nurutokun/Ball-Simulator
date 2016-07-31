@@ -8,7 +8,6 @@ import java.util.HashMap;
 
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
 
 public final class TerrainFileConverter {
@@ -18,8 +17,6 @@ public final class TerrainFileConverter {
 	public static void main(String... args) {
 		
 		HashMap<String, String> commands = Util.parseCommandLineArguments(args);
-		
-		ResourceManager.init(commands);
 		
 		String fileToConvert = commands.get("fileToConvert");
 		
@@ -34,7 +31,7 @@ public final class TerrainFileConverter {
 		
 		Logger.log(Logger.DEBUG, "Loading file " + fileToConvert + "...");
 		
-		BufferedReader reader = loader.readFile(Loader.FOLDER_TERRAIN, fileToConvert);
+		BufferedReader reader = loader.readTerrainFile(fileToConvert);
 		
 		TerrainFileConverter converter = new TerrainFileConverter();
 		
@@ -73,7 +70,7 @@ public final class TerrainFileConverter {
 		
 		Logger.log(Logger.DEBUG, "Saving file " + fileToSaveTo + "...");
 		
-		loader.saveFile(Util.getStringFromLines(Util.NL, false, lines), Loader.FOLDER_TERRAIN, fileToSaveTo);
+		loader.saveTerrainFile(Util.getStringFromLines(Util.NL, false, lines), fileToSaveTo);
 		
 		Logger.log(Logger.DEBUG, "Done!");
 		
