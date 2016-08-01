@@ -1,22 +1,26 @@
 package com.rawad.ballsimulator.client;
 
+import java.util.HashMap;
+
 import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
+
+import javafx.scene.image.Image;
 
 public final class GameTextures {
 	
-	public static final Object GAME_ICON = new Object();// Reserved for game icon texture.
+	public static final Object TEXTURE_UNKNOWN = new Object();
+	public static final Object TEXTURE_GAME_ICON = new Object();// Reserved for game icon texture.
 	
-	private static final HashMap
+	private static final HashMap<Object, Image> textures = new HashMap<Object, Image>();
 	
 	private static final String FOLDER_ENTITY = "entity";
 	
-	private static final String TEXTURE_UNKNOWN = "unknown";
-	
+	private static final String FILE_UNKNOWN_TEXTURE = "unknown";
+	private static final String FILE_GAME_ICON = "game_icon";
 	private static final String FILE_STATIC_OBJECT = "staticEntity";
 	private static final String FILE_PLAYER = "player";
 	
@@ -27,14 +31,11 @@ public final class GameTextures {
 	 */
 	public static void loadTextures(Loader loader) {
 		
-		loader.registerUnknownTexture(TEXTURE_UNKNOWN);
+		textures.put(TEXTURE_UNKNOWN, loader.loadTexture("", FILE_UNKNOWN_TEXTURE));
+		textures.put(TEXTURE_GAME_ICON, loader.loadTexture("", FILE_GAME_ICON));
 		
-		GameTextures.putTexture(GAME_ICON, loader.registerTexture("", "game_icon"));
-		
-		Background.registerTextures(loader);
-		
-		GameTextures.putTexture(EEntity.STATIC, loader.registerTexture(FOLDER_ENTITY, FILE_STATIC_OBJECT));
-		GameTextures.putTexture(EEntity.PLAYER, loader.registerTexture(FOLDER_ENTITY, FILE_PLAYER));
+		textures.put(EEntity.STATIC, loader.loadTexture(FOLDER_ENTITY, FILE_STATIC_OBJECT));
+		textures.put(EEntity.PLAYER, loader.loadTexture(FOLDER_ENTITY, FILE_PLAYER));
 		
 		BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase().getComponent(RenderingComponent.class)
 					.setTexture(GameTextures.findTexture(EEntity.STATIC));
@@ -42,6 +43,12 @@ public final class GameTextures {
 		BlueprintManager.getBlueprint(EEntity.PLAYER).getEntityBase().getComponent(RenderingComponent.class)
 					.setTexture(GameTextures.findTexture(EEntity.PLAYER));
 		
+		Background.registerTextures(loader);
+		
+	}
+	
+	public static Image findTexture(Object key) {
+		return textures.get(key);
 	}
 	
 }

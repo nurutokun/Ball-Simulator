@@ -6,7 +6,6 @@ import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.gamehelpers.client.input.InputBindings;
 import com.rawad.gamehelpers.fileparser.FileParser;
 
-
 public class ControlsFileParser extends FileParser {
 	
 	private static final String REGEX = "=";
