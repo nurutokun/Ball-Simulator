@@ -32,7 +32,6 @@ public final class GameTextures {
 	public static void loadTextures(Loader loader) {
 		
 		textures.put(TEXTURE_UNKNOWN, loader.loadTexture("", FILE_UNKNOWN_TEXTURE));
-		textures.put(TEXTURE_GAME_ICON, loader.loadTexture("", FILE_GAME_ICON));
 		
 		textures.put(EEntity.STATIC, loader.loadTexture(FOLDER_ENTITY, FILE_STATIC_OBJECT));
 		textures.put(EEntity.PLAYER, loader.loadTexture(FOLDER_ENTITY, FILE_PLAYER));
@@ -43,8 +42,20 @@ public final class GameTextures {
 		BlueprintManager.getBlueprint(EEntity.PLAYER).getEntityBase().getComponent(RenderingComponent.class)
 					.setTexture(GameTextures.findTexture(EEntity.PLAYER));
 		
-		Background.registerTextures(loader);
+		Background.loadTextures(loader);
 		
+	}
+	
+	public static void loadGameIcon(Loader loader) {
+		textures.put(TEXTURE_GAME_ICON, loader.loadTexture("", FILE_GAME_ICON));
+	}
+	
+	public static void deleteTextures() {
+		
+		
+		for(Object textureKey: textures.keySet()) {
+			textures.put(textureKey, null);
+		}
 	}
 	
 	public static Image findTexture(Object key) {

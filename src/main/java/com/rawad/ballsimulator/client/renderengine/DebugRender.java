@@ -1,9 +1,9 @@
 package com.rawad.ballsimulator.client.renderengine;
 
+import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
-import com.rawad.gamehelpers.client.AClient;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
 import com.rawad.gamehelpers.game.GameManager;
@@ -16,12 +16,12 @@ import javafx.scene.transform.Affine;
 
 public class DebugRender extends LayerRender {
 	
-	private AClient client;
+	private Client client;
 	
 	private TransformComponent cameraTransform;
 	private UserViewComponent userView;
 	
-	public DebugRender(AClient client, Entity camera) {
+	public DebugRender(Client client, Entity camera) {
 		
 		this.client = client;
 		
@@ -47,7 +47,7 @@ public class DebugRender extends LayerRender {
 		
 		g.setFill(Color.WHITE);
 		g.fillText(
-				Util.NL + screenWidth + ", " + screenHeight + " | " + client.getAverageFps() + " |" 
+				Util.NL + screenWidth + ", " + screenHeight + " | " /*+ client.getAverageFps()*/ + " |" 
 						+ " " + GameManager.getTimePassed() + Util.NL + 
 				Mouse.getX() + ", " + Mouse.getY() + Util.NL +
 				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + Util.NL +

@@ -17,6 +17,7 @@ import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
@@ -26,6 +27,7 @@ import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.client.renderengine.IRenderable;
+import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.Proxy;
 import com.rawad.gamehelpers.log.Logger;
@@ -46,13 +48,18 @@ import javafx.stage.Stage;
 public class Client extends Proxy implements IRenderable {
 	
 	// narutoget.io and watchnaruto.tv
-	// 466
+	// 467
+	
+	private static final int TARGET_FPS = 60;
 	
 	private Stage stage;
 	
 	private Scene scene;
 	
 	private StateManager sm;
+	
+	private Task<Void> entityBlueprintLoadingTask;
+	private Task<Void> loadingTask;
 	
 	private Timer renderingTimer;
 	
@@ -69,21 +76,59 @@ public class Client extends Proxy implements IRenderable {
 		Loader loader = new Loader();
 		loaders.put(loader);
 		
-		EntityBlueprintFileParser entityBlueprintParser = new EntityBlueprintFileParser();
+		EntityFileParser entityBlueprintParser = new EntityFileParser();
 		
 		fileParsers.put(new TerrainFileParser());
 		fileParsers.put(new SettingsFileParser());
-		fileParsers.put(new ControlsFileParser(inputBindings));
+//		fileParsers.put(new ControlsFileParser(inputBindings));
 		
-		Task<Void> entityBlueprintloadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser, 
-				contextPaths);
+		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser, 
+				EEntity.class.getPackage().getName());
+		
+		loadingTask = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				
+				String message = "Initializing client resources...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				try {
+					
+					initResources();
+					
+					for(com.rawad.gamehelpers.client.gamestates.State state: sm.getStates().values()) {
+						state.initGui();
+					}
+				
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
+				
+				message = "Loading textures...";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				GameTextures.loadTextures(loaders.get(Loader.class));
+				
+				message = "Done!";
+				
+				updateMessage(message);
+				Logger.log(Logger.DEBUG, message);
+				
+				return null;
+				
+			}
+		};
 		
 		loadingTask.setOnSucceeded(e -> {
 			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
 		});
 		
 		renderingTimer = new Timer("Rendering Thread");
-		renderingTimer.scheduleAtFixedRate(getRenderingTask(this), 0, TimeUnit.SECONDS.toMillis(1) / targetFps);
+		renderingTimer.scheduleAtFixedRate(getRenderingTask(this), 0, TimeUnit.SECONDS.toMillis(1) / TARGET_FPS);
 		
 	}
 	
@@ -147,54 +192,8 @@ public class Client extends Proxy implements IRenderable {
 	@Override
 	public void init() {
 		
-		loadingTask = new Task<Void>() {
-			@Override
-			protected Void call() throws Exception {
-				
-				String message = "Initializing client resources...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				try {
-					
-					initResources();
-					
-					for(com.rawad.gamehelpers.client.gamestates.State state: sm.getStates().values()) {
-						state.initGui();
-					}
-				
-				} catch(Exception ex) {
-					ex.printStackTrace();
-				}
-				
-				message = "Loading textures...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				int progress = 0;
-				
-				for(TextureResource texture: ResourceManager.getRegisteredTextures().values()) {
-					
-					message = "Loading \"" + texture.getPath() + "\"...";
-					updateMessage(message);
-					
-					ResourceManager.loadTexture(texture);
-					
-					updateProgress(++progress, ResourceManager.getRegisteredTextures().size());
-					
-				}
-				
-				message = "Done!";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				return null;
-				
-			}
-		};
+		Loader.addTask(entityBlueprintLoadingTask);
+		Loader.addTask(loadingTask);
 		
 	}
 	
@@ -207,19 +206,12 @@ public class Client extends Proxy implements IRenderable {
 		
 		initInputBindings();
 		
-		GameTextures.loadTextures(loaders.get(Loader.class));
-		
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
 		sm.addState(new OptionState());
 		sm.addState(new WorldEditorState());
 		sm.addState(new MultiplayerGameState());
 		sm.addState(new ControlState());
-		
-		ResourceManager.getTextureObject(GameTextures.findTexture(GameTextures.GAME_ICON))
-				.setOnloadAction(texture -> {
-						Platform.runLater(() -> stage.getIcons().add(texture.getTexture()));
-				});
 		
 		LoadingState loadingState = new LoadingState(loadingTask);
 		
@@ -229,8 +221,12 @@ public class Client extends Proxy implements IRenderable {
 		onStateChange();
 		
 		Platform.runLater(() -> {
+			
+			stage.getIcons().add(GameTextures.findTexture(GameTextures.TEXTURE_GAME_ICON));
 			stage.show();
-			readyToUpdate = true;
+			
+			update = true;
+			
 		});
 		
 	}
@@ -302,7 +298,7 @@ public class Client extends Proxy implements IRenderable {
 	@Override
 	public void stop() {
 		
-		readyToUpdate = false;
+		update = false;
 		
 		renderingTimer.cancel();
 		
@@ -310,7 +306,7 @@ public class Client extends Proxy implements IRenderable {
 			
 			sm.stop();
 			
-			ResourceManager.releaseResources();
+			GameTextures.deleteTextures();
 			
 			stage.close();
 			
@@ -318,7 +314,6 @@ public class Client extends Proxy implements IRenderable {
 		
 	}
 	
-	@Override
 	public void onStateChange() {
 		
 		Platform.runLater(() -> {

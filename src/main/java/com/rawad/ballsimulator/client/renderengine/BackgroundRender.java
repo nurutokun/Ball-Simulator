@@ -5,10 +5,8 @@ import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.resources.ResourceManager;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.transform.Affine;
 
 public class BackgroundRender extends LayerRender {
@@ -31,16 +29,13 @@ public class BackgroundRender extends LayerRender {
 		double x = background.getX();
 		double secondX = background.getSecondX();
 		
-		Image texture = ResourceManager.getTexture(background.getTexture());
-		Image flippedTexture = ResourceManager.getTexture(background.getFlippedTexture());
-		
 		double scaleX = userView.getViewport().getWidth() / background.getMaxWidth();
 		double scaleY = userView.getViewport().getHeight() / background.getMaxHeight();
 		
 		g.scale(scaleX, scaleY);
 		
-		g.drawImage(texture, x, 0);
-		g.drawImage(flippedTexture, secondX, 0);
+		g.drawImage(background.getTexture(), x, 0);
+		g.drawImage(background.getFlippedTexture(), secondX, 0);
 		
 		g.setTransform(transform);
 		
