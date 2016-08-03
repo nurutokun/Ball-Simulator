@@ -3,7 +3,7 @@ package com.rawad.ballsimulator.fileparser;
 import java.util.ArrayList;
 
 import com.rawad.ballsimulator.client.input.InputAction;
-import com.rawad.gamehelpers.client.input.InputBindings;
+import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.gamehelpers.fileparser.FileParser;
 
 public class ControlsFileParser extends FileParser {
@@ -21,9 +21,7 @@ public class ControlsFileParser extends FileParser {
 	}
 	
 	@Override
-	protected void parseLine(String line) {
-		
-	}
+	protected void parseLine(String line) {}
 	
 	@Override
 	public String getContent() {

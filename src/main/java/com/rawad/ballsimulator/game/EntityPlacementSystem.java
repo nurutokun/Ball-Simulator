@@ -1,10 +1,10 @@
 package com.rawad.ballsimulator.game;
 
+import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;

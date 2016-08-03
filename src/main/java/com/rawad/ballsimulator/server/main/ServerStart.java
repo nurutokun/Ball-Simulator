@@ -7,7 +7,6 @@ import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.gui.ServerGui;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.ResourceManager;
 import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Application;
@@ -34,8 +33,6 @@ public class ServerStart extends Application {
 		}
 		
 		if(useGui) {
-			
-			ResourceManager.init(commands);
 			
 			serverGui = new ServerGui(server);
 			

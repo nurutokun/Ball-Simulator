@@ -15,23 +15,20 @@ import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.Transitions;
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.client.input.InputBindings;
+import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.entity.EEntity;
-import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.client.renderengine.IRenderable;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.Proxy;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.TextureResource;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -50,13 +47,15 @@ public class Client extends Proxy implements IRenderable {
 	// narutoget.io and watchnaruto.tv
 	// 467
 	
-	private static final int TARGET_FPS = 60;
+	public static final int TARGET_FPS = 60;
 	
 	private Stage stage;
 	
 	private Scene scene;
 	
 	private StateManager sm;
+	
+	private InputBindings inputBindings;
 	
 	private Task<Void> entityBlueprintLoadingTask;
 	private Task<Void> loadingTask;
@@ -113,6 +112,9 @@ public class Client extends Proxy implements IRenderable {
 				
 				GameTextures.loadTextures(loaders.get(Loader.class));
 				
+				renderingTimer.scheduleAtFixedRate(getRenderingTask(Client.this), 0, TimeUnit.SECONDS.toMillis(1) / 
+						TARGET_FPS);
+				
 				message = "Done!";
 				
 				updateMessage(message);
@@ -128,7 +130,6 @@ public class Client extends Proxy implements IRenderable {
 		});
 		
 		renderingTimer = new Timer("Rendering Thread");
-		renderingTimer.scheduleAtFixedRate(getRenderingTask(this), 0, TimeUnit.SECONDS.toMillis(1) / TARGET_FPS);
 		
 	}
 	
@@ -154,7 +155,7 @@ public class Client extends Proxy implements IRenderable {
 		
 		stage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) getInputBindings().get(new Input(keyEvent.getCode()));
+			InputAction action = (InputAction) inputBindings.get(keyEvent.getCode());
 			
 			switch(action) {
 			
@@ -233,43 +234,43 @@ public class Client extends Proxy implements IRenderable {
 	
 	private void initInputBindings() {
 		
-		inputBindings.setDefaultAction(InputAction.DEFAULT);
+		inputBindings = new InputBindings();
 		
-		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.UP));
-		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.W));
-		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.DOWN));
-		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.S));
-		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.RIGHT));
-		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.D));
-		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.LEFT));
-		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.A));
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.S);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.RIGHT);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.D);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.LEFT);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.A);
 		
-		inputBindings.put(InputAction.TILT_RIGHT, new Input(KeyCode.C));
-		inputBindings.put(InputAction.TILT_LEFT, new Input(KeyCode.Z));
-		inputBindings.put(InputAction.TILT_RESET, new Input(KeyCode.X));
+		inputBindings.put(InputAction.TILT_RIGHT, KeyCode.C);
+		inputBindings.put(InputAction.TILT_LEFT, KeyCode.Z);
+		inputBindings.put(InputAction.TILT_RESET, KeyCode.X);
 		
-		inputBindings.put(InputAction.GEN_POS, new Input(KeyCode.R));
-		inputBindings.put(InputAction.SHOW_WORLD, new Input(KeyCode.L));
+		inputBindings.put(InputAction.GEN_POS, KeyCode.R);
+		inputBindings.put(InputAction.SHOW_WORLD, KeyCode.L);
 		
-		inputBindings.put(InputAction.CLAMP, new Input(KeyCode.V));
+		inputBindings.put(InputAction.CLAMP, KeyCode.V);
 		
-		inputBindings.put(InputAction.SAVE, new Input(KeyCode.F));
+		inputBindings.put(InputAction.SAVE, KeyCode.F);
 		
-		inputBindings.put(InputAction.PAUSE, new Input(KeyCode.ESCAPE));
-		inputBindings.put(InputAction.INVENTORY, new Input(KeyCode.E));
+		inputBindings.put(InputAction.PAUSE, KeyCode.ESCAPE);
+		inputBindings.put(InputAction.INVENTORY, KeyCode.E);
 		
-		inputBindings.put(InputAction.SEND, new Input(KeyCode.ENTER));
-		inputBindings.put(InputAction.CHAT, new Input(KeyCode.T));
+		inputBindings.put(InputAction.SEND, KeyCode.ENTER);
+		inputBindings.put(InputAction.CHAT, KeyCode.T);
 		
-		inputBindings.put(InputAction.DEBUG, new Input(KeyCode.F3));
-		inputBindings.put(InputAction.REFRESH, new Input(KeyCode.F5));
-		inputBindings.put(InputAction.FULLSCREEN, new Input(KeyCode.F11));
+		inputBindings.put(InputAction.DEBUG, KeyCode.F3);
+		inputBindings.put(InputAction.REFRESH, KeyCode.F5);
+		inputBindings.put(InputAction.FULLSCREEN, KeyCode.F11);
 		
-		inputBindings.put(InputAction.PLAYER_LIST, new Input(KeyCode.TAB));
+		inputBindings.put(InputAction.PLAYER_LIST, KeyCode.TAB);
 		
-		inputBindings.put(InputAction.PLACE, new Input(MouseButton.PRIMARY));
-		inputBindings.put(InputAction.REMOVE, new Input(MouseButton.SECONDARY));
-		inputBindings.put(InputAction.EXTRACT, new Input(MouseButton.MIDDLE));
+		inputBindings.put(InputAction.PLACE, MouseButton.PRIMARY);
+		inputBindings.put(InputAction.REMOVE, MouseButton.SECONDARY);
+		inputBindings.put(InputAction.EXTRACT, MouseButton.MIDDLE);
 		
 	}
 	
@@ -346,6 +347,10 @@ public class Client extends Proxy implements IRenderable {
 	
 	public void setStage(Stage stage) {
 		this.stage = stage;
+	}
+	
+	public InputBindings getInputBindings() {
+		return inputBindings;
 	}
 	
 	public static final TimerTask getRenderingTask(IRenderable renderable) {

@@ -6,7 +6,6 @@ import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -29,6 +28,7 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.concurrent.Task;
@@ -58,8 +58,8 @@ public class GameState extends State {
 	@FXML private Messenger mess;
 	
 	@Override
-	public void init(StateManager sm) {
-		super.init(sm);
+	public void init(StateManager sm, Game game) {
+		super.init(sm, game);
 		
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
@@ -85,7 +85,7 @@ public class GameState extends State {
 		this.client = game.getProxies().get(Client.class);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(client, camera);
+		debugRender = new DebugRender(game, camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);
@@ -109,7 +109,7 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
+			InputAction action = client.getInputBindings().get(keyEvent.getCode());
 			
 			if(pauseScreen.isShowing() || inventory.isShowing() || mess.isShowing()) {
 				switch(action) {
@@ -184,7 +184,7 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
+			InputAction action = client.getInputBindings().get(keyEvent.getCode());
 			
 			switch(action) {
 			

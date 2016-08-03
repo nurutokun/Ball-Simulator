@@ -75,7 +75,7 @@ public class Server extends AServer {
 		
 		networkManager = new ServerNetworkManager(this);
 		
-		ALoader.addTask(new Task<Void>() {
+		Loader.addTask(new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
 				
@@ -93,7 +93,7 @@ public class Server extends AServer {
 				networkManager.init();// Allows for world to be initialized before clients can connect.
 				Logger.log(Logger.DEBUG, "Network manager initialized.");
 				
-				readyToUpdate = true;
+				update = true;
 				
 				return null;
 				
@@ -135,7 +135,7 @@ public class Server extends AServer {
 	@Override
 	public void stop() {
 		
-		readyToUpdate = false;
+		update = false;
 		
 		networkManager.stop();
 		

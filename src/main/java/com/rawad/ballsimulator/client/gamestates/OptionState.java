@@ -11,6 +11,7 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
@@ -34,8 +35,8 @@ public class OptionState extends State {
 	private SettingsFileParser settings;
 	
 	@Override
-	public void init(StateManager sm) {
-		super.init(sm);
+	public void init(StateManager sm, Game game) {
+		super.init(sm, game);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -73,7 +74,7 @@ public class OptionState extends State {
 		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				loader.loadSettings(settings, client.getSettingsFileName());
+				loader.loadSettings(settings, SettingsFileParser.SETTINGS_FILE_NAME);
 				ipHolder.setText(settings.getIp());
 				
 				return null;
@@ -90,7 +91,7 @@ public class OptionState extends State {
 		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				loader.saveSettings(settings, game.getProxies().get(Client.class).getSettingsFileName());
+				loader.saveSettings(settings, SettingsFileParser.SETTINGS_FILE_NAME);
 				
 				return null;
 				

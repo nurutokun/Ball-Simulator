@@ -4,29 +4,32 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
+import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.client.input.InputBindings;
+import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.gamehelpers.client.AClient;
-import com.rawad.gamehelpers.client.GameTextures;
-import com.rawad.gamehelpers.client.input.Mouse;
+import com.rawad.gamehelpers.client.renderengine.IRenderable;
 import com.rawad.gamehelpers.game.Game;
+import com.rawad.gamehelpers.game.Proxy;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.ResourceManager;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -39,11 +42,17 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-public class ServerGui extends AClient {
+public class ServerGui extends Proxy implements IRenderable {
 	
 	private Server server;
 	
 	private Stage stage;
+	
+	private InputBindings inputBindings;
+	
+	private Timer renderingTimer;
+	
+	private Task<Void> loadingTask;
 	
 	private WorldViewState worldViewState;
 	private Root worldViewStateRoot;
@@ -51,13 +60,9 @@ public class ServerGui extends AClient {
 	private FXMLLoader loader;
 	
 	@FXML private TabPane tabPane;
-	
 	@FXML private Tab worldViewTab;
-	
 	@FXML private Messenger console;
-	
 	@FXML private CheckMenuItem debugChanger;
-	
 	@FXML private PlayerList playerList;
 	
 	private PrintStream consolePrinter;
@@ -90,22 +95,32 @@ public class ServerGui extends AClient {
 	public void preInit(Game game) {
 		super.preInit(game);
 		
-		loaders.put(new Loader());
+		renderingTimer = new Timer("Rendering Thread");
+		
+		loadingTask = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				
+				initResources();
+				
+				initGameDependantGui();
+				
+				renderingTimer.scheduleAtFixedRate(Client.getRenderingTask(ServerGui.this), 0, 
+						TimeUnit.SECONDS.toMillis(1) / Client.TARGET_FPS);
+				
+				return null;
+			}
+		};
 		
 	}
 	
 	@Override
 	public void init() {
 		
-		Platform.runLater(() -> {
-			loadingTask.setOnSucceeded(e -> {
-				initGameDependantGui();
-			});
-		});
+		Loader.addTask(loadingTask);
 		
 	}
 	
-	@Override
 	public void initResources() {
 		
 		initInputBindings();
@@ -114,10 +129,8 @@ public class ServerGui extends AClient {
 		
 		worldViewState = new WorldViewState();
 		
-		worldViewState.init(sm);// MUST init(sm) BEFORE initGui().
+		worldViewState.init(null, game);// MUST init(sm, game) BEFORE initGui().
 		worldViewState.initGui();
-		
-		sm.setCurrentState(worldViewState);
 		
 	}
 	
@@ -131,7 +144,7 @@ public class ServerGui extends AClient {
 			
 		});
 		stage.setTitle(game.getName() + " " + Server.SIMPLE_NAME);
-		stage.getIcons().add(ResourceManager.getTexture(GameTextures.findTexture(GameTextures.GAME_ICON)));
+		stage.getIcons().add(GameTextures.findTexture(GameTextures.TEXTURE_GAME_ICON));
 		
 		debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
 		
@@ -161,13 +174,13 @@ public class ServerGui extends AClient {
 			
 		});
 		
-		readyToUpdate = true;
+		update = true;
 		
 		worldViewStateRoot = GuiRegister.getRoot(worldViewState);
 		
 		worldViewStateRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) inputBindings.get(new Input(keyEvent.getCode()));
+			InputAction action = inputBindings.get(keyEvent.getCode());
 			
 			switch(action) {
 			
@@ -200,12 +213,9 @@ public class ServerGui extends AClient {
 		
 		server.getServerSyncs().add(new GuiSync(playerList));
 		
-		readyToRender = true;
-		
 		
 	}
 	
-	@Override
 	protected void initGui() {
 		
 		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
@@ -276,7 +286,7 @@ public class ServerGui extends AClient {
 	}
 	
 	@Override
-	protected void render() {
+	public void render() {
 		
 		Platform.runLater(() -> {
 			synchronized(game.getWorld().getEntities()) {
@@ -289,10 +299,7 @@ public class ServerGui extends AClient {
 	@Override
 	public void stop() {
 		
-		readyToUpdate = false;
-		readyToRender = false;
-		
-		ResourceManager.releaseResources();
+		update = false;
 		
 		Platform.runLater(() -> stage.close());
 		
@@ -300,27 +307,26 @@ public class ServerGui extends AClient {
 	
 	private void initInputBindings() {
 		
-		inputBindings.setDefaultAction(InputAction.DEFAULT);
+		inputBindings = new InputBindings();
 		
-		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.UP));
-		inputBindings.put(InputAction.MOVE_UP, new Input(KeyCode.W));
-		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.DOWN));
-		inputBindings.put(InputAction.MOVE_DOWN, new Input(KeyCode.S));
-		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.RIGHT));
-		inputBindings.put(InputAction.MOVE_RIGHT, new Input(KeyCode.D));
-		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.LEFT));
-		inputBindings.put(InputAction.MOVE_LEFT, new Input(KeyCode.A));
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
+		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
+		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.S);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.RIGHT);
+		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.D);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.LEFT);
+		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.A);
 		
-		inputBindings.put(InputAction.CLAMP, new Input(KeyCode.C));
-		inputBindings.put(InputAction.SHOW_WORLD, new Input(KeyCode.L));
+		inputBindings.put(InputAction.CLAMP, KeyCode.C);
+		inputBindings.put(InputAction.SHOW_WORLD, KeyCode.L);
 		
-		inputBindings.put(InputAction.DEBUG, new Input(KeyCode.F3));
+		inputBindings.put(InputAction.DEBUG, KeyCode.F3);
 		
 	}
 	
-	@Override
-	public void onStateChange() {
-		throw new UnsupportedOperationException("Can't change state of StateManager as there should only be one State.");
+	public InputBindings getInputBindings() {
+		return inputBindings;
 	}
 	
 	public void setStage(Stage stage) {

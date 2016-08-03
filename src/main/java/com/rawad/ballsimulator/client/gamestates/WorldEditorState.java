@@ -1,11 +1,12 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
+import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.Root;
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
@@ -24,11 +25,10 @@ import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.GameTextures;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.client.input.Mouse;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.application.Platform;
@@ -66,8 +66,8 @@ public class WorldEditorState extends State {
 	@FXML private ComboBox<Double> heightSelector;
 	
 	@Override
-	public void init(StateManager sm) {
-		super.init(sm);
+	public void init(StateManager sm, Game game) {
+		super.init(sm, game);
 		
 		this.client = game.getProxies().get(Client.class);
 		
@@ -87,7 +87,7 @@ public class WorldEditorState extends State {
 		cameraView = camera.getComponent(UserViewComponent.class);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(client, camera);
+		debugRender = new DebugRender(game, camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);
@@ -145,7 +145,7 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
+			InputAction action = client.getInputBindings().get(keyEvent.getCode());
 			
 			switch(action) {
 			
@@ -178,7 +178,7 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 			
-			InputAction action = (InputAction) client.getInputBindings().get(new Input(mouseEvent.getButton()));
+			InputAction action = client.getInputBindings().get(mouseEvent.getButton());
 			
 			switch(action) {
 			

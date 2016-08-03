@@ -8,6 +8,7 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 
@@ -27,8 +28,8 @@ public class MenuState extends State {
 	@FXML private Button btnExit;
 	
 	@Override
-	public void init(StateManager sm) {
-		super.init(sm);
+	public void init(StateManager sm, Game game) {
+		super.init(sm, game);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		

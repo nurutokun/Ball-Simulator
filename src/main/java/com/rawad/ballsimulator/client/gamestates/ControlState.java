@@ -80,7 +80,7 @@ public class ControlState extends State {
 		
 		Label actionLabel = new Label(action.getName());
 		
-		ComboBox<AInput> inputsSelector = new ComboBox<AInput>();
+		ComboBox<String> inputsSelector = new ComboBox<String>();
 		
 		Button btnAddInput = new Button("Add");
 		Button btnRemoveInput = new Button("Remove");

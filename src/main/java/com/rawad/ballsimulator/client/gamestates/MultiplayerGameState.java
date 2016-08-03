@@ -9,7 +9,6 @@ import com.rawad.ballsimulator.client.gui.PauseScreen;
 import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -35,6 +34,7 @@ import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
@@ -81,8 +81,8 @@ public class MultiplayerGameState extends State {
 	private UserComponent playerUser;
 	
 	@Override
-	public void init(StateManager sm) {
-		super.init(sm);
+	public void init(StateManager sm, Game game) {
+		super.init(sm, game);
 		
 		this.client = game.getProxies().get(Client.class);
 		
@@ -112,7 +112,7 @@ public class MultiplayerGameState extends State {
 		cameraView.setPreferredScaleY(PREFERRED_SCALE);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(client, camera);
+		debugRender = new DebugRender(game, camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);
@@ -138,7 +138,7 @@ public class MultiplayerGameState extends State {
 			
 			if(!networkManager.isLoggedIn()) return;
 			
-			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
+			InputAction action = client.getInputBindings().get(keyEvent.getCode());
 			
 			if(pauseScreen.isVisible() || inventory.isVisible() || mess.isShowing() || playerListContainer.isVisible()) {
 				
@@ -197,7 +197,7 @@ public class MultiplayerGameState extends State {
 			
 			if(!networkManager.isLoggedIn()) return;
 			
-			InputAction action = (InputAction) client.getInputBindings().get(new Input(keyEvent.getCode()));
+			InputAction action = client.getInputBindings().get(keyEvent.getCode());
 			
 			switch(action) {
 			
@@ -260,7 +260,7 @@ public class MultiplayerGameState extends State {
 				
 				settingsParser = client.getFileParsers().get(SettingsFileParser.class);
 				
-				loader.loadSettings(settingsParser, client.getSettingsFileName());
+				loader.loadSettings(settingsParser, SettingsFileParser.SETTINGS_FILE_NAME);
 				
 				setMessage("Connecting To " + settingsParser.getIp() + " ...");
 				

@@ -1,11 +1,11 @@
 package com.rawad.ballsimulator.client.renderengine;
 
-import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
+import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
-import com.rawad.gamehelpers.client.input.Mouse;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.utils.Util;
@@ -16,14 +16,14 @@ import javafx.scene.transform.Affine;
 
 public class DebugRender extends LayerRender {
 	
-	private Client client;
+	private Game game;
 	
 	private TransformComponent cameraTransform;
 	private UserViewComponent userView;
 	
-	public DebugRender(Client client, Entity camera) {
+	public DebugRender(Game game, Entity camera) {
 		
-		this.client = client;
+		this.game = game;
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);
 		userView = camera.getComponent(UserViewComponent.class);
@@ -54,7 +54,7 @@ public class DebugRender extends LayerRender {
 				"CamScale: " + cameraTransform.getScaleX() + ", " + cameraTransform.getScaleY() + Util.NL +
 				"Cam (x,y): (" + cameraTransform.getX() + ", " + cameraTransform.getY() + ")" + Util.NL +
 				"Cam Pref (width,height): (" + prefWidth + ", " + prefHeight + ")" + Util.NL +
-				"Entities: " + client.getGame().getWorld().getEntities().size(), 0, 0);
+				"Entities: " + game.getWorld().getEntities().size(), 0, 0);
 		
 		g.setFill(Color.LAWNGREEN);
 		g.fillOval(screenWidth - 50, screenHeight - 50, 50, 50);

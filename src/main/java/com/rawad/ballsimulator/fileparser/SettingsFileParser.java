@@ -5,6 +5,8 @@ import com.rawad.gamehelpers.utils.Util;
 
 public class SettingsFileParser extends FileParser {
 	
+	public static final String SETTINGS_FILE_NAME = "settings";
+	
 	private static final String REGEX = "=";
 	
 	private static final String KEY_IP = "ip";

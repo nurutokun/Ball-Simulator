@@ -2,7 +2,6 @@ package com.rawad.ballsimulator.server.gui;
 
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Root;
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -16,6 +15,7 @@ import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.utils.ClassMap;
@@ -33,8 +33,8 @@ public class WorldViewState extends State {
 	private UserViewComponent cameraView;
 	
 	@Override
-	public void init(StateManager sm) {
-		super.init(sm);
+	public void init(StateManager sm, Game game) {
+		super.init(sm, game);
 		
 		this.world = game.getWorld();
 		
@@ -62,12 +62,12 @@ public class WorldViewState extends State {
 		WorldRender worldRender = new WorldRender(world, camera);
 		
 		masterRender.getRenders().put(worldRender);
-		masterRender.getRenders().put(new DebugRender(client, camera));
+		masterRender.getRenders().put(new DebugRender(game, camera));
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
 		
-		ClassMap<GameSystem> gameSystems = sm.getGame().getGameEngine().getGameSystems();
+		ClassMap<GameSystem> gameSystems = game.getGameEngine().getGameSystems();
 		
 		gameSystems.put(movementControlSystem);
 		gameSystems.put(cameraRoamingSystem);
@@ -82,8 +82,7 @@ public class WorldViewState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) game.getProxies().get(ServerGui.class).getInputBindings()
-					.get(new Input(keyEvent.getCode()));
+			InputAction action = game.getProxies().get(ServerGui.class).getInputBindings().get(keyEvent.getCode());
 			
 			switch(action) {
 			
