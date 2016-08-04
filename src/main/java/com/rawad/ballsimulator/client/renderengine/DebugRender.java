@@ -5,6 +5,7 @@ import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
+import com.rawad.gamehelpers.client.renderengine.RenderingTimer;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -17,13 +18,15 @@ import javafx.scene.transform.Affine;
 public class DebugRender extends LayerRender {
 	
 	private Game game;
+	private RenderingTimer renderingTimer;
 	
 	private TransformComponent cameraTransform;
 	private UserViewComponent userView;
 	
-	public DebugRender(Game game, Entity camera) {
+	public DebugRender(Game game, RenderingTimer renderingTimer, Entity camera) {
 		
 		this.game = game;
+		this.renderingTimer = renderingTimer;
 		
 		cameraTransform = camera.getComponent(TransformComponent.class);
 		userView = camera.getComponent(UserViewComponent.class);
@@ -47,7 +50,7 @@ public class DebugRender extends LayerRender {
 		
 		g.setFill(Color.WHITE);
 		g.fillText(
-				Util.NL + screenWidth + ", " + screenHeight + " | " /*+ client.getAverageFps()*/ + " |" 
+				Util.NL + screenWidth + ", " + screenHeight + " | " + renderingTimer.getAverageFps() + " |" 
 						+ " " + GameManager.getTimePassed() + Util.NL + 
 				Mouse.getX() + ", " + Mouse.getY() + Util.NL +
 				Runtime.getRuntime().freeMemory() / 1E9 + " G of free memory" + Util.NL +

@@ -2,9 +2,9 @@ package com.rawad.ballsimulator.entity;
 
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.entity.Component;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.beans.property.SimpleObjectProperty;
 

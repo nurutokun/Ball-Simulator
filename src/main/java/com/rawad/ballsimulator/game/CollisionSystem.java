@@ -3,11 +3,11 @@ package com.rawad.ballsimulator.game;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
-import com.rawad.gamehelpers.geometry.Point;
-import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.geometry.Point2d;
 import com.rawad.gamehelpers.utils.Util;
 
 public class CollisionSystem extends GameSystem {
@@ -36,8 +36,8 @@ public class CollisionSystem extends GameSystem {
 		
 		Rectangle hitbox = collisionComp.getHitbox();
 		
-		Point newPos = new Point(transformComp.getX(), transformComp.getY());
-		Point oldPos = new Point(newPos.getX() - movementComp.getVx(), newPos.getY() - movementComp.getVy());
+		Point2d newPos = new Point2d(transformComp.getX(), transformComp.getY());
+		Point2d oldPos = new Point2d(newPos.getX() - movementComp.getVx(), newPos.getY() - movementComp.getVy());
 		
 		transformComp.setY(oldPos.getY());// Undo y to get moved x.
 		

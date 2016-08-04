@@ -5,13 +5,13 @@ import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
 import com.rawad.gamehelpers.game.world.World;
-import com.rawad.gamehelpers.geometry.Point;
-import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.geometry.Point2d;
 
 public class EntityPlacementSystem extends GameSystem {
 	
@@ -88,7 +88,7 @@ public class EntityPlacementSystem extends GameSystem {
 		double mouseX = Mouse.isClamped()? Mouse.getClampX():Mouse.getX();
 		double mouseY = Mouse.isClamped()? Mouse.getClampY():Mouse.getY();
 		
-		Point mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, mouseX, mouseY);
+		Point2d mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, mouseX, mouseY);
 		
 		transformComp.setX(mouseInWorld.getX());
 		transformComp.setY(mouseInWorld.getY());
@@ -101,7 +101,7 @@ public class EntityPlacementSystem extends GameSystem {
 	
 	public static Entity getMousedOverEntity(World world, Entity currentPlaceable, TransformComponent cameraTransform) {
 		
-		Point mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, Mouse.getX(), Mouse.getY());
+		Point2d mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, Mouse.getX(), Mouse.getY());
 		
 		for(Entity e: world.getEntities()) {
 			

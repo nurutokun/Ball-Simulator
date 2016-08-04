@@ -62,7 +62,7 @@ public class WorldViewState extends State {
 		WorldRender worldRender = new WorldRender(world, camera);
 		
 		masterRender.getRenders().put(worldRender);
-		masterRender.getRenders().put(new DebugRender(game, camera));
+		masterRender.getRenders().put(new DebugRender(game, client.getRenderingTimer(), camera));
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
 		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());

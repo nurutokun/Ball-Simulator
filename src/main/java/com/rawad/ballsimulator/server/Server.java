@@ -15,6 +15,7 @@ import com.rawad.ballsimulator.server.sync.IServerSync;
 import com.rawad.ballsimulator.server.sync.component.IComponentSync;
 import com.rawad.ballsimulator.server.sync.component.MovementSync;
 import com.rawad.ballsimulator.server.sync.component.PingSync;
+import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
@@ -52,6 +53,7 @@ public class Server extends AServer {
 		
 		loaders.put(new Loader());
 		
+		fileParsers.put(new EntityFileParser());
 		fileParsers.put(new TerrainFileParser());
 		
 	}
@@ -74,6 +76,9 @@ public class Server extends AServer {
 		compSyncs.add(new PingSync());
 		
 		networkManager = new ServerNetworkManager(this);
+		
+		Loader.addTask(Loader.getEntityBlueprintLoadingTask(loaders.get(Loader.class), 
+				fileParsers.get(EntityFileParser.class)));
 		
 		Loader.addTask(new Task<Void>() {
 			@Override

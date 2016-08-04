@@ -3,9 +3,9 @@ package com.rawad.ballsimulator.game;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.utils.Util;
 
 public class CameraFollowSystem extends GameSystem {

@@ -4,10 +4,10 @@ import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Point;
-import com.rawad.gamehelpers.geometry.Rectangle;
+import com.rawad.gamehelpers.geometry.Point2d;
 
 public class EntitySelectionSystem extends GameSystem {
 	
@@ -36,7 +36,7 @@ public class EntitySelectionSystem extends GameSystem {
 		double mouseX = Mouse.isClamped()? Mouse.getClampX():Mouse.getX();
 		double mouseY = Mouse.isClamped()? Mouse.getClampY():Mouse.getY();
 		
-		Point mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, mouseX, mouseY);
+		Point2d mouseInWorld = EntitySelectionSystem.transformFromScreen(cameraTransform, mouseX, mouseY);
 		
 		Rectangle hitbox = CollisionSystem.getHitboxInTransform(transformComp, collisionComp.getHitbox());
 		
@@ -67,9 +67,9 @@ public class EntitySelectionSystem extends GameSystem {
 	 * @param y
 	 * @return
 	 */
-	public static Point transformFromScreen(TransformComponent transformComp, double x, double y) {
+	public static Point2d transformFromScreen(TransformComponent transformComp, double x, double y) {
 		
-		Point pointInWorld = new Point(x, y);
+		Point2d pointInWorld = new Point2d(x, y);
 		
 		pointInWorld.setX(x / transformComp.getScaleX() + transformComp.getX());
 		pointInWorld.setY(y /  transformComp.getScaleY() + transformComp.getY());

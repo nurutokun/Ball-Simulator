@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 
-import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.GameTextures;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
@@ -21,6 +18,7 @@ import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.gamehelpers.client.renderengine.IRenderable;
+import com.rawad.gamehelpers.client.renderengine.RenderingTimer;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.Proxy;
 import com.rawad.gamehelpers.game.entity.Entity;
@@ -44,13 +42,15 @@ import javafx.stage.Stage;
 
 public class ServerGui extends Proxy implements IRenderable {
 	
+	private static final int TARGET_FPS = 60;
+	
 	private Server server;
 	
 	private Stage stage;
 	
 	private InputBindings inputBindings;
 	
-	private Timer renderingTimer;
+	private RenderingTimer renderingTimer;
 	
 	private Task<Void> loadingTask;
 	
@@ -95,7 +95,7 @@ public class ServerGui extends Proxy implements IRenderable {
 	public void preInit(Game game) {
 		super.preInit(game);
 		
-		renderingTimer = new Timer("Rendering Thread");
+		renderingTimer = new RenderingTimer(this, TARGET_FPS);
 		
 		loadingTask = new Task<Void>() {
 			@Override
@@ -105,8 +105,7 @@ public class ServerGui extends Proxy implements IRenderable {
 				
 				initGameDependantGui();
 				
-				renderingTimer.scheduleAtFixedRate(Client.getRenderingTask(ServerGui.this), 0, 
-						TimeUnit.SECONDS.toMillis(1) / Client.TARGET_FPS);
+				renderingTimer.start();
 				
 				return null;
 			}
@@ -325,12 +324,16 @@ public class ServerGui extends Proxy implements IRenderable {
 		
 	}
 	
-	public InputBindings getInputBindings() {
-		return inputBindings;
-	}
-	
 	public void setStage(Stage stage) {
 		this.stage = stage;
+	}
+	
+	public RenderingTimer getRenderingTimer() {
+		return renderingTimer;
+	}
+	
+	public InputBindings getInputBindings() {
+		return inputBindings;
 	}
 	
 }

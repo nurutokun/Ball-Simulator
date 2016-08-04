@@ -10,10 +10,10 @@ import com.rawad.ballsimulator.entity.RollingComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Rectangle;
 
 public class EntityBlueprintFileMaker {
 	

@@ -9,31 +9,26 @@ import javafx.scene.input.MouseButton;
 
 public final class InputBindings {
 	
-	private final HashMap<KeyCode, InputAction> keyBindings = new HashMap<KeyCode, InputAction>();
-	private final HashMap<MouseButton, InputAction> mouseBindings = new HashMap<MouseButton, InputAction>();
+	private final HashMap<Input, InputAction> bindings = new HashMap<Input, InputAction>();
 	
 	public InputAction put(InputAction action, KeyCode input) {
-		return keyBindings.put(input, action);
+		return bindings.put(new Input(input), action);
 	}
 	
 	public InputAction get(KeyCode input) {
-		return Util.getNullSafe(keyBindings.get(input), InputAction.DEFAULT);
-	}
-	
-	public HashMap<KeyCode, InputAction> getKeyBindings() {
-		return keyBindings;
+		return Util.getNullSafe(bindings.get(new Input(input)), InputAction.DEFAULT);
 	}
 	
 	public InputAction put(InputAction action, MouseButton input) {
-		return mouseBindings.put(input, action);
+		return bindings.put(new Input(input), action);
 	}
 	
 	public InputAction get(MouseButton input) {
-		return Util.getNullSafe(mouseBindings.get(input), InputAction.DEFAULT);
+		return Util.getNullSafe(bindings.get(new Input(input)), InputAction.DEFAULT);
 	}
 	
-	public HashMap<MouseButton, InputAction> getMouseBindings() {
-		return mouseBindings;
+	public HashMap<Input, InputAction> getBindings() {
+		return bindings;
 	}
 	
 }

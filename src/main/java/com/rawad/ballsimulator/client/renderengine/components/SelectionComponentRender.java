@@ -2,8 +2,8 @@ package com.rawad.ballsimulator.client.renderengine.components;
 
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Rectangle;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

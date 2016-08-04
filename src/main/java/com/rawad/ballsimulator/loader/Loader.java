@@ -129,8 +129,11 @@ public class Loader extends ALoader {
 		return clazz.getResource(styleSheetName + EXTENSION_STYLESHEET_FILE).toExternalForm();
 	}
 	
-	public static Task<Void> getEntityBlueprintLoadingTask(Loader loader, EntityFileParser parser,
-			String... contextPaths) {
+	public static Task<Void> getEntityBlueprintLoadingTask(Loader loader, EntityFileParser parser) {
+		
+		final String[] contextPaths = {
+				EEntity.class.getPackage().getName(),
+		};
 		
 		final HashMap<Object, String> entityBindings = new HashMap<Object, String>();
 		

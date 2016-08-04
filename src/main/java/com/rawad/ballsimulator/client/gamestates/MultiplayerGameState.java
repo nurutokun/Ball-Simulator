@@ -25,6 +25,7 @@ import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
+import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.listeners.MovementControlListener;
@@ -36,7 +37,6 @@ import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.geometry.Rectangle;
 import com.rawad.gamehelpers.log.Logger;
 
 import javafx.application.Platform;
@@ -112,7 +112,7 @@ public class MultiplayerGameState extends State {
 		cameraView.setPreferredScaleY(PREFERRED_SCALE);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(game, camera);
+		debugRender = new DebugRender(game, client.getRenderingTimer(), camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);

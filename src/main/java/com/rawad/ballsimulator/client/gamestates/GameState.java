@@ -85,7 +85,7 @@ public class GameState extends State {
 		this.client = game.getProxies().get(Client.class);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(game, camera);
+		debugRender = new DebugRender(game, client.getRenderingTimer(), camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);

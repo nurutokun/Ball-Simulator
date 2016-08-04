@@ -87,7 +87,7 @@ public class WorldEditorState extends State {
 		cameraView = camera.getComponent(UserViewComponent.class);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(game, camera);
+		debugRender = new DebugRender(game, client.getRenderingTimer(), camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);

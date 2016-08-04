@@ -1,9 +1,5 @@
 package com.rawad.ballsimulator.client;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
 import com.rawad.ballsimulator.client.gamestates.ControlState;
 import com.rawad.ballsimulator.client.gamestates.GameState;
 import com.rawad.ballsimulator.client.gamestates.LoadingState;
@@ -18,13 +14,13 @@ import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.ballsimulator.client.input.Mouse;
-import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.renderengine.IRenderable;
+import com.rawad.gamehelpers.client.renderengine.RenderingTimer;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.Proxy;
@@ -45,9 +41,9 @@ import javafx.stage.Stage;
 public class Client extends Proxy implements IRenderable {
 	
 	// narutoget.io and watchnaruto.tv
-	// 467
+	// 468
 	
-	public static final int TARGET_FPS = 60;
+	private static final int TARGET_FPS = 60;
 	
 	private Stage stage;
 	
@@ -60,7 +56,7 @@ public class Client extends Proxy implements IRenderable {
 	private Task<Void> entityBlueprintLoadingTask;
 	private Task<Void> loadingTask;
 	
-	private Timer renderingTimer;
+	private RenderingTimer renderingTimer;
 	
 	private SimpleStringProperty gameTitle;
 	
@@ -77,12 +73,12 @@ public class Client extends Proxy implements IRenderable {
 		
 		EntityFileParser entityBlueprintParser = new EntityFileParser();
 		
+		fileParsers.put(entityBlueprintParser);
 		fileParsers.put(new TerrainFileParser());
 		fileParsers.put(new SettingsFileParser());
 //		fileParsers.put(new ControlsFileParser(inputBindings));
 		
-		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser, 
-				EEntity.class.getPackage().getName());
+		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser);
 		
 		loadingTask = new Task<Void>() {
 			@Override
@@ -112,8 +108,7 @@ public class Client extends Proxy implements IRenderable {
 				
 				GameTextures.loadTextures(loaders.get(Loader.class));
 				
-				renderingTimer.scheduleAtFixedRate(getRenderingTask(Client.this), 0, TimeUnit.SECONDS.toMillis(1) / 
-						TARGET_FPS);
+				renderingTimer.start();
 				
 				message = "Done!";
 				
@@ -129,7 +124,7 @@ public class Client extends Proxy implements IRenderable {
 			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
 		});
 		
-		renderingTimer = new Timer("Rendering Thread");
+		renderingTimer = new RenderingTimer(this, TARGET_FPS);
 		
 	}
 	
@@ -237,13 +232,9 @@ public class Client extends Proxy implements IRenderable {
 		inputBindings = new InputBindings();
 		
 		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
-		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);
 		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
-		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.S);
 		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.RIGHT);
-		inputBindings.put(InputAction.MOVE_RIGHT, KeyCode.D);
 		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.LEFT);
-		inputBindings.put(InputAction.MOVE_LEFT, KeyCode.A);
 		
 		inputBindings.put(InputAction.TILT_RIGHT, KeyCode.C);
 		inputBindings.put(InputAction.TILT_LEFT, KeyCode.Z);
@@ -301,7 +292,7 @@ public class Client extends Proxy implements IRenderable {
 		
 		update = false;
 		
-		renderingTimer.cancel();
+		renderingTimer.stop();
 		
 		Transitions.parallel(scene.getRoot(), e -> {
 			
@@ -349,50 +340,12 @@ public class Client extends Proxy implements IRenderable {
 		this.stage = stage;
 	}
 	
-	public InputBindings getInputBindings() {
-		return inputBindings;
+	public RenderingTimer getRenderingTimer() {
+		return renderingTimer;
 	}
 	
-	public static final TimerTask getRenderingTask(IRenderable renderable) {
-		return new TimerTask() {
-			
-			/** Frames to wait before calculating {@code averageFps}. */
-			private static final int FPS_SAMPLE_RATE = 30;
-			
-			private long totalTime = 0;
-			
-			private long currentTime = System.nanoTime();
-			private long prevTime = currentTime;
-			
-			private int frames;
-			private int targetFps = 60;
-			private int averageFps;
-			
-			@Override
-			public void run() {
-				
-				currentTime = System.nanoTime();
-				
-				long deltaTime = currentTime - prevTime;
-				
-				totalTime += (deltaTime <= 0? 1:deltaTime);// timePassed in ().
-				
-				prevTime = currentTime;
-				
-				if(frames >= FPS_SAMPLE_RATE && totalTime > 0) {
-					averageFps = (int) (frames * TimeUnit.SECONDS.toNanos(1) / totalTime);
-					
-					frames = 0;
-					totalTime = 0;
-					
-				}
-				
-				renderable.render();
-				frames++;
-				
-			}
-			
-		};
+	public InputBindings getInputBindings() {
+		return inputBindings;
 	}
 	
 }
