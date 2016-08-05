@@ -4,11 +4,15 @@ import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
+import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.input.AInput;
-import com.rawad.gamehelpers.client.input.InputBindings;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -18,21 +22,28 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.util.Callback;
 
 public class ControlState extends State {
 	
 	/** Represents the number of nodes created by the {@link #createControlsCell(InputBindings, InputAction)} method. */
 	private static final int COLS = 4;
 	
-	@FXML private GridPane controlsDisplay;
+	@FXML private TableView<InputAction> controlsTable;
+	
+	@FXML private TableColumn<InputAction, String> columnAction;
+	@FXML private TableColumn<InputAction, Input> columnInput;
 	
 	@FXML private Button btnOptions;
 	@FXML private Button btnMainMenu;
+	
+	private InputBindings inputBindings;
 	
 	@Override
 	public void initGui() {
@@ -40,26 +51,54 @@ public class ControlState extends State {
 		GuiRegister.loadGui(this);
 		
 		Client client = game.getProxies().get(Client.class);
-		InputBindings inputBindings = client.getInputBindings();
+		inputBindings = client.getInputBindings();
 		
-		for(int i = 0; i < COLS; i++) {
-			
-			ColumnConstraints col = new ColumnConstraints();
-			col.setPercentWidth(i / COLS * 100d);
-			
-			controlsDisplay.getColumnConstraints().add(col);
-			
-		}
+		columnAction.setCellValueFactory(new Callback<CellDataFeatures<InputAction, String>, ObservableValue<String>>() {
+			@Override
+			public ObservableValue<String> call(CellDataFeatures<InputAction, String> param) {
+				return new ReadOnlyStringWrapper(param.getValue().getName());
+			}
+		});
 		
-		int rowIndex = 0;
+		columnInput.setCellValueFactory(new Callback<CellDataFeatures<InputAction, Input>, ObservableValue<Input>>() {
+			@Override
+			public ObservableValue<Input> call(CellDataFeatures<InputAction, Input> param) {
+				inputBindings.getBindings().get(param.getValue());
+				return new ReadOnlyObjectWrapper<Input>(inputBindings.getBindings().get(param.getValue()));
+			}
+		});
+		
+		columnInput.setCellFactory(new Callback<TableColumn<InputAction, Input>, TableCell<InputAction, Input>>() {
+			@Override
+			public TableCell<InputAction, Input> call(TableColumn<InputAction, Input> param) {
+				return new TableCell<InputAction, Input>() {
+					
+					@Override
+					protected void updateItem(Input item, boolean empty) {
+						super.updateItem(item, empty);
+						
+						if(empty || item == null) {
+							setText(null);
+							setGraphic(null);
+						} else {
+							
+							final Button button = new Button(item.getName());
+							button.setOnAction(ControlState.createInputChangeHandler(inputBindings, inputBindings
+									.getBindings().get(item)));
+							getChildren().add(button);
+							
+						}
+						
+					}
+					
+				};
+			}
+		});
 		
 		for(InputAction action: InputAction.values()) {
 			if(action == InputAction.DEFAULT) continue;
 			
-			RowConstraints row = new RowConstraints();
-			controlsDisplay.getRowConstraints().add(row);
-			
-			createControlsCell(inputBindings, action, rowIndex++);
+			controlsTable.getItems().add(action);
 			
 		}
 		
@@ -68,25 +107,60 @@ public class ControlState extends State {
 		
 	}
 	
-	/**
-	 * Returns the equivalent of a row in a {@code TableView}.
-	 * 
-	 * @param inputBindings
-	 * @param action
-	 * @param row
-	 * 
-	 */
+	private static final EventHandler<ActionEvent> createInputChangeHandler(InputBindings inputBindings, 
+			InputAction action) {
+		return e -> {
+			
+			ButtonType cancelType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+			
+			Alert inputAlert = new Alert(AlertType.NONE, "Press Any button", cancelType);
+			inputAlert.setTitle("Input Dialog");
+			
+			DialogPane alertDialog = inputAlert.getDialogPane();
+			
+			Button cancelButton = (Button) alertDialog.lookupButton(cancelType);
+			cancelButton.setFocusTraversable(false);
+			cancelButton.setCancelButton(true);
+			
+			alertDialog.getChildren().remove(cancelButton);
+			
+			alertDialog.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+				
+				inputBindings.put(action, keyEvent.getCode());
+				
+				cancelButton.fire();
+				
+				keyEvent.consume();
+				
+			});
+			
+			alertDialog.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
+				
+				inputBindings.put(action, mouseEvent.getButton());
+				
+				cancelButton.fire();
+				
+				mouseEvent.consume();
+				
+			});
+			
+			alertDialog.requestFocus();
+			inputAlert.showAndWait();
+			
+		};
+	}
+	/*
 	private void createControlsCell(InputBindings inputBindings, InputAction action, int row) {
 		
 		Label actionLabel = new Label(action.getName());
 		
-		ComboBox<String> inputsSelector = new ComboBox<String>();
+		ComboBox<String> inputButton = new ComboBox<String>();
 		
 		Button btnAddInput = new Button("Add");
 		Button btnRemoveInput = new Button("Remove");
 		
-		inputsSelector.setItems(inputBindings.getBindingsMap().get(action));
-		inputsSelector.getSelectionModel().select(0);
+		inputButton.setItems(inputBindings.getBindingsMap().get(action));
+		inputButton.getSelectionModel().select(0);
 		
 		btnAddInput.setOnAction(e -> {
 			
@@ -108,7 +182,7 @@ public class ControlState extends State {
 				Input input = new Input(keyEvent.getCode());
 				
 				inputBindings.put(action, input);
-				inputsSelector.getSelectionModel().select(input);
+				inputButton.getSelectionModel().select(input);
 				
 				cancelButton.fire();
 				
@@ -121,7 +195,7 @@ public class ControlState extends State {
 				Input input = new Input(mouseEvent.getButton());
 				
 				inputBindings.put(action, input);
-				inputsSelector.getSelectionModel().select(input);
+				inputButton.getSelectionModel().select(input);
 				
 				cancelButton.fire();
 				
@@ -138,10 +212,10 @@ public class ControlState extends State {
 			
 			try {
 				
-				AInput inputToRemove = inputsSelector.getSelectionModel().getSelectedItem();
+				AInput inputToRemove = inputButton.getSelectionModel().getSelectedItem();
 				
 				if(inputBindings.getBindingsMap().remove(action, inputToRemove)) {
-					inputsSelector.getSelectionModel().selectFirst();
+					inputButton.getSelectionModel().selectFirst();
 				}
 				
 			} catch(Exception ex) {
@@ -150,11 +224,9 @@ public class ControlState extends State {
 			
 		});
 		
-		controlsDisplay.add(actionLabel, 0, row);
-		controlsDisplay.add(inputsSelector, 1, row);
-		controlsDisplay.add(btnAddInput, 2, row);
-		controlsDisplay.add(btnRemoveInput, 3, row);
+		controlsTable.add(actionLabel, 0, row);
+		controlsTable.add(inputButton, 1, row);
 		
-	}
+	}*/
 	
 }

@@ -1,8 +1,7 @@
 package com.rawad.ballsimulator.client.input;
 
 import java.util.HashMap;
-
-import com.rawad.gamehelpers.utils.Util;
+import java.util.Map.Entry;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -16,7 +15,7 @@ public final class InputBindings {
 	}
 	
 	public InputAction get(KeyCode input) {
-		return Util.getNullSafe(bindings.get(new Input(input)), InputAction.DEFAULT);
+		return bindings.getOrDefault(new Input(input), InputAction.DEFAULT);
 	}
 	
 	public InputAction put(InputAction action, MouseButton input) {
@@ -24,7 +23,21 @@ public final class InputBindings {
 	}
 	
 	public InputAction get(MouseButton input) {
-		return Util.getNullSafe(bindings.get(new Input(input)), InputAction.DEFAULT);
+		return bindings.getOrDefault(new Input(input), InputAction.DEFAULT);
+	}
+	
+	/**
+	 * Returns the {@code Input} that represents the key to the given {@code action} only if there is a 1:1 correspondance.
+	 * 
+	 * @param action
+	 * @return
+	 */
+	public Input get(InputAction action) {// TODO: Implement this.
+		
+		for(Entry<Input, InputAction> entry: bindings.entrySet()) {
+			
+		}
+		
 	}
 	
 	public HashMap<Input, InputAction> getBindings() {

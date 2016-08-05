@@ -1,15 +1,12 @@
 package com.rawad.ballsimulator.fileparser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.utils.Util;
-
-import javafx.scene.input.MouseButton;
 
 public class ControlsFileParser extends FileParser {
 	
@@ -34,6 +31,9 @@ public class ControlsFileParser extends FileParser {
 		String[] tokens = line.split(REGEX);
 		
 		InputAction action = InputAction.getByName(tokens[INDEX_ACTION].trim());
+		Input input = Input.getByName(tokens[INDEX_INPUT].trim());
+		
+		inputBindings.getBindings().put(input, action);
 		
 	}
 	

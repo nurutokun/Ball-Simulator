@@ -1,5 +1,7 @@
 package com.rawad.ballsimulator.client.input;
 
+import com.rawad.gamehelpers.log.Logger;
+
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 
@@ -57,6 +59,21 @@ public final class Input {
 		}
 		
 		return false;
+		
+	}
+	
+	public static Input getByName(String inputName) {
+		
+		KeyCode key = KeyCode.getKeyCode(inputName);
+			
+		MouseButton button = MouseButton.valueOf(inputName);
+		
+		if(key != null) return new Input(key);
+		if(button != null) return new Input(button);
+		
+		Logger.log(Logger.WARNING, "Input name \"" + inputName + "\" does not match any input.");
+		
+		return null;
 		
 	}
 	
