@@ -69,7 +69,10 @@ public class WorldEditorState extends State {
 	public void init(StateManager sm, Game game) {
 		super.init(sm, game);
 		
-		this.client = game.getProxies().get(Client.class);
+		client = game.getProxies().get(Client.class);
+		
+		loader = client.getLoaders().get(Loader.class);
+		terrainFileParser = client.getFileParsers().get(TerrainFileParser.class);
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -259,9 +262,6 @@ public class WorldEditorState extends State {
 		
 		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
-				
-				loader = client.getLoaders().get(Loader.class);
-				terrainFileParser = client.getFileParsers().get(TerrainFileParser.class);
 				
 				loader.loadTerrain(terrainFileParser, world, "terrain");
 				

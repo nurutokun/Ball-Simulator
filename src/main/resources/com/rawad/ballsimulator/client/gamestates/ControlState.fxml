@@ -12,7 +12,7 @@
 	<BorderPane>
 		
 		<center>
-			<TableView fx:id="controlsDisplay">
+			<TableView fx:id="controlsTable">
 				
 				<columns>
 					<TableColumn fx:id="columnAction" text="Action" />

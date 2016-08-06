@@ -32,12 +32,12 @@ public class PlayerInventory extends GridPane implements IHideable {
 		this.rows = rows;
 		this.columns = columns;
 		
-		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		FXMLLoader loader = new FXMLLoader();
 		loader.setController(this);
 		loader.setRoot(this);
 		
 		try {
-			loader.load();
+			loader.load(Loader.streamLayoutFile(getClass()));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}

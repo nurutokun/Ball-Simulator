@@ -40,6 +40,12 @@ public class OptionState extends State {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
+		Client client = game.getProxies().get(Client.class);
+		
+		settings = client.getFileParsers().get(SettingsFileParser.class);
+		
+		loader = client.getLoaders().get(Loader.class);
+		
 		masterRender.getRenders().put(new BackgroundRender(camera));
 		
 	}
@@ -64,12 +70,6 @@ public class OptionState extends State {
 		super.onActivate();
 		
 		world.addEntity(camera);
-		
-		Client client = game.getProxies().get(Client.class);
-		
-		settings = client.getFileParsers().get(SettingsFileParser.class);
-		
-		loader = client.getLoaders().get(Loader.class);
 		
 		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {

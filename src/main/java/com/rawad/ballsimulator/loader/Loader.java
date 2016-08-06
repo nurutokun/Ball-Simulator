@@ -1,13 +1,12 @@
 package com.rawad.ballsimulator.loader;
 
 import java.io.BufferedReader;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
-import com.rawad.ballsimulator.game.BallSimulator;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.entity.Blueprint;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
@@ -33,15 +32,17 @@ public class Loader extends ALoader {
 	private static final String EXTENSION_STYLESHEET_FILE = "css";
 	private static final String EXTENSION_ENTITY_BLUEPRINT_FILE = "xml";
 	
+	private static final String PROTOCOL_FILE = "file:";
+	
 	public Loader() {
-		super(BallSimulator.NAME, FOLDER_RES);
+		super(FOLDER_RES);// Everything to be loaded is in FOLDER_RES.
 	}
 	
 	public Image loadTexture(String subTexturesFolder, String textureName) {
 		
-		String path = getFilePathFromParts(EXTENSION_TEXTURE_FILE, FOLDER_TEXTURE, FOLDER_ENTITY, textureName);
+		String fullPath = getFilePathFromParts(EXTENSION_TEXTURE_FILE, FOLDER_TEXTURE, subTexturesFolder, textureName);
 		
-		return new Image(path);
+		return new Image(PROTOCOL_FILE + fullPath);
 		
 	}
 	
@@ -103,30 +104,16 @@ public class Loader extends ALoader {
 		return getFilePathFromParts(EXTENSION_ENTITY_BLUEPRINT_FILE, FOLDER_ENTITY, entityName);
 	}
 	
-	/**
-	 * Assumes the fxml file is in the same package as the the {@code clazz} given. <b>Note:</b> can be in completely 
-	 * different src file.
-	 * 
-	 * @param clazz
-	 * @param fileName
-	 * @return
-	 */
-	public static URL getFxmlLocation(Class<? extends Object> clazz, String fileName) {
-		return clazz.getResource(fileName + EXTENSION_LAYOUT_FILE);
+	public static final InputStream streamLayoutFile(Class<? extends Object> clazz, String layoutName) {
+		return clazz.getResourceAsStream(layoutName + ALoader.REGEX_EXTENSION + EXTENSION_LAYOUT_FILE);
 	}
 	
-	/**
-	 * Assumes the name of the fxml file is that of the given {@code clazz}.
-	 * 
-	 * @param clazz
-	 * @return
-	 */
-	public static URL getFxmlLocation(Class<? extends Object> clazz) {
-		return Loader.getFxmlLocation(clazz, clazz.getSimpleName());
+	public static final InputStream streamLayoutFile(Class<? extends Object> clazz) {
+		return streamLayoutFile(clazz, clazz.getSimpleName());
 	}
 	
 	public static String getStyleSheetLocation(Class<? extends Object> clazz, String styleSheetName) {
-		return clazz.getResource(styleSheetName + EXTENSION_STYLESHEET_FILE).toExternalForm();
+		return clazz.getResource(styleSheetName + ALoader.REGEX_EXTENSION + EXTENSION_STYLESHEET_FILE).toExternalForm();
 	}
 	
 	public static Task<Void> getEntityBlueprintLoadingTask(Loader loader, EntityFileParser parser) {

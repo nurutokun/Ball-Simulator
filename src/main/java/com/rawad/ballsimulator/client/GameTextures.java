@@ -51,8 +51,6 @@ public final class GameTextures {
 	}
 	
 	public static void deleteTextures() {
-		
-		
 		for(Object textureKey: textures.keySet()) {
 			textures.put(textureKey, null);
 		}

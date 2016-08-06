@@ -26,12 +26,12 @@ public class ItemSlot extends StackPane {
 		
 		this.count = count;
 		
-		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		FXMLLoader loader = new FXMLLoader();
 		loader.setController(this);
 		loader.setRoot(this);
 		
 		try {
-			loader.load();
+			loader.load(Loader.streamLayoutFile(getClass()));
 		} catch(IOException ex) {
 			ex.printStackTrace();
 		}

@@ -71,6 +71,8 @@ public class Client extends Proxy implements IRenderable {
 		Loader loader = new Loader();
 		loaders.put(loader);
 		
+		GameTextures.loadGameIcon(loader);
+		
 		EntityFileParser entityBlueprintParser = new EntityFileParser();
 		
 		fileParsers.put(entityBlueprintParser);
@@ -79,6 +81,8 @@ public class Client extends Proxy implements IRenderable {
 //		fileParsers.put(new ControlsFileParser(inputBindings));
 		
 		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser);
+		
+		sm = new StateManager(game);
 		
 		loadingTask = new Task<Void>() {
 			@Override
@@ -93,10 +97,6 @@ public class Client extends Proxy implements IRenderable {
 					
 					initResources();
 					
-					for(com.rawad.gamehelpers.client.gamestates.State state: sm.getStates().values()) {
-						state.initGui();
-					}
-				
 				} catch(Exception ex) {
 					ex.printStackTrace();
 				}
@@ -211,6 +211,7 @@ public class Client extends Proxy implements IRenderable {
 		
 		LoadingState loadingState = new LoadingState(loadingTask);
 		
+		loadingState.init(sm, game);
 		loadingState.initGui();
 		
 		sm.setCurrentState(loadingState);
@@ -224,6 +225,8 @@ public class Client extends Proxy implements IRenderable {
 			update = true;
 			
 		});
+		
+		sm.initGui();
 		
 	}
 	

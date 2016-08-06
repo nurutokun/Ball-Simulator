@@ -1,5 +1,6 @@
 package com.rawad.ballsimulator.client.input;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -32,11 +33,17 @@ public final class InputBindings {
 	 * @param action
 	 * @return
 	 */
-	public Input get(InputAction action) {// TODO: Implement this.
+	public Input get(InputAction action) {
+		
+		ArrayList<Input> matchingKeys = new ArrayList<Input>();
 		
 		for(Entry<Input, InputAction> entry: bindings.entrySet()) {
-			
+			if(action.equals(entry.getValue())) matchingKeys.add(entry.getKey());
 		}
+		
+		if(matchingKeys.isEmpty() || matchingKeys.size() > 1) return null;
+		
+		return matchingKeys.get(0);
 		
 	}
 	

@@ -19,9 +19,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
@@ -31,9 +29,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
 public class ControlState extends State {
-	
-	/** Represents the number of nodes created by the {@link #createControlsCell(InputBindings, InputAction)} method. */
-	private static final int COLS = 4;
 	
 	@FXML private TableView<InputAction> controlsTable;
 	
@@ -51,6 +46,7 @@ public class ControlState extends State {
 		GuiRegister.loadGui(this);
 		
 		Client client = game.getProxies().get(Client.class);
+		
 		inputBindings = client.getInputBindings();
 		
 		columnAction.setCellValueFactory(new Callback<CellDataFeatures<InputAction, String>, ObservableValue<String>>() {
@@ -63,8 +59,7 @@ public class ControlState extends State {
 		columnInput.setCellValueFactory(new Callback<CellDataFeatures<InputAction, Input>, ObservableValue<Input>>() {
 			@Override
 			public ObservableValue<Input> call(CellDataFeatures<InputAction, Input> param) {
-				inputBindings.getBindings().get(param.getValue());
-				return new ReadOnlyObjectWrapper<Input>(inputBindings.getBindings().get(param.getValue()));
+				return new ReadOnlyObjectWrapper<Input>(inputBindings.get(param.getValue()));
 			}
 		});
 		

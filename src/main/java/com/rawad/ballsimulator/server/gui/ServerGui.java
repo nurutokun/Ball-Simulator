@@ -124,7 +124,7 @@ public class ServerGui extends Proxy implements IRenderable {
 		
 		initInputBindings();
 		
-		GameTextures.loadTextures(loaders.get(Loader.class));
+		GameTextures.loadTextures(game.getProxies().get(Server.class).getLoaders().get(Loader.class));
 		
 		worldViewState = new WorldViewState();
 		
@@ -217,11 +217,11 @@ public class ServerGui extends Proxy implements IRenderable {
 	
 	protected void initGui() {
 		
-		loader = new FXMLLoader(Loader.getFxmlLocation(getClass()));
+		loader = new FXMLLoader();
 		loader.setController(this);
 		
 		try {
-			loader.load();
+			loader.load(Loader.streamLayoutFile(getClass()));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}

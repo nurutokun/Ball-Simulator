@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
 /**
- * Holds bindings of {@code State} objects to {@code Parent} root objects which is what the {@code Client} needs to use
+ * Holds bindings of {@code State} objects to {@code Root} root objects which is what the {@code Client} needs to use
  * when changing between states.
  * 
  * @author Rawad
@@ -26,20 +26,20 @@ public final class GuiRegister {
 	
 	private GuiRegister() {}
 	
-	public static final Root loadGui(State state, String styleSheet) {
+	public static Root loadGui(State state, String styleSheet) {
 		
-		FXMLLoader loader = new FXMLLoader(Loader.getFxmlLocation(state.getClass()));
-		loader.setController(state);
+		FXMLLoader fxmlLoader = new FXMLLoader();
+		fxmlLoader.setController(state);
 		
 		StackPane guiContainer = new StackPane();
-		loader.setRoot(guiContainer);
+		fxmlLoader.setRoot(guiContainer);
 		
 		Root root = new Root(guiContainer, styleSheet);
 		root.getStylesheets().add(Loader.getStyleSheetLocation(state.getClass(), styleSheet));
 		
 		try {
 			
-			loader.load();
+			fxmlLoader.load(Loader.streamLayoutFile(state.getClass()));
 			
 		} catch(IOException ex) {
 			ex.printStackTrace();
@@ -54,11 +54,11 @@ public final class GuiRegister {
 		
 	}
 	
-	public static final Root loadGui(State state) {
+	public static Root loadGui(State state) {
 		return loadGui(state, DEFAULT_STYLESHEET);
 	}
 	
-	public static final Root getRoot(State state) {
+	public static Root getRoot(State state) {
 		Root root = roots.get(state);
 		
 		if(root == null) {
