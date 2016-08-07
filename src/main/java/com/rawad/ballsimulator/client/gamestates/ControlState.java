@@ -2,7 +2,6 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.gamehelpers.client.gamestates.State;
@@ -33,7 +32,7 @@ public class ControlState extends State {
 	@FXML private TableView<InputAction> controlsTable;
 	
 	@FXML private TableColumn<InputAction, String> columnAction;
-	@FXML private TableColumn<InputAction, Input> columnInput;
+	@FXML private TableColumn<InputAction, InputAction> columnInput;
 	
 	@FXML private Button btnOptions;
 	@FXML private Button btnMainMenu;
@@ -56,32 +55,30 @@ public class ControlState extends State {
 			}
 		});
 		
-		columnInput.setCellValueFactory(new Callback<CellDataFeatures<InputAction, Input>, ObservableValue<Input>>() {
+		columnInput.setCellValueFactory(new Callback<CellDataFeatures<InputAction, InputAction>, 
+				ObservableValue<InputAction>>() {
 			@Override
-			public ObservableValue<Input> call(CellDataFeatures<InputAction, Input> param) {
-				return new ReadOnlyObjectWrapper<Input>(inputBindings.get(param.getValue()));
+			public ObservableValue<InputAction> call(CellDataFeatures<InputAction, InputAction> param) {
+				return new ReadOnlyObjectWrapper<InputAction>(param.getValue());
 			}
 		});
 		
-		columnInput.setCellFactory(new Callback<TableColumn<InputAction, Input>, TableCell<InputAction, Input>>() {
+		columnInput.setCellFactory(new Callback<TableColumn<InputAction, InputAction>, TableCell<InputAction, InputAction>>() {
 			@Override
-			public TableCell<InputAction, Input> call(TableColumn<InputAction, Input> param) {
-				return new TableCell<InputAction, Input>() {
+			public TableCell<InputAction, InputAction> call(TableColumn<InputAction, InputAction> param) {
+				return new TableCell<InputAction, InputAction>() {
 					
 					@Override
-					protected void updateItem(Input item, boolean empty) {
+					protected void updateItem(InputAction item, boolean empty) {
 						super.updateItem(item, empty);
 						
 						if(empty || item == null) {
 							setText(null);
 							setGraphic(null);
 						} else {
-							
-							final Button button = new Button(item.getName());
-							button.setOnAction(ControlState.createInputChangeHandler(inputBindings, inputBindings
-									.getBindings().get(item)));
-							getChildren().add(button);
-							
+							final Button button = new Button(inputBindings.get(item).getName());
+							button.setOnAction(ControlState.createInputChangeHandler(inputBindings, item));
+							setGraphic(button);
 						}
 						
 					}

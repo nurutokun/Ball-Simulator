@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.input;
 
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.gamehelpers.utils.Util;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -54,7 +55,17 @@ public final class Input {
 			
 			Input input = (Input) obj;
 			
-			if(input.type == type && (input.key == key || input.button == button)) return true;
+			if(input.type == type) {
+				switch(type) {
+				
+				case KEY:
+					return Util.equals(input.key, key);
+				
+				case MOUSE_BUTTON:
+					return Util.equals(input.button, button);
+					
+				}
+			}
 			
 		}
 		
@@ -81,6 +92,8 @@ public final class Input {
 		
 		KEY,
 		MOUSE_BUTTON;
+		
+		
 		
 	}
 	

@@ -33,7 +33,7 @@ public class ControlsFileParser extends FileParser {
 		InputAction action = InputAction.getByName(tokens[INDEX_ACTION].trim());
 		Input input = Input.getByName(tokens[INDEX_INPUT].trim());
 		
-		inputBindings.getBindings().put(input, action);
+		inputBindings.put(action, input);
 		
 	}
 	
@@ -42,9 +42,9 @@ public class ControlsFileParser extends FileParser {
 		
 		ArrayList<String> lines = new ArrayList<String>();
 		
-		for(Input input: inputBindings.getBindings().keySet()) {
+		for(InputAction action: inputBindings.getBindings().keySet()) {
 			
-			InputAction action = inputBindings.getBindings().get(input);
+			Input input = inputBindings.get(action);
 			
 			lines.add(action.getName() + REGEX + input.getName());
 			

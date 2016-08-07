@@ -48,9 +48,8 @@ public class EntityRender extends Render {
 			compRender.render(g, e);
 		}
 		
-		g.rotate(-transformComp.getTheta());
 		g.scale(1d / transformComp.getX(), 1d / transformComp.getY());
-		
+		g.rotate(-transformComp.getTheta());
 		g.translate(-transformComp.getX(), -transformComp.getY());
 		
 	}

@@ -7,6 +7,7 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
+import com.rawad.gamehelpers.utils.Util;
 
 import javafx.scene.image.Image;
 
@@ -57,7 +58,7 @@ public final class GameTextures {
 	}
 	
 	public static Image findTexture(Object key) {
-		return textures.get(key);
+		return Util.getNullSafe(textures.get(key), textures.get(TEXTURE_UNKNOWN));
 	}
 	
 }

@@ -17,6 +17,8 @@ import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
+import com.rawad.gamehelpers.client.gamestates.IStateChangeListener;
+import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
 import com.rawad.gamehelpers.client.renderengine.IRenderable;
@@ -38,10 +40,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class Client extends Proxy implements IRenderable {
+public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	
 	// narutoget.io and watchnaruto.tv
-	// 468
+	// 470
 	
 	private static final int TARGET_FPS = 60;
 	
@@ -82,7 +84,7 @@ public class Client extends Proxy implements IRenderable {
 		
 		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser);
 		
-		sm = new StateManager(game);
+		sm = new StateManager(game, this);
 		
 		loadingTask = new Task<Void>() {
 			@Override
@@ -100,13 +102,6 @@ public class Client extends Proxy implements IRenderable {
 				} catch(Exception ex) {
 					ex.printStackTrace();
 				}
-				
-				message = "Loading textures...";
-				
-				updateMessage(message);
-				Logger.log(Logger.DEBUG, message);
-				
-				GameTextures.loadTextures(loaders.get(Loader.class));
 				
 				renderingTimer.start();
 				
@@ -150,7 +145,7 @@ public class Client extends Proxy implements IRenderable {
 		
 		stage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = (InputAction) inputBindings.get(keyEvent.getCode());
+			InputAction action = inputBindings.get(keyEvent.getCode());
 			
 			switch(action) {
 			
@@ -202,6 +197,8 @@ public class Client extends Proxy implements IRenderable {
 		
 		initInputBindings();
 		
+		GameTextures.loadTextures(loaders.get(Loader.class));
+		
 		sm.addState(new MenuState());
 		sm.addState(new GameState());
 		sm.addState(new OptionState());
@@ -215,7 +212,7 @@ public class Client extends Proxy implements IRenderable {
 		loadingState.initGui();
 		
 		sm.setCurrentState(loadingState);
-		onStateChange();
+		onStateChange(loadingState, loadingState);
 		
 		Platform.runLater(() -> {
 			
@@ -309,12 +306,13 @@ public class Client extends Proxy implements IRenderable {
 		
 	}
 	
-	public void onStateChange() {
+	@Override
+	public void onStateChange(State oldState, State newState) {
 		
 		Platform.runLater(() -> {
 			
-			Root oldRoot = (Root) scene.getRoot();
-			Root newRoot = GuiRegister.getRoot(sm.getCurrentState());
+			Root oldRoot = GuiRegister.getRoot(oldState);
+			Root newRoot = GuiRegister.getRoot(newState);
 			
 			StackPane oldGuiContainer = oldRoot.getGuiContainer();
 			StackPane newGuiContainer = newRoot.getGuiContainer();

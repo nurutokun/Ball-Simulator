@@ -9,45 +9,54 @@ import javafx.scene.input.MouseButton;
 
 public final class InputBindings {
 	
-	private final HashMap<Input, InputAction> bindings = new HashMap<Input, InputAction>();
+	private final HashMap<InputAction, Input> bindings = new HashMap<InputAction, Input>();
 	
-	public InputAction put(InputAction action, KeyCode input) {
-		return bindings.put(new Input(input), action);
+	public Input put(InputAction action, KeyCode input) {
+		return put(action, new Input(input));
 	}
 	
 	public InputAction get(KeyCode input) {
-		return bindings.getOrDefault(new Input(input), InputAction.DEFAULT);
+		return get(new Input(input));
 	}
 	
-	public InputAction put(InputAction action, MouseButton input) {
-		return bindings.put(new Input(input), action);
+	public Input put(InputAction action, MouseButton input) {
+		return put(action, new Input(input));
 	}
 	
 	public InputAction get(MouseButton input) {
-		return bindings.getOrDefault(new Input(input), InputAction.DEFAULT);
+		return get(new Input(input));
+	}
+	
+	public Input put(InputAction action, Input input) {
+		return bindings.put(action, input);
 	}
 	
 	/**
-	 * Returns the {@code Input} that represents the key to the given {@code action} only if there is a 1:1 correspondance.
+	 * Returns the {@code InputAction} that represents the key to the given {@code input} only if there is a 1:1 
+	 * correspondance.
 	 * 
-	 * @param action
+	 * @param input
 	 * @return
 	 */
-	public Input get(InputAction action) {
+	public InputAction get(Input input) {
 		
-		ArrayList<Input> matchingKeys = new ArrayList<Input>();
+		ArrayList<InputAction> matchingKeys = new ArrayList<InputAction>();
 		
-		for(Entry<Input, InputAction> entry: bindings.entrySet()) {
-			if(action.equals(entry.getValue())) matchingKeys.add(entry.getKey());
+		for(Entry<InputAction, Input> entry: bindings.entrySet()) {
+			if(input.equals(entry.getValue())) matchingKeys.add(entry.getKey());
 		}
 		
-		if(matchingKeys.isEmpty() || matchingKeys.size() > 1) return null;
+		if(matchingKeys.isEmpty() || matchingKeys.size() > 1) return InputAction.DEFAULT;
 		
 		return matchingKeys.get(0);
 		
 	}
 	
-	public HashMap<Input, InputAction> getBindings() {
+	public Input get(InputAction action) {
+		return bindings.get(action);
+	}
+	
+	public HashMap<InputAction, Input> getBindings() {
 		return bindings;
 	}
 	
