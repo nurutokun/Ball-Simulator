@@ -2,9 +2,10 @@ package com.rawad.ballsimulator.loader;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
-import java.util.HashMap;
 
+import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.ballsimulator.entity.EEntity;
+import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
@@ -26,6 +27,7 @@ public class Loader extends ALoader {
 	private static final String FOLDER_ENTITY = "entity";
 	
 	private static final String EXTENSION_SETTINGS_FILE = "txt";
+	private static final String EXTENSION_INPUTS_FILE = "txt";
 	private static final String EXTENSION_TERRAIN_FILE = "txt";
 	private static final String EXTENSION_TEXTURE_FILE = "png";
 	private static final String EXTENSION_LAYOUT_FILE = "fxml";
@@ -78,7 +80,7 @@ public class Loader extends ALoader {
 		
 	}
 	
-	public void saveTerrain(World world, TerrainFileParser parser, String terrainName) {
+	public void saveTerrain(TerrainFileParser parser, World world, String terrainName) {
 		
 		parser.setWorld(world);
 		
@@ -104,6 +106,24 @@ public class Loader extends ALoader {
 		return getFilePathFromParts(EXTENSION_ENTITY_BLUEPRINT_FILE, FOLDER_ENTITY, entityName);
 	}
 	
+	public void loadInputBindings(ControlsFileParser parser, InputBindings inputBindings, String inputBindingsName) {
+		
+		BufferedReader reader = readFile(EXTENSION_INPUTS_FILE, FOLDER_MISC, inputBindingsName);
+		
+		parser.setInputBindings(inputBindings);
+		
+		parser.parseFile(reader);
+		
+	}
+	
+	public void saveInputBindings(ControlsFileParser parser, InputBindings inputBindings, String inputBindingsName) {
+		
+		parser.setInputBindings(inputBindings);
+		
+		saveFile(parser.getContent(), EXTENSION_INPUTS_FILE, FOLDER_MISC, inputBindingsName);
+		
+	}
+	
 	public static final InputStream streamLayoutFile(Class<? extends Object> clazz, String layoutName) {
 		return clazz.getResourceAsStream(layoutName + ALoader.REGEX_EXTENSION + EXTENSION_LAYOUT_FILE);
 	}
@@ -122,12 +142,6 @@ public class Loader extends ALoader {
 				EEntity.class.getPackage().getName(),
 		};
 		
-		final HashMap<Object, String> entityBindings = new HashMap<Object, String>();
-		
-		for(EEntity entity: EEntity.values()) {
-			entityBindings.put(entity, entity.getName());
-		}
-		
 		return new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
@@ -136,12 +150,14 @@ public class Loader extends ALoader {
 				
 				try {
 					
-					for(Object entityKey: entityBindings.keySet()) {
+					for(EEntity entityKey: EEntity.values()) {
 						
-						String entityName = entityBindings.get(entityKey);
+						String entityName = entityKey.getName();
+						
+						Logger.log(Logger.DEBUG, "Loading " + entityName + "...");
 						
 						BlueprintManager.addBlueprint(entityKey, loader.loadEntityBlueprint(parser, entityName, 
-								contextPaths));
+								contextPaths));// Make sure this works.
 						
 					}
 					

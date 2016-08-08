@@ -32,11 +32,6 @@ public class TerrainFileParser extends FileParser {
 		world.removeAllEntities(staticEntities);
 		staticEntities.clear();
 		
-//		for(Entity e: world.getEntities()) {
-//			if(Entity.compare(e, BlueprintManager.getBlueprint(EEntity.STATIC).getEntityBase())) staticEntities.add(e);
-//			// Adds static entities that aren't known to the fileparser (added somewhere else). Unnecessary, see stop().
-//		}
-		
 	}
 	
 	@Override

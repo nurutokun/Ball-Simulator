@@ -29,7 +29,7 @@ public enum InputAction {
 	CLAMP("Clamp Mouse"),
 	SAVE("Save"),
 	
-	PLAYER_LIST("Player Lit"),
+	PLAYER_LIST("Player List"),
 	
 	// Mouse.
 	PLACE("Place"),
@@ -49,7 +49,7 @@ public enum InputAction {
 		return name;
 	}
 	
-	public static final InputAction getByName(String name) {
+	public static InputAction getByName(String name) {
 		
 		for(InputAction action: InputAction.values()) {
 			if(action.getName().equals(name)) return action;

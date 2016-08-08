@@ -76,11 +76,15 @@ public final class Input {
 	public static Input getByName(String inputName) {
 		
 		KeyCode key = KeyCode.getKeyCode(inputName);
-			
-		MouseButton button = MouseButton.valueOf(inputName);
 		
 		if(key != null) return new Input(key);
-		if(button != null) return new Input(button);
+		
+		try {
+			MouseButton button = MouseButton.valueOf(inputName);
+			
+			if(button != null) return new Input(button);
+			
+		} catch(Exception ex) {}
 		
 		Logger.log(Logger.WARNING, "Input name \"" + inputName + "\" does not match any input.");
 		

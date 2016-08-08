@@ -41,6 +41,9 @@ public class EntityRender extends Render {
 		g.translate(transformComp.getX(), transformComp.getY());
 		g.rotate(transformComp.getTheta());
 		g.scale(transformComp.getScaleX(), transformComp.getScaleY());
+		// Maybe add pre-render method for component renders so this can be taken care of specifically by RollingComponent 
+		// (as is, rotation doesn't determine direction in which to translate which might be different for different 
+		// entities).
 		
 		g.drawImage(texture, -texture.getWidth() / 2d, -texture.getHeight() / 2d);// Centers texture on origin.
 		

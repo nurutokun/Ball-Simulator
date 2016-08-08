@@ -14,6 +14,7 @@ import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.ballsimulator.client.input.Mouse;
+import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
@@ -43,7 +44,7 @@ import javafx.stage.Stage;
 public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	
 	// narutoget.io and watchnaruto.tv
-	// 470
+	// 471
 	
 	private static final int TARGET_FPS = 60;
 	
@@ -80,7 +81,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 		fileParsers.put(entityBlueprintParser);
 		fileParsers.put(new TerrainFileParser());
 		fileParsers.put(new SettingsFileParser());
-//		fileParsers.put(new ControlsFileParser(inputBindings));
+		fileParsers.put(new ControlsFileParser());
 		
 		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser);
 		
@@ -262,6 +263,8 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 		inputBindings.put(InputAction.PLACE, MouseButton.PRIMARY);
 		inputBindings.put(InputAction.REMOVE, MouseButton.SECONDARY);
 		inputBindings.put(InputAction.EXTRACT, MouseButton.MIDDLE);
+		
+		loaders.get(Loader.class).loadInputBindings(fileParsers.get(ControlsFileParser.class), inputBindings, "inputs");
 		
 	}
 	

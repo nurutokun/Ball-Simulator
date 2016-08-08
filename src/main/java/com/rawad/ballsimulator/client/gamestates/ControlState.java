@@ -4,12 +4,17 @@ import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.input.InputBindings;
+import com.rawad.ballsimulator.fileparser.ControlsFileParser;
+import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
+import com.rawad.gamehelpers.client.gamestates.StateManager;
+import com.rawad.gamehelpers.game.Game;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -37,7 +42,19 @@ public class ControlState extends State {
 	@FXML private Button btnOptions;
 	@FXML private Button btnMainMenu;
 	
+	private Loader loader;
+	private ControlsFileParser parser;
+	
 	private InputBindings inputBindings;
+	
+	@Override
+	public void init(StateManager sm, Game game) {
+		super.init(sm, game);
+		
+		loader = game.getProxies().get(Client.class).getLoaders().get(Loader.class);
+		parser = game.getProxies().get(Client.class).getFileParsers().get(ControlsFileParser.class);
+		
+	}
 	
 	@Override
 	public void initGui() {
@@ -48,7 +65,8 @@ public class ControlState extends State {
 		
 		inputBindings = client.getInputBindings();
 		
-		columnAction.setCellValueFactory(new Callback<CellDataFeatures<InputAction, String>, ObservableValue<String>>() {
+		columnAction.setCellValueFactory(new Callback<CellDataFeatures<InputAction, String>, 
+				ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(CellDataFeatures<InputAction, String> param) {
 				return new ReadOnlyStringWrapper(param.getValue().getName());
@@ -63,7 +81,8 @@ public class ControlState extends State {
 			}
 		});
 		
-		columnInput.setCellFactory(new Callback<TableColumn<InputAction, InputAction>, TableCell<InputAction, InputAction>>() {
+		columnInput.setCellFactory(new Callback<TableColumn<InputAction, InputAction>, 
+				TableCell<InputAction, InputAction>>() {
 			@Override
 			public TableCell<InputAction, InputAction> call(TableColumn<InputAction, InputAction> param) {
 				return new TableCell<InputAction, InputAction>() {
@@ -77,7 +96,7 @@ public class ControlState extends State {
 							setGraphic(null);
 						} else {
 							final Button button = new Button(inputBindings.get(item).getName());
-							button.setOnAction(ControlState.createInputChangeHandler(inputBindings, item));
+							button.setOnAction(createInputChangeHandler(item));
 							setGraphic(button);
 						}
 						
@@ -87,20 +106,52 @@ public class ControlState extends State {
 			}
 		});
 		
-		for(InputAction action: InputAction.values()) {
-			if(action == InputAction.DEFAULT) continue;
-			
-			controlsTable.getItems().add(action);
-			
-		}
+		refreshTable();
 		
 		btnOptions.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(OptionState.class)));
 		btnMainMenu.setOnAction(e -> sm.requestStateChange(StateChangeRequest.instance(MenuState.class)));
 		
 	}
 	
-	private static final EventHandler<ActionEvent> createInputChangeHandler(InputBindings inputBindings, 
-			InputAction action) {
+	@Override
+	protected void onActivate() {
+		super.onActivate();
+		
+		Loader.addTask(new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				
+				controlsTable.setVisible(false);
+				
+				loader.loadInputBindings(parser, inputBindings, "inputs");
+				
+				controlsTable.setVisible(true);
+				
+				return null;
+				
+			}
+		});
+		
+	}
+	
+	@Override
+	protected void onDeactivate() {
+		super.onDeactivate();
+		
+		Loader.addTask(new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				
+				loader.saveInputBindings(parser, inputBindings, "inputs");
+				
+				return null;
+				
+			}
+		});
+		
+	}
+	
+	private final EventHandler<ActionEvent> createInputChangeHandler(InputAction action) {
 		return e -> {
 			
 			ButtonType cancelType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
@@ -120,6 +171,8 @@ public class ControlState extends State {
 				
 				inputBindings.put(action, keyEvent.getCode());
 				
+				refreshTable();
+				
 				cancelButton.fire();
 				
 				keyEvent.consume();
@@ -129,6 +182,8 @@ public class ControlState extends State {
 			alertDialog.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 				
 				inputBindings.put(action, mouseEvent.getButton());
+				
+				refreshTable();
 				
 				cancelButton.fire();
 				
@@ -141,84 +196,18 @@ public class ControlState extends State {
 			
 		};
 	}
-	/*
-	private void createControlsCell(InputBindings inputBindings, InputAction action, int row) {
+	
+	private final void refreshTable() {
 		
-		Label actionLabel = new Label(action.getName());
+		controlsTable.getItems().clear();
 		
-		ComboBox<String> inputButton = new ComboBox<String>();
+		for(InputAction action: InputAction.values()) {
+			if(action == InputAction.DEFAULT) continue;
+			
+			controlsTable.getItems().add(action);
+			
+		}
 		
-		Button btnAddInput = new Button("Add");
-		Button btnRemoveInput = new Button("Remove");
-		
-		inputButton.setItems(inputBindings.getBindingsMap().get(action));
-		inputButton.getSelectionModel().select(0);
-		
-		btnAddInput.setOnAction(e -> {
-			
-			ButtonType cancelType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-			
-			Alert inputAlert = new Alert(AlertType.NONE, "Press Any button", cancelType);
-			inputAlert.setTitle("Input Dialog");
-			
-			DialogPane alertDialog = inputAlert.getDialogPane();
-			
-			Button cancelButton = (Button) alertDialog.lookupButton(cancelType);
-			cancelButton.setFocusTraversable(false);
-			cancelButton.setCancelButton(true);
-			
-			alertDialog.getChildren().remove(cancelButton);
-			
-			alertDialog.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
-				
-				Input input = new Input(keyEvent.getCode());
-				
-				inputBindings.put(action, input);
-				inputButton.getSelectionModel().select(input);
-				
-				cancelButton.fire();
-				
-				keyEvent.consume();
-				
-			});
-			
-			alertDialog.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
-				
-				Input input = new Input(mouseEvent.getButton());
-				
-				inputBindings.put(action, input);
-				inputButton.getSelectionModel().select(input);
-				
-				cancelButton.fire();
-				
-				mouseEvent.consume();
-				
-			});
-			
-			alertDialog.requestFocus();
-			inputAlert.showAndWait();
-			
-		});
-		
-		btnRemoveInput.setOnAction(e -> {
-			
-			try {
-				
-				AInput inputToRemove = inputButton.getSelectionModel().getSelectedItem();
-				
-				if(inputBindings.getBindingsMap().remove(action, inputToRemove)) {
-					inputButton.getSelectionModel().selectFirst();
-				}
-				
-			} catch(Exception ex) {
-				ex.printStackTrace();
-			}
-			
-		});
-		
-		controlsTable.add(actionLabel, 0, row);
-		controlsTable.add(inputButton, 1, row);
-		
-	}*/
+	}
 	
 }

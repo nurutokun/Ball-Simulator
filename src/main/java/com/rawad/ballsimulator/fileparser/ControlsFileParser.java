@@ -11,17 +11,16 @@ import com.rawad.gamehelpers.utils.Util;
 public class ControlsFileParser extends FileParser {
 	
 	private static final String REGEX = "=";
-//	private static final String REGEX_INPUTS = ",";
 	
 	private static final int INDEX_ACTION = 0;
 	private static final int INDEX_INPUT = 1;
 	
 	private InputBindings inputBindings;
 	
-	public ControlsFileParser(InputBindings inputBindings) {
+	public ControlsFileParser() {
 		super();
 		
-		this.inputBindings = inputBindings;
+		this.inputBindings = new InputBindings();
 		
 	}
 	
@@ -42,16 +41,24 @@ public class ControlsFileParser extends FileParser {
 		
 		ArrayList<String> lines = new ArrayList<String>();
 		
-		for(InputAction action: inputBindings.getBindings().keySet()) {
+		for(InputAction action: InputAction.values()) {
+			
+			if(action == InputAction.DEFAULT) continue;
 			
 			Input input = inputBindings.get(action);
 			
-			lines.add(action.getName() + REGEX + input.getName());
+			String line = action.getName() + REGEX + input.getName();
+			
+			lines.add(line);
 			
 		}
 		
 		return Util.getStringFromLines(Util.NL, false, lines);
 		
+	}
+	
+	public void setInputBindings(InputBindings inputBindings) {
+		this.inputBindings = inputBindings;
 	}
 	
 }

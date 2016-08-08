@@ -245,7 +245,7 @@ public class WorldEditorState extends State {
 		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {
 				
-				loader.saveTerrain(world, terrainFileParser, terrainName);
+				loader.saveTerrain(terrainFileParser, world, terrainName);
 				
 				return null;
 			}
