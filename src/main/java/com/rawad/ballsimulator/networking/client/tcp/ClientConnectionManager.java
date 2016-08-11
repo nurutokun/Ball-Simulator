@@ -19,8 +19,8 @@ import com.rawad.ballsimulator.networking.server.tcp.SPacket01Login;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket02Logout;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket04Entity;
+import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 
 /**

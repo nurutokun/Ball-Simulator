@@ -92,8 +92,8 @@ public class ServerGui extends Proxy implements IRenderable {
 	}
 	
 	@Override
-	public void preInit(Game game) {
-		super.preInit(game);
+	public void preInitialize(Game game) {
+		super.preInitialize(game);
 		
 		renderingTimer = new RenderingTimer(this, TARGET_FPS);
 		
@@ -114,7 +114,7 @@ public class ServerGui extends Proxy implements IRenderable {
 	}
 	
 	@Override
-	public void init() {
+	public void initialize() {
 		
 		Loader.addTask(loadingTask);
 		
@@ -128,8 +128,8 @@ public class ServerGui extends Proxy implements IRenderable {
 		
 		worldViewState = new WorldViewState();
 		
-		worldViewState.init(null, game);// MUST init(sm, game) BEFORE initGui().
-		worldViewState.initGui();
+		worldViewState.setGame(game);
+		worldViewState.initialize();
 		
 	}
 	
@@ -296,7 +296,7 @@ public class ServerGui extends Proxy implements IRenderable {
 	}
 	
 	@Override
-	public void stop() {
+	public void terminate() {
 		
 		update = false;
 		

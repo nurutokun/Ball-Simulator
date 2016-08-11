@@ -20,8 +20,8 @@ import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
+import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
 

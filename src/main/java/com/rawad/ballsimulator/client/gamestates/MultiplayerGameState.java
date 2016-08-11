@@ -34,8 +34,6 @@ import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 
@@ -81,8 +79,7 @@ public class MultiplayerGameState extends State {
 	private UserComponent playerUser;
 	
 	@Override
-	public void init(StateManager sm, Game game) {
-		super.init(sm, game);
+	public void initialize() {
 		
 		this.client = game.getProxies().get(Client.class);
 		
@@ -126,11 +123,6 @@ public class MultiplayerGameState extends State {
 		gameSystems.put(new RollingSystem());
 		gameSystems.put(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new RenderingSystem(worldRender));
-		
-	}
-	
-	@Override
-	public void initGui() {
 		
 		Root root = GuiRegister.loadGui(this);
 		
@@ -248,8 +240,10 @@ public class MultiplayerGameState extends State {
 	}
 	
 	@Override
+	public void terminate() {}
+	
+	@Override
 	protected void onActivate() {
-		super.onActivate();
 		
 		Loader.addTask(new Task<Void>() {
 			
@@ -279,10 +273,7 @@ public class MultiplayerGameState extends State {
 	
 	@Override
 	protected void onDeactivate() {
-		super.onDeactivate();
-		
 		networkManager.requestDisconnect();
-		
 	}
 	
 	public void onConnect() {

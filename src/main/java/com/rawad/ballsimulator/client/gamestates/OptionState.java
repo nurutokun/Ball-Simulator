@@ -11,8 +11,6 @@ import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.concurrent.Task;
@@ -35,8 +33,7 @@ public class OptionState extends State {
 	private SettingsFileParser settings;
 	
 	@Override
-	public void init(StateManager sm, Game game) {
-		super.init(sm, game);
+	public void initialize() {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -47,11 +44,6 @@ public class OptionState extends State {
 		loader = client.getLoaders().get(Loader.class);
 		
 		masterRender.getRenders().put(new BackgroundRender(camera));
-		
-	}
-	
-	@Override
-	public void initGui() {
 		
 		Root root = GuiRegister.loadGui(this);
 		
@@ -66,8 +58,10 @@ public class OptionState extends State {
 	}
 	
 	@Override
+	public void terminate() {}
+	
+	@Override
 	protected void onActivate() {
-		super.onActivate();
 		
 		world.addEntity(camera);
 		
@@ -86,7 +80,6 @@ public class OptionState extends State {
 	
 	@Override
 	protected void onDeactivate() {
-		super.onDeactivate();
 		
 		Loader.addTask(new Task<Void>() {
 			protected Void call() throws Exception {

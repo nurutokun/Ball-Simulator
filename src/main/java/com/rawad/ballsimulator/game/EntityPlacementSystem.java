@@ -8,9 +8,9 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
+import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.entity.IListener;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.geometry.Point2d;
 
 public class EntityPlacementSystem extends GameSystem {

@@ -27,8 +27,6 @@ import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.application.Platform;
@@ -66,8 +64,7 @@ public class WorldEditorState extends State {
 	@FXML private ComboBox<Double> heightSelector;
 	
 	@Override
-	public void init(StateManager sm, Game game) {
-		super.init(sm, game);
+	public void initialize() {
 		
 		client = game.getProxies().get(Client.class);
 		
@@ -124,13 +121,6 @@ public class WorldEditorState extends State {
 		placeableComp.setToPlace(EEntity.STATIC);// Can be any other entity too. < and V
 		placeable.getComponent(SelectionComponent.class).setSelected(true);
 		placeable.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
-		
-		world.addEntity(placeable);
-		
-	}
-	
-	@Override
-	public void initGui() {
 		
 		Root root = GuiRegister.loadGui(this);
 		
@@ -241,21 +231,11 @@ public class WorldEditorState extends State {
 		
 	}
 	
-	private void saveTerrain(String terrainName) {
-		Loader.addTask(new Task<Void>() {
-			protected Void call() throws Exception {
-				
-				loader.saveTerrain(terrainFileParser, world, terrainName);
-				
-				return null;
-			}
-		});
-		
-	}
+	@Override
+	public void terminate() {}
 	
 	@Override
 	protected void onActivate() {
-		super.onActivate();
 		
 		world.addEntity(camera);
 		world.addEntity(placeable);
@@ -273,9 +253,18 @@ public class WorldEditorState extends State {
 	
 	@Override
 	protected void onDeactivate() {
-		super.onDeactivate();
-		
 		pauseScreen.hide();
+	}
+	
+	private void saveTerrain(String terrainName) {
+		Loader.addTask(new Task<Void>() {
+			protected Void call() throws Exception {
+				
+				loader.saveTerrain(terrainFileParser, world, terrainName);
+				
+				return null;
+			}
+		});
 		
 	}
 	

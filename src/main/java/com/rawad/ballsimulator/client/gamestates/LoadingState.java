@@ -35,14 +35,14 @@ public class LoadingState extends State {
 		
 		this.taskToWatch = taskToWatch;	
 		
-		camera = Entity.createEntity(EEntity.CAMERA);
-		
-		masterRender.getRenders().put(new BackgroundRender(camera));
-		
 	}
 	
 	@Override
-	public void initGui() {
+	public void initialize() {
+		
+		camera = Entity.createEntity(EEntity.CAMERA);
+		
+		masterRender.getRenders().put(new BackgroundRender(camera));
 		
 		Root root = GuiRegister.loadGui(this);
 		
@@ -60,11 +60,14 @@ public class LoadingState extends State {
 	}
 	
 	@Override
+	public void terminate() {}
+	
+	@Override
 	protected void onActivate() {
-		super.onActivate();
-		
 		world.addEntity(camera);
-		
 	}
+	
+	@Override
+	protected void onDeactivate() {}
 	
 }

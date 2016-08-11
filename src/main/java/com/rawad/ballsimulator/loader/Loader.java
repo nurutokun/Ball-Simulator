@@ -9,9 +9,9 @@ import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
+import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Blueprint;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.ALoader;
 
@@ -124,12 +124,12 @@ public class Loader extends ALoader {
 		
 	}
 	
-	public static final InputStream streamLayoutFile(Class<? extends Object> clazz, String layoutName) {
+	public static InputStream streamLayoutFile(Class<? extends Object> clazz, String layoutName) {
 		return clazz.getResourceAsStream(layoutName + ALoader.REGEX_EXTENSION + EXTENSION_LAYOUT_FILE);
 	}
 	
-	public static final InputStream streamLayoutFile(Class<? extends Object> clazz) {
-		return streamLayoutFile(clazz, clazz.getSimpleName());
+	public static InputStream streamLayoutFile(Class<? extends Object> clazz) {
+		return Loader.streamLayoutFile(clazz, clazz.getSimpleName());
 	}
 	
 	public static String getStyleSheetLocation(Class<? extends Object> clazz, String styleSheetName) {

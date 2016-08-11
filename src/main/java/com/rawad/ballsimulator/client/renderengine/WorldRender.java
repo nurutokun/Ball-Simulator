@@ -8,8 +8,8 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
+import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

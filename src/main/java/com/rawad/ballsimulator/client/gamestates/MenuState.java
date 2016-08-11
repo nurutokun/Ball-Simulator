@@ -8,8 +8,6 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.fxml.FXML;
@@ -28,17 +26,11 @@ public class MenuState extends State {
 	@FXML private Button btnExit;
 	
 	@Override
-	public void init(StateManager sm, Game game) {
-		super.init(sm, game);
+	public void initialize() {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
 		masterRender.getRenders().put(new BackgroundRender(camera));
-				
-	}
-	
-	@Override
-	public void initGui() {
 		
 		Root root = GuiRegister.loadGui(this);
 		
@@ -54,12 +46,16 @@ public class MenuState extends State {
 		viewport.heightProperty().bind(root.heightProperty());
 		
 	}
+	
+	@Override
+	public void terminate() {}
+	
 	@Override
 	protected void onActivate() {
-		super.onActivate();
-		
 		world.addEntity(camera);
-		
 	}
+	
+	@Override
+	protected void onDeactivate() {}
 	
 }

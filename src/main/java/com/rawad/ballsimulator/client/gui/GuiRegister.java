@@ -1,6 +1,7 @@
 package com.rawad.ballsimulator.client.gui;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import com.rawad.ballsimulator.loader.Loader;
@@ -37,15 +38,16 @@ public final class GuiRegister {
 		Root root = new Root(guiContainer, styleSheet);
 		root.getStylesheets().add(Loader.getStyleSheetLocation(state.getClass(), styleSheet));
 		
-		try {
+		try (InputStream inputStream = Loader.streamLayoutFile(state.getClass())) {
 			
-			fxmlLoader.load(Loader.streamLayoutFile(state.getClass()));
+			fxmlLoader.load(inputStream);
 			
 		} catch(IOException ex) {
 			ex.printStackTrace();
 			
 			guiContainer.getChildren().add(new Label("Error initializing this state " + state.getClass().getSimpleName() 
 					+ "; " + ex.getMessage()));
+			
 		}
 		
 		roots.put(state, root);
@@ -55,7 +57,7 @@ public final class GuiRegister {
 	}
 	
 	public static Root loadGui(State state) {
-		return loadGui(state, DEFAULT_STYLESHEET);
+		return GuiRegister.loadGui(state, DEFAULT_STYLESHEET);
 	}
 	
 	public static Root getRoot(State state) {

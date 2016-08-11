@@ -27,8 +27,6 @@ import com.rawad.ballsimulator.game.RollingSystem;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 import javafx.concurrent.Task;
@@ -58,9 +56,8 @@ public class GameState extends State {
 	@FXML private Messenger mess;
 	
 	@Override
-	public void init(StateManager sm, Game game) {
-		super.init(sm, game);
-		
+	public void initialize() {
+
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
 		player.addComponent(new UserControlComponent());
@@ -99,11 +96,6 @@ public class GameState extends State {
 		gameSystems.put(new RollingSystem());
 		gameSystems.put(new CameraFollowSystem(world.getWidth(), world.getHeight()));
 		gameSystems.put(new RenderingSystem(worldRender));
-		
-	}
-	
-	@Override
-	public void initGui() {
 		
 		Root root = GuiRegister.loadGui(this);
 		
@@ -213,8 +205,10 @@ public class GameState extends State {
 	}
 	
 	@Override
+	public void terminate() {}
+	
+	@Override
 	protected void onActivate() {
-		super.onActivate();
 		
 		world.addEntity(player);
 		world.addEntity(camera);
@@ -242,10 +236,7 @@ public class GameState extends State {
 	
 	@Override
 	protected void onDeactivate() {
-		super.onDeactivate();
-		
 		pauseScreen.hide();
-		
 	}
 	
 	public Entity getPlayer() {

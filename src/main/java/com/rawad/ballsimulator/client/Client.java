@@ -44,7 +44,7 @@ import javafx.stage.Stage;
 public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	
 	// narutoget.io and watchnaruto.tv
-	// 471
+	// 472
 	
 	private static final int TARGET_FPS = 60;
 	
@@ -64,10 +64,10 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	private SimpleStringProperty gameTitle;
 	
 	@Override
-	public void preInit(Game game) {
-		super.preInit(game);
+	public void preInitialize(Game game) {
+		super.preInitialize(game);
 		
-		initGui();
+		initializeGui();
 		
 		gameTitle.setValue(game.getName());
 		
@@ -85,6 +85,8 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 		
 		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser);
 		
+		renderingTimer = new RenderingTimer(this, TARGET_FPS);
+		
 		sm = new StateManager(game, this);
 		
 		loadingTask = new Task<Void>() {
@@ -98,7 +100,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 				
 				try {
 					
-					initResources();
+					initializeResources();
 					
 				} catch(Exception ex) {
 					ex.printStackTrace();
@@ -120,11 +122,9 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 			sm.requestStateChange(StateChangeRequest.instance(MenuState.class));
 		});
 		
-		renderingTimer = new RenderingTimer(this, TARGET_FPS);
-		
 	}
 	
-	protected void initGui() {
+	protected void initializeGui() {
 		
 		scene = new Scene(new Root(new StackPane(), ""), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		scene.setFill(Color.BLACK);
@@ -182,35 +182,19 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	}
 	
 	@Override
-	public void init() {
+	public void initialize() {// TODO: Change all these initialize methods back to init; FXMLLoader gets confused...
 		
 		Loader.addTask(entityBlueprintLoadingTask);
 		Loader.addTask(loadingTask);
 		
 	}
 	
-	/**
-	 * Called from the Loading Thread to initialize anything that might take a while. Note that 
-	 * {@link com.rawad.gamehelpers.client.gamestates.State#initGui} is called immediately after this.
-	 * 
-	 */
-	public void initResources() {
-		
-		initInputBindings();
-		
-		GameTextures.loadTextures(loaders.get(Loader.class));
-		
-		sm.addState(new MenuState());
-		sm.addState(new GameState());
-		sm.addState(new OptionState());
-		sm.addState(new WorldEditorState());
-		sm.addState(new MultiplayerGameState());
-		sm.addState(new ControlState());
+	/** Called from the Loading Thread to initialize anything that might take an extended period of time. */
+	public void initializeResources() {
 		
 		LoadingState loadingState = new LoadingState(loadingTask);
 		
-		loadingState.init(sm, game);
-		loadingState.initGui();
+		loadingState.initialize();
 		
 		sm.setCurrentState(loadingState);
 		onStateChange(loadingState, loadingState);
@@ -224,11 +208,20 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 			
 		});
 		
-		sm.initGui();
+		initializeInputBindings();
+		
+		GameTextures.loadTextures(loaders.get(Loader.class));
+		
+		sm.addState(new MenuState());
+		sm.addState(new GameState());
+		sm.addState(new OptionState());
+		sm.addState(new WorldEditorState());
+		sm.addState(new MultiplayerGameState());
+		sm.addState(new ControlState());
 		
 	}
 	
-	private void initInputBindings() {
+	private void initializeInputBindings() {
 		
 		inputBindings = new InputBindings();
 		
@@ -281,17 +274,11 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	
 	@Override
 	public void render() {
-		
-		Platform.runLater(() -> {
-			synchronized(game.getWorld().getEntities()) {
-				sm.getCurrentState().getMasterRender().render();
-			}
-		});
-		
+		Platform.runLater(() -> sm.render());
 	}
 	
 	@Override
-	public void stop() {
+	public void terminate() {
 		
 		update = false;
 		
@@ -299,7 +286,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 		
 		Transitions.parallel(scene.getRoot(), e -> {
 			
-			sm.stop();
+			sm.terminate();
 			
 			GameTextures.deleteTextures();
 			

@@ -14,8 +14,6 @@ import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.gamehelpers.client.gamestates.State;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.utils.ClassMap;
@@ -33,8 +31,7 @@ public class WorldViewState extends State {
 	private UserViewComponent cameraView;
 	
 	@Override
-	public void init(StateManager sm, Game game) {
-		super.init(sm, game);
+	public void initialize() {
 		
 		this.world = game.getWorld();
 		
@@ -73,11 +70,6 @@ public class WorldViewState extends State {
 		gameSystems.put(cameraRoamingSystem);
 		gameSystems.put(new RenderingSystem(worldRender));
 		
-	}
-	
-	@Override
-	public void initGui() {
-		
 		Root root = GuiRegister.loadGui(this);
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
@@ -104,5 +96,14 @@ public class WorldViewState extends State {
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
 		
 	}
-		
+	
+	@Override
+	public void terminate() {}
+	
+	@Override
+	protected void onActivate() {}
+	
+	@Override
+	protected void onDeactivate() {}
+	
 }

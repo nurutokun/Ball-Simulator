@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.fileparser.FileParser;
+import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.utils.Util;
 
 public class TerrainFileParser extends FileParser {

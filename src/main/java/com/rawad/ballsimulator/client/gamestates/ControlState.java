@@ -8,8 +8,6 @@ import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.game.Game;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -48,16 +46,10 @@ public class ControlState extends State {
 	private InputBindings inputBindings;
 	
 	@Override
-	public void init(StateManager sm, Game game) {
-		super.init(sm, game);
+	public void initialize() {
 		
 		loader = game.getProxies().get(Client.class).getLoaders().get(Loader.class);
 		parser = game.getProxies().get(Client.class).getFileParsers().get(ControlsFileParser.class);
-		
-	}
-	
-	@Override
-	public void initGui() {
 		
 		GuiRegister.loadGui(this);
 		
@@ -114,8 +106,10 @@ public class ControlState extends State {
 	}
 	
 	@Override
+	public void terminate() {}
+	
+	@Override
 	protected void onActivate() {
-		super.onActivate();
 		
 		Loader.addTask(new Task<Void>() {
 			@Override
@@ -136,7 +130,6 @@ public class ControlState extends State {
 	
 	@Override
 	protected void onDeactivate() {
-		super.onDeactivate();
 		
 		Loader.addTask(new Task<Void>() {
 			@Override

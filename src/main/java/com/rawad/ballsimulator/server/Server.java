@@ -18,16 +18,16 @@ import com.rawad.ballsimulator.server.sync.component.PingSync;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.GameSystem;
+import com.rawad.gamehelpers.game.Proxy;
+import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.world.World;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.server.AServer;
 import com.rawad.gamehelpers.utils.ClassMap;
 
 import javafx.concurrent.Task;
 
-public class Server extends AServer {
+public class Server extends Proxy {
 	
 	/** Mainly used to identify the server for announcements/messages. */
 	public static final String SIMPLE_NAME = "Server";
@@ -46,8 +46,8 @@ public class Server extends AServer {
 	private int tickCount;
 	
 	@Override
-	public void preInit(Game game) {
-		super.preInit(game);
+	public void preInitialize(Game game) {
+		super.preInitialize(game);
 		
 		game.setWorld(new WorldMP());// So that ServerGui can have it in time.
 		
@@ -59,7 +59,7 @@ public class Server extends AServer {
 	}
 	
 	@Override
-	public void init() {
+	public void initialize() {
 		
 		tickCount = 0;
 		
@@ -138,7 +138,7 @@ public class Server extends AServer {
 	}
 	
 	@Override
-	public void stop() {
+	public void terminate() {
 		
 		update = false;
 		
