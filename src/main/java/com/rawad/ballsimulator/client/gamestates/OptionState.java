@@ -33,7 +33,7 @@ public class OptionState extends State {
 	private SettingsFileParser settings;
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		

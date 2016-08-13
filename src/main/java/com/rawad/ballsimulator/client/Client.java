@@ -64,8 +64,8 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	private SimpleStringProperty gameTitle;
 	
 	@Override
-	public void preInitialize(Game game) {
-		super.preInitialize(game);
+	public void preInit(Game game) {
+		super.preInit(game);
 		
 		initializeGui();
 		
@@ -100,7 +100,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 				
 				try {
 					
-					initializeResources();
+					initResources();
 					
 				} catch(Exception ex) {
 					ex.printStackTrace();
@@ -182,7 +182,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	}
 	
 	@Override
-	public void initialize() {// TODO: Change all these initialize methods back to init; FXMLLoader gets confused...
+	public void init() {
 		
 		Loader.addTask(entityBlueprintLoadingTask);
 		Loader.addTask(loadingTask);
@@ -190,11 +190,11 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	}
 	
 	/** Called from the Loading Thread to initialize anything that might take an extended period of time. */
-	public void initializeResources() {
+	public void initResources() {
 		
 		LoadingState loadingState = new LoadingState(loadingTask);
 		
-		loadingState.initialize();
+		loadingState.init();
 		
 		sm.setCurrentState(loadingState);
 		onStateChange(loadingState, loadingState);

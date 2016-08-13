@@ -26,7 +26,7 @@ public class MenuState extends State {
 	@FXML private Button btnExit;
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		

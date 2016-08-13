@@ -64,7 +64,7 @@ public class WorldEditorState extends State {
 	@FXML private ComboBox<Double> heightSelector;
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		client = game.getProxies().get(Client.class);
 		

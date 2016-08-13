@@ -31,7 +31,7 @@ public class WorldViewState extends State {
 	private UserViewComponent cameraView;
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		this.world = game.getWorld();
 		

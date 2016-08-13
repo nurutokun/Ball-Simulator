@@ -15,12 +15,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
-/**
- * This class could be replaced with some sort of {@code PreLoader}.
- * 
- * @author Rawad
- *
- */
 public class LoadingState extends State {
 	
 	private Entity camera;
@@ -38,7 +32,7 @@ public class LoadingState extends State {
 	}
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		

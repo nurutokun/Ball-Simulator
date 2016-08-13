@@ -46,7 +46,7 @@ public class ControlState extends State {
 	private InputBindings inputBindings;
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		loader = game.getProxies().get(Client.class).getLoaders().get(Loader.class);
 		parser = game.getProxies().get(Client.class).getFileParsers().get(ControlsFileParser.class);

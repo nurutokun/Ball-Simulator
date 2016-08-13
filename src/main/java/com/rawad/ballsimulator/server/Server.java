@@ -46,8 +46,8 @@ public class Server extends Proxy {
 	private int tickCount;
 	
 	@Override
-	public void preInitialize(Game game) {
-		super.preInitialize(game);
+	public void preInit(Game game) {
+		super.preInit(game);
 		
 		game.setWorld(new WorldMP());// So that ServerGui can have it in time.
 		
@@ -59,7 +59,7 @@ public class Server extends Proxy {
 	}
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		tickCount = 0;
 		

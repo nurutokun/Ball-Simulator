@@ -79,7 +79,7 @@ public class MultiplayerGameState extends State {
 	private UserComponent playerUser;
 	
 	@Override
-	public void initialize() {
+	public void init() {
 		
 		this.client = game.getProxies().get(Client.class);
 		
@@ -194,7 +194,7 @@ public class MultiplayerGameState extends State {
 			switch(action) {
 			
 			case CHAT:
-				if(!pauseScreen.isShowing() && !inventory.isShowing()) mess.show();
+				if(!pauseScreen.isShowing() && !inventory.isShowing() && !mess.isShowing()) mess.show();
 				break;
 				
 			case PLAYER_LIST:

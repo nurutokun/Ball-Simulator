@@ -56,7 +56,7 @@ public class GameState extends State {
 	@FXML private Messenger mess;
 	
 	@Override
-	public void initialize() {
+	public void init() {
 
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
@@ -181,7 +181,7 @@ public class GameState extends State {
 			switch(action) {
 			
 			case CHAT:
-				if(!pauseScreen.isShowing() && !inventory.isShowing()) mess.show();
+				if(!pauseScreen.isShowing() && !inventory.isShowing() && !mess.isShowing()) mess.show();
 				break;
 			
 			default:
