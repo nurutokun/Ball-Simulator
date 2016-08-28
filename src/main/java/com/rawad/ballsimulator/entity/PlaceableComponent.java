@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.rawad.gamehelpers.game.entity.Component;
-import com.rawad.gamehelpers.game.entity.IListener;
+import com.rawad.gamehelpers.game.entity.Listener;
 
 public class PlaceableComponent extends Component {
 	
-	private ArrayList<IListener<TransformComponent>> extractionListeners = new ArrayList<IListener<TransformComponent>>();
+	private ArrayList<Listener<TransformComponent>> extractionListeners = new ArrayList<Listener<TransformComponent>>();
 	
 	/** Used for passing to the {@link com.rawad.gamehelpers.game.entity.Entity#createEntity(Object)} method. */
 	private Object toPlace = null;
@@ -18,7 +18,7 @@ public class PlaceableComponent extends Component {
 	private boolean removeRequested = false;
 	private boolean extractRequested = false;
 	
-	public ArrayList<IListener<TransformComponent>> getExtractionListeners() {
+	public ArrayList<Listener<TransformComponent>> getExtractionListeners() {
 		return extractionListeners;
 	}
 	

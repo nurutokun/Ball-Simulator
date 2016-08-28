@@ -18,11 +18,11 @@ import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.gamestates.IStateChangeListener;
+import com.rawad.gamehelpers.client.gamestates.StateChangeListener;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.client.renderengine.IRenderable;
+import com.rawad.gamehelpers.client.renderengine.Renderable;
 import com.rawad.gamehelpers.client.renderengine.RenderingTimer;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
@@ -41,7 +41,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class Client extends Proxy implements IStateChangeListener, IRenderable {
+public class Client extends Proxy implements StateChangeListener, Renderable {
 	
 	// narutoget.io and watchnaruto.tv
 	// 472
@@ -59,7 +59,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	private Task<Void> entityBlueprintLoadingTask;
 	private Task<Void> loadingTask;
 	
-	private RenderingTimer renderingTimer;
+	private RenderingTimer renderingTimer;// According to fraps, this makes game go from ~20 to 50-60 fps.
 	
 	private SimpleStringProperty gameTitle;
 	
@@ -67,7 +67,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 	public void preInit(Game game) {
 		super.preInit(game);
 		
-		initializeGui();
+		initGui();
 		
 		gameTitle.setValue(game.getName());
 		
@@ -124,7 +124,7 @@ public class Client extends Proxy implements IStateChangeListener, IRenderable {
 		
 	}
 	
-	protected void initializeGui() {
+	protected void initGui() {
 		
 		scene = new Scene(new Root(new StackPane(), ""), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 		scene.setFill(Color.BLACK);

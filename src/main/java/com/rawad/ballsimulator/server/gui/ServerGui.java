@@ -17,7 +17,7 @@ import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.gamehelpers.client.renderengine.IRenderable;
+import com.rawad.gamehelpers.client.renderengine.Renderable;
 import com.rawad.gamehelpers.client.renderengine.RenderingTimer;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.Proxy;
@@ -40,7 +40,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-public class ServerGui extends Proxy implements IRenderable {
+public class ServerGui extends Proxy implements Renderable {
 	
 	private static final int TARGET_FPS = 60;
 	

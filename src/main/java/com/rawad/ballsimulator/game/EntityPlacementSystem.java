@@ -10,7 +10,7 @@ import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.IListener;
+import com.rawad.gamehelpers.game.entity.Listener;
 import com.rawad.gamehelpers.geometry.Point2d;
 
 public class EntityPlacementSystem extends GameSystem {
@@ -46,7 +46,7 @@ public class EntityPlacementSystem extends GameSystem {
 				TransformComponent transformToExtract = entityToExtract.getComponent(TransformComponent.class);
 				
 				if(transformToExtract != null) {
-					for(IListener<TransformComponent> listener: placeableComp.getExtractionListeners()) {
+					for(Listener<TransformComponent> listener: placeableComp.getExtractionListeners()) {
 						listener.onEvent(e, transformToExtract);
 					}
 				}

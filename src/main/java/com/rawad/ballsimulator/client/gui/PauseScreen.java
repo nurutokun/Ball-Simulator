@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client.gui;
 
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.gui.IHideable;
+import com.rawad.gamehelpers.client.gui.Hideable;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -11,7 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
-public class PauseScreen extends GridPane implements IHideable {
+public class PauseScreen extends GridPane implements Hideable {
 	
 	@FXML private Button resume;
 	@FXML private Button mainMenu;

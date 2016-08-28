@@ -1,7 +1,7 @@
 package com.rawad.ballsimulator.client.gui;
 
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.gui.IHideable;
+import com.rawad.gamehelpers.client.gui.Hideable;
 import com.rawad.gamehelpers.utils.Util;
 
 import javafx.application.Platform;
@@ -14,7 +14,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 
-public class Messenger extends BorderPane implements IHideable {
+public class Messenger extends BorderPane implements Hideable {
 	
 	@FXML private TextArea outputArea;
 	@FXML private TextField inputArea;

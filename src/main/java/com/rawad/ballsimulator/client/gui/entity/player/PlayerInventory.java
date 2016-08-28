@@ -2,7 +2,7 @@ package com.rawad.ballsimulator.client.gui.entity.player;
 
 import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.gui.IHideable;
+import com.rawad.gamehelpers.client.gui.Hideable;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -13,7 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 
-public class PlayerInventory extends GridPane implements IHideable {
+public class PlayerInventory extends GridPane implements Hideable {
 	
 	// 5 rows. 10 columns default
 	private static final int ROWS = 5;

@@ -6,7 +6,7 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.IListener;
+import com.rawad.gamehelpers.game.entity.Listener;
 import com.rawad.gamehelpers.geometry.Point2d;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -60,7 +60,7 @@ public class CollisionSystem extends GameSystem {
 		collisionComp.setCollideX(collideX);
 		collisionComp.setCollideY(collideY);
 		
-		IListener<CollisionComponent> listener = gameEngine.getGameSystems().get(MovementSystem.class);
+		Listener<CollisionComponent> listener = gameEngine.getGameSystems().get(MovementSystem.class);
 		
 		if(listener != null) listener.onEvent(e, collisionComp);
 		

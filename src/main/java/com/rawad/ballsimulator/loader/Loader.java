@@ -13,12 +13,12 @@ import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Blueprint;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.resources.ALoader;
+import com.rawad.gamehelpers.resources.AbstractLoader;
 
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 
-public class Loader extends ALoader {
+public class Loader extends AbstractLoader {
 	
 	private static final String FOLDER_RES = "res";
 	private static final String FOLDER_MISC = "files";
@@ -125,7 +125,7 @@ public class Loader extends ALoader {
 	}
 	
 	public static InputStream streamLayoutFile(Class<? extends Object> clazz, String layoutName) {
-		return clazz.getResourceAsStream(layoutName + ALoader.REGEX_EXTENSION + EXTENSION_LAYOUT_FILE);
+		return clazz.getResourceAsStream(layoutName + AbstractLoader.REGEX_EXTENSION + EXTENSION_LAYOUT_FILE);
 	}
 	
 	public static InputStream streamLayoutFile(Class<? extends Object> clazz) {
@@ -133,7 +133,7 @@ public class Loader extends ALoader {
 	}
 	
 	public static String getStyleSheetLocation(Class<? extends Object> clazz, String styleSheetName) {
-		return clazz.getResource(styleSheetName + ALoader.REGEX_EXTENSION + EXTENSION_STYLESHEET_FILE).toExternalForm();
+		return clazz.getResource(styleSheetName + AbstractLoader.REGEX_EXTENSION + EXTENSION_STYLESHEET_FILE).toExternalForm();
 	}
 	
 	public static Task<Void> getEntityBlueprintLoadingTask(Loader loader, EntityFileParser parser) {
