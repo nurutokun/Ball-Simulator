@@ -25,8 +25,6 @@ public class RenderingComponent extends Component {
 			
 			renderingComp.setTexture(getTexture());
 			
-			return renderingComp;
-			
 		}
 		
 		return comp;

@@ -36,8 +36,6 @@ public class AttachmentComponent extends Component {
 			
 			attachmentComp.setAttachedTo(getAttachedTo());
 			
-			return attachmentComp;
-			
 		}
 		
 		return comp;

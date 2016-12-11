@@ -82,8 +82,6 @@ public class CollisionComponent extends Component {
 			
 			collisionComp.getCollidingWithEntity().set(getCollidingWithEntity().get());
 			
-			return collisionComp;
-			
 		}
 		
 		return comp;

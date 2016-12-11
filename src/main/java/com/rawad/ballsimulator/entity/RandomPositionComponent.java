@@ -30,8 +30,6 @@ public class RandomPositionComponent extends Component {
 			
 			randomPositionComp.setGenerateNewPosition(isGenerateNewPosition());
 			
-			return randomPositionComp;
-			
 		}
 		
 		return comp;

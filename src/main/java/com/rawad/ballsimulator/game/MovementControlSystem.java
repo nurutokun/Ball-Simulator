@@ -1,6 +1,4 @@
-package com.rawad.ballsimulator.game;
-
-import java.util.ArrayList;
+	package com.rawad.ballsimulator.game;
 
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.input.InputBindings;
@@ -8,15 +6,13 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.event.Event;
 
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.KeyEvent;
 
 public class MovementControlSystem extends GameSystem implements EventHandler<KeyEvent> {
-	
-	private ArrayList<Listener<MovementComponent>> listeners;
 	
 	private InputBindings inputBindings;
 	
@@ -27,8 +23,6 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 	
 	public MovementControlSystem(InputBindings inputBindings) {
 		super();
-		
-		listeners = new ArrayList<Listener<MovementComponent>>();
 		
 		this.inputBindings = inputBindings;
 		
@@ -50,9 +44,7 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 			movementComp.setRight(right);
 			movementComp.setLeft(left);
 			
-			for(Listener<MovementComponent> listener: listeners) {
-				listener.onEvent(e, movementComp);
-			}
+			gameEngine.submitEvent(new Event(e, MovementComponent.class));
 			
 		}
 		
@@ -125,10 +117,6 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 			break;
 		
 		}
-	}
-	
-	public ArrayList<Listener<MovementComponent>> getListeners() {
-		return listeners;
 	}
 	
 }

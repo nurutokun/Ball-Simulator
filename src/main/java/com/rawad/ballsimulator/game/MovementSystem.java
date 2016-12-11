@@ -5,9 +5,10 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.event.Event;
+import com.rawad.gamehelpers.game.entity.event.Listener;
 
-public class MovementSystem extends GameSystem implements Listener<CollisionComponent> {
+public class MovementSystem extends GameSystem implements Listener {
 	
 	private static final double JERK = 0.7d;// 0.1d
 	
@@ -22,6 +23,8 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(MovementComponent.class);
+		
+		gameEngine.registerListener(CollisionComponent.class, this);
 		
 	}
 	
@@ -109,10 +112,13 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 	}
 	
 	@Override
-	public void onEvent(Entity e, CollisionComponent collisionComp) {
+	public void onEvent(Event ev) {
+		
+		Entity e = ev.getEntity();
 		
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		MovementComponent movementComp = e.getComponent(MovementComponent.class);
+		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
 		double ax = movementComp.getAx();
 		double ay = movementComp.getAy();
@@ -124,20 +130,22 @@ public class MovementSystem extends GameSystem implements Listener<CollisionComp
 		double newY = transformComp.getY();
 		
 		if(collisionComp.isCollideX()) {
-			
 			newX -= vx;
 			
 			ax /= 2d;
-			vx = -vx*3/4;
+			vx = -vx*3d/4d;
+			
+			collisionComp.setCollideX(false);
 			
 		}
 		
 		if(collisionComp.isCollideY()) {
-			
 			newY -= vy;
 			
 			ay /= 2d;
 			vy = -vy*3d/4d;
+			
+			collisionComp.setCollideY(false);
 			
 		}
 		

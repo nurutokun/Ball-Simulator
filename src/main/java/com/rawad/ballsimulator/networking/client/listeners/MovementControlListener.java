@@ -5,9 +5,10 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.event.Event;
+import com.rawad.gamehelpers.game.entity.event.Listener;
 
-public class MovementControlListener implements Listener<MovementComponent> {
+public class MovementControlListener implements Listener {
 	
 	private ClientNetworkManager networkManager;
 	
@@ -16,8 +17,11 @@ public class MovementControlListener implements Listener<MovementComponent> {
 	}
 	
 	@Override
-	public void onEvent(Entity e, MovementComponent movementComp) {
+	public void onEvent(Event ev) {
 		
+		Entity e = ev.getEntity();
+		
+		MovementComponent movementComp = e.getComponent(MovementComponent.class);
 		NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 		
 		if(networkComp != null) networkManager.sendPacket(new CPacket02Move(networkComp, movementComp));

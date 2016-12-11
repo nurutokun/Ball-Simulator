@@ -147,8 +147,6 @@ public class MovementComponent extends Component {
 			movementComp.setRight(isRight());
 			movementComp.setLeft(isLeft());
 			
-			return movementComp;
-			
 		}
 		
 		return comp;

@@ -152,8 +152,6 @@ public class TransformComponent extends Component {
 			
 			transformComp.setTheta(getTheta());
 			
-			return transformComp;
-			
 		}
 		
 		return comp;

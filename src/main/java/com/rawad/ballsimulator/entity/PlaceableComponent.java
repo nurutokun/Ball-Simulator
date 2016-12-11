@@ -1,26 +1,20 @@
 package com.rawad.ballsimulator.entity;
 
-import java.util.ArrayList;
-
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.rawad.gamehelpers.game.entity.Component;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.Entity;
 
 public class PlaceableComponent extends Component {
-	
-	private ArrayList<Listener<TransformComponent>> extractionListeners = new ArrayList<Listener<TransformComponent>>();
 	
 	/** Used for passing to the {@link com.rawad.gamehelpers.game.entity.Entity#createEntity(Object)} method. */
 	private Object toPlace = null;
 	
+	private Entity toExtract = null;
+	
 	private boolean placeRequested = false;
 	private boolean removeRequested = false;
 	private boolean extractRequested = false;
-	
-	public ArrayList<Listener<TransformComponent>> getExtractionListeners() {
-		return extractionListeners;
-	}
 	
 	/**
 	 * @return the toPlace
@@ -34,6 +28,20 @@ public class PlaceableComponent extends Component {
 	 */
 	public void setToPlace(Object toPlace) {
 		this.toPlace = toPlace;
+	}
+	
+	/**
+	 * @return the toExtract
+	 */
+	public Entity getToExtract() {
+		return toExtract;
+	}
+	
+	/**
+	 * @param toExtract the toExtract to set
+	 */
+	@XmlTransient public void setToExtract(Entity toExtract) {
+		this.toExtract = toExtract;
 	}
 	
 	/**
@@ -87,10 +95,6 @@ public class PlaceableComponent extends Component {
 			
 			placeableComp.setPlaceRequested(isPlaceRequested());
 			placeableComp.setToPlace(getToPlace());
-			
-			placeableComp.getExtractionListeners().addAll(getExtractionListeners());
-			
-			return placeableComp;
 			
 		}
 		

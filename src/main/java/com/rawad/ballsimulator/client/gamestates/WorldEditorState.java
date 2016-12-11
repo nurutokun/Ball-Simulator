@@ -105,7 +105,22 @@ public class WorldEditorState extends State {
 		toBePlacedTransform = placeable.getComponent(TransformComponent.class);
 		
 		placeableComp = placeable.getComponent(PlaceableComponent.class);
-		placeableComp.getExtractionListeners().add((e, component) -> {
+		
+		placeableComp.setToPlace(EEntity.STATIC);// Can be any other entity too. < and V
+		placeable.getComponent(SelectionComponent.class).setSelected(true);
+		placeable.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
+		
+		game.getGameEngine().registerListener(PlaceableComponent.class, (ev) -> {
+			
+			Entity e = ev.getEntity();
+			
+			if(!placeable.equals(e)) return;
+			
+			PlaceableComponent placeableComp = e.getComponent(PlaceableComponent.class);
+			
+			Entity toExtract = placeableComp.getToExtract();
+			
+			TransformComponent component = toExtract.getComponent(TransformComponent.class);
 			
 			final double scaleX = component.getScaleX();
 			final double scaleY = component.getScaleY();
@@ -118,9 +133,6 @@ public class WorldEditorState extends State {
 			});
 			
 		});
-		placeableComp.setToPlace(EEntity.STATIC);// Can be any other entity too. < and V
-		placeable.getComponent(SelectionComponent.class).setSelected(true);
-		placeable.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
 		
 		Root root = GuiRegister.loadGui(this);
 		

@@ -79,8 +79,6 @@ public class HealthComponent extends Component {
 			healthComp.setRegenRate(getRegenRate());
 			healthComp.setRegen(isRegen());
 			
-			return healthComp;
-			
 		}
 		
 		return comp;

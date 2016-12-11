@@ -6,7 +6,7 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.Listener;
+import com.rawad.gamehelpers.game.entity.event.Event;
 import com.rawad.gamehelpers.geometry.Point2d;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -56,13 +56,12 @@ public class CollisionSystem extends GameSystem {
 		
 		collisionComp.getCollidingWithEntity().set(collidingWithX == collidingWithY? collidingWithX:collidingWithY);
 		// TODO: Which entity gets collided with? Horizontal or vertical? Maybe both?
+		// TODO: Consider removing saving the colliding-with entity in favour of using the Event class.
 		
 		collisionComp.setCollideX(collideX);
 		collisionComp.setCollideY(collideY);
 		
-		Listener<CollisionComponent> listener = gameEngine.getGameSystems().get(MovementSystem.class);
-		
-		if(listener != null) listener.onEvent(e, collisionComp);
+		if(collideX || collideY) gameEngine.submitEvent(new Event(e, CollisionComponent.class));
 		
 	}
 	

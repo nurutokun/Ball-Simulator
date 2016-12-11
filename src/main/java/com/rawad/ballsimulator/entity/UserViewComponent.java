@@ -100,8 +100,6 @@ public class UserViewComponent extends Component {
 			
 			userViewComp.setShowEntireWorld(isShowEntireWorld());
 			
-			return userViewComp;
-			
 		}
 		
 		return comp;

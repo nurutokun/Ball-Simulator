@@ -37,8 +37,6 @@ public class GuiComponent extends Component {
 			
 			guiComp.setGui(getGui());
 			
-			return guiComp;
-			
 		}
 		
 		return comp;

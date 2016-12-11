@@ -48,8 +48,6 @@ public class SelectionComponent extends Component {
 			selectionComp.setSelected(isSelected());
 			selectionComp.setHighlighted(isHighlighted());
 			
-			return selectionComp;
-			
 		}
 		
 		return comp;
