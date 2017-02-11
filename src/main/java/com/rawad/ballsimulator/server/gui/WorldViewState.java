@@ -74,7 +74,7 @@ public class WorldViewState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = game.getProxies().get(ServerGui.class).getInputBindings().get(keyEvent.getCode());
+			InputAction action = client.getInputBindings().get(keyEvent.getCode());
 			
 			switch(action) {
 			

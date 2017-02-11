@@ -32,6 +32,8 @@ public class ServerStart extends Application {
 			Logger.log(Logger.WARNING, "Didn't specify whether or not gui should be used so it won't be.");
 		}
 		
+		game.getProxies().put(server);
+		
 		if(useGui) {
 			
 			serverGui = new ServerGui(server);
@@ -44,8 +46,6 @@ public class ServerStart extends Application {
 			
 		}
 		
-		game.getProxies().put(server);
-		
 		GameManager.launchGame(game);
 		
 	}
@@ -53,7 +53,7 @@ public class ServerStart extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		serverGui.setStage(primaryStage);
+		serverGui.initGui(primaryStage);
 		
 	}
 	

@@ -89,6 +89,19 @@ public class ServerGui extends Proxy implements Renderable {
 			
 		}, true);
 		
+		loader = new FXMLLoader();
+		loader.setController(this);
+		
+		try {
+			
+			loader.load(Loader.streamLayoutFile(this.getClass()));
+			
+			Logger.getPrintStreams().add(consolePrinter);
+			
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
 	}
 	
 	@Override
@@ -103,20 +116,20 @@ public class ServerGui extends Proxy implements Renderable {
 				
 				initResources();
 				
-				initGameDependantGui();
-				
 				renderingTimer.start();
+				
+				Platform.runLater(() -> initGameDependantGui());
 				
 				return null;
 			}
 		};
 		
+		Loader.addTask(loadingTask);
+		
 	}
 	
 	@Override
 	public void init() {
-		
-		Loader.addTask(loadingTask);
 		
 	}
 	
@@ -124,16 +137,21 @@ public class ServerGui extends Proxy implements Renderable {
 		
 		initInputBindings();
 		
-		GameTextures.loadTextures(game.getProxies().get(Server.class).getLoaders().get(Loader.class));
+		GameTextures.loadTextures(server.getLoaders().get(Loader.class));
 		
 		worldViewState = new WorldViewState();
-		
 		worldViewState.setGame(game);
 		worldViewState.init();
 		
 	}
 	
+	/**
+	 * Initializes GUI related things that require some key elements of the game to be loaded already (e.g. textures).
+	 */
 	private void initGameDependantGui() {
+		
+		// TODO: Some things in here could probably be moved to the initGui(Stage) method since the GUI components are
+		// loaded much earlier now (all the way from the constructor).
 		
 		stage.setOnCloseRequest(e -> {
 			
@@ -145,11 +163,12 @@ public class ServerGui extends Proxy implements Renderable {
 		stage.setTitle(game.getName() + " " + Server.SIMPLE_NAME);
 		stage.getIcons().add(GameTextures.findTexture(GameTextures.TEXTURE_GAME_ICON));
 		
-		debugChanger.selectedProperty().bindBidirectional(game.debugProperty());
+		debugChanger.setOnAction(e -> game.setDebug(debugChanger.isSelected()));
 		
 		FXCollections.observableArrayList(game.getWorld().getEntities())
 				.addListener((Change<? extends Entity> change) -> {
 			while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
+				// Items added.
 				if(change.getAddedSize() > 0) {
 					
 					List<? extends Entity> addedEntities = change.getAddedSubList();
@@ -160,6 +179,7 @@ public class ServerGui extends Proxy implements Renderable {
 					
 				}
 				
+				// Items removed.
 				if(change.getRemovedSize() > 0) {
 					
 					List<? extends Entity> removedEntities = change.getRemoved();
@@ -212,47 +232,39 @@ public class ServerGui extends Proxy implements Renderable {
 		
 		server.getServerSyncs().add(new GuiSync(playerList));
 		
-		
 	}
 	
-	protected void initGui() {
+	/**
+	 * Should be called from the JavaFX {@link Application.start(Stage)}. This method does expect to be run on the JavaFX
+	 * Application Thread.
+	 * 
+	 * @param stage
+	 */
+	public void initGui(Stage stage) {
 		
-		loader = new FXMLLoader();
-		loader.setController(this);
+		this.stage = stage;
 		
-		try {
-			loader.load(Loader.streamLayoutFile(getClass()));
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
+		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		stage.setScene(scene);
 		
-		Logger.getPrintStreams().add(consolePrinter);
-		
-		Platform.runLater(() -> {
+		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
 			
-			Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-			stage.setScene(scene);
+			String input = console.getInputArea().getText();
 			
-			console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
-				
-				String input = console.getInputArea().getText();
-				
-				Logger.log(Logger.DEBUG, input);
-				
-				parseConsoleInput(input);
-				
-			});
-			console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
-			console.getOutputArea().setWrapText(false);
-			console.show();
+			Logger.log(Logger.DEBUG, input);
 			
-			stage.setTitle(Server.SIMPLE_NAME);
-			stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-			stage.setOnCloseRequest(null);
-			stage.sizeToScene();
-			stage.show();
+			parseConsoleInput(input);
 			
 		});
+		console.getInputArea().setOnAction(e -> console.getInputArea().setText(""));
+		console.getOutputArea().setWrapText(false);
+		console.show();
+		
+		stage.setTitle(Server.SIMPLE_NAME);
+		stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+		stage.setOnCloseRequest(null);
+		stage.sizeToScene();
+		stage.show();
 		
 	}
 	
@@ -273,7 +285,10 @@ public class ServerGui extends Proxy implements Renderable {
 	
 	@FXML private void requestClose() {
 		
-		server.getGame().requestStop();
+		/* Used t be server.getGame(); game could be null if requestClose() is called after a server instance is made but
+		 * before the game is launched (i.e. preInit(Game) is called). However, game would be null regardless until
+		 * preInit(Game) is called. Just don't try to close the game when it hasn't even started running yet... */
+		game.requestStop();
 		
 	}
 	
@@ -281,6 +296,11 @@ public class ServerGui extends Proxy implements Renderable {
 	public void tick() {
 		
 		Mouse.update(worldViewStateRoot);
+		
+		// Removes the need for the game's 'debug' mode to be a JavaFX property.
+		if(debugChanger.isSelected() != game.isDebug()) {
+			Platform.runLater(() -> debugChanger.setSelected(game.isDebug()));
+		}
 		
 	}
 	

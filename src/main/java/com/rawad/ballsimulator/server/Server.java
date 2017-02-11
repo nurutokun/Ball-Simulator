@@ -51,10 +51,16 @@ public class Server extends Proxy {
 		
 		game.setWorld(new WorldMP());// So that ServerGui can have it in time.
 		
-		loaders.put(new Loader());
+		Loader loader = new Loader();
 		
-		fileParsers.put(new EntityFileParser());
+		loaders.put(loader);
+		
+		EntityFileParser entityFileParser = new EntityFileParser();
+		
+		fileParsers.put(entityFileParser);
 		fileParsers.put(new TerrainFileParser());
+		
+		Loader.addTask(Loader.getEntityBlueprintLoadingTask(loader, entityFileParser));
 		
 	}
 	
@@ -76,9 +82,6 @@ public class Server extends Proxy {
 		compSyncs.add(new PingSync());
 		
 		networkManager = new ServerNetworkManager(this);
-		
-		Loader.addTask(Loader.getEntityBlueprintLoadingTask(loaders.get(Loader.class), 
-				fileParsers.get(EntityFileParser.class)));
 		
 		Loader.addTask(new Task<Void>() {
 			@Override
