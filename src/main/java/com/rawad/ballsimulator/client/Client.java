@@ -210,7 +210,11 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 		
 		initializeInputBindings();
 		
-		GameTextures.loadTextures(loaders.get(Loader.class));
+		Loader loader = loaders.get(Loader.class);
+		
+		GameTextures.loadTextures(loader);
+		
+		Background.loadTextures(loader);
 		
 		sm.addState(new MenuState());
 		sm.addState(new GameState());

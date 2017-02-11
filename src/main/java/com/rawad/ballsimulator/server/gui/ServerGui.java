@@ -137,7 +137,11 @@ public class ServerGui extends Proxy implements Renderable {
 		
 		initInputBindings();
 		
-		GameTextures.loadTextures(server.getLoaders().get(Loader.class));
+		Loader loader = server.getLoaders().get(Loader.class);
+		
+		GameTextures.loadTextures(loader);
+		
+		GameTextures.loadGameIcon(loader);
 		
 		worldViewState = new WorldViewState();
 		worldViewState.setGame(game);
@@ -147,11 +151,10 @@ public class ServerGui extends Proxy implements Renderable {
 	
 	/**
 	 * Initializes GUI related things that require some key elements of the game to be loaded already (e.g. textures).
+	 * This does modify {@code Nodes} that are already part of the {@link stage} so it expects to be run on the
+	 * JavaFX Application Thread.
 	 */
 	private void initGameDependantGui() {
-		
-		// TODO: Some things in here could probably be moved to the initGui(Stage) method since the GUI components are
-		// loaded much earlier now (all the way from the constructor).
 		
 		stage.setOnCloseRequest(e -> {
 			

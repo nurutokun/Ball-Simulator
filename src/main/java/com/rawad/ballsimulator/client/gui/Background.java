@@ -31,7 +31,7 @@ public class Background {
 		
 		DEFAULT_TEXTURE = loader.loadTexture("", DEFAULT_TEXTURE_FILE);
 		
-		DEFAULT_FLIPPED_TEXTURE = getHorizontallyFlippedImage(DEFAULT_TEXTURE);
+		DEFAULT_FLIPPED_TEXTURE = Background.getHorizontallyFlippedImage(DEFAULT_TEXTURE);
 		
 		Background.instance().texture = DEFAULT_TEXTURE;
 		Background.instance().flippedTexture = DEFAULT_FLIPPED_TEXTURE;

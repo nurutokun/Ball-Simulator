@@ -12,7 +12,7 @@ import com.rawad.gamehelpers.utils.Util;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class ServerStart extends Application {
+public class BallSimulatorServerStart extends Application {
 	
 	private static final BallSimulator game = new BallSimulator();
 	

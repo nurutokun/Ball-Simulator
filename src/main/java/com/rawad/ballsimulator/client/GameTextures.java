@@ -2,7 +2,6 @@ package com.rawad.ballsimulator.client;
 
 import java.util.HashMap;
 
-import com.rawad.ballsimulator.client.gui.Background;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.RenderingComponent;
 import com.rawad.ballsimulator.loader.Loader;
@@ -41,8 +40,6 @@ public final class GameTextures {
 		
 		BlueprintManager.getBlueprint(EEntity.PLAYER).getEntityBase().getComponent(RenderingComponent.class)
 					.setTexture(GameTextures.findTexture(EEntity.PLAYER));
-		
-		Background.loadTextures(loader);
 		
 	}
 	
