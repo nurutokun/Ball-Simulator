@@ -10,8 +10,6 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.log.Logger;
-
 
 public class RenderingSystem extends GameSystem {
 	
