@@ -3,10 +3,11 @@ package com.rawad.ballsimulator.game;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.game.event.EventType;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.event.Event;
-import com.rawad.gamehelpers.game.entity.event.Listener;
+import com.rawad.gamehelpers.game.event.Event;
+import com.rawad.gamehelpers.game.event.Listener;
 
 public class MovementSystem extends GameSystem implements Listener {
 	
@@ -24,7 +25,8 @@ public class MovementSystem extends GameSystem implements Listener {
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(MovementComponent.class);
 		
-		gameEngine.registerListener(CollisionComponent.class, this);
+		gameEngine.registerListener(EventType.COLLISION_ENTITY, this);
+		gameEngine.registerListener(EventType.COLLISION_WALL, this);
 		
 	}
 	

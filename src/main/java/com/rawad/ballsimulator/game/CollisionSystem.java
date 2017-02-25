@@ -3,10 +3,11 @@ package com.rawad.ballsimulator.game;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.game.event.EventType;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.event.Event;
+import com.rawad.gamehelpers.game.event.Event;
 import com.rawad.gamehelpers.geometry.Point2d;
 import com.rawad.gamehelpers.utils.Util;
 
@@ -61,7 +62,7 @@ public class CollisionSystem extends GameSystem {
 		collisionComp.setCollideX(collideX);
 		collisionComp.setCollideY(collideY);
 		
-		if(collideX || collideY) gameEngine.submitEvent(new Event(e, CollisionComponent.class));
+		if(collideX || collideY) gameEngine.submitEvent(new Event(EventType.COLLISION_ENTITY,e));
 		
 	}
 	

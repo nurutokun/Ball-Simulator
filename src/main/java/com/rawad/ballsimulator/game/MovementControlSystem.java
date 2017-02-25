@@ -1,12 +1,14 @@
 	package com.rawad.ballsimulator.game;
 
+import static com.rawad.ballsimulator.game.event.EventType.MOVEMENT;
+
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.event.Event;
+import com.rawad.gamehelpers.game.event.Event;
 
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -44,7 +46,7 @@ public class MovementControlSystem extends GameSystem implements EventHandler<Ke
 			movementComp.setRight(right);
 			movementComp.setLeft(left);
 			
-			gameEngine.submitEvent(new Event(e, MovementComponent.class));
+			gameEngine.submitEvent(new Event(MOVEMENT, e));
 			
 		}
 		

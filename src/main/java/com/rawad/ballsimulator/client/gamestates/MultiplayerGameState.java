@@ -15,7 +15,6 @@ import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.AttachmentComponent;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.GuiComponent;
-import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
@@ -26,6 +25,7 @@ import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
+import com.rawad.ballsimulator.game.event.EventType;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
@@ -116,7 +116,7 @@ public class MultiplayerGameState extends State {
 		masterRender.getRenders().put(debugRender);
 		
 		movementControlSystem = new MovementControlSystem(client.getInputBindings());
-		game.getGameEngine().registerListener(MovementComponent.class, new MovementControlListener(networkManager));
+		game.getGameEngine().registerListener(EventType.MOVEMENT, new MovementControlListener(networkManager));
 		
 		gameSystems.put(movementControlSystem);
 		gameSystems.put(new MovementSystem());

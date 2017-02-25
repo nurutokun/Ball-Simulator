@@ -5,8 +5,8 @@ import com.rawad.ballsimulator.networking.client.ClientNetworkManager;
 import com.rawad.ballsimulator.networking.client.udp.CPacket02Move;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.event.Event;
-import com.rawad.gamehelpers.game.entity.event.Listener;
+import com.rawad.gamehelpers.game.event.Event;
+import com.rawad.gamehelpers.game.event.Listener;
 
 public class MovementControlListener implements Listener {
 	

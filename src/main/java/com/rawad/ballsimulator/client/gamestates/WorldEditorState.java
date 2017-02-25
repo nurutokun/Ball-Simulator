@@ -24,6 +24,7 @@ import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.EntitySelectionSystem;
 import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
+import com.rawad.ballsimulator.game.event.EventType;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
@@ -110,7 +111,7 @@ public class WorldEditorState extends State {
 		placeable.getComponent(SelectionComponent.class).setSelected(true);
 		placeable.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
 		
-		game.getGameEngine().registerListener(PlaceableComponent.class, (ev) -> {
+		game.getGameEngine().registerListener(EventType.ENTITY_EXTRACT, (ev) -> {
 			
 			Entity e = ev.getEntity();
 			

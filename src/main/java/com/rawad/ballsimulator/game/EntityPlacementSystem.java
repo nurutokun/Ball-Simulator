@@ -5,12 +5,13 @@ import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.game.event.EventType;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameManager;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.entity.event.Event;
+import com.rawad.gamehelpers.game.event.Event;
 import com.rawad.gamehelpers.geometry.Point2d;
 
 public class EntityPlacementSystem extends GameSystem {
@@ -45,7 +46,7 @@ public class EntityPlacementSystem extends GameSystem {
 				
 				placeableComp.setToExtract(entityToExtract);
 				
-				gameEngine.submitEvent(new Event(e, PlaceableComponent.class));
+				gameEngine.submitEvent(new Event(EventType.ENTITY_EXTRACT, e));
 				
 			}
 			
