@@ -1,10 +1,8 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
-import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerInventory;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
@@ -19,15 +17,19 @@ import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.game.CameraFollowSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
-import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.MovementSystem;
 import com.rawad.ballsimulator.game.PositionGenerationSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.game.RollingSystem;
+import com.rawad.ballsimulator.game.World;
+import com.rawad.ballsimulator.game.event.MovementControlHandler;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.jfxengine.gui.GuiRegister;
+import com.rawad.jfxengine.gui.Root;
+import com.rawad.jfxengine.loader.GuiLoader;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -39,7 +41,7 @@ public class GameState extends State {
 	
 	private Client client;
 	
-	private MovementControlSystem movementControlSystem;
+	private World world;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
@@ -57,7 +59,9 @@ public class GameState extends State {
 	
 	@Override
 	public void init() {
-
+		
+		world = new World(gameEngine.getEntities());
+		
 		player = Entity.createEntity(EEntity.PLAYER);
 		player.addComponent(new GuiComponent());
 		player.addComponent(new UserControlComponent());
@@ -82,26 +86,27 @@ public class GameState extends State {
 		this.client = game.getProxies().get(Client.class);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(game, client.getRenderingTimer(), camera);
+		debugRender = new DebugRender(world, client.getRenderingTimer(), camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);
 		
-		movementControlSystem = new MovementControlSystem(client.getInputBindings());
-		
-		gameSystems.put(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		gameSystems.put(movementControlSystem);
-		gameSystems.put(new MovementSystem());
-		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
-		gameSystems.put(new RollingSystem());
-		gameSystems.put(new CameraFollowSystem(world.getWidth(), world.getHeight()));
-		gameSystems.put(new RenderingSystem(worldRender));
+		gameEngine.addGameSystem(new PositionGenerationSystem(gameEngine, world.getWidth(), world.getHeight()));
+		gameEngine.addGameSystem(new MovementSystem(eventManager));
+		gameEngine.addGameSystem(new CollisionSystem(eventManager, world.getWidth(), world.getHeight()));
+		gameEngine.addGameSystem(new RollingSystem());
+		gameEngine.addGameSystem(new CameraFollowSystem(world.getWidth(), world.getHeight()));
+		gameEngine.addGameSystem(new RenderingSystem(worldRender));
 		
 		Root root = GuiRegister.loadGui(this);
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = client.getInputBindings().get(keyEvent.getCode());
+			Object actionObject = client.getInputBindings().get(keyEvent.getCode());
+			
+			if(!(actionObject instanceof InputAction)) return;
+			
+			InputAction action = (InputAction) actionObject;
 			
 			if(pauseScreen.isShowing() || inventory.isShowing() || mess.isShowing()) {
 				switch(action) {
@@ -160,7 +165,7 @@ public class GameState extends State {
 				
 			case REFRESH:
 				
-				String style = Loader.getStyleSheetLocation(GameState.class, root.getStyleSheet());
+				String style = GuiLoader.getStyleSheetLocation(GameState.class, root.getStyleSheet());
 				
 				root.getScene().getStylesheets().remove(style);
 				root.getScene().getStylesheets().add(style);
@@ -176,9 +181,11 @@ public class GameState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_RELEASED, keyEvent -> {
 			
-			InputAction action = client.getInputBindings().get(keyEvent.getCode());
+			Object action = client.getInputBindings().get(keyEvent.getCode());
 			
-			switch(action) {
+			if(!(action instanceof InputAction)) return;
+			
+			switch((InputAction) action) {
 			
 			case CHAT:
 				if(!pauseScreen.isShowing() && !inventory.isShowing() && !mess.isShowing()) mess.show();
@@ -199,8 +206,11 @@ public class GameState extends State {
 		pauseScreen.visibleProperty().addListener(e -> game.setPaused(pauseScreen.isShowing()));
 		inventory.visibleProperty().addListener(e -> game.setPaused(inventory.isShowing()));
 		
-		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
-		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
+		MovementControlHandler movementControlHandler = new MovementControlHandler(game.getGameEngine(), 
+				client.getInputBindings(), player);
+		
+		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlHandler);
+		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlHandler);
 		
 	}
 	

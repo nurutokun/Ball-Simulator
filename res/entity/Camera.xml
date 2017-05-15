@@ -11,6 +11,9 @@
         <y>0.0</y>
     </comp>
     <comp xsi:type="userViewComponent">
+        <preferredScaleX>1.0</preferredScaleX>
+        <preferredScaleY>1.0</preferredScaleY>
+        <showEntireWorld>false</showEntireWorld>
         <viewport>
             <height>0.0</height>
             <width>0.0</width>

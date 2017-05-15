@@ -1,8 +1,8 @@
 package com.rawad.ballsimulator.client.gui;
 
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gui.Hideable;
 import com.rawad.gamehelpers.utils.Util;
+import com.rawad.jfxengine.loader.GuiLoader;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -26,7 +26,7 @@ public class Messenger extends BorderPane implements Hideable {
 		loader.setRoot(this);
 		
 		try {
-			loader.load(Loader.streamLayoutFile(getClass()));
+			loader.load(GuiLoader.streamLayoutFile(getClass()));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}

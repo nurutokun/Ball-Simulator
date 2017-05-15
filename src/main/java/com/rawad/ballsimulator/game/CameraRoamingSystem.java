@@ -1,23 +1,30 @@
 package com.rawad.ballsimulator.game;
 
-import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
+import com.rawad.ballsimulator.game.event.EventType;
+import com.rawad.ballsimulator.game.event.MovementEvent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.event.Event;
+import com.rawad.gamehelpers.game.event.EventManager;
+import com.rawad.gamehelpers.game.event.Listener;
 import com.rawad.gamehelpers.utils.Util;
+import com.rawad.jfxengine.client.input.Mouse;
 
-public class CameraRoamingSystem extends GameSystem {
+public class CameraRoamingSystem extends GameSystem implements Listener {
 	
-	/** Whether or not this {@code ameraRoamingSystem} should use the {@code Mouse}, when clamped, to move. */
+	private static final double ACCELERATION = 5d;
+	
+	/** Whether or not this {@code CameraRoamingSystem} should use the {@code Mouse}, when clamped, to move. */
 	private final boolean useMouse;
 	
 	private Rectangle bounds;
 	
-	public CameraRoamingSystem(boolean useMouse, double width, double height) {
+	public CameraRoamingSystem(EventManager eventManager, boolean useMouse, double width, double height) {
 		super();
 		
 		this.useMouse = useMouse;
@@ -28,6 +35,8 @@ public class CameraRoamingSystem extends GameSystem {
 		compatibleComponentTypes.add(MovementComponent.class);
 		compatibleComponentTypes.add(UserControlComponent.class);
 		compatibleComponentTypes.add(UserViewComponent.class);
+		
+		eventManager.registerListener(EventType.MOVEMENT, this);
 		
 	}
 	
@@ -47,17 +56,8 @@ public class CameraRoamingSystem extends GameSystem {
 			
 		} else {
 			
-			if(movementComp.isUp()) {
-				y -= 5;
-			} else if(movementComp.isDown()) {
-				y += 5;
-			}
-			
-			if(movementComp.isRight()) {
-				x += 5;
-			} else if(movementComp.isLeft()) {
-				x -= 5;
-			}
+			x += movementComp.getAx();
+			y += movementComp.getAy();
 			
 		}
 		
@@ -115,6 +115,25 @@ public class CameraRoamingSystem extends GameSystem {
 		
 		transformComp.setX(viewport.getX());
 		transformComp.setY(viewport.getY());
+		
+	}
+	
+	/**
+	 * @see com.rawad.gamehelpers.game.event.Listener#onEvent(com.rawad.gamehelpers.game.event.Event)
+	 */
+	@Override
+	public void onEvent(Event ev) {
+		
+		MovementEvent movementEvent = (MovementEvent) ev;
+		
+		Entity entityToMove = movementEvent.getEntityToMove();
+		MovementRequest movementRequest = movementEvent.getMovementRequest();
+		
+		MovementComponent movementComp = entityToMove.getComponent(MovementComponent.class);
+		
+		
+		movementComp.setAx((movementRequest.isRight()? 1d: movementRequest.isLeft()? -1d:0) * ACCELERATION);
+		movementComp.setAy((movementRequest.isDown()? 1d: movementRequest.isUp()? -1d:0) * ACCELERATION);
 		
 	}
 	

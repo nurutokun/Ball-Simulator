@@ -1,19 +1,18 @@
 package com.rawad.ballsimulator.loader;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 
-import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
+import com.rawad.ballsimulator.game.World;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
-import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Blueprint;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.resources.AbstractLoader;
+import com.rawad.jfxengine.client.input.InputBindings;
 
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
@@ -30,8 +29,6 @@ public class Loader extends AbstractLoader {
 	private static final String EXTENSION_INPUTS_FILE = "txt";
 	private static final String EXTENSION_TERRAIN_FILE = "txt";
 	private static final String EXTENSION_TEXTURE_FILE = "png";
-	private static final String EXTENSION_LAYOUT_FILE = "fxml";
-	private static final String EXTENSION_STYLESHEET_FILE = "css";
 	private static final String EXTENSION_ENTITY_BLUEPRINT_FILE = "xml";
 	
 	private static final String PROTOCOL_FILE = "file:";
@@ -122,18 +119,6 @@ public class Loader extends AbstractLoader {
 		
 		saveFile(parser.getContent(), EXTENSION_INPUTS_FILE, FOLDER_MISC, inputBindingsName);
 		
-	}
-	
-	public static InputStream streamLayoutFile(Class<? extends Object> clazz, String layoutName) {
-		return clazz.getResourceAsStream(layoutName + AbstractLoader.REGEX_EXTENSION + EXTENSION_LAYOUT_FILE);
-	}
-	
-	public static InputStream streamLayoutFile(Class<? extends Object> clazz) {
-		return Loader.streamLayoutFile(clazz, clazz.getSimpleName());
-	}
-	
-	public static String getStyleSheetLocation(Class<? extends Object> clazz, String styleSheetName) {
-		return clazz.getResource(styleSheetName + AbstractLoader.REGEX_EXTENSION + EXTENSION_STYLESHEET_FILE).toExternalForm();
 	}
 	
 	public static Task<Void> getEntityBlueprintLoadingTask(Loader loader, EntityFileParser parser) {

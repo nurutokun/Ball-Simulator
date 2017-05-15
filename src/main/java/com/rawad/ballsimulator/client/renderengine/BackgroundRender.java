@@ -1,10 +1,10 @@
 package com.rawad.ballsimulator.client.renderengine;
 
 import com.rawad.ballsimulator.client.gui.Background;
-import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.gamehelpers.client.renderengine.LayerRender;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.jfxengine.gui.GuiRegister;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.transform.Affine;

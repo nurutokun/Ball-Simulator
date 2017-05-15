@@ -1,7 +1,8 @@
 package com.rawad.ballsimulator.client.gui;
 
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gui.Hideable;
+import com.rawad.jfxengine.loader.GuiLoader;
+import com.rawad.jfxengine.transitions.Transitions;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -17,13 +18,14 @@ public class PauseScreen extends GridPane implements Hideable {
 	@FXML private Button mainMenu;
 	
 	public PauseScreen() {
+		super();
 		
 		FXMLLoader loader = new FXMLLoader();
 		loader.setController(this);
 		loader.setRoot(this);
 		
 		try {
-			loader.load(Loader.streamLayoutFile(getClass()));
+			loader.load(GuiLoader.streamLayoutFile(getClass()));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}

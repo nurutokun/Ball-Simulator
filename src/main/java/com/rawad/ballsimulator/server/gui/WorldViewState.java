@@ -1,7 +1,5 @@
 package com.rawad.ballsimulator.server.gui;
 
-import com.rawad.ballsimulator.client.gui.GuiRegister;
-import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
@@ -11,12 +9,14 @@ import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.entity.UserControlComponent;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.game.CameraRoamingSystem;
-import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
+import com.rawad.ballsimulator.game.event.MovementControlHandler;
+import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.WorldMP;
 import com.rawad.gamehelpers.client.gamestates.State;
-import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.utils.ClassMap;
+import com.rawad.jfxengine.gui.GuiRegister;
+import com.rawad.jfxengine.gui.Root;
 
 import javafx.scene.input.KeyEvent;
 
@@ -24,7 +24,8 @@ public class WorldViewState extends State {
 	
 	private static final double PREFERRED_SCALE = 1d;
 	
-	private MovementControlSystem movementControlSystem;
+	private WorldMP world;
+	
 	private CameraRoamingSystem cameraRoamingSystem;
 	
 	private Entity camera;
@@ -33,7 +34,9 @@ public class WorldViewState extends State {
 	@Override
 	public void init() {
 		
-		this.world = game.getWorld();
+		Server server = game.getProxies().get(Server.class);
+		
+		this.world = server.getWorld();
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -59,24 +62,22 @@ public class WorldViewState extends State {
 		WorldRender worldRender = new WorldRender(world, camera);
 		
 		masterRender.getRenders().put(worldRender);
-		masterRender.getRenders().put(new DebugRender(game, client.getRenderingTimer(), camera));
+		masterRender.getRenders().put(new DebugRender(world, client.getRenderingTimer(), camera));
 		
-		movementControlSystem = new MovementControlSystem(client.getInputBindings());
-		cameraRoamingSystem = new CameraRoamingSystem(true, world.getWidth(), world.getHeight());
+		cameraRoamingSystem = new CameraRoamingSystem(eventManager, true, world.getWidth(), world.getHeight());
 		
-		ClassMap<GameSystem> gameSystems = game.getGameEngine().getGameSystems();
-		
-		gameSystems.put(movementControlSystem);
-		gameSystems.put(cameraRoamingSystem);
-		gameSystems.put(new RenderingSystem(worldRender));
+		gameEngine.addGameSystem(cameraRoamingSystem);
+		gameEngine.addGameSystem(new RenderingSystem(worldRender));
 		
 		Root root = GuiRegister.loadGui(this);
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = client.getInputBindings().get(keyEvent.getCode());
+			Object action = client.getInputBindings().get(keyEvent.getCode());
 			
-			switch(action) {
+			if(!(action instanceof InputAction)) return;
+			
+			switch((InputAction) action) {
 			
 			case SHOW_WORLD:
 				cameraView.setShowEntireWorld(!cameraView.isShowEntireWorld());
@@ -92,8 +93,11 @@ public class WorldViewState extends State {
 		root.widthProperty().addListener(e -> cameraView.getRequestedViewport().setWidth(root.getWidth()));
 		root.heightProperty().addListener(e -> cameraView.getRequestedViewport().setHeight(root.getHeight()));
 		
-		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
-		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);
+		MovementControlHandler movementControlHadnler = new MovementControlHandler(game.getGameEngine(), 
+				client.getInputBindings(), camera);
+		
+		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlHadnler);
+		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlHadnler);
 		
 	}
 	

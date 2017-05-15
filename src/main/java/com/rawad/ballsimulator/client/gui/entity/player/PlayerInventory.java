@@ -1,8 +1,8 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
 import com.rawad.ballsimulator.client.gui.entity.item.ItemSlot;
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gui.Hideable;
+import com.rawad.jfxengine.loader.GuiLoader;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -37,7 +37,7 @@ public class PlayerInventory extends GridPane implements Hideable {
 		loader.setRoot(this);
 		
 		try {
-			loader.load(Loader.streamLayoutFile(getClass()));
+			loader.load(GuiLoader.streamLayoutFile(getClass()));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}

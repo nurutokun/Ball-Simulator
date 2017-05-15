@@ -17,13 +17,11 @@ import com.rawad.ballsimulator.server.sync.component.MovementSync;
 import com.rawad.ballsimulator.server.sync.component.PingSync;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.GameSystem;
+import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.game.Proxy;
-import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
-import com.rawad.gamehelpers.utils.ClassMap;
 
 import javafx.concurrent.Task;
 
@@ -38,6 +36,8 @@ public class Server extends Proxy {
 	
 	private static final int TICKS_PER_UPDATE = 50;
 	
+	private WorldMP world;
+	
 	private ServerNetworkManager networkManager;
 	
 	private ArrayList<IServerSync> serverSyncs = new ArrayList<IServerSync>();
@@ -49,7 +49,7 @@ public class Server extends Proxy {
 	public void preInit(Game game) {
 		super.preInit(game);
 		
-		game.setWorld(new WorldMP());// So that ServerGui can have it in time.
+		world = new WorldMP(game.getGameEngine().getEntities());
 		
 		Loader loader = new Loader();
 		
@@ -69,14 +69,12 @@ public class Server extends Proxy {
 		
 		tickCount = 0;
 		
-		World world = game.getWorld();
+		GameEngine gameEngine = game.getGameEngine();
 		
-		ClassMap<GameSystem> gameSystems = game.getGameEngine().getGameSystems();
-		
-		gameSystems.put(new PositionGenerationSystem(world.getWidth(), world.getHeight()));
-		gameSystems.put(new MovementSystem());
-		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
-		gameSystems.put(new RollingSystem());
+		gameEngine.addGameSystem(new PositionGenerationSystem(gameEngine, world.getWidth(), world.getHeight()));
+		gameEngine.addGameSystem(new MovementSystem(gameEngine.getEventManager()));
+		gameEngine.addGameSystem(new CollisionSystem(gameEngine.getEventManager(), world.getWidth(), world.getHeight()));
+		gameEngine.addGameSystem(new RollingSystem());
 		
 		compSyncs.add(new MovementSync());
 		compSyncs.add(new PingSync());
@@ -117,7 +115,7 @@ public class Server extends Proxy {
 		
 		if(tickCount >= TICKS_PER_UPDATE) {
 			// sync players with server.
-			for(Entity e: getGame().getWorld().getEntities()) {
+			for(Entity e: world.getEntities()) {
 				
 				NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 				
@@ -158,7 +156,7 @@ public class Server extends Proxy {
 	
 	public Entity getEntityById(int id) {
 		
-		for(Entity e: game.getWorld().getEntities()) {
+		for(Entity e: world.getEntities()) {
 			
 			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
 			
@@ -178,28 +176,8 @@ public class Server extends Proxy {
 		return compSyncs;
 	}
 	
-	private static class WorldMP extends World {
-		
-		private int entityIdCounter = 0;
-		
-		@Override
-		public boolean addEntity(Entity e) {
-			
-			NetworkComponent networkComp = e.getComponent(NetworkComponent.class);
-			
-			if(networkComp != null) {
-				networkComp.setId(entityIdCounter++);
-				
-				if(entityIdCounter >= Integer.MAX_VALUE) entityIdCounter = Integer.MIN_VALUE;
-				
-				if(entityIdCounter == -1) Logger.log(Logger.SEVERE, "The absolute entity cap for this world has "
-						+ "been reached.");
-			}
-			
-			return super.addEntity(e);
-			
-		}
-		
+	public WorldMP getWorld() {
+		return world;
 	}
 	
 }

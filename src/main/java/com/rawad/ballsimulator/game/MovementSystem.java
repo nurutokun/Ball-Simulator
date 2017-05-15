@@ -1,12 +1,15 @@
 package com.rawad.ballsimulator.game;
 
-import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.game.event.EntityCollisionEvent;
 import com.rawad.ballsimulator.game.event.EventType;
+import com.rawad.ballsimulator.game.event.MovementEvent;
+import com.rawad.ballsimulator.game.event.WallCollisionEvent;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.event.Event;
+import com.rawad.gamehelpers.game.event.EventManager;
 import com.rawad.gamehelpers.game.event.Listener;
 
 public class MovementSystem extends GameSystem implements Listener {
@@ -19,14 +22,15 @@ public class MovementSystem extends GameSystem implements Listener {
 	
 	private static final double FRICTION = 0.9d;
 	
-	public MovementSystem() {
+	public MovementSystem(EventManager eventManager) {
 		super();
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(MovementComponent.class);
 		
-		gameEngine.registerListener(EventType.COLLISION_ENTITY, this);
-		gameEngine.registerListener(EventType.COLLISION_WALL, this);
+		eventManager.registerListener(EventType.COLLISION_ENTITY, this);
+		eventManager.registerListener(EventType.COLLISION_WALL, this);
+		eventManager.registerListener(EventType.MOVEMENT, this);
 		
 	}
 	
@@ -38,36 +42,14 @@ public class MovementSystem extends GameSystem implements Listener {
 		
 		double ay = movementComp.getAy();
 		
-		boolean up = movementComp.isUp();
-		boolean down = movementComp.isDown();
-		
-		if(up) {
-			ay -= JERK;
-		} else if(down) {
-			ay += JERK;
-		} else {
-			ay /= 2d;
-		}
-		
 		if(Math.abs(ay) > MAX_ACCEL) {
-			ay = up? -MAX_ACCEL: down? MAX_ACCEL:ay;
+			ay = Math.signum(ay) * MAX_ACCEL;
 		}
 		
 		double ax = movementComp.getAx();
 		
-		boolean right = movementComp.isRight();
-		boolean left = movementComp.isLeft();
-		
-		if(right) {
-			ax += JERK;
-		} else if(left) {
-			ax -= JERK;
-		} else {
-			ax /= 2d;
-		}
-		
 		if(Math.abs(ax) > MAX_ACCEL) {
-			ax = left? -MAX_ACCEL: right? MAX_ACCEL:ax;
+			ax = Math.signum(ax) * MAX_ACCEL;
 		}
 		
 		double vx = movementComp.getVx();
@@ -116,11 +98,41 @@ public class MovementSystem extends GameSystem implements Listener {
 	@Override
 	public void onEvent(Event ev) {
 		
-		Entity e = ev.getEntity();
+		switch((EventType) ev.getEventType()) {
+		
+		case COLLISION_ENTITY:
+			handleEntityCollision((EntityCollisionEvent) ev);
+			break;
+			
+		case COLLISION_WALL:
+			handleWallCollision((WallCollisionEvent) ev);
+			break;
+			
+		case MOVEMENT:
+			handleMovement((MovementEvent) ev);
+			break;
+			
+			default:
+				break;
+		
+		}
+		
+	}
+	
+	private void handleWallCollision(WallCollisionEvent ev) {
+		handleCollision(ev.getEntity(), ev.isCollideX(), ev.isCollideY());
+	}
+	
+	private void handleEntityCollision(EntityCollisionEvent ev) {
+		handleCollision(ev.getEntity(), ev.getCollidingWithX() != null, ev.getCollidingWithY() != null);
+	}
+	
+	// TODO: Collision is now broken. Doesn't bounce back enough for some reason. Collision event is now queued.
+	// This is just temporary for now, should make separate collision for entity vs. wall (maybe depending on type of entity).
+	private void handleCollision(Entity e, boolean collideX, boolean collideY) {
 		
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		MovementComponent movementComp = e.getComponent(MovementComponent.class);
-		CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 		
 		double ax = movementComp.getAx();
 		double ay = movementComp.getAy();
@@ -131,23 +143,19 @@ public class MovementSystem extends GameSystem implements Listener {
 		double newX = transformComp.getX();
 		double newY = transformComp.getY();
 		
-		if(collisionComp.isCollideX()) {
-			newX -= vx;
+		if(collideX) {
+			newX -= vx * 2;
 			
-			ax /= 2d;
-			vx = -vx*3d/4d;
-			
-			collisionComp.setCollideX(false);
+			ax = -ax / 2d;// ax /= 2d
+			vx = -vx * 3d/4d;// 3/4
 			
 		}
 		
-		if(collisionComp.isCollideY()) {
-			newY -= vy;
+		if(collideY) {
+			newY -= vy * 2;
 			
-			ay /= 2d;
-			vy = -vy*3d/4d;
-			
-			collisionComp.setCollideY(false);
+			ay = -ay / 2d;
+			vy = -vy * 3d/4d;
 			
 		}
 		
@@ -159,6 +167,25 @@ public class MovementSystem extends GameSystem implements Listener {
 		
 		transformComp.setX(newX);
 		transformComp.setY(newY);
+		
+	}
+	
+	private void handleMovement(MovementEvent ev) {
+		
+		Entity entityToMove = ev.getEntityToMove();
+		MovementRequest movementRequest = ev.getMovementRequest();
+		
+		MovementComponent movementComp = entityToMove.getComponent(MovementComponent.class);
+		
+		double xDir = movementRequest.isRight()? 1d: (movementRequest.isLeft()? -1d:0d);
+		double yDir = movementRequest.isDown()? 1d: (movementRequest.isUp()? -1d:0d);
+		
+		// Apply friction when not moving.
+		double ax = /*((xDir == 0? 1d/2d:1d) */ movementComp.getAx();
+		double ay = /*(yDir == 0? 1d/2d:1d) */ movementComp.getAy();
+		
+		movementComp.setAx(ax + (xDir * JERK));
+		movementComp.setAy(ay + (yDir * JERK));
 		
 	}
 	

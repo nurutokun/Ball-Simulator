@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.TransformComponent;
+import com.rawad.ballsimulator.game.World;
 import com.rawad.gamehelpers.fileparser.FileParser;
-import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.BlueprintManager;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.utils.Util;

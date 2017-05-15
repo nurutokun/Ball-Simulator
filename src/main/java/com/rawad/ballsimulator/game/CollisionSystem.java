@@ -3,20 +3,25 @@ package com.rawad.ballsimulator.game;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.game.event.EventType;
+import com.rawad.ballsimulator.game.event.EntityCollisionEvent;
+import com.rawad.ballsimulator.game.event.WallCollisionEvent;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.event.Event;
+import com.rawad.gamehelpers.game.event.EventManager;
 import com.rawad.gamehelpers.geometry.Point2d;
 import com.rawad.gamehelpers.utils.Util;
 
 public class CollisionSystem extends GameSystem {
 	
+	private final EventManager eventManager;
+	
 	private Rectangle bounds;
 	
-	public CollisionSystem(double maxWidth, double maxHeight) {
+	public CollisionSystem(EventManager eventManager, double maxWidth, double maxHeight) {
 		super();
+		
+		this.eventManager = eventManager;
 		
 		bounds = new Rectangle(0, 0, maxWidth, maxHeight);
 		
@@ -55,14 +60,12 @@ public class CollisionSystem extends GameSystem {
 		
 		transformComp.setX(newPos.getX());// Redo x.
 		
-		collisionComp.getCollidingWithEntity().set(collidingWithX == collidingWithY? collidingWithX:collidingWithY);
-		// TODO: Which entity gets collided with? Horizontal or vertical? Maybe both?
-		// TODO: Consider removing saving the colliding-with entity in favour of using the Event class.
+		// Which entity? how about both, with this new EntityCollisionEvent.
+		if(collideX || collideY)
+			eventManager.queueEvent(new WallCollisionEvent(e, collideX, collideY));
 		
-		collisionComp.setCollideX(collideX);
-		collisionComp.setCollideY(collideY);
-		
-		if(collideX || collideY) gameEngine.submitEvent(new Event(EventType.COLLISION_ENTITY,e));
+		if(collidingWithX != null || collidingWithY != null)
+			eventManager.queueEvent(new EntityCollisionEvent(e, collidingWithX, collidingWithY));
 		
 	}
 	

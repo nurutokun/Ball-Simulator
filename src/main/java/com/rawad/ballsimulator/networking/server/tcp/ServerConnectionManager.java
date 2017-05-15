@@ -20,7 +20,7 @@ import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.ServerNetworkManager;
 import com.rawad.ballsimulator.server.Server;
-import com.rawad.gamehelpers.game.World;
+import com.rawad.ballsimulator.server.WorldMP;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.gamehelpers.utils.Util;
@@ -98,7 +98,7 @@ public class ServerConnectionManager {
 		
 		Socket client = cim.getClient();
 		
-		World world =  networkManager.getServer().getGame().getWorld();
+		WorldMP world =  networkManager.getServer().getWorld();
 		
 		String username;
 		
@@ -251,8 +251,8 @@ public class ServerConnectionManager {
 		
 		sendPacketToAllClients(cim.getClient(), new SPacket03Message(username, logoutMessage));
 		
-		synchronized(networkManager.getServer().getGame().getWorld().getEntities()) {
-			networkManager.getServer().getGame().getWorld().removeEntity(player);
+		synchronized(networkManager.getServer().getWorld().getEntities()) {
+			networkManager.getServer().getWorld().removeEntity(player);
 		}
 		
 		disconnectClient(cim);

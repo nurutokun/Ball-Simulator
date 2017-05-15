@@ -1,13 +1,14 @@
 package com.rawad.ballsimulator.client.gamestates;
 
-import com.rawad.ballsimulator.client.gui.GuiRegister;
-import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
+import com.rawad.ballsimulator.game.World;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.jfxengine.gui.GuiRegister;
+import com.rawad.jfxengine.gui.Root;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -16,6 +17,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
 public class LoadingState extends State {
+	
+	private World world;
 	
 	private Entity camera;
 	
@@ -33,6 +36,8 @@ public class LoadingState extends State {
 	
 	@Override
 	public void init() {
+		
+		world = new World(gameEngine.getEntities());
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		

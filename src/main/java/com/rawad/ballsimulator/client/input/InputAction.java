@@ -3,6 +3,7 @@ package com.rawad.ballsimulator.client.input;
 public enum InputAction {
 	
 	// Keyboard
+	
 	MOVE_UP("Move Up"),
 	MOVE_DOWN("Move Down"),
 	MOVE_RIGHT("Move Right"),

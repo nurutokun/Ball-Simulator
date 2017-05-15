@@ -1,25 +1,34 @@
 package com.rawad.ballsimulator.game;
 
-import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
-import com.rawad.ballsimulator.game.event.EventType;
+import com.rawad.ballsimulator.game.event.EntityExtractionEvent;
 import com.rawad.ballsimulator.geometry.Rectangle;
-import com.rawad.gamehelpers.game.GameManager;
+import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.game.GameSystem;
-import com.rawad.gamehelpers.game.World;
 import com.rawad.gamehelpers.game.entity.Entity;
-import com.rawad.gamehelpers.game.event.Event;
+import com.rawad.gamehelpers.game.event.EventManager;
 import com.rawad.gamehelpers.geometry.Point2d;
+import com.rawad.jfxengine.client.input.Mouse;
 
 public class EntityPlacementSystem extends GameSystem {
 	
+	private final GameEngine gameEngine;
+	private final EventManager eventManager;
+	
+	private World world;
+	
 	private TransformComponent cameraTransform;
 	
-	public EntityPlacementSystem(TransformComponent cameraTransform) {
+	public EntityPlacementSystem(GameEngine gameEngine, World world, TransformComponent cameraTransform) {
 		super();
+		
+		this.gameEngine = gameEngine;
+		this.eventManager = gameEngine.getEventManager();
+		
+		this.world = world;
 		
 		this.cameraTransform = cameraTransform;
 		
@@ -34,8 +43,6 @@ public class EntityPlacementSystem extends GameSystem {
 		TransformComponent transformComp = e.getComponent(TransformComponent.class);
 		PlaceableComponent placeableComp = e.getComponent(PlaceableComponent.class);
 		
-		World world = GameManager.getCurrentGame().getWorld();
-		
 		if(placeableComp.isExtractRequested()) {
 			
 			Entity entityToExtract = EntityPlacementSystem.getMousedOverEntity(world, e, cameraTransform);
@@ -46,7 +53,7 @@ public class EntityPlacementSystem extends GameSystem {
 				
 				placeableComp.setToExtract(entityToExtract);
 				
-				gameEngine.submitEvent(new Event(EventType.ENTITY_EXTRACT, e));
+				eventManager.submitEvent(new EntityExtractionEvent(e));
 				
 			}
 			
@@ -67,7 +74,7 @@ public class EntityPlacementSystem extends GameSystem {
 			CollisionComponent collisionComp = e.getComponent(CollisionComponent.class);
 			
 			if(!(collisionComp == null)) {
-				if(gameEngine.getGameSystems().get(CollisionSystem.class).checkEntityCollision(e, 
+				if(gameEngine.getGameSystem(CollisionSystem.class).checkEntityCollision(e, 
 						collisionComp.getHitbox()) == null) {
 					
 					Entity newEntity = Entity.createEntity(e, placeableComp.getToPlace());

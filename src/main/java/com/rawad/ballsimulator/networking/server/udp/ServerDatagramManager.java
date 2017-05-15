@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import com.rawad.ballsimulator.entity.MovementComponent;
+import com.rawad.ballsimulator.game.MovementRequest;
+import com.rawad.ballsimulator.game.event.MovementEvent;
 import com.rawad.ballsimulator.networking.APacket;
 import com.rawad.ballsimulator.networking.UDPPacket;
 import com.rawad.ballsimulator.networking.UDPPacketType;
@@ -79,9 +81,7 @@ public class ServerDatagramManager {
 			
 			CPacket02Move moveRequest = new CPacket02Move(dataAsString);
 			
-			MovementComponent movementComp = e.getComponent(MovementComponent.class);
-			
-			if(movementComp != null) handleMoveRequest(moveRequest, movementComp);
+			if(e.getComponent(MovementComponent.class) != null) handleMoveRequest(moveRequest, e);
 			
 			break;
 			
@@ -108,12 +108,10 @@ public class ServerDatagramManager {
 		
 	}
 	
-	private void handleMoveRequest(CPacket02Move moveRequest, MovementComponent movementComp) {
+	private void handleMoveRequest(CPacket02Move moveRequest, Entity entity) {
 		
-		movementComp.setUp(moveRequest.isUp());
-		movementComp.setDown(moveRequest.isDown());
-		movementComp.setRight(moveRequest.isRight());
-		movementComp.setLeft(moveRequest.isLeft());
+		networkManager.getServer().getGame().getGameEngine().getEventManager().submitEvent(new MovementEvent(entity, 
+				new MovementRequest(moveRequest.isUp(), moveRequest.isDown(), moveRequest.isRight(), moveRequest.isLeft())));
 		
 	}
 	

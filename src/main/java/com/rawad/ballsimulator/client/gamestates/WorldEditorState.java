@@ -2,11 +2,8 @@ package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.GameTextures;
-import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.PauseScreen;
-import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.input.InputAction;
-import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.client.renderengine.DebugRender;
 import com.rawad.ballsimulator.client.renderengine.WorldRender;
 import com.rawad.ballsimulator.entity.EEntity;
@@ -22,13 +19,18 @@ import com.rawad.ballsimulator.game.CameraRoamingSystem;
 import com.rawad.ballsimulator.game.CollisionSystem;
 import com.rawad.ballsimulator.game.EntityPlacementSystem;
 import com.rawad.ballsimulator.game.EntitySelectionSystem;
-import com.rawad.ballsimulator.game.MovementControlSystem;
 import com.rawad.ballsimulator.game.RenderingSystem;
+import com.rawad.ballsimulator.game.World;
+import com.rawad.ballsimulator.game.event.EntityExtractionEvent;
 import com.rawad.ballsimulator.game.event.EventType;
+import com.rawad.ballsimulator.game.event.MovementControlHandler;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.jfxengine.client.input.Mouse;
+import com.rawad.jfxengine.gui.GuiRegister;
+import com.rawad.jfxengine.gui.Root;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -43,7 +45,7 @@ public class WorldEditorState extends State {
 	
 	private Client client;
 	
-	private MovementControlSystem movementControlSystem;
+	private World world;
 	
 	private WorldRender worldRender;
 	private DebugRender debugRender;
@@ -67,6 +69,8 @@ public class WorldEditorState extends State {
 	@Override
 	public void init() {
 		
+		world = new World(gameEngine.getEntities());
+		
 		client = game.getProxies().get(Client.class);
 		
 		loader = client.getLoaders().get(Loader.class);
@@ -88,19 +92,16 @@ public class WorldEditorState extends State {
 		cameraView = camera.getComponent(UserViewComponent.class);
 		
 		worldRender = new WorldRender(world, camera);
-		debugRender = new DebugRender(game, client.getRenderingTimer(), camera);
+		debugRender = new DebugRender(world, client.getRenderingTimer(), camera);
 		
 		masterRender.getRenders().put(worldRender);
 		masterRender.getRenders().put(debugRender);
 		
-		movementControlSystem = new MovementControlSystem(client.getInputBindings());
-		
-		gameSystems.put(movementControlSystem);
-		gameSystems.put(new CameraRoamingSystem(true, world.getWidth(), world.getHeight()));
-		gameSystems.put(new CollisionSystem(world.getWidth(), world.getHeight()));
-		gameSystems.put(new EntitySelectionSystem(cameraTransform));
-		gameSystems.put(new EntityPlacementSystem(cameraTransform));
-		gameSystems.put(new RenderingSystem(worldRender));
+		gameEngine.addGameSystem(new CameraRoamingSystem(eventManager, true, world.getWidth(), world.getHeight()));
+		gameEngine.addGameSystem(new CollisionSystem(eventManager, world.getWidth(), world.getHeight()));
+		gameEngine.addGameSystem(new EntitySelectionSystem(cameraTransform));
+		gameEngine.addGameSystem(new EntityPlacementSystem(gameEngine, world, cameraTransform));
+		gameEngine.addGameSystem(new RenderingSystem(worldRender));
 		
 		placeable = Entity.createEntity(EEntity.PLACEABLE);
 		toBePlacedTransform = placeable.getComponent(TransformComponent.class);
@@ -111,9 +112,11 @@ public class WorldEditorState extends State {
 		placeable.getComponent(SelectionComponent.class).setSelected(true);
 		placeable.getComponent(RenderingComponent.class).setTexture(GameTextures.findTexture(EEntity.STATIC));
 		
-		game.getGameEngine().registerListener(EventType.ENTITY_EXTRACT, (ev) -> {
+		eventManager.registerListener(EventType.ENTITY_EXTRACT, (ev) -> {
 			
-			Entity e = ev.getEntity();
+			EntityExtractionEvent extractionEvent = (EntityExtractionEvent) ev;
+			
+			Entity e = extractionEvent.getEntityToExtract();
 			
 			if(!placeable.equals(e)) return;
 			
@@ -151,9 +154,11 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = client.getInputBindings().get(keyEvent.getCode());
+			Object action = client.getInputBindings().get(keyEvent.getCode());
 			
-			switch(action) {
+			if(!(action instanceof InputAction)) return;
+			
+			switch((InputAction) action) {
 			
 			case CLAMP:
 				
@@ -184,7 +189,7 @@ public class WorldEditorState extends State {
 		
 		root.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 			
-			InputAction action = client.getInputBindings().get(mouseEvent.getButton());
+			InputAction action = (InputAction) client.getInputBindings().get(mouseEvent.getButton());
 			
 			switch(action) {
 			
@@ -215,6 +220,9 @@ public class WorldEditorState extends State {
 			cameraView.setPreferredScaleY(cameraTransform.getScaleY() + scaleFactor);
 			
 		});
+		
+		MovementControlHandler movementControlSystem = new MovementControlHandler(game.getGameEngine(), 
+				client.getInputBindings(), camera);
 		
 		root.addEventHandler(KeyEvent.KEY_PRESSED, movementControlSystem);
 		root.addEventHandler(KeyEvent.KEY_RELEASED, movementControlSystem);

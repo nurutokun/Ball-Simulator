@@ -2,11 +2,11 @@ package com.rawad.ballsimulator.fileparser;
 
 import java.util.ArrayList;
 
-import com.rawad.ballsimulator.client.input.Input;
 import com.rawad.ballsimulator.client.input.InputAction;
-import com.rawad.ballsimulator.client.input.InputBindings;
 import com.rawad.gamehelpers.fileparser.FileParser;
 import com.rawad.gamehelpers.utils.Util;
+import com.rawad.jfxengine.client.input.Input;
+import com.rawad.jfxengine.client.input.InputBindings;
 
 public class ControlsFileParser extends FileParser {
 	

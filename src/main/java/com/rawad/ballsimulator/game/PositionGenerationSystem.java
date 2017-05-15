@@ -6,20 +6,25 @@ import com.rawad.ballsimulator.entity.CollisionComponent;
 import com.rawad.ballsimulator.entity.RandomPositionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.geometry.Rectangle;
+import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 
 public class PositionGenerationSystem extends GameSystem {
 	
+	private final GameEngine gameEngine;
+	
 	private double maxWidth;
 	private double maxHeight;
 	
-	public PositionGenerationSystem(double maxWidth, double maxHeight) {
+	public PositionGenerationSystem(GameEngine gameEngine, double maxWidth, double maxHeight) {
 		super();
 		
 		compatibleComponentTypes.add(TransformComponent.class);
 		compatibleComponentTypes.add(CollisionComponent.class);
 		compatibleComponentTypes.add(RandomPositionComponent.class);
+		
+		this.gameEngine = gameEngine;
 		
 		this.maxWidth = maxWidth;
 		this.maxHeight = maxHeight;
@@ -50,7 +55,7 @@ public class PositionGenerationSystem extends GameSystem {
 				transformComp.setX(x);
 				transformComp.setY(y);
 				
-				if(gameEngine.getGameSystems().get(CollisionSystem.class).checkEntityCollision(e, hitbox) == null) {
+				if(gameEngine.getGameSystem(CollisionSystem.class).checkEntityCollision(e, hitbox) == null) {
 					entityBlocked = false;
 				}
 				

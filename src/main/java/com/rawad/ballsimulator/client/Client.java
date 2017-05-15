@@ -8,26 +8,20 @@ import com.rawad.ballsimulator.client.gamestates.MultiplayerGameState;
 import com.rawad.ballsimulator.client.gamestates.OptionState;
 import com.rawad.ballsimulator.client.gamestates.WorldEditorState;
 import com.rawad.ballsimulator.client.gui.Background;
-import com.rawad.ballsimulator.client.gui.GuiRegister;
-import com.rawad.ballsimulator.client.gui.Root;
-import com.rawad.ballsimulator.client.gui.Transitions;
 import com.rawad.ballsimulator.client.input.InputAction;
-import com.rawad.ballsimulator.client.input.InputBindings;
-import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
 import com.rawad.ballsimulator.fileparser.TerrainFileParser;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
-import com.rawad.gamehelpers.client.gamestates.StateChangeListener;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
-import com.rawad.gamehelpers.client.gamestates.StateManager;
-import com.rawad.gamehelpers.client.renderengine.Renderable;
-import com.rawad.gamehelpers.client.renderengine.RenderingTimer;
 import com.rawad.gamehelpers.fileparser.xml.EntityFileParser;
 import com.rawad.gamehelpers.game.Game;
-import com.rawad.gamehelpers.game.Proxy;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.jfxengine.client.AbstractClient;
+import com.rawad.jfxengine.gui.GuiRegister;
+import com.rawad.jfxengine.gui.Root;
+import com.rawad.jfxengine.transitions.Transitions;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -39,35 +33,24 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
-public class Client extends Proxy implements StateChangeListener, Renderable {
+public class Client extends AbstractClient {
 	
-	// narutoget.io and watchnaruto.tv
-	// 472
+	private static final int SCREEN_WIDTH = 640;
+	private static final int SCREEN_HEIGHT = 480;
 	
 	private static final int TARGET_FPS = 60;
 	
-	private Stage stage;
-	
 	private Scene scene;
-	
-	private StateManager sm;
-	
-	private InputBindings inputBindings;
 	
 	private Task<Void> entityBlueprintLoadingTask;
 	private Task<Void> loadingTask;
-	
-	private RenderingTimer renderingTimer;// According to fraps, this makes game go from ~20 to 50-60 fps.
 	
 	private SimpleStringProperty gameTitle;
 	
 	@Override
 	public void preInit(Game game) {
 		super.preInit(game);
-		
-		initGui();
 		
 		gameTitle.setValue(game.getName());
 		
@@ -84,10 +67,6 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 		fileParsers.put(new ControlsFileParser());
 		
 		entityBlueprintLoadingTask = Loader.getEntityBlueprintLoadingTask(loader, entityBlueprintParser);
-		
-		renderingTimer = new RenderingTimer(this, TARGET_FPS);
-		
-		sm = new StateManager(game, this);
 		
 		loadingTask = new Task<Void>() {
 			@Override
@@ -126,7 +105,7 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 	
 	protected void initGui() {
 		
-		scene = new Scene(new Root(new StackPane(), ""), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		scene = new Scene(new Root(new StackPane(), ""), SCREEN_WIDTH, SCREEN_HEIGHT);
 		scene.setFill(Color.BLACK);
 		
 		gameTitle = new SimpleStringProperty("Game");
@@ -146,9 +125,11 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 		
 		stage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = inputBindings.get(keyEvent.getCode());
+			Object action = inputBindings.get(keyEvent.getCode());
 			
-			switch(action) {
+			if(!(action instanceof InputAction)) return;
+			
+			switch((InputAction) action) {
 			
 			case DEBUG:
 				
@@ -162,7 +143,7 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 					stage.setFullScreen(true);
 				} else {
 					stage.setFullScreen(false);
-					stage.getScene().getRoot().resize(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+					stage.getScene().getRoot().resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 					stage.sizeToScene();
 				}
 				
@@ -192,19 +173,17 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 	/** Called from the Loading Thread to initialize anything that might take an extended period of time. */
 	public void initResources() {
 		
-		LoadingState loadingState = new LoadingState(loadingTask);
+		sm.addState(new LoadingState(loadingTask));
 		
-		loadingState.init();
+		sm.setState(StateChangeRequest.instance(LoadingState.class));
 		
-		sm.setCurrentState(loadingState);
-		onStateChange(loadingState, loadingState);
+		// Loading State now set and ready to be updated. Could also put this in onStateChange() method.
+		update = true;
 		
 		Platform.runLater(() -> {
 			
 			stage.getIcons().add(GameTextures.findTexture(GameTextures.TEXTURE_GAME_ICON));
 			stage.show();
-			
-			update = true;
 			
 		});
 		
@@ -227,7 +206,7 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 	
 	private void initializeInputBindings() {
 		
-		inputBindings = new InputBindings();
+		inputBindings.setDefaultAction(InputAction.DEFAULT);
 		
 		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
 		inputBindings.put(InputAction.MOVE_DOWN, KeyCode.DOWN);
@@ -267,26 +246,15 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 	
 	@Override
 	public void tick() {
+		super.tick();
 		
-		Background.instance().tick();
+		Background.instance().tick();// Before or after super.tick()?
 		
-		Mouse.update(GuiRegister.getRoot(sm.getCurrentState()));
-		
-		sm.update();
-		
-	}
-	
-	@Override
-	public void render() {
-		Platform.runLater(() -> sm.render());
 	}
 	
 	@Override
 	public void terminate() {
-		
-		update = false;
-		
-		renderingTimer.stop();
+		super.terminate();
 		
 		Transitions.parallel(scene.getRoot(), e -> {
 			
@@ -331,16 +299,9 @@ public class Client extends Proxy implements StateChangeListener, Renderable {
 		
 	}
 	
-	public void setStage(Stage stage) {
-		this.stage = stage;
-	}
-	
-	public RenderingTimer getRenderingTimer() {
-		return renderingTimer;
-	}
-	
-	public InputBindings getInputBindings() {
-		return inputBindings;
+	@Override
+	protected int getTargetFps() {
+		return TARGET_FPS;
 	}
 	
 }

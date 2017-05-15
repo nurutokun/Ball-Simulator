@@ -3,30 +3,27 @@ package com.rawad.ballsimulator.server.gui;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.List;
 
 import com.rawad.ballsimulator.client.GameTextures;
-import com.rawad.ballsimulator.client.gui.GuiRegister;
 import com.rawad.ballsimulator.client.gui.Messenger;
-import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.gui.entity.player.PlayerList;
 import com.rawad.ballsimulator.client.input.InputAction;
-import com.rawad.ballsimulator.client.input.InputBindings;
-import com.rawad.ballsimulator.client.input.Mouse;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.ballsimulator.networking.server.tcp.SPacket03Message;
 import com.rawad.ballsimulator.server.Server;
+import com.rawad.ballsimulator.server.WorldMP;
 import com.rawad.gamehelpers.client.renderengine.Renderable;
 import com.rawad.gamehelpers.client.renderengine.RenderingTimer;
 import com.rawad.gamehelpers.game.Game;
 import com.rawad.gamehelpers.game.Proxy;
-import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
+import com.rawad.jfxengine.client.input.InputBindings;
+import com.rawad.jfxengine.client.input.Mouse;
+import com.rawad.jfxengine.gui.GuiRegister;
+import com.rawad.jfxengine.gui.Root;
+import com.rawad.jfxengine.loader.GuiLoader;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -42,9 +39,14 @@ import javafx.stage.Stage;
 
 public class ServerGui extends Proxy implements Renderable {
 	
+	private static final int SCREEN_WIDTH = 640;
+	private static final int SCREEN_HEIGHT = 480;
+	
 	private static final int TARGET_FPS = 60;
 	
 	private Server server;
+	
+	private WorldMP world;
 	
 	private Stage stage;
 	
@@ -68,6 +70,8 @@ public class ServerGui extends Proxy implements Renderable {
 	private PrintStream consolePrinter;
 	
 	public ServerGui(Server server) {
+		super();
+		
 		this.server = server;
 		
 		consolePrinter = new PrintStream(new OutputStream() {
@@ -94,7 +98,7 @@ public class ServerGui extends Proxy implements Renderable {
 		
 		try {
 			
-			loader.load(Loader.streamLayoutFile(this.getClass()));
+			loader.load(GuiLoader.streamLayoutFile(this.getClass()));
 			
 			Logger.getPrintStreams().add(consolePrinter);
 			
@@ -107,6 +111,8 @@ public class ServerGui extends Proxy implements Renderable {
 	@Override
 	public void preInit(Game game) {
 		super.preInit(game);
+		
+		world = server.getWorld();
 		
 		renderingTimer = new RenderingTimer(this, TARGET_FPS);
 		
@@ -168,7 +174,11 @@ public class ServerGui extends Proxy implements Renderable {
 		
 		debugChanger.setOnAction(e -> game.setDebug(debugChanger.isSelected()));
 		
-		FXCollections.observableArrayList(game.getWorld().getEntities())
+		// TODO: Only make entities with UserComponents be transferred.
+		playerList.itemsProperty().bind(world.playersProperty());
+		
+		/* Back when World was in Game Helpers...
+		FXCollections.observableArrayList(world.getEntities())
 				.addListener((Change<? extends Entity> change) -> {
 			while(change.next()) {// Consider an "addAll()" call, lots of change "representations".
 				// Items added.
@@ -186,15 +196,16 @@ public class ServerGui extends Proxy implements Renderable {
 				if(change.getRemovedSize() > 0) {
 					
 					List<? extends Entity> removedEntities = change.getRemoved();
+					layerList.getItems().removeAll(removedEntities);
 					
-					for(Entity e: removedEntities) {
-						playerList.getItems().remove(e);
-					}
+//					for(Entity e: removedEntities) {
+//						playerList.getItems().remove(e);
+//					}
 					
 				}
 			}
 			
-		});
+		});*/
 		
 		update = true;
 		
@@ -202,9 +213,9 @@ public class ServerGui extends Proxy implements Renderable {
 		
 		worldViewStateRoot.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			
-			InputAction action = inputBindings.get(keyEvent.getCode());
+			Object action = inputBindings.get(keyEvent.getCode());
 			
-			switch(action) {
+			switch((InputAction) action) {
 			
 			case CLAMP:
 				
@@ -247,7 +258,7 @@ public class ServerGui extends Proxy implements Renderable {
 		
 		this.stage = stage;
 		
-		Scene scene = new Scene(loader.getRoot(), Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+		Scene scene = new Scene(loader.getRoot(), SCREEN_WIDTH, SCREEN_HEIGHT);
 		stage.setScene(scene);
 		
 		console.getInputArea().addEventHandler(ActionEvent.ACTION, e -> {
@@ -311,7 +322,7 @@ public class ServerGui extends Proxy implements Renderable {
 	public void render() {
 		
 		Platform.runLater(() -> {
-			synchronized(game.getWorld().getEntities()) {
+			synchronized(server.getWorld().getEntities()) {
 				worldViewState.getMasterRender().render();
 			}
 		});
@@ -329,7 +340,7 @@ public class ServerGui extends Proxy implements Renderable {
 	
 	private void initInputBindings() {
 		
-		inputBindings = new InputBindings();
+		inputBindings.setDefaultAction(InputAction.DEFAULT);
 		
 		inputBindings.put(InputAction.MOVE_UP, KeyCode.UP);
 		inputBindings.put(InputAction.MOVE_UP, KeyCode.W);

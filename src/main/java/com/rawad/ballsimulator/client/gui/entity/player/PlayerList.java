@@ -1,8 +1,8 @@
 package com.rawad.ballsimulator.client.gui.entity.player;
 
-import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.jfxengine.loader.GuiLoader;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
@@ -28,7 +28,7 @@ public class PlayerList extends TableView<Entity> {
 		loader.setRoot(this);
 		
 		try {
-			loader.load(Loader.streamLayoutFile(getClass()));
+			loader.load(GuiLoader.streamLayoutFile(getClass()));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}

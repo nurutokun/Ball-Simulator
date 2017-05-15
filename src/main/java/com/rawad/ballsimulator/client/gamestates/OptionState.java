@@ -1,17 +1,18 @@
 package com.rawad.ballsimulator.client.gamestates;
 
 import com.rawad.ballsimulator.client.Client;
-import com.rawad.ballsimulator.client.gui.GuiRegister;
-import com.rawad.ballsimulator.client.gui.Root;
 import com.rawad.ballsimulator.client.renderengine.BackgroundRender;
 import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.fileparser.SettingsFileParser;
+import com.rawad.ballsimulator.game.World;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.ballsimulator.loader.Loader;
 import com.rawad.gamehelpers.client.gamestates.State;
 import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.jfxengine.gui.GuiRegister;
+import com.rawad.jfxengine.gui.Root;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -19,6 +20,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 public class OptionState extends State {
+	
+	private World world;
 	
 	private Entity camera;
 	
@@ -34,6 +37,8 @@ public class OptionState extends State {
 	
 	@Override
 	public void init() {
+		
+		world = new World(gameEngine.getEntities());
 		
 		camera = Entity.createEntity(EEntity.CAMERA);
 		
@@ -92,5 +97,4 @@ public class OptionState extends State {
 		});
 		
 	}
-	
 }

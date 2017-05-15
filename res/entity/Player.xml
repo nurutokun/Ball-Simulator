@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE Entity>
 <Entity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <comp xsi:type="movementComponent">
-        <ax>0.0</ax>
-        <ay>0.0</ay>
-        <vx>0.0</vx>
-        <vy>0.0</vy>
-    </comp>
-    <comp xsi:type="renderingComponent"/>
-    <comp xsi:type="rollingComponent"/>
-    <comp xsi:type="healthComponent">
-        <health>20.0</health>
-        <maxHealth>20.0</maxHealth>
-        <regen>true</regen>
-        <regenRate>0.1</regenRate>
-    </comp>
     <comp xsi:type="transformComponent">
         <maxScaleX>1.7976931348623157E308</maxScaleX>
         <maxScaleY>1.7976931348623157E308</maxScaleY>
@@ -32,4 +18,18 @@
             <y>-20.0</y>
         </hitbox>
     </comp>
+    <comp xsi:type="healthComponent">
+        <health>20.0</health>
+        <maxHealth>20.0</maxHealth>
+        <regen>true</regen>
+        <regenRate>0.1</regenRate>
+    </comp>
+    <comp xsi:type="movementComponent">
+        <ax>0.0</ax>
+        <ay>0.0</ay>
+        <vx>0.0</vx>
+        <vy>0.0</vy>
+    </comp>
+    <comp xsi:type="rollingComponent"/>
+    <comp xsi:type="renderingComponent"/>
 </Entity>
