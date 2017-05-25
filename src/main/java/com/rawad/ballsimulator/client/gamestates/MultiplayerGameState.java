@@ -32,8 +32,8 @@ import com.rawad.ballsimulator.networking.client.listeners.ClientMovementRequest
 import com.rawad.ballsimulator.networking.client.tcp.CPacket03Message;
 import com.rawad.ballsimulator.networking.entity.NetworkComponent;
 import com.rawad.ballsimulator.networking.entity.UserComponent;
-import com.rawad.gamehelpers.client.gamestates.State;
-import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
+import com.rawad.gamehelpers.client.states.State;
+import com.rawad.gamehelpers.client.states.StateChangeRequest;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.log.Logger;
 import com.rawad.jfxengine.gui.GuiRegister;

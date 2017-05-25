@@ -5,7 +5,7 @@ import com.rawad.ballsimulator.entity.EEntity;
 import com.rawad.ballsimulator.entity.UserViewComponent;
 import com.rawad.ballsimulator.game.World;
 import com.rawad.ballsimulator.geometry.Rectangle;
-import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.states.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.jfxengine.gui.GuiRegister;
 import com.rawad.jfxengine.gui.Root;

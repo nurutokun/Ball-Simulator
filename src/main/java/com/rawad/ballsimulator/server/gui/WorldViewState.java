@@ -13,7 +13,7 @@ import com.rawad.ballsimulator.game.RenderingSystem;
 import com.rawad.ballsimulator.game.event.MovementControlHandler;
 import com.rawad.ballsimulator.server.Server;
 import com.rawad.ballsimulator.server.WorldMP;
-import com.rawad.gamehelpers.client.gamestates.State;
+import com.rawad.gamehelpers.client.states.State;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.jfxengine.gui.GuiRegister;
 import com.rawad.jfxengine.gui.Root;

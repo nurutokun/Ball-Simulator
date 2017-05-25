@@ -5,12 +5,12 @@ import com.rawad.ballsimulator.entity.PlaceableComponent;
 import com.rawad.ballsimulator.entity.SelectionComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.game.event.EntityExtractionEvent;
+import com.rawad.ballsimulator.geometry.Point2d;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.event.EventManager;
-import com.rawad.gamehelpers.geometry.Point2d;
 import com.rawad.jfxengine.client.input.Mouse;
 
 public class EntityPlacementSystem extends GameSystem {

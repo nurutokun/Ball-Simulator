@@ -4,6 +4,7 @@ import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.game.MovementRequest;
 import com.rawad.gamehelpers.game.GameEngine;
 import com.rawad.gamehelpers.game.entity.Entity;
+import com.rawad.gamehelpers.game.event.EventManager;
 import com.rawad.jfxengine.client.input.InputBindings;
 
 import javafx.event.EventHandler;
@@ -16,9 +17,9 @@ import javafx.scene.input.KeyEvent;
  */
 public class MovementControlHandler implements EventHandler<KeyEvent> {
 	
-	private GameEngine gameEngine;
+	private final EventManager eventManager;
 	
-	private InputBindings inputBindings;
+	private final InputBindings inputBindings;
 	
 	private Entity entityToControl;
 	
@@ -35,9 +36,10 @@ public class MovementControlHandler implements EventHandler<KeyEvent> {
 	public MovementControlHandler(GameEngine gameEngine, InputBindings inputBindings, Entity entityToControl) {
 		super();
 		
-		this.gameEngine = gameEngine;
 		this.inputBindings = inputBindings;
 		this.entityToControl = entityToControl;
+		
+		this.eventManager = gameEngine.getEventManager();
 		
 	}
 	
@@ -62,8 +64,7 @@ public class MovementControlHandler implements EventHandler<KeyEvent> {
 			
 		}
 		
-		gameEngine.getEventManager().submitEvent(new MovementEvent(entityToControl, 
-				new MovementRequest(up, down, right, left)));
+		eventManager.submitEvent(new MovementEvent(entityToControl, new MovementRequest(up, down, right, left)));
 		
 	}
 	

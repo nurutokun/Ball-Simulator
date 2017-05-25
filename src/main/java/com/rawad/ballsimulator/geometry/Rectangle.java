@@ -1,7 +1,5 @@
 package com.rawad.ballsimulator.geometry;
 
-import com.rawad.gamehelpers.geometry.Shape;
-
 import javafx.beans.property.SimpleDoubleProperty;
 
 public class Rectangle extends Shape {

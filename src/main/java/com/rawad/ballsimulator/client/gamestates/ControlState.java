@@ -4,8 +4,8 @@ import com.rawad.ballsimulator.client.Client;
 import com.rawad.ballsimulator.client.input.InputAction;
 import com.rawad.ballsimulator.fileparser.ControlsFileParser;
 import com.rawad.ballsimulator.loader.Loader;
-import com.rawad.gamehelpers.client.gamestates.State;
-import com.rawad.gamehelpers.client.gamestates.StateChangeRequest;
+import com.rawad.gamehelpers.client.states.State;
+import com.rawad.gamehelpers.client.states.StateChangeRequest;
 import com.rawad.jfxengine.client.input.InputBindings;
 import com.rawad.jfxengine.gui.GuiRegister;
 

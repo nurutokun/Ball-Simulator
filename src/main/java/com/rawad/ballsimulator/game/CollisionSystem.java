@@ -5,11 +5,11 @@ import com.rawad.ballsimulator.entity.MovementComponent;
 import com.rawad.ballsimulator.entity.TransformComponent;
 import com.rawad.ballsimulator.game.event.EntityCollisionEvent;
 import com.rawad.ballsimulator.game.event.WallCollisionEvent;
+import com.rawad.ballsimulator.geometry.Point2d;
 import com.rawad.ballsimulator.geometry.Rectangle;
 import com.rawad.gamehelpers.game.GameSystem;
 import com.rawad.gamehelpers.game.entity.Entity;
 import com.rawad.gamehelpers.game.event.EventManager;
-import com.rawad.gamehelpers.geometry.Point2d;
 import com.rawad.gamehelpers.utils.Util;
 
 public class CollisionSystem extends GameSystem {
