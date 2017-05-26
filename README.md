@@ -4,16 +4,16 @@ Very basic 2D, physics-based game about a bouncing, rolling circle that traverse
 
 Features include:
 * JavaFX GUI <br/>
-![alt tag](screenshots/Main Menu.png)
+![javafx gui](screenshots/MainMenu.png)
 * Scaling GUI <br/>
-![alt tag](screenshots/Main Menu \(Scaled\).png)
+![scaled javafx gui](screenshots/MainMenu\(Scaled\).png)
 *	Fullscreen (Adjustable resolution coming soon!)
 * Server with optional GUI <br/>
-![alt tag](screenshots/Server.png)
+![server gui](screenshots/Server.png)
 * Multiplayer <br/>
-![alt tag](screenshots/Multiplayer.png)
+![client multiplayer](screenshots/Multiplayer.png)
 *	Custom terrain creation <br/>
-![alt tag](screenshots/World Editor.png)
+![world editor](screenshots/WorldEditor.png)
 *	Bouncing <br/>
-![alt tag](screenshots/Bouncing.png)
+![bouncing](screenshots/Bouncing.png)
 *	Rolling
